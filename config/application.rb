@@ -35,8 +35,16 @@ module Akademy
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    config.time_zone = "Europe/Warsaw"
+    config.i18n.available_locales = %i[pl en]
+    config.i18n.default_locale = :pl
+    config.active_job.queue_adapter = :sidekiq
 
-    # Don't generate system test files.
-    config.generators.system_tests = nil
+    config.generators do |g|
+      # Don't generate system test files.
+      g.system_tests = nil
+      g.orm :active_record, primary_key_type: :uuid
+      g.test_framework :rspec
+    end
   end
 end

@@ -47,3 +47,26 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 end
+
+gem "rspec-rails", "~> 8.0", groups: [ :development, :test ]
+
+gem "devise", "~> 4.9"
+gem "devise-jwt", "~> 0.12.1"
+
+gem "pundit", "~> 2.5"
+
+gem "sidekiq", "~> 8.0"
+
+gem "carrierwave", "~> 3.0"
+gem "image_processing", "~> 1.14"
+
+gem "wicked_pdf", "~> 2.8"
+gem "rqrcode", "~> 3.1"
+
+gem "rack-attack", "~> 6.7"
+
+gem "oj", "~> 3.16"
+
+gem "jsbundling-rails", "~> 1.3"
+
+gem "cssbundling-rails", "~> 1.4"
