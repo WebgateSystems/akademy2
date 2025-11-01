@@ -1,0 +1,13 @@
+pl:
+  devise:
+    sessions:
+      signed_in: "Pomyślnie zalogowano."
+      signed_out: "Pomyślnie wylogowano."
+      already_signed_out: "Pomyślnie wylogowano."
+    failure:
+      unauthenticated: "Musisz się zalogować, aby kontynuować."
+      invalid: "Nieprawidłowy %{authentication_keys} lub hasło."
+      timeout: "Sesja wygasła. Zaloguj się ponownie."
+      unconfirmed: "Musisz potwierdzić adres e‑mail, aby kontynuować."
+      locked: "Twoje konto jest zablokowane."
+

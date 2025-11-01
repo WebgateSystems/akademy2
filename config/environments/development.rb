@@ -1,5 +1,7 @@
 require "active_support/core_ext/integer/time"
 
+Rails.application.config.secret_key_base = Settings.secret_key_base
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -14,6 +16,8 @@ Rails.application.configure do
 
   # Enable server timing.
   config.server_timing = true
+  
+  config.require_master_key = false
 
   # Enable/disable Action Controller caching. By default Action Controller caching is disabled.
   # Run rails dev:cache to toggle Action Controller caching.

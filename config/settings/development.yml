@@ -1,0 +1,4 @@
+db:
+  name: akademy2_development
+secret_key_base: '3a683e82da42a2e46effcf5ddb47c9bfb4ff0a5062a86d9c19c44f6c14b083a5186e5fa497df36dcf65b8c98f0ff98ca28bd912da22ac8c716cfe70a397fb928'
+redis_url: <%= ENV['REDIS_URL'] || 'redis://localhost:6379/5' %>

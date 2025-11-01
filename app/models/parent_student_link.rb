@@ -1,0 +1,2 @@
+class ParentStudentLink < ApplicationRecord
+end

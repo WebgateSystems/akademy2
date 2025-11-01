@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Admin | Akademy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", type: "module" %>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-12 col-md-3 col-lg-2 bg-dark text-bg-dark min-vh-100 p-3">
+          <div class="d-flex align-items-center mb-3">
+            <a class="navbar-brand text-white m-0" href="<%= admin_root_path %>">Akademy Admin</a>
+          </div>
+          <hr class="border-secondary">
+          <ul class="nav nav-pills flex-column mb-auto">
+            <% Admin::ResourcesController::RESOURCES.each do |name, _klass| %>
+              <li class="nav-item">
+                <%= link_to name.titleize, admin_resource_collection_path(resource: name), class: "nav-link text-white" %>
+              </li>
+            <% end %>
+          </ul>
+          <% if current_user %>
+            <hr class="border-secondary">
+            <div class="d-flex flex-column gap-2">
+              <span class="small text-secondary"><%= current_user.email %></span>
+              <%= button_to 'Wyloguj', destroy_user_session_path, method: :delete, class: 'btn btn-outline-light btn-sm', form: { class: 'm-0 p-0' } %>
+            </div>
+          <% end %>
+        </nav>
+
+        <main class="col-12 col-md-9 col-lg-10 p-4">
+          <% if notice %>
+            <div class="alert alert-success"><%= notice %></div>
+          <% end %>
+          <% if alert %>
+            <div class="alert alert-danger"><%= alert %></div>
+          <% end %>
+          <%= yield %>
+        </main>
+      </div>
+    </div>
+  </body>
+  </html>
+
+

@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="pl" class="no-js" data-theme="auto">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AKAdemy 2.0 – Ucz się nowocześnie. Offline. Z certyfikatem.</title>
+  <meta name="description" content="AKAdemy 2.0: szkolna platforma nauki z kafelkowym interfejsem, działaniem offline, quizami z certyfikatem PDF, panelem nauczyciela i eksportem CSV. Zgodna z WCAG 2.1 AA.">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+      :root{
+          --bg: #0b0f1a;          /* dark default */
+          --text: #e5e7eb;
+          --muted: #94a3b8;
+          --accent: #6366f1;      /* indigo-500 */
+          --accent-600:#4f46e5;
+          --card:#0f172a;         /* slate-900 */
+          --card-border:#1f2937;  /* slate-800 */
+          --surface:#111827;
+          --ok:#16a34a; --warn:#f59e0b; --info:#0ea5e9; --danger:#dc2626;
+      }
+      [data-theme="light"]:root{
+          --bg:#f8fafc;           /* slate-50 */
+          --text:#0f172a;         /* slate-900 */
+          --muted:#475569;        /* slate-600 */
+          --accent:#4f46e5;
+          --accent-600:#4338ca;
+          --card:#ffffff;
+          --card-border:#e5e7eb;
+          --surface:#f1f5f9;
+      }
+      html{scroll-behavior:smooth}
+      body{
+          margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; color:var(--text); background:var(--bg);
+          -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+      }
+      .container{max-width:1200px; margin-inline:auto; padding:clamp(16px,2vw,24px)}
+      header{position:sticky; top:0; backdrop-filter:saturate(180%) blur(8px); background:color-mix(in oklab, var(--bg) 85%, transparent); border-bottom:1px solid var(--card-border); z-index:50}
+      .row{display:flex; gap:24px; align-items:center; justify-content:space-between}
+      a{color:inherit; text-decoration:none}
+      .brand{display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:.2px}
+      .brand svg{width:32px;height:32px}
+      nav a{font-weight:600; opacity:.9}
+      nav{display:flex; gap:20px; align-items:center}
+      .btn{display:inline-flex; align-items:center; gap:10px; padding:14px 20px; border-radius:14px; font-weight:700; letter-spacing:.2px; background:var(--accent); color:white; box-shadow:0 8px 24px -6px color-mix(in oklab, var(--accent) 50%, transparent)}
+      .btn.outline{background:transparent; color:var(--accent); border:2px solid var(--accent)}
+      .ghost{background:transparent; border:1px solid var(--card-border)}
+      .hero{padding:clamp(32px,5vw,72px) 0}
+      .hero h1{font-size:clamp(32px,6vw,64px); line-height:1.05; margin:0 0 16px}
+      .hero p{font-size:clamp(18px,2.5vw,22px); color:var(--muted); margin:0 0 28px; max-width:52ch}
+      .grid{display:grid; gap:20px}
+      .grid.features{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+      .card{background:var(--card); border:1px solid var(--card-border); border-radius:18px; padding:20px}
+      .card h3{margin:0 0 6px; font-size:22px}
+      .card p{margin:0; color:var(--muted); font-size:16px}
+      .pill{display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:8px 14px; background:var(--surface); border:1px solid var(--card-border); color:var(--muted); font-weight:600}
+      .section{padding:clamp(36px,5vw,72px) 0}
+      .cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:28px; align-items:center}
+      .big{font-size:clamp(22px,3vw,28px); font-weight:700}
+      .small{color:var(--muted)}
+      .list{display:grid; gap:14px}
+      .list li{display:flex; gap:12px; align-items:flex-start}
+      .list svg{flex:0 0 20px; margin-top:3px}
+      .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco; background:var(--surface); border:1px solid var(--card-border); padding:2px 8px; border-radius:8px}
+      .pricing .plan{display:flex; flex-direction:column; gap:16px; padding:24px; border-radius:18px; border:1px solid var(--card-border); background:var(--card)}
+      .pricing h4{margin:0; font-size:20px}
+      .price{font-size:36px; font-weight:800}
+      footer{border-top:1px solid var(--card-border); padding:24px 0; color:var(--muted)}
+      .switch{display:inline-flex; align-items:center; gap:10px}
+      .toggle{--s:42px; width:var(--s); height:24px; border-radius:999px; border:1px solid var(--card-border); background:var(--surface); position:relative}
+      .toggle::after{content:""; position:absolute; inset:2px; width:20px; height:20px; border-radius:999px; background:var(--accent); transform:translateX(0); transition:transform .25s ease}
+      .toggle[aria-checked="true"]::after{transform:translateX(18px)}
+      /* Inline SVG icons base */
+      .icon{width:24px; height:24px}
+      .hero-illu{aspect-ratio:16/10; width:100%; border:1px dashed var(--card-border); border-radius:18px; display:grid; place-items:center; color:var(--muted)}
+      /* Responsive nav */
+      @media (max-width:900px){ nav .only-desktop{display:none} }
+  </style>
+  <script>
+      // Theme: respect OS, save user choice
+      const setTheme = (mode)=>{
+          document.documentElement.setAttribute('data-theme', mode);
+          const m = mode==='auto' ? (matchMedia('(prefers-color-scheme: light)').matches?'light':'dark') : mode;
+          document.documentElement.setAttribute('data-theme', m);
+          localStorage.setItem('theme', mode);
+          document.querySelector('#themeToggle')?.setAttribute('aria-checked', m==='light');
+      };
+      const saved = localStorage.getItem('theme');
+      if(saved){ setTheme(saved); } else { setTheme('auto'); }
+      window.addEventListener('DOMContentLoaded', ()=>{
+          const t = document.querySelector('#themeToggle');
+          t?.addEventListener('click', ()=>{
+              const isLight = t.getAttribute('aria-checked')==='true';
+              setTheme(isLight? 'dark':'light');
+          });
+      });
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"AKAdemy 2.0",
+    "applicationCategory":"EducationalApplication",
+    "operatingSystem":"Android, iOS, Web",
+    "featureList":[
+      "Kafelkowy interfejs dla uczniów",
+      "Działanie offline po pierwszym pobraniu",
+      "Quizy z certyfikatem PDF (≥ 80%)",
+      "Panel nauczyciela z eksportem CSV",
+      "Rejestracja przez QR / link",
+      "Zgodność z WCAG 2.1 AA",
+      "Materiały uczniów do akceptacji (Submissions)",
+      "Statystyki i raporty dla szkół"
+    ]
+  }
+  </script>
+</head>
+<body>
+<header>
+  <div class="container row" role="navigation" aria-label="Główna nawigacja">
+    <a class="brand" href="#home" aria-label="AKAdemy 2.0 – Strona główna">
+      <!-- Simple inline vector logo (placeholder) -->
+      <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+        <defs>
+          <linearGradient id="g" x1="0" x2="1">
+            <stop offset="0%" stop-color="var(--accent)" />
+            <stop offset="100%" stop-color="var(--accent-600)" />
+          </linearGradient>
+        </defs>
+        <rect x="4" y="8" width="56" height="40" rx="10" fill="none" stroke="url(#g)" stroke-width="4"/>
+        <path d="M10 40 L32 24 L54 40" fill="none" stroke="url(#g)" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+      <span>AKAdemy 2.0</span>
+    </a>
+    <nav>
+      <a class="only-desktop" href="#features">Funkcje</a>
+      <a class="only-desktop" href="#how">Jak to działa</a>
+      <a class="only-desktop" href="#pricing">Plany</a>
+      <a class="only-desktop" href="#faq">FAQ</a>
+      <span class="switch" aria-label="Przełącz motyw">
+          <span>☾</span>
+          <button id="themeToggle" class="toggle" role="switch" aria-checked="false" aria-label="Theme toggle"></button>
+          <span>☀︎</span>
+        </span>
+      <a class="btn" href="#cta">Wypróbuj w szkole</a>
+    </nav>
+  </div>
+</header>
+
+<main id="home" class="hero container">
+  <div class="cols">
+    <div>
+      <span class="pill" aria-hidden="true">Offline • WCAG 2.1 AA • Certyfikat PDF</span>
+      <h1>Szkolna nauka, która działa <u>zawsze</u> — także <span style="color:var(--accent)">offline</span>.</h1>
+      <p>
+        AKAdemy 2.0 to aplikacja dla klas 4–8 z kafelkowym interfejsem, filmami, infografikami i quizami.
+        Uczniowie uczą się bez internetu, a po zaliczeniu zdobywają <strong>certyfikat PDF</strong>. Nauczyciele mają
+        prosty panel z <strong>CSV</strong>, dyrekcja — klarowne statystyki.
+      </p>
+      <div class="row" style="gap:12px; flex-wrap:wrap">
+        <a class="btn" href="#features">Zobacz funkcje</a>
+        <a class="btn outline" href="#how">Jak to działa</a>
+      </div>
+    </div>
+    <div class="hero-illu" aria-hidden="true">
+      <!-- Minimal vector illustration (free-style) -->
+      <svg width="88%" viewBox="0 0 640 360" role="img" aria-label="Ilustracja kafelków i certyfikatu">
+        <rect x="0" y="0" width="640" height="360" rx="24" fill="none" stroke="var(--card-border)"/>
+        <rect x="36" y="40" width="220" height="140" rx="16" fill="var(--surface)" stroke="var(--card-border)"/>
+        <rect x="276" y="40" width="140" height="140" rx="16" fill="var(--surface)" stroke="var(--card-border)"/>
+        <rect x="436" y="40" width="168" height="140" rx="16" fill="var(--surface)" stroke="var(--card-border)"/>
+        <rect x="36" y="200" width="280" height="120" rx="16" fill="none" stroke="var(--accent)"/>
+        <path d="M56 280 l40 -40 l24 24 l64 -64" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+</main>
+
+<section id="features" class="section container">
+  <h2 style="font-size:clamp(28px,4vw,40px); margin:0 0 16px">Najważniejsze funkcje</h2>
+  <p class="small" style="margin:0 0 24px">Projekt open-source (AGPLv3). Dla ucznia, nauczyciela i szkoły.</p>
+  <div class="grid features">
+    <article class="card">
+      <h3>Kafelkowy interfejs (Student)</h3>
+      <p>Przejrzyste <strong>Tiles</strong>: Tematy → Moduły → Wideo → Infografika → Quiz. Jeśli temat ma jeden moduł — od razu start wideo.</p>
+    </article>
+    <article class="card">
+      <h3>Offline jak w Spotify</h3>
+      <p>Pobierz raz i ucz się bez sieci. Menedżer pobierania + ustawienie <span class="kbd">Wi‑Fi only</span>.</p>
+    </article>
+    <article class="card">
+      <h3>Quiz + Certyfikat PDF</h3>
+      <p>Próg <strong>≥ 80%</strong> generuje certyfikat z QR i unikalnym numerem. Do pobrania i wydruku.</p>
+    </article>
+    <article class="card">
+      <h3>Panel nauczyciela</h3>
+      <p>Wyniki uczniów, <strong>eksport CSV</strong>, zaproszenia przez link/QR, akceptacja rejestracji.</p>
+    </article>
+    <article class="card">
+      <h3>Materiały uczniów (Submissions)</h3>
+      <p>Uczeń wysyła pracę do modułu, nauczyciel akceptuje/odrzuca, pełna historia wersji + komentarze.</p>
+    </article>
+    <article class="card">
+      <h3>WCAG 2.1 AA</h3>
+      <p>Napisy do wideo, focusy, kontrast, obsługa klawiaturą. Przyjazne dla czytników.</p>
+    </article>
+    <article class="card">
+      <h3>Statystyki dla dyrekcji</h3>
+      <p>Odwzorowanie realizacji treści, średnie wyniki, liczba certyfikatów, obszary wymagające wsparcia.</p>
+    </article>
+    <article class="card">
+      <h3>Szybkie wdrożenie</h3>
+      <p>Rejestracja przez <strong>QR/link</strong>, gotowe instrukcje i checklisty dla szkół.</p>
+    </article>
+  </div>
+</section>
+
+<section id="how" class="section container">
+  <div class="cols">
+    <div>
+      <h2 style="font-size:clamp(28px,4vw,40px); margin:0 0 12px">Jak to działa</h2>
+      <p class="big">Od szkoły i dyrektora do klas, nauczycieli i uczniów — w kilku krokach.</p>
+      <ul class="list">
+        <li>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3l9 4v6c0 5-4 8-9 9-5-1-9-4-9-9V7l9-4z"/></svg>
+          <div><strong>Szkoła</strong> – zakładasz profil i branding, wybierasz plan.</div>
+        </li>
+        <li>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12a5 5 0 110-10 5 5 0 010 10zM3 22a9 9 0 1118 0H3z"/></svg>
+          <div><strong>Nauczyciele</strong> – zaproszeni przez <span class="kbd">QR/link</span>, akceptacja przez dyrektora.</div>
+        </li>
+        <li>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"/></svg>
+          <div><strong>Klasy</strong> – nauczyciel tworzy klasy i udostępnia <span class="kbd">QR/link</span> uczniom.</div>
+        </li>
+        <li>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5h18v14H3z"/></svg>
+          <div><strong>Nauka</strong> – Tematy → Moduły → Wideo → Infografika → Quiz → <strong>Certyfikat</strong>.</div>
+        </li>
+        <li>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 4h14v6H5zM5 12h9v8H5z"/></svg>
+          <div><strong>Submissions</strong> – uczniowie dodają prace do modułów, nauczyciel akceptuje/odrzuca.</div>
+        </li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Co wyróżnia AKAdemy 2.0</h3>
+      <ul class="list">
+        <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 12l2 2 4-4"/></svg> Pełny tryb offline i szybkie pobieranie</li>
+        <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg> Czytelny interfejs dla klas 4–8</li>
+        <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16v12H4zM8 18h8v2H8z"/></svg> Nauczycielski CSV i raporty</li>
+        <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 17l-5 3 1.9-5.9L4 10h6l2-6 2 6h6l-4.9 4.1L17 20z"/></svg> Certyfikaty PDF z QR</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="section container pricing">
+  <h2 style="font-size:clamp(28px,4vw,40px); margin:0 0 16px">Plany</h2>
+  <p class="small" style="margin:0 0 24px">Elastycznie dla szkół — od pilotażu po pełne wdrożenie.</p>
+  <div class="cols">
+    <div class="plan">
+      <h4>Free</h4>
+      <div class="price">0 zł</div>
+      <p class="small">Dla testów i małych klas</p>
+      <ul class="list">
+        <li>Offline dla wybranych tematów</li>
+        <li>Quiz + certyfikat PDF</li>
+        <li>Podstawowy panel nauczyciela</li>
+      </ul>
+      <a class="btn ghost" href="#cta">Rozpocznij pilotaż</a>
+    </div>
+    <div class="plan" style="border-color:var(--accent)">
+      <h4>Basic</h4>
+      <div class="price">—</div>
+      <p class="small">Dla większości szkół</p>
+      <ul class="list">
+        <li>Pełny offline (tematy/moduły)</li>
+        <li>Submissions (akceptacja nauczyciela)</li>
+        <li>CSV + raporty klasy</li>
+      </ul>
+      <a class="btn" href="#cta">Zapytaj o ofertę</a>
+    </div>
+    <div class="plan">
+      <h4>Premium</h4>
+      <div class="price">—</div>
+      <p class="small">Dla dużych szkół i sieci</p>
+      <ul class="list">
+        <li>Zaawansowane statystyki</li>
+        <li>Telemetria i API</li>
+        <li>Priorytetowe wsparcie</li>
+      </ul>
+      <a class="btn ghost" href="#cta">Porozmawiajmy</a>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="section container">
+  <h2 style="font-size:clamp(28px,4vw,40px); margin:0 0 16px">FAQ</h2>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+    <details class="card"><summary><strong>Jak wygląda wdrożenie?</strong></summary><p>Dyrektor zaprasza nauczycieli (QR/link), nauczyciel tworzy klasy i udostępnia QR/link uczniom. Mamy gotowe instrukcje i checklisty.</p></details>
+    <details class="card"><summary><strong>Czy działa bez internetu?</strong></summary><p>Tak, wystarczy raz pobrać treści. Uczeń może uczyć się offline, a wyniki zsynchronizują się później.</p></details>
+    <details class="card"><summary><strong>Czy macie WCAG 2.1 AA?</strong></summary><p>Tak — napisy, focusy, kontrast, obsługa klawiaturą i skanerem dostępności.</p></details>
+    <details class="card"><summary><strong>Jak działają certyfikaty?</strong></summary><p>Po zaliczeniu quizu (≥ 80%) generujemy PDF z QR i numerem. Nauczyciel widzi wyniki w panelu.</p></details>
+  </div>
+</section>
+
+<section id="cta" class="section container">
+  <div class="card" style="display:grid; gap:16px; text-align:center; padding:clamp(24px,4vw,40px)">
+    <h2 style="font-size:clamp(28px,4vw,40px); margin:0">Zacznij pilotaż w swojej szkole</h2>
+    <p class="small">Pomożemy w konfiguracji i szkoleniu nauczycieli. Przeprowadzimy test w 4 szkołach zgodnie z umową M2.</p>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap">
+      <a class="btn" href="mailto:hello@akademy.edu.pl">Napisz do nas</a>
+      <a class="btn outline" href="#features">Poznaj funkcje</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container row" style="gap:12px; flex-wrap:wrap">
+    <span>© <span id="y"></span> AKAdemy 2.0</span>
+    <a href="#">Polityka prywatności</a>
+    <a href="#">Informacja o dostępności</a>
+    <span class="small">Open Source • AGPLv3</span>
+  </div>
+</footer>
+
+<script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<div class="row g-3">
+  <% @resources.each do |name, klass| %>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="card-subtitle text-muted"><%= name.titleize %></h6>
+          <h3 class="card-title my-2"><%= klass.count %></h3>
+          <%= link_to 'Przeglądaj', admin_resource_collection_path(resource: name), class: 'btn btn-sm btn-primary' %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+

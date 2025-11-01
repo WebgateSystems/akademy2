@@ -42,6 +42,19 @@ RUN bundle install && \
 # Copy application code
 COPY . .
 
+# Build JS/CSS assets in a separate Node stage and copy builds
+FROM docker.io/library/node:20-slim AS node_build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY app/assets/stylesheets app/assets/stylesheets
+COPY app/javascript app/javascript
+RUN npm run build:css && npm run build
+
+FROM build AS build_with_assets
+# Copy prebuilt assets into Rails app before assets:precompile
+COPY --from=node_build /app/app/assets/builds /rails/app/assets/builds
+
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
@@ -55,8 +68,8 @@ RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 FROM base
 
 # Copy built artifacts: gems, application
-COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
-COPY --from=build /rails /rails
+COPY --from=build_with_assets "${BUNDLE_PATH}" "${BUNDLE_PATH}"
+COPY --from=build_with_assets /rails /rails
 
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \
