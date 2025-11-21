@@ -1,0 +1,6 @@
+en:
+  session:
+    errors:
+      email: 'User not exist'
+      password: 'Wrong Password'
+      not_autorized: 'Not authorized'

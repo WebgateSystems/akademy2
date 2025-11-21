@@ -1,0 +1,41 @@
+<div class="auth-card" data-controller="sms-code">
+  <h2 class="auth-title">Enter SMS Code</h2>
+
+  <p>We sent a 4-digit code to <strong><%= @phone %></strong></p>
+
+  <%= form_with url: register_verify_phone_path, method: :post do %>
+
+    <div class="sms-inputs">
+      <%= text_field_tag :code1, nil, maxlength: 1, autofocus: true, 
+            data: { "sms-code-target": "input", action: "input->sms-code#onInput" } %>
+
+      <%= text_field_tag :code2, nil, maxlength: 1,
+            data: { "sms-code-target": "input", action: "input->sms-code#onInput" } %>
+
+      <%= text_field_tag :code3, nil, maxlength: 1,
+            data: { "sms-code-target": "input", action: "input->sms-code#onInput" } %>
+
+      <%= text_field_tag :code4, nil, maxlength: 1,
+            data: { "sms-code-target": "input", action: "input->sms-code#onInput" } %>
+    </div>
+
+    <!-- Continue button -->
+    <button class="auth-btn"
+      data-sms-code-target="continueButton"
+     >
+      Continue
+    </button>
+
+  <% end %>
+
+  <!-- Resend section -->
+  <%# <button class="auth-btn auth-btn--secondary"
+    data-sms-code-target="resendButton"
+    disabled>
+
+    <span data-sms-code-target="resendTimer">
+      Resend in 30s
+    </span>
+  </button> %>
+
+</div>

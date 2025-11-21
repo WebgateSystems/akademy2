@@ -23,11 +23,11 @@
               </li>
             <% end %>
           </ul>
-          <% if current_user %>
+          <% if current_admin %>
             <hr class="border-secondary">
             <div class="d-flex flex-column gap-2">
-              <span class="small text-secondary"><%= current_user.email %></span>
-              <%= button_to 'Wyloguj', destroy_user_session_path, method: :delete, class: 'btn btn-outline-light btn-sm', form: { class: 'm-0 p-0' } %>
+              <span class="small text-secondary"><%= current_admin.email %></span>
+              <%= button_to 'Wyloguj', destroy_admin_session_path, method: :delete, class: 'btn btn-outline-light btn-sm', form: { class: 'm-0 p-0' } %>
             </div>
           <% end %>
         </nav>

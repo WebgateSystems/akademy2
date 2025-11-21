@@ -19,6 +19,10 @@ gem "devise", "~> 4.9"
 gem "devise-jwt", "~> 0.12.1"
 gem "pundit", "~> 2.5"
 gem "sidekiq", "~> 8.0"
+gem 'pry'
+gem 'jsonapi-serializer'
+gem 'jwt', '~> 2.7.1'
+gem 'interactor', '~> 3.0'
 gem "carrierwave", "~> 3.0"
 gem "image_processing", "~> 1.14"
 gem "wicked_pdf", "~> 2.8"
@@ -36,6 +40,14 @@ group :development, :test do
   gem "rspec-rails", "~> 8.0"
 end
 
+group :test do
+  gem 'json_matchers'
+  gem 'rspec_junit_formatter'
+  gem 'shoulda-matchers', '~> 5.0'
+  gem 'simplecov', require: false
+  gem 'webmock'
+end
+
 group :development do
   gem "bundle-audit", require: false
 
@@ -48,4 +60,15 @@ group :development do
   gem "capistrano-rvm"
 
   gem "web-console"
+
+  gem 'fasterer', require: false
+  gem 'lefthook', require: false
+  gem 'reek', require: false
+  gem 'rubocop', '~> 1.64', require: false
+  gem 'rubocop-rails', '~> 2.25', require: false
+  gem 'rubocop-rspec_rails', require: false
+
+  gem 'rubocop-i18n', require: false
+  gem 'rubocop-performance', require: false
+  gem 'rubocop-rspec', require: false
 end

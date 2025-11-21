@@ -17,4 +17,8 @@ class User < ApplicationRecord
          :trackable,
          :jwt_authenticatable,
          jwt_revocation_strategy: self
+
+  def admin?
+    roles.pluck(:key).include?('admin')
+  end
 end

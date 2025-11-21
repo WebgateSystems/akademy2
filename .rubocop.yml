@@ -1,8 +1,100 @@
-# Omakase Ruby styling for Rails
-inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+require:
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-rspec_rails
+  - rubocop-i18n
+  - rubocop-performance
+  - rubocop-factory_bot
 
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+I18n/GetText/DecorateFunctionMessage:
+  Exclude:
+    - "app/policies/**.rb"
+
+I18n/GetText/DecorateString:
+  Exclude:
+    - db/**/**/*.rb
+    - 'lib/tasks/*.rake'
+
+I18n/RailsI18n/DecorateString:
+  Enabled: false
+
+Layout/EmptyLines:
+  Exclude:
+    - 'db/seeds/**/*.rb'
+
+Layout/LineLength:
+  Exclude:
+    - "config/initializers/*.rb"
+    - 'db/seeds/**/*.rb'
+
+Lint/DuplicateHashKey:
+  Exclude:
+    - 'db/seeds/**/*.rb'
+
+Lint/UnusedMethodArgument:
+  Exclude:
+    - "app/uploaders/*.rb"
+
+Lint/UselessAssignment:
+  Exclude:
+    - "db/seeds/**/*.rb"
+
+Metrics/AbcSize:
+  Exclude:
+    - "db/**/*.rb"
+
+Metrics/BlockLength:
+  Exclude:
+    - "spec/**/*.rb"
+    - "config/**/*.rb"
+    - "db/**/*.rb"
+    - "lib/tasks/*.rake"
+
+Metrics/MethodLength:
+  Exclude:
+    - "db/**/*.rb"
+    - 'app/services/update_exchange_rates.rb'
+
+Naming/MethodName:
+  Exclude:
+    - "lib/**/*.rb"
+
+Rails/NotNullColumn:
+  Exclude:
+    - "db/migrate/*.rb"
+
+Rails/Output:
+  Exclude:
+    - "db/seeds.rb"
+
+Rails/SkipsModelValidations:
+  Exclude:
+    - "app/models/project.rb"
+    - "db/seeds/**/*.rb"
+
+RSpec/EmptyExampleGroup:
+  Exclude:
+    - "spec/**/*.rb"
+
+RSpec/MultipleExpectations:
+  Max: 5
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 10
+
+RSpec/RepeatedExampleGroupDescription:
+  Exclude:
+    - "spec/**/*.rb"
+
+RSpec/VariableName:
+  Exclude:
+    - "spec/**/*.rb"
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false

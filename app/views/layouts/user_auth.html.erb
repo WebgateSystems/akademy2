@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login | Akademy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  </head>
+
+  <body class="bg-light d-flex justify-content-center align-items-center min-vh-100">
+    <div class="p-4 rounded shadow bg-white" style="width: 360px;">
+      <%= yield %>
+    </div>
+  </body>
+</html>

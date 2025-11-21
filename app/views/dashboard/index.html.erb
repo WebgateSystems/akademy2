@@ -1,0 +1,34 @@
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <%= render "dashboard/partials/sidebar" %>
+
+  <!-- Main -->
+  <main class="dashboard-main">
+    <!-- Top header -->
+    <%= render 'dashboard/partials/header' %>
+
+
+    <!-- Intro block -->
+    <%= render 'dashboard/partials/intro' %>
+
+    <!-- Pupil results -->
+    <%= render "dashboard/partials/grids" %>
+  </main>
+</div>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("userMenuButton");
+    const menu = document.getElementById("userDropdown");
+
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    });
+
+    document.addEventListener("click", () => {
+      menu.style.display = "none";
+    });
+  });
+</script>

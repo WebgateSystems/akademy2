@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  devise_for :users
+
+  # ADMIN LOGIN
+  get    "/admin/sign_in",  to: "admin/sessions#new",     as: :new_admin_session
+  post   "/admin/sign_in",  to: "admin/sessions#create",  as: :admin_session
+  delete "/admin/sign_out", to: "admin/sessions#destroy", as: :destroy_admin_session
+
   namespace :admin do
     root to: 'dashboard#index'
     get ':resource', to: 'resources#index', as: :resource_collection
@@ -9,19 +16,36 @@ Rails.application.routes.draw do
     patch ':resource/:id', to: 'resources#update', as: :update_resource
     delete ':resource/:id', to: 'resources#destroy', as: :destroy_resource
   end
-  devise_for :users, skip: [ :registrations ]
-  devise_scope :user do
-    post "/api/v1/auth/register", to: "api/v1/users/registrations#create"
+
+  namespace :register do
+    get  "profile",       to: "wizard#profile",       as: :profile
+    post "profile",       to: "wizard#profile_submit"
+  
+    get  "verify-phone",  to: "wizard#verify_phone",  as: :verify_phone
+    post "verify-phone",  to: "wizard#verify_phone_submit"
+  
+    get  "set-pin",       to: "wizard#set_pin",       as: :set_pin
+    post "set-pin",       to: "wizard#set_pin_submit"
+  
+    get  "confirm-email", to: "wizard#confirm_email", as: :confirm_email
+  end
+  
+  
+
+  authenticated :user do
+    root "dashboard#index", as: :authenticated_root
   end
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+  namespace :api do
+    namespace :v1 do
+      resource :session, only: :create
+    end
+  end
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  # API
+  # devise_scope :user do
+  #   post "/api/v1/auth/register", to: "api/v1/users/registrations#create"
+  # end
 
-  # Defines the root path route ("/")
   root "home#index"
 end

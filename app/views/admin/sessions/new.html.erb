@@ -1,0 +1,19 @@
+<h2 class="text-center mb-4">Admin Login</h2>
+
+<%= form_with url: admin_session_path, method: :post, class: "admin-login-form" do |f| %>
+
+  <div class="mb-3">
+    <%= f.label :email, class: "form-label" %>
+    <%= f.email_field :email, class: "form-control", autofocus: true %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :password, class: "form-label" %>
+    <%= f.password_field :password, class: "form-control" %>
+  </div>
+
+  <div class="d-grid">
+    <%= f.submit "Log in", class: "btn btn-primary" %>
+  </div>
+
+<% end %>

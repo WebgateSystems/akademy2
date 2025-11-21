@@ -1,0 +1,17 @@
+<div class="auth-card">
+  <h3 class="auth-title">Сome up with a 4-digit code</h3>
+
+  <p> This code will be needed to log in to the
+Academy 2.0 application.</p>
+
+  <%= form_with url: register_set_pin_path, method: :post do %>
+    <div class="sms-inputs">
+      <%= password_field_tag :pin1, nil, maxlength: 1 %>
+      <%= password_field_tag :pin2, nil, maxlength: 1 %>
+      <%= password_field_tag :pin3, nil, maxlength: 1 %>
+      <%= password_field_tag :pin4, nil, maxlength: 1 %>
+    </div>
+
+    <button class="auth-btn">Save PIN</button>
+  <% end %>
+</div>

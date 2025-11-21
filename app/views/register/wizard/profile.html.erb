@@ -1,0 +1,39 @@
+<div class="auth-card">
+  <h2 class="auth-title">Create an Account</h2>
+
+  <%= form_with url: register_profile_path, method: :post do %>
+
+    <div class="auth-field">
+      <label>First name</label>
+      <%= text_field_tag :first_name, nil %>
+    </div>
+
+    <div class="auth-field">
+      <label>Last name</label>
+      <%= text_field_tag :last_name, nil %>
+    </div>
+
+    <div class="auth-field">
+      <label>Date of birth</label>
+      <%= text_field_tag :birthdate, nil, placeholder: "DD.MM.YYYY" %>
+    </div>
+
+    <div class="auth-field">
+      <label>Email</label>
+      <%= email_field_tag :email, nil, placeholder: "example@mail.com" %>
+    </div>
+
+    <div class="auth-field">
+      <label>Phone</label>
+      <%= text_field_tag :phone, nil, placeholder: "+48 XXX XXX XXX" %>
+    </div>
+
+    <div class="auth-checkbox">
+      <%= check_box_tag :marketing %>
+      <label>By providing my email I agree to receive communications.</label>
+    </div>
+
+    <button class="auth-btn">Create Account</button>
+
+  <% end %>
+</div>
