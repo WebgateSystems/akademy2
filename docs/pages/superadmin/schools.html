@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Superadmin · Schools</title>
+    <meta name="description" content="Manage every school registered on Academy 2.0, including codes, regions, and assigned staff.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/main.css">
+  </head>
+  <body>
+    <div class="dashboard-app" data-dashboard-app>
+      <aside class="dashboard-sidebar">
+        <div class="dashboard-logo">
+          <div class="dashboard-logo__brand">
+            <img class="dashboard-logo__icon" src="/assets/icons/logo/Akademy_logo.svg" alt="" width="32" height="32" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-logo__full" src="/assets/icons/logo/Akademy_logo_full.svg" alt="Academy 2.0" aria-hidden="false" data-theme-icon>
+          </div>
+          <button class="dashboard-collapse-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true" data-sidebar-collapse-toggle>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--collapse" src="/assets/icons/social/M/close-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand" src="/assets/icons/social/M/open-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+          </button>
+        </div>
+        <nav class="dashboard-nav">
+          <a class="dashboard-nav__button" href="/pages/superadmin/dashboard.html">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Dashboard</span>
+          </a>
+          <a class="dashboard-nav__button is-active" href="/pages/superadmin/schools.html" aria-current="page">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Schools</span>
+          </a>
+          <a class="dashboard-nav__button" href="/pages/superadmin/headmasters.html">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Headmasters</span>
+          </a>
+          <a class="dashboard-nav__button" href="/pages/superadmin/activity-log.html">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Activity log</span>
+          </a>
+        </nav>
+</aside>
+      <div class="dashboard-sidebar-overlay" data-sidebar-overlay aria-hidden="true"></div>
+      <main class="dashboard-main">
+        <header class="dashboard-top-bar">
+          <button class="dashboard-sidebar-toggle" type="button" aria-label="Toggle navigation" data-sidebar-toggle>
+            <img src="/assets/icons/social/M/burger.svg" alt="" width="24" height="24" data-theme-icon>
+          </button>
+          <h1>Schools</h1>
+          <div class="dashboard-top-actions">
+            <a class="icon-pill" href="/pages/admin/notifications.html" aria-label="Notifications">
+              <span class="notification-counter" aria-hidden="true">3</span>
+              <img src="/assets/icons/social/M/notifications.svg" alt="" data-theme-icon>
+            </a>
+            <div class="settings-control">
+              <button class="icon-pill" type="button" aria-label="Settings" data-theme-toggle-trigger aria-expanded="false">
+                <img src="/assets/icons/social/M/settings.svg" alt="" data-theme-icon>
+              </button>
+              <div class="theme-switcher" id="theme-switcher" hidden>
+                <div class="theme-switcher__row">
+                  <div>
+                    <p class="theme-switcher__label">Dark mode</p>
+                    <p class="theme-switcher__hint">Remembers your preference</p>
+                  </div>
+                  <label class="theme-switcher__toggle">
+                    <input type="checkbox" id="theme-toggle-input" aria-label="Toggle dark mode">
+                    <span class="theme-switcher__slider" aria-hidden="true"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section aria-label="Schools list">
+          <header class="schools-page__header">
+            <label class="schools-search schools-search--half">
+              <span class="visually-hidden">Search schools</span>
+              <input type="search" placeholder="Search">
+              <img src="/assets/icons/social/S/search.svg" alt="" aria-hidden="true">
+            </label>
+            <button class="schools-page__add" type="button">Add school</button>
+          </header>
+          <div class="schools-page__controls">
+
+          </div>
+          <div class="schools-card">
+            <table class="schools-page__table">
+              <thead>
+                <tr>
+                  <th scope="col" class="left">Name</th>
+                  <th scope="col" class="left">Address</th>
+                  <th scope="col" class="left">Headmaster</th>
+                  <th scope="col" class="right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>School name</td>
+                  <td>School address</td>
+                  <td>Headmaster name</td>
+                  <td class="schools-page__actions">
+                    <button type="button" aria-label="Edit school"><img src="/assets/icons/social/S/edit.svg" alt=""></button>
+                    <button type="button" aria-label="Delete school" data-school-name="School name"><img src="/assets/icons/social/S/delete.svg" alt=""></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>School name</td>
+                  <td>School address</td>
+                  <td>Headmaster name</td>
+                  <td class="schools-page__actions">
+                    <button type="button" aria-label="Edit school"><img src="/assets/icons/social/S/edit.svg" alt=""></button>
+                    <button type="button" aria-label="Delete school" data-school-name="School name"><img src="/assets/icons/social/S/delete.svg" alt=""></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>School name</td>
+                  <td>School address</td>
+                  <td>Headmaster name</td>
+                  <td class="schools-page__actions">
+                    <button type="button" aria-label="Edit school"><img src="/assets/icons/social/S/edit.svg" alt=""></button>
+                    <button type="button" aria-label="Delete school" data-school-name="School name"><img src="/assets/icons/social/S/delete.svg" alt=""></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>School name</td>
+                  <td>School address</td>
+                  <td>Headmaster name</td>
+                  <td class="schools-page__actions">
+                    <button type="button" aria-label="Edit school"><img src="/assets/icons/social/S/edit.svg" alt=""></button>
+                    <button type="button" aria-label="Delete school" data-school-name="School name"><img src="/assets/icons/social/S/delete.svg" alt=""></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="schools-modal" id="add-school-modal" aria-hidden="true">
+          <div class="schools-modal__overlay"></div>
+          <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="school-modal-title">
+              <header class="schools-modal__header">
+                <h3 id="school-modal-title">Add school</h3>
+              <button class="schools-modal__close" type="button" aria-label="Close modal"><img src="/assets/icons/social/S/close.svg" alt=""></button>
+            </header>
+              <form id="schools-form" class="schools-modal__form">
+                <label>
+                  <span>School name</span>
+                  <input id="school-name" name="name" type="text" placeholder="School name" required>
+                </label>
+                <label>
+                  <span>School address</span>
+                  <input id="school-address" name="address" type="text" placeholder="School address" required>
+                </label>
+                <label>
+                  <span>Headmaster name</span>
+                  <input id="school-headmaster" name="headmaster" type="text" placeholder="Headmaster name (optional)">
+                </label>
+              <div class="schools-modal__actions">
+                <button type="submit" class="schools-modal__primary">Add</button>
+                <button type="button" class="schools-modal__secondary">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="schools-modal" id="delete-school-modal" aria-hidden="true">
+          <div class="schools-modal__overlay"></div>
+          <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="delete-school-modal-title">
+            <header class="schools-modal__header">
+              <h3 id="delete-school-modal-title">Delete school</h3>
+              <button class="schools-modal__close" type="button" aria-label="Close modal"><img src="/assets/icons/social/S/close.svg" alt=""></button>
+            </header>
+            <div class="schools-modal__body">
+              <p>Are you sure you want to delete <strong data-school-delete-name>this school</strong>? This action cannot be undone.</p>
+            </div>
+            <div class="schools-modal__actions">
+              <button type="button" class="schools-modal__primary schools-modal__primary--danger" data-confirm-delete-school>Delete</button>
+              <button type="button" class="schools-modal__secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+    <script src="/assets/js/modal.js" defer></script>
+    <script src="/assets/js/superadmin-schools.js" defer></script>
+    <script src="/assets/js/theme-switcher.js" defer></script>
+<script src="/assets/js/dashboard-sidebar.js" defer></script>
+  </body>
+</html>

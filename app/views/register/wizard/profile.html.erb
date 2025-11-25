@@ -1,39 +1,78 @@
-<div class="auth-card">
-  <h2 class="auth-title">Create an Account</h2>
 
-  <%= form_with url: register_profile_path, method: :post do %>
+<section class="auth-card" aria-labelledby="auth-card-title">
+  <header class="auth-card__header">
+    <h1 id="auth-card-title">Create an Account</h1>
+  </header>
 
-    <div class="auth-field">
-      <label>First name</label>
-      <%= text_field_tag :first_name, nil %>
-    </div>
+  <%= form_with model: @form, url: register_profile_path, method: :post, html: { class: "auth-form" } do |f| %>
 
-    <div class="auth-field">
-      <label>Last name</label>
-      <%= text_field_tag :last_name, nil %>
-    </div>
+    <!-- First name -->
+    <label>
+      <span>First name</span>
+      <%= f.text_field :first_name,
+            placeholder: "First name",
+            class: @form.errors[:first_name].present? ? "error-input" : "" %>
+      <% if @form.errors[:first_name].present? %>
+        <div class="field-error"><%= @form.errors[:first_name].first %></div>
+      <% end %>
+    </label>
 
-    <div class="auth-field">
-      <label>Date of birth</label>
-      <%= text_field_tag :birthdate, nil, placeholder: "DD.MM.YYYY" %>
-    </div>
+    <!-- Last name -->
+    <label>
+      <span>Last name</span>
+      <%= f.text_field :last_name,
+            placeholder: "Last name",
+            class: @form.errors[:last_name].present? ? "error-input" : "" %>
+      <% if @form.errors[:last_name].present? %>
+        <div class="field-error"><%= @form.errors[:last_name].first %></div>
+      <% end %>
+    </label>
 
-    <div class="auth-field">
-      <label>Email</label>
-      <%= email_field_tag :email, nil, placeholder: "example@mail.com" %>
-    </div>
+    <!-- Date of birth -->
+    <label>
+      <span>Date of birth</span>
+      <%= f.text_field :birthdate,
+            placeholder: "DD.MM.YYYY",
+            inputmode: "numeric",
+            class: @form.errors[:birthdate].present? ? "error-input" : "" %>
+      <% if @form.errors[:birthdate].present? %>
+        <div class="field-error"><%= @form.errors[:birthdate].first %></div>
+      <% end %>
+    </label>
 
-    <div class="auth-field">
-      <label>Phone</label>
-      <%= text_field_tag :phone, nil, placeholder: "+48 XXX XXX XXX" %>
-    </div>
+    <!-- Email -->
+    <label>
+      <span>Email</span>
+      <%= f.email_field :email,
+            placeholder: "example@mail.com",
+            class: @form.errors[:email].present? ? "error-input" : "" %>
+      <% if @form.errors[:email].present? %>
+        <div class="field-error"><%= @form.errors[:email].first %></div>
+      <% end %>
+    </label>
 
-    <div class="auth-checkbox">
-      <%= check_box_tag :marketing %>
-      <label>By providing my email I agree to receive communications.</label>
-    </div>
+    <!-- Phone -->
+    <label>
+      <span>Phone</span>
+      <%= f.text_field :phone,
+            placeholder: "+48 XXX XXX XXX",
+            class: @form.errors[:phone].present? ? "error-input" : "" %>
+      <% if @form.errors[:phone].present? %>
+        <div class="field-error"><%= @form.errors[:phone].first %></div>
+      <% end %>
+    </label>
 
-    <button class="auth-btn">Create Account</button>
+    <!-- Marketing -->
+    <label class="auth-checkbox">
+      <%= f.check_box :marketing %>
+      <span>
+        By providing my email I agree to receive communications from Academy 2.0.
+        I understand I can opt out at any time.
+      </span>
+    </label>
+
+    <!-- Button -->
+    <button class="auth-submit" type="submit">Create account</button>
 
   <% end %>
-</div>
+</section>

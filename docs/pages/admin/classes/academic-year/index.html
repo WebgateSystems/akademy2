@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Admin · Academic Year 2025/2026</title>
+    <meta name="description" content="See every class from the 2025/2026 academic year and drill into their detailed reports.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/main.css">
+  </head>
+  <body>
+    <div class="dashboard-app" data-dashboard-app>
+      <aside class="dashboard-sidebar">
+        <div class="dashboard-logo">
+          <div class="dashboard-logo__brand">
+            <img class="dashboard-logo__icon" src="/assets/icons/logo/Akademy_logo.svg" alt="" width="32" height="32" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-logo__full" src="/assets/icons/logo/Akademy_logo_full.svg" alt="Academy 2.0" aria-hidden="false" data-theme-icon>
+          </div>
+          <button class="dashboard-collapse-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true" data-sidebar-collapse-toggle>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--collapse" src="/assets/icons/social/M/close-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand" src="/assets/icons/social/M/open-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+          </button>
+        </div>
+        <nav class="dashboard-nav" aria-label="Primary">
+          <a class="dashboard-nav__button" href="/pages/admin/school-profile.html">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">School profile</span>
+          </a>
+          <a class="dashboard-nav__button" href="/pages/admin/teachers.html">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Teachers</span>
+            <span class="notification-counter" aria-hidden="true">1</span>
+          </a>
+          <a class="dashboard-nav__button" href="/pages/teacher/pupils.html">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Pupils</span>
+          </a>
+          <a class="dashboard-nav__button  is-active" href="/pages/admin/classes"  aria-current="page">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Classes</span>
+          </a>
+        </nav>
+      </aside>
+      <div class="dashboard-sidebar-overlay" data-sidebar-overlay aria-hidden="true"></div>
+
+      <main class="dashboard-main">
+        <header class="dashboard-top-bar">
+          <button class="dashboard-sidebar-toggle" type="button" aria-label="Toggle navigation" data-sidebar-toggle>
+            <img src="/assets/icons/social/M/burger.svg" alt="" width="24" height="24" data-theme-icon>
+          </button>
+          <h1>Academic year 2025/2026</h1>
+          <div class="dashboard-top-actions">
+            <a class="icon-pill" href="/pages/admin/notifications.html" aria-label="Notifications">
+              <span class="notification-counter" aria-hidden="true">3</span>
+              <img src="/assets/icons/social/M/notifications.svg" alt="" data-theme-icon>
+            </a>
+            <div class="settings-control">
+              <button class="icon-pill" type="button" aria-label="Settings" data-theme-toggle-trigger aria-expanded="false">
+                <img src="/assets/icons/social/M/settings.svg" alt="" data-theme-icon>
+              </button>
+              <div class="theme-switcher" id="theme-switcher" hidden>
+                <div class="theme-switcher__row">
+                  <div>
+                    <p class="theme-switcher__label">Dark mode</p>
+                    <p class="theme-switcher__hint">Remembers your preference</p>
+                  </div>
+                  <label class="theme-switcher__toggle">
+                    <input type="checkbox" id="theme-toggle-input" aria-label="Toggle dark mode">
+                    <span class="theme-switcher__slider" aria-hidden="true"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="classes-archive" aria-label="Academic years">
+          <div class="classes-archive__grid">
+            <button class="class-year-card class-year-card--interactive" type="button" data-href="/pages/admin/classes/academic-year/class">
+              <span class="class-year-card__label">4A</span>
+              <span class="class-year-card__edit" data-edit-class aria-hidden="true">
+                <img src="/assets/icons/social/S/edit.svg" alt="" aria-hidden="true" data-theme-icon>
+              </span>
+            </button>
+            <button class="class-year-card class-year-card--interactive" type="button" data-href="/pages/admin/classes/academic-year/class">
+              <span class="class-year-card__label">4B</span>
+              <span class="class-year-card__edit" data-edit-class aria-hidden="true">
+                <img src="/assets/icons/social/S/edit.svg" alt="" aria-hidden="true" data-theme-icon>
+              </span>
+            </button>
+            <button class="class-year-card class-year-card--interactive" type="button" data-href="/pages/admin/classes/academic-year/class">
+              <span class="class-year-card__label">5A</span>
+              <span class="class-year-card__edit" data-edit-class aria-hidden="true">
+                <img src="/assets/icons/social/S/edit.svg" alt="" aria-hidden="true" data-theme-icon>
+              </span>
+            </button>
+            <button class="class-year-card class-year-card--interactive" type="button" data-href="/pages/admin/classes/academic-year/class">
+              <span class="class-year-card__label">5B</span>
+              <span class="class-year-card__edit" data-edit-class aria-hidden="true">
+                <img src="/assets/icons/social/S/edit.svg" alt="" aria-hidden="true" data-theme-icon>
+              </span>
+            </button>
+            <button class="class-year-card class-year-card--interactive" type="button" data-href="/pages/admin/classes/academic-year/class">
+              <span class="class-year-card__label">6A</span>
+              <span class="class-year-card__edit" data-edit-class aria-hidden="true">
+                <img src="/assets/icons/social/S/edit.svg" alt="" aria-hidden="true" data-theme-icon>
+              </span>
+            </button>
+            <button class="class-year-card class-year-card--interactive" type="button" data-href="/pages/admin/classes/academic-year/class">
+              <span class="class-year-card__label">6B</span>
+              <span class="class-year-card__edit" data-edit-class aria-hidden="true">
+                <img src="/assets/icons/social/S/edit.svg" alt="" aria-hidden="true" data-theme-icon>
+              </span>
+            </button>
+            <button class="class-year-card class-year-card--interactive" type="button" data-href="/pages/admin/classes/academic-year/class">
+              <span class="class-year-card__label">7A</span>
+              <span class="class-year-card__edit" data-edit-class aria-hidden="true">
+                <img src="/assets/icons/social/S/edit.svg" alt="" aria-hidden="true" data-theme-icon>
+              </span>
+            </button>
+            <button class="class-year-card class-year-card--add js-open-add-class" type="button" aria-label="Add class">
+              +
+            </button>
+          </div>
+        </section>
+
+        <div class="schools-modal" id="add-class-modal" aria-hidden="true">
+          <div class="schools-modal__overlay"></div>
+          <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="add-class-title">
+            <header class="schools-modal__header">
+              <h3 id="add-class-title">Add class</h3>
+              <button class="schools-modal__close" type="button" aria-label="Close modal">
+                <img src="/assets/icons/social/S/close.svg" alt="">
+              </button>
+            </header>
+            <form class="schools-modal__form" data-teaching-staff-form>
+              <label>
+                <span>Class number</span>
+                <input type="text" name="class_number" placeholder="Enter class number (e.g. 4B)" required>
+              </label>
+              <label>
+                <span>Class teacher (optional)</span>
+                <select name="class_teacher" aria-label="Select class teacher (optional)">
+                  <option value="">Search the class teacher</option>
+                  <option value="Jakob Mango">Jakob Mango</option>
+                  <option value="Ashlynn Calzoni">Ashlynn Calzoni</option>
+                  <option value="Erin Kenter">Erin Kenter</option>
+                  <option value="Olivia Walker">Olivia Walker</option>
+                  <option value="Leo Grant">Leo Grant</option>
+                </select>
+              </label>
+              <label>
+                <span>Teaching staff</span>
+                <div class="teaching-staff-select" data-teaching-staff-select-wrapper>
+                  <button
+                    class="teaching-staff-select__control"
+                    type="button"
+                    data-teaching-staff-trigger
+                    data-default-label="Select teachers"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                  >
+                    <span data-selected-summary>Select teachers</span>
+                  </button>
+                  <div class="teaching-staff-select__dropdown" data-teaching-staff-dropdown hidden role="listbox">
+                    <div class="teaching-staff-select__options" data-teaching-staff-options></div>
+                  </div>
+                  <select
+                    class="teaching-staff-select__native"
+                    name="teaching_staff"
+                    data-teaching-staff-select
+                    data-chip-input-name="teaching_staff[]"
+                    multiple
+                    aria-hidden="true"
+                    tabindex="-1"
+                  >
+                    <option value="">Search the teacher</option>
+                    <option value="Jakob Mango">Jakob Mango</option>
+                    <option value="Ashlynn Calzoni">Ashlynn Calzoni</option>
+                    <option value="Erin Kenter">Erin Kenter</option>
+                    <option value="Olivia Walker">Olivia Walker</option>
+                    <option value="Leo Grant">Leo Grant</option>
+                    <option value="Barbara Mazur">Barbara Mazur</option>
+                    <option value="Maria Kowalska">Maria Kowalska</option>
+                  </select>
+                </div>
+              </label>
+              <div class="teaching-staff-chips" data-teaching-staff-chips aria-live="polite"></div>
+              <div class="schools-modal__actions">
+                <button type="submit" class="schools-modal__primary" disabled>ADD</button>
+                <button type="button" class="schools-modal__secondary">CANCEL</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="schools-modal" id="edit-class-modal" aria-hidden="true">
+          <div class="schools-modal__overlay"></div>
+          <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="edit-class-title">
+            <header class="schools-modal__header">
+              <h3 id="edit-class-title">Edit class</h3>
+              <button class="schools-modal__close" type="button" aria-label="Close modal">
+                <img src="/assets/icons/social/S/close.svg" alt="">
+              </button>
+            </header>
+            <form class="schools-modal__form" data-teaching-staff-form>
+              <label>
+                <span>Class number</span>
+                <input type="text" name="class_number" placeholder="Enter class number (e.g. 4B)" required>
+              </label>
+              <label>
+                <span>Class teacher (optional)</span>
+                <select name="class_teacher" aria-label="Select class teacher (optional)">
+                  <option value="">Search the class teacher</option>
+                  <option value="Jakob Mango">Jakob Mango</option>
+                  <option value="Ashlynn Calzoni">Ashlynn Calzoni</option>
+                  <option value="Erin Kenter">Erin Kenter</option>
+                  <option value="Olivia Walker">Olivia Walker</option>
+                  <option value="Leo Grant">Leo Grant</option>
+                </select>
+              </label>
+              <label>
+                <span>Teaching staff</span>
+                <div class="teaching-staff-select" data-teaching-staff-select-wrapper>
+                  <button
+                    class="teaching-staff-select__control"
+                    type="button"
+                    data-teaching-staff-trigger
+                    data-default-label="Select teachers"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                  >
+                    <span data-selected-summary>Select teachers</span>
+                  </button>
+                  <div class="teaching-staff-select__dropdown" data-teaching-staff-dropdown hidden role="listbox">
+                    <div class="teaching-staff-select__options" data-teaching-staff-options></div>
+                  </div>
+                  <select
+                    class="teaching-staff-select__native"
+                    name="teaching_staff"
+                    data-teaching-staff-select
+                    data-chip-input-name="teaching_staff[]"
+                    multiple
+                    aria-hidden="true"
+                    tabindex="-1"
+                  >
+                    <option value="">Search the teacher</option>
+                    <option value="Jakob Mango">Jakob Mango</option>
+                    <option value="Ashlynn Calzoni">Ashlynn Calzoni</option>
+                    <option value="Erin Kenter">Erin Kenter</option>
+                    <option value="Olivia Walker">Olivia Walker</option>
+                    <option value="Leo Grant">Leo Grant</option>
+                    <option value="Barbara Mazur">Barbara Mazur</option>
+                    <option value="Maria Kowalska">Maria Kowalska</option>
+                  </select>
+                </div>
+              </label>
+              <div class="teaching-staff-chips" data-teaching-staff-chips aria-live="polite">
+                <span class="teaching-staff-chips__item" data-teaching-staff-chip data-value="Jakob Mango">
+                  <span class="teaching-staff-chips__label">Jakob Mango</span>
+                  <button type="button" aria-label="Remove Jakob Mango" data-remove-chip>×</button>
+                  <input type="hidden" name="teaching_staff[]" value="Jakob Mango">
+                </span>
+                <span class="teaching-staff-chips__item" data-teaching-staff-chip data-value="Ashlynn Calzoni">
+                  <span class="teaching-staff-chips__label">Ashlynn Calzoni</span>
+                  <button type="button" aria-label="Remove Ashlynn Calzoni" data-remove-chip>×</button>
+                  <input type="hidden" name="teaching_staff[]" value="Ashlynn Calzoni">
+                </span>
+                <span class="teaching-staff-chips__item" data-teaching-staff-chip data-value="Erin Kenter">
+                  <span class="teaching-staff-chips__label">Erin Kenter</span>
+                  <button type="button" aria-label="Remove Erin Kenter" data-remove-chip>×</button>
+                  <input type="hidden" name="teaching_staff[]" value="Erin Kenter">
+                </span>
+                <span class="teaching-staff-chips__item" data-teaching-staff-chip data-value="Olivia Walker">
+                  <span class="teaching-staff-chips__label">Olivia Walker</span>
+                  <button type="button" aria-label="Remove Olivia Walker" data-remove-chip>×</button>
+                  <input type="hidden" name="teaching_staff[]" value="Olivia Walker">
+                </span>
+                <span class="teaching-staff-chips__item" data-teaching-staff-chip data-value="Leo Grant">
+                  <span class="teaching-staff-chips__label">Leo Grant</span>
+                  <button type="button" aria-label="Remove Leo Grant" data-remove-chip>×</button>
+                  <input type="hidden" name="teaching_staff[]" value="Leo Grant">
+                </span>
+              </div>
+              <span class="form-field-error" data-error="teaching_staff" aria-live="polite" hidden></span>
+              <div class="schools-modal__actions">
+                <button type="submit" class="schools-modal__primary" disabled>Save</button>
+                <button type="button" class="schools-modal__secondary">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+      
+      <button class="archive-year-btn" type="button" aria-label="Archive year">Archive year</button>
+      <div class="schools-modal archive-year-modal" id="archive-year-modal" aria-hidden="true">
+        <div class="schools-modal__overlay"></div>
+        <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="archive-year-title">
+          <header class="schools-modal__header">
+            <h3 id="archive-year-title">Archive academic year</h3>
+            <button class="schools-modal__close" type="button" aria-label="Close modal">
+              <img src="/assets/icons/social/S/close.svg" alt="">
+            </button>
+          </header>
+          <div class="archive-year-modal__body">
+            <p>Are you sure you want to archive the 2025/2026 academic year? This action cannot be undone.</p>
+          </div>
+          <div class="schools-modal__actions">
+            <button type="button" class="schools-modal__primary archive-year-modal__confirm">Archive</button>
+            <button type="button" class="schools-modal__secondary">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/assets/js/modal.js" defer></script>
+    <script src="/assets/js/admin-classes.js" defer></script>
+    <script src="/assets/js/theme-switcher.js" defer></script>
+<script src="/assets/js/dashboard-sidebar.js" defer></script>
+  </body>
+</html>

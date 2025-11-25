@@ -1,0 +1,249 @@
+.headmasters-actions {
+	position: relative;
+	display: flex;
+	justify-content: flex-end;
+	width: 100%;
+
+	.headmasters-menu {
+		position: relative;
+
+		summary {
+			list-style: none;
+			cursor: pointer;
+			border: none;
+			background: transparent;
+			font-size: 20px;
+			font-weight: 600;
+			color: var(--content-secondary);
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 32px;
+			height: 32px;
+
+			&::-webkit-details-marker {
+				display: none;
+			}
+		}
+
+		ul {
+			position: absolute;
+			top: calc(100% + 10px);
+			right: 0;
+			min-width: 180px;
+			padding: 12px 0;
+			margin: 0;
+			list-style: none;
+			border-radius: 12px;
+			background: var(--surface-primary);
+			box-shadow: 0 20px 45px var(--shadow-strong);
+			border: 1px solid var(--border-contrast);
+			z-index: 5;
+			display: none;
+			max-height: min(260px, calc(100vh - 200px));
+			overflow-y: auto;
+		}
+
+		&[open] ul {
+			display: block;
+		}
+
+		&[data-menu-align='top'] ul {
+			top: auto;
+			bottom: calc(100% + 10px);
+		}
+
+		button {
+			width: 100%;
+			padding: 0px 16px;
+			height: 40px;
+			border: none;
+			background: transparent;
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+			font: inherit;
+			font-weight: 500;
+			font-size: 14px;
+			color: var(--content-secondary);
+			cursor: pointer;
+
+			&:hover {
+				background: var(--surface-hover);
+			}
+		}
+	}
+}
+
+.settings-control {
+	position: relative;
+}
+
+.theme-switcher {
+	position: absolute;
+	right: 0;
+	top: calc(100% + 12px);
+	width: 260px;
+	padding: 16px 18px;
+	background: var(--surface-primary);
+	border-radius: 16px;
+	border: 1px solid var(--border-subtle);
+	box-shadow: 0 15px 45px var(--shadow-card);
+	z-index: 10;
+
+	&__row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+	}
+
+	&__label {
+		margin: 0;
+		font-size: 14px;
+		font-weight: 600;
+		color: var(--content-primary);
+	}
+
+	&__hint {
+		margin: 4px 0 0;
+		font-size: 12px;
+		color: var(--content-secondary);
+	}
+
+	&__toggle {
+		position: relative;
+		width: 48px;
+		height: 26px;
+		display: inline-flex;
+		align-items: center;
+		cursor: pointer;
+
+		input {
+			position: absolute;
+			opacity: 0;
+			width: 0;
+			height: 0;
+		}
+
+		.theme-switcher__slider {
+			position: relative;
+			display: block;
+			width: 100%;
+			height: 100%;
+			border-radius: 999px;
+			background: var(--border-subtle);
+			border: 1px solid var(--border-muted);
+			transition: background 0.2s ease, border 0.2s ease;
+
+			&::after {
+				content: '';
+				position: absolute;
+				width: 20px;
+				height: 20px;
+				left: 3px;
+				top: 50%;
+				transform: translate(0, -50%);
+				border-radius: 50%;
+				background: var(--surface-primary);
+				box-shadow: 0 4px 10px var(--shadow-neutral);
+				transition: transform 0.2s ease;
+			}
+		}
+
+		input:checked + .theme-switcher__slider {
+			background: var(--button-primary);
+			border-color: var(--button-primary);
+
+			&::after {
+				transform: translate(18px, -50%);
+			}
+		}
+	}
+}
+
+.schools-modal__form {
+	label {
+		display: block;
+
+		span {
+			display: block;
+			margin-bottom: 8px;
+			font-size: 14px;
+			color: var(--content-secondary);
+		}
+
+	select,
+	input {
+		width: 100%;
+		padding: 12px 16px;
+		height: 48px;
+		border: 1px solid var(--border-contrast);
+		border-radius: 8px;
+		background: var(--surface-primary);
+		font-size: 16px;
+		color: var(--content-primary);
+		box-sizing: border-box;
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+	}
+
+	.teaching-staff-chips {
+		margin-top: 12px;
+		display: flex;
+		overflow-x: auto;
+		gap: 8px;
+		padding-bottom: 4px;
+		-scrollbar-color: var(--border-subtle) transparent;
+
+		&::-webkit-scrollbar {
+			height: 6px;
+		}
+
+		&::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background: var(--border-subtle);
+			border-radius: 999px;
+		}
+
+		&__item {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 12px;
+			border-radius: 999px;
+			background: var(--surface-primary);
+			border: 1px solid var(--border-muted);
+			font-size: 14px;
+			font-weight: 500;
+			white-space: nowrap;
+
+			button {
+				border: none;
+				background: transparent;
+				cursor: pointer;
+				font-size: 16px;
+				line-height: 1;
+				color: var(--content-secondary);
+			}
+		}
+	}
+
+		select {
+			padding-right: 40px;
+			background-image: linear-gradient(45deg, transparent 50%, var(--content-secondary) 50%), linear-gradient(135deg, var(--content-secondary) 50%, transparent 50%);
+			background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 13px) calc(50% - 3px);
+			background-size: 6px 6px, 6px 6px;
+			background-repeat: no-repeat;
+		}
+	}
+
+	.schools-modal__actions {
+		display: flex;
+		gap: 16px;
+	}
+}

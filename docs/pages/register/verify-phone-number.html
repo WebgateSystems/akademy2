@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Academy 2.0 · Verify phone number</title>
+    <meta name="description" content="Confirm your phone number for Academy 2.0 by entering the 4-digit code we sent to your device.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/main.css">
+  </head>
+  <body class="auth-body">
+    <main class="auth-layout">
+      <section class="auth-card auth-card--compact" aria-labelledby="verify-title">
+        <a class="auth-back-link" href="/" aria-label="Back to registration">
+          <img src="/assets/icons/social/M/back.svg" alt="" width="20" height="20" data-theme-icon>
+        </a>
+        <header class="auth-card__header">
+          <h1 id="verify-title">Verify your phone number</h1>
+          <p>We sent a 4-digit code on your phone +48 791 362 547.</p>
+        </header>
+        <form class="auth-form auth-form--otp">
+          <div class="otp-inputs" role="group" aria-label="Verification code">
+            <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 1">
+            <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2">
+            <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 3">
+            <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 4">
+          </div>
+          <button class="auth-submit auth-submit--disabled js-verify-action" type="button" disabled>Resend (in 0:59)</button>
+        </form>
+      </section>
+    </main>
+    <script src="/assets/js/register-verify.js" defer></script>
+    <script src="/assets/js/theme-switcher.js" defer></script>
+<script src="/assets/js/dashboard-sidebar.js" defer></script>
+  </body>
+</html>

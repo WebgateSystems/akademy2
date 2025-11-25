@@ -5,6 +5,7 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
 
+  <%= javascript_include_tag "application", type: "module" %>
   <%= stylesheet_link_tag "register" %>
 </head>
 
@@ -21,9 +22,9 @@
         <%= notice %>
       </div>
     <% end %>
-
-
-    <%= yield %>
+    <div class="auth-layout">
+      <%= yield %>
+    </div>
   </div>
 </body>
 </html>

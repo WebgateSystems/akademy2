@@ -1,0 +1,23 @@
+.container {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+}
+
+[data-theme-icon] {
+	transition: filter 0.2s ease;
+}
+
+.theme-dark [data-theme-icon] {
+	filter: brightness(0) invert(1);
+}

@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Admin · Teachers</title>
+    <meta name="description" content="Manage teacher invitations, approvals, and profiles for your Academy 2.0 school.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/main.css">
+  </head>
+  <body>
+    <div class="dashboard-app" data-dashboard-app>
+      <aside class="dashboard-sidebar">
+        <div class="dashboard-logo">
+          <div class="dashboard-logo__brand">
+            <img class="dashboard-logo__icon" src="/assets/icons/logo/Akademy_logo.svg" alt="" width="32" height="32" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-logo__full" src="/assets/icons/logo/Akademy_logo_full.svg" alt="Academy 2.0" aria-hidden="false" data-theme-icon>
+          </div>
+          <button class="dashboard-collapse-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true" data-sidebar-collapse-toggle>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--collapse" src="/assets/icons/social/M/close-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand" src="/assets/icons/social/M/open-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+          </button>
+        </div>
+        <nav class="dashboard-nav" aria-label="Primary">
+          <a class="dashboard-nav__button" href="/pages/admin/school-profile.html">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">School profile</span>
+          </a>
+          <a class="dashboard-nav__button is-active" href="/pages/admin/teachers.html" aria-current="page">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Teachers</span>
+            <span class="notification-counter" aria-hidden="true">1</span>
+          </a>
+          <a class="dashboard-nav__button" href="/pages/teacher/pupils.html">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Pupils</span>
+          </a>
+          <a class="dashboard-nav__button" href="/pages/admin/classes">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Classes</span>
+          </a>
+        </nav>
+      </aside>
+      <div class="dashboard-sidebar-overlay" data-sidebar-overlay aria-hidden="true"></div>
+
+      <main class="dashboard-main">
+        <header class="dashboard-top-bar">
+          <button class="dashboard-sidebar-toggle" type="button" aria-label="Toggle navigation" data-sidebar-toggle>
+            <img src="/assets/icons/social/M/burger.svg" alt="" width="24" height="24" data-theme-icon>
+          </button>
+          <h1>Class 4B (2025/2026)</h1>
+          <div class="dashboard-top-actions">
+            <a class="icon-pill" href="/pages/admin/notifications.html" aria-label="Notifications">
+              <span class="notification-counter" aria-hidden="true">3</span>
+              <img src="/assets/icons/social/M/notifications.svg" alt="" data-theme-icon>
+            </a>
+            <div class="settings-control">
+              <button class="icon-pill" type="button" aria-label="Settings" data-theme-toggle-trigger aria-expanded="false">
+                <img src="/assets/icons/social/M/settings.svg" alt="" data-theme-icon>
+              </button>
+              <div class="theme-switcher" id="theme-switcher" hidden>
+                <div class="theme-switcher__row">
+                  <div>
+                    <p class="theme-switcher__label">Dark mode</p>
+                    <p class="theme-switcher__hint">Remembers your preference</p>
+                  </div>
+                  <label class="theme-switcher__toggle">
+                    <input type="checkbox" id="theme-toggle-input" aria-label="Toggle dark mode">
+                    <span class="theme-switcher__slider" aria-hidden="true"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section aria-label="Schools list">
+          
+          <div class="teachers-panel">
+            <table class="teachers-table">
+              <thead class="teachers-table__head">
+                <tr>
+                  <th scope="col" class="teachers-table__heading">Teacher name</th>
+                  <th scope="col" class="teachers-table__heading">Birth date</th>
+                  <th scope="col" class="teachers-table__heading">Email</th>
+                  <th scope="col" class="teachers-table__heading">Phone</th>
+                  <th scope="col" class="teachers-table__heading">Subjects</th>
+                  <th scope="col" class="teachers-table__heading teachers-table__heading--actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="teachers-table__body">
+                <tr class="teachers-table__row">
+                  <td class="teachers-table__cell">Teacher name</td>
+                  <td class="teachers-table__cell">Birth Date</td>
+                  <td class="teachers-table__cell">Email</td>
+                  <td class="teachers-table__cell">Phone</td>
+                  <td class="teachers-table__cell">Subject</td>
+                  <td class="teachers-table__cell teachers-table__cell--actions">
+                    <div class="teachers-actions">
+                      <button class="teacher-action teacher-action--approve js-approve-teacher"
+                        type="button"
+                        aria-label="Approve teacher"
+                        data-teacher="Barbara Mazur"
+                      >
+                        <img src="/assets/icons/social/S/done.svg" alt="">
+                      </button>
+                      <button
+                        class="teacher-action teacher-action--reject js-reject-teacher"
+                        type="button"
+                        aria-label="Reject teacher"
+                        data-teacher="Barbara Mazur"
+                      >
+                        <img src="/assets/icons/social/S/close_red.svg" alt="">
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="teachers-table__row">
+                  <td class="teachers-table__cell">Teacher name</td>
+                  <td class="teachers-table__cell">Birth Date</td>
+                  <td class="teachers-table__cell">Email</td>
+                  <td class="teachers-table__cell">Phone</td>
+                  <td class="teachers-table__cell">Subject</td>
+                  <td class="teachers-table__cell teachers-table__cell--actions">
+                    <div class="teachers-actions">
+                      <button
+                        class="teacher-action teacher-action--neutral js-edit-teacher"
+                        type="button"
+                        aria-label="Edit teacher"
+                        data-name="Teacher name"
+                        data-birth="11.08.1989"
+                        data-email="piotr.jaworski@email.com"
+                        data-phone="+48 601 245 999"
+                        data-subjects="English"
+                      >
+                        <img src="/assets/icons/social/S/edit.svg" alt="">
+                      </button>
+                      <button
+                        class="teacher-action teacher-action--neutral js-delete-teacher"
+                        type="button"
+                        aria-label="Delete teacher"
+                        data-teacher="Teacher name"
+                      >
+                        <img src="/assets/icons/social/S/delete.svg" alt="">
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="teachers-table__row">
+                  <td class="teachers-table__cell">Teacher name</td>
+                  <td class="teachers-table__cell">Birth Date</td>
+                  <td class="teachers-table__cell">Email</td>
+                  <td class="teachers-table__cell">Phone</td>
+                  <td class="teachers-table__cell">Subject</td>
+                  <td class="teachers-table__cell teachers-table__cell--actions">
+                    <div class="teachers-actions">
+                      <button
+                        class="teacher-action teacher-action--neutral js-edit-teacher"
+                        type="button"
+                        aria-label="Edit teacher"
+                        data-name="Teacher name"
+                        data-birth="05.04.1990"
+                        data-email="joanna.wrobel@email.com"
+                        data-phone="+48 784 666 125"
+                        data-subjects="History"
+                      >
+                        <img src="/assets/icons/social/S/edit.svg" alt="">
+                      </button>
+                      <button
+                        class="teacher-action teacher-action--neutral js-delete-teacher"
+                        type="button"
+                        aria-label="Delete teacher"
+                        data-teacher="Teacher name"
+                      >
+                        <img src="/assets/icons/social/S/delete.svg" alt="">
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="teachers-table__row">
+                  <td class="teachers-table__cell">Teacher name</td>
+                  <td class="teachers-table__cell">Birth Date</td>
+                  <td class="teachers-table__cell">Email</td>
+                  <td class="teachers-table__cell">Phone</td>
+                  <td class="teachers-table__cell">Subject</td>
+                  <td class="teachers-table__cell teachers-table__cell--actions">
+                    <div class="teachers-actions">
+                      <button
+                        class="teacher-action teacher-action--neutral js-edit-teacher"
+                        type="button"
+                        aria-label="Edit teacher"
+                        data-name="Teacher name"
+                        data-birth="02.12.1982"
+                        data-email="krzysztof.malinowski@email.com"
+                        data-phone="+48 732 552 401"
+                        data-subjects="Physics"
+                      >
+                        <img src="/assets/icons/social/S/edit.svg" alt="">
+                      </button>
+                      <button
+                        class="teacher-action teacher-action--neutral js-delete-teacher"
+                        type="button"
+                        aria-label="Delete teacher"
+                        data-teacher="Teacher name"
+                      >
+                        <img src="/assets/icons/social/S/delete.svg" alt="">
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="teachers-approve-modal schools-modal" id="teachers-approve-modal" aria-hidden="true">
+          <div class="schools-modal__overlay"></div>
+          <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="teachers-approve-title">
+            <header class="schools-modal__header">
+              <h3 id="teachers-approve-title">Approve teacher</h3>
+              <button class="schools-modal__close" type="button" aria-label="Close modal">
+                <img src="/assets/icons/social/S/close.svg" alt="">
+              </button>
+            </header>
+            <div class="teachers-approve-modal__body">
+              <p class="teachers-approve-modal__text">
+                Do you want to approve <span class="teachers-approve-modal__name">this teacher</span> in class 4B?
+              </p>
+            </div>
+            <div class="schools-modal__actions">
+              <button type="button" class="schools-modal__primary teachers-approve-modal__confirm">Approve</button>
+              <button type="button" class="schools-modal__secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="teachers-reject-modal schools-modal" id="teachers-reject-modal" aria-hidden="true">
+          <div class="schools-modal__overlay"></div>
+          <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="teachers-reject-title">
+            <header class="schools-modal__header">
+              <h3 id="teachers-reject-title">Reject teacher</h3>
+              <button class="schools-modal__close" type="button" aria-label="Close modal">
+                <img src="/assets/icons/social/S/close.svg" alt="">
+              </button>
+            </header>
+            <div class="teachers-reject-modal__body">
+              <p>
+                Are you sure you want to reject <span class="teachers-reject-modal__name">this teacher</span>'s application?
+              </p>
+            </div>
+            <div class="schools-modal__actions">
+              <button type="button" class="schools-modal__primary teachers-reject-modal__confirm">Reject</button>
+              <button type="button" class="schools-modal__secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="teachers-delete-modal schools-modal" id="teachers-delete-modal" aria-hidden="true">
+          <div class="schools-modal__overlay"></div>
+          <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="teachers-delete-title">
+            <header class="schools-modal__header">
+              <h3 id="teachers-delete-title">Remove teacher</h3>
+              <button class="schools-modal__close" type="button" aria-label="Close modal">
+                <img src="/assets/icons/social/S/close.svg" alt="">
+              </button>
+            </header>
+            <div class="teachers-delete-modal__body">
+              <p>
+                Are you sure you want to remove <span class="teachers-delete-modal__name">this teacher</span> from the school?
+              </p>
+            </div>
+            <div class="schools-modal__actions">
+              <button type="button" class="schools-modal__primary teachers-delete-modal__confirm">Delete</button>
+              <button type="button" class="schools-modal__secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="schools-modal" id="edit-teacher-modal" aria-hidden="true">
+          <div class="schools-modal__overlay"></div>
+          <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="edit-teacher-modal-title">
+            <header class="schools-modal__header">
+              <h3 id="edit-teacher-modal-title">Edit teacher</h3>
+              <button class="schools-modal__close" type="button" aria-label="Close modal"><img src="/assets/icons/social/S/close.svg" alt=""></button>
+            </header>
+            <form class="schools-modal__form" id="teacher-edit-form">
+              <label>
+                <span>Teacher name</span>
+                <input id="teacher-name" name="teacher_name" type="text" placeholder="Teacher name" required>
+              </label>
+              <label>
+                <span>Birth date</span>
+                <input id="teacher-birth" name="teacher_birth" type="text" placeholder="DD.MM.YYYY" required>
+              </label>
+              <label>
+                <span>Email</span>
+                <input id="teacher-email" name="teacher_email" type="email" placeholder="teacher@email.com" required>
+              </label>
+              <label>
+                <span>Phone</span>
+                <input id="teacher-phone" name="teacher_phone" type="tel" placeholder="+48 XXX XXX XXX" required>
+              </label>
+              <label>
+                <span>Subjects</span>
+                <input id="teacher-subjects" name="teacher_subjects" type="text" placeholder="Mathematics, Physics" required>
+              </label>
+              <div class="schools-modal__actions">
+                <button type="submit" class="schools-modal__primary">Save</button>
+                <button type="button" class="schools-modal__secondary">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </main>
+    </div>
+    <script src="/assets/js/modal.js" defer></script>
+    <script src="/assets/js/admin-teachers.js" defer></script>
+    <script src="/assets/js/admin-teachers-validation.js" defer></script>
+    <script src="/assets/js/theme-switcher.js" defer></script>
+    <script src="/assets/js/dashboard-sidebar.js" defer></script>
+  </body>
+</html>

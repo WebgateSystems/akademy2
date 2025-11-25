@@ -1,0 +1,330 @@
+$base-palette: (
+	blue: (
+		5: #F2F7FD,
+		10: #D0E2F8,
+		20: #AFCEF2,
+		30: #8DB9ED,
+		40: #6CA5E7,
+		50: #4A90E2,
+		60: #206EC9,
+		70: #174EBE,
+		80: #0E2E54,
+		85: #081A2D,
+		90: #040E1A
+	),
+	green: (
+		5: #F6FBF4,
+		10: #DAF0D2,
+		20: #BFE4B0,
+		30: #A3D98E,
+		40: #88CD6C,
+		50: #6CC24A,
+		60: #529C35,
+		70: #3B7026,
+		80: #234317,
+		90: #0C1708
+	),
+	yellow: (
+		5: #FFFBEF,
+		10: #FFF3C4,
+		20: #FFF09B,
+		30: #FFF176,
+		40: #FFE058,
+		50: #FFD74B,
+		60: #FDCB32,
+		70: #FFB400,
+		80: #C99000,
+		90: #8C6A00
+	),
+	orange: (
+		5: #FFF3E0,
+		10: #FFE0B2,
+		20: #FFC880,
+		30: #FFB74D,
+		40: #FFA726,
+		50: #FF9B42,
+		60: #FB8C00,
+		70: #E86A19,
+		80: #D35400,
+		90: #A84300
+	),
+	pink: (
+		5: #FEF6F9,
+		10: #FFE0EE,
+		20: #FABCD3,
+		30: #F9A1C2,
+		40: #F787B1,
+		50: #F56CA0,
+		60: #E54886,
+		70: #C9356C,
+		80: #962241,
+		90: #4F0F21
+	),
+	grey: (
+		5: #FFFFFF,
+		10: #F0F0F0,
+		20: #E0E0E0,
+		30: #D4D4D4,
+		40: #C9C9C9,
+		50: #BDBDBD,
+		60: #929292,
+		70: #666666,
+		80: #3B3B3B,
+		90: #0F0F0F
+	),
+	red: (
+		5: #FFEBEE,
+		10: #FFCDD2,
+		20: #EF9A9A,
+		30: #E57373,
+		40: #EF5350,
+		50: #F44336,
+		60: #E53935,
+		70: #D32F2F,
+		80: #B71C1C,
+		90: #7F0000
+	)
+);
+
+@function palette-get($color, $shade) {
+	@return map-get(map-get($base-palette, $color), $shade);
+}
+
+$semantic-light: (
+	bg-primary: palette-get(blue, 5),
+	bg-secondary: palette-get(blue, 10),
+	bg-accent: palette-get(blue, 90),
+	surface-primary: palette-get(grey, 5),
+	surface-secondary: #8DB9ED,
+	surface-tertiary: palette-get(grey, 20),
+	surface-hover: rgba(palette-get(blue, 50), 0.08),
+	surface-active: palette-get(blue, 10),
+	surface-accent: palette-get(blue, 50),
+	surface-success: palette-get(green, 5),
+	surface-error: palette-get(pink, 5),
+	surface-warning: palette-get(yellow, 5),
+	surface-icon: palette-get(grey, 30),
+	surface-overlay: rgba(#040E1A, 0.04),
+	surface-on-accent-primary: palette-get(grey, 5),
+	surface-on-accent-secondary: palette-get(grey, 10),
+	surface-on-accent-accent: palette-get(blue, 50),
+	surface-on-accent-tertiary: palette-get(grey, 20),
+
+	content-primary: palette-get(grey, 90),
+	content-secondary: palette-get(grey, 70),
+	content-tertiary: palette-get(grey, 60),
+	content-placeholder: palette-get(grey, 50),
+	content-disabled: palette-get(grey, 40),
+	content-on-accent-primary: palette-get(grey, 5),
+	content-on-accent-secondary: palette-get(grey, 20),
+	content-on-accent-tertiary: palette-get(grey, 30),
+	content-on-accent-placeholder: palette-get(grey, 40),
+	content-accent: palette-get(blue, 50),
+	content-success: palette-get(green, 70),
+	content-warning: palette-get(yellow, 70),
+	content-error: palette-get(red, 50),
+	content-on-secondary-button: palette-get(blue, 50),
+
+	button-primary: palette-get(blue, 50),
+	button-on-primary: palette-get(grey, 5),
+	button-primary-hover: palette-get(blue, 60),
+	button-primary-disabled: palette-get(grey, 60),
+	button-on-primary-disabled: palette-get(grey, 5),
+	button-secondary: palette-get(blue, 30),
+	button-on-secondary: palette-get(grey, 5),
+	button-secondary-disabled: palette-get(grey, 30),
+	button-on-secondary-disabled: palette-get(grey, 60),
+	button-outline: palette-get(blue, 30),
+	button-outline-hover: palette-get(blue, 40),
+	button-ghost: transparent,
+	button-on-accent-primary: palette-get(blue, 50),
+	button-on-accent-secondary: palette-get(blue, 60),
+	button-on-accent-disabled: palette-get(grey, 30),
+	content-on-accent-on-primary-button: palette-get(grey, 5),
+	content-on-accent-on-secondary-button: palette-get(grey, 5),
+	content-on-accent-on-disabled-button: palette-get(grey, 60),
+
+	border-primary: palette-get(blue, 20),
+	border-muted: palette-get(blue, 10),
+	border-subtle: palette-get(grey, 10),
+	border-contrast: palette-get(grey, 30),
+	border-focused: palette-get(blue, 40),
+	border-error: palette-get(red, 50),
+	border-disabled: palette-get(grey, 30),
+	border-on-accent-primary: palette-get(grey, 5),
+	border-on-accent-focused: palette-get(blue, 40),
+	border-accent-muted: rgba(palette-get(blue, 50), 0.12),
+
+	state-info: palette-get(blue, 50),
+	state-info-soft: palette-get(blue, 20),
+	state-success: palette-get(green, 50),
+	state-success-soft: palette-get(green, 20),
+	state-warning: palette-get(yellow, 60),
+	state-warning-soft: palette-get(yellow, 20),
+	state-error: palette-get(red, 50),
+	state-error-soft: palette-get(red, 20),
+	state-neutral-soft: palette-get(grey, 20),
+
+	badge-info: palette-get(blue, 50),
+	badge-success: palette-get(green, 40),
+	badge-warning: palette-get(yellow, 50),
+	badge-error: palette-get(red, 40),
+	badge-neutral: palette-get(grey, 30),
+
+	card-blue: palette-get(blue, 50),
+	card-green: palette-get(green, 50),
+	card-yellow: palette-get(yellow, 50),
+	card-orange: palette-get(orange, 50),
+	card-pink: palette-get(pink, 50),
+	card-completed: palette-get(grey, 20),
+
+	chart-line: palette-get(blue, 50),
+	chart-grid-line: palette-get(grey, 20),
+	chart-area: rgba(palette-get(blue, 50), 0.16),
+
+	shadow-soft: rgba(#040E1A, 0.06),
+	shadow-medium: rgba(#040E1A, 0.08),
+	shadow-strong: rgba(#040E1A, 0.15),
+	shadow-card: rgba(#040E1A, 0.1),
+	shadow-accent: rgba(#4A90E2, 0.16),
+	shadow-accent-strong: rgba(#4A90E2, 0.18),
+	shadow-overlay: rgba(#080F28, 0.4),
+	shadow-modal: rgba(#000000, 0.2),
+	shadow-neutral: rgba(#11181D, 0.12),
+	shadow-inset-highlight: rgba(#FFFFFF, 0.4),
+
+	focus-ring: rgba(#4A90E2, 0.18)
+);
+
+$semantic-dark: (
+	bg-primary: palette-get(blue, 90),
+	bg-secondary: #081A2D,
+	bg-accent: #01060D,
+	surface-primary: palette-get(blue, 85),
+	surface-secondary: palette-get(blue, 60),
+	surface-tertiary: #1B2733,
+	surface-hover: rgba(palette-get(blue, 60), 0.35),
+	surface-active: #122438,
+	surface-accent: palette-get(blue, 50),
+	surface-success: #244226,
+	surface-error: #3E1E25,
+	surface-warning: #3A2F15,
+	surface-icon: palette-get(grey, 70),
+	surface-overlay: rgba(#01060D, 0.7),
+	surface-on-accent-primary: palette-get(blue, 5),
+	surface-on-accent-secondary: palette-get(blue, 10),
+	surface-on-accent-accent: palette-get(blue, 40),
+	surface-on-accent-tertiary: palette-get(grey, 10),
+
+	content-primary: palette-get(grey, 5),
+	content-secondary: palette-get(grey, 30),
+	content-tertiary: palette-get(grey, 40),
+	content-placeholder: palette-get(grey, 50),
+	content-disabled: palette-get(grey, 60),
+	content-on-accent-primary: palette-get(grey, 5),
+	content-on-accent-secondary: palette-get(grey, 20),
+	content-on-accent-tertiary: palette-get(grey, 30),
+	content-on-accent-placeholder: palette-get(grey, 40),
+	content-accent: palette-get(blue, 40),
+	content-success: palette-get(green, 30),
+	content-warning: palette-get(yellow, 30),
+	content-error: palette-get(red, 40),
+	content-on-secondary-button: palette-get(grey, 5),
+
+	button-primary: palette-get(blue, 50),
+	button-on-primary: palette-get(grey, 5),
+	button-primary-hover: palette-get(blue, 40),
+	button-primary-disabled: palette-get(grey, 80),
+	button-on-primary-disabled: palette-get(grey, 40),
+	button-secondary: #1F2B33,
+	button-on-secondary: palette-get(grey, 10),
+	button-secondary-disabled: #2A3848,
+	button-on-secondary-disabled: palette-get(grey, 40),
+	button-outline: palette-get(grey, 80),
+	button-outline-hover: palette-get(grey, 70),
+	button-ghost: transparent,
+	button-on-accent-primary: palette-get(blue, 50),
+	button-on-accent-secondary: palette-get(blue, 60),
+	button-on-accent-disabled: palette-get(grey, 50),
+	content-on-accent-on-primary-button: palette-get(grey, 5),
+	content-on-accent-on-secondary-button: palette-get(grey, 5),
+	content-on-accent-on-disabled-button: palette-get(grey, 30),
+
+	border-primary: #2D3B4F,
+	border-muted: #1D2A3B,
+	border-subtle: #152131,
+	border-contrast: #3B4B61,
+	border-focused: palette-get(blue, 50),
+	border-error: palette-get(red, 60),
+	border-disabled: #2F3E4F,
+	border-on-accent-primary: rgba(#FFFFFF, 0.32),
+	border-on-accent-focused: palette-get(blue, 40),
+	border-accent-muted: rgba(palette-get(blue, 50), 0.3),
+
+	state-info: palette-get(blue, 50),
+	state-info-soft: #1B2840,
+	state-success: palette-get(green, 50),
+	state-success-soft: #1C2B21,
+	state-warning: palette-get(yellow, 60),
+	state-warning-soft: #2C250F,
+	state-error: palette-get(red, 50),
+	state-error-soft: #331923,
+	state-neutral-soft: #2C3844,
+
+	badge-info: palette-get(blue, 50),
+	badge-success: palette-get(green, 40),
+	badge-warning: palette-get(yellow, 50),
+	badge-error: palette-get(red, 40),
+	badge-neutral: #2C3844,
+
+	card-blue: palette-get(blue, 50),
+	card-green: #2E7D32,
+	card-yellow: palette-get(yellow, 50),
+	card-orange: #E86A19,
+	card-pink: #D63D75,
+	card-completed: #3A4048,
+
+	chart-line: palette-get(blue, 50),
+	chart-grid-line: #1F2B33,
+	chart-area: rgba(#2D6FDB, 0.25),
+
+	shadow-soft: rgba(#000000, 0.45),
+	shadow-medium: rgba(#000000, 0.55),
+	shadow-strong: rgba(#000000, 0.6),
+	shadow-card: rgba(#000000, 0.4),
+	shadow-accent: rgba(#2D6FDB, 0.35),
+	shadow-accent-strong: rgba(#2D6FDB, 0.45),
+	shadow-overlay: rgba(#000000, 0.7),
+	shadow-modal: rgba(#000000, 0.65),
+	shadow-neutral: rgba(#000000, 0.3),
+	shadow-inset-highlight: rgba(#FFFFFF, 0.12),
+
+	focus-ring: rgba(#2D6FDB, 0.45)
+);
+
+$primary: palette-get(blue, 50);
+$accent: palette-get(yellow, 50);
+
+:root {
+	@each $color, $shades in $base-palette {
+		@each $stop, $hex in $shades {
+			--#{$color}-#{$stop}: #{$hex};
+		}
+	}
+
+	@each $name, $val in $semantic-light {
+		--#{$name}: #{$val};
+	}
+
+	--color-primary: #{$primary};
+	--color-accent: #{$accent};
+}
+
+.theme-dark {
+	@each $name, $val in $semantic-dark {
+		--#{$name}: #{$val};
+	}
+
+	--color-primary: #{palette-get(blue, 60)};
+	--color-accent: #{palette-get(yellow, 50)};
+}

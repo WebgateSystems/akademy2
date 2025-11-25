@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Admin · Quiz results</title>
+    <meta name="description" content="Detailed Polska i świat quiz scores and answer breakdowns for Class 4B.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/main.css">
+  </head>
+  <body>
+    <div class="dashboard-app" data-dashboard-app>
+      <aside class="dashboard-sidebar">
+        <div class="dashboard-logo">
+          <div class="dashboard-logo__brand">
+            <img class="dashboard-logo__icon" src="/assets/icons/logo/Akademy_logo.svg" alt="" width="32" height="32" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-logo__full" src="/assets/icons/logo/Akademy_logo_full.svg" alt="Academy 2.0" aria-hidden="false" data-theme-icon>
+          </div>
+          <button class="dashboard-collapse-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true" data-sidebar-collapse-toggle>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--collapse" src="/assets/icons/social/M/close-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand" src="/assets/icons/social/M/open-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+          </button>
+        </div>
+        <nav class="dashboard-nav" aria-label="Primary">
+          <a class="dashboard-nav__button" href="/pages/admin/school-profile.html">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">School profile</span>
+          </a>
+          <a class="dashboard-nav__button" href="/pages/admin/teachers.html">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Teachers</span>
+            <span class="notification-counter" aria-hidden="true">1</span>
+          </a>
+          <a class="dashboard-nav__button" href="/pages/teacher/pupils.html">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Pupils</span>
+          </a>
+          <a class="dashboard-nav__button  is-active" href="/pages/admin/classes"  aria-current="page">
+            <img src="/assets/icons/social/M/people_outline.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Classes</span>
+          </a>
+        </nav>
+      </aside>
+      <div class="dashboard-sidebar-overlay" data-sidebar-overlay aria-hidden="true"></div>
+
+      <main class="dashboard-main">
+        <header class="dashboard-top-bar">
+          <button class="dashboard-sidebar-toggle" type="button" aria-label="Toggle navigation" data-sidebar-toggle>
+            <img src="/assets/icons/social/M/burger.svg" alt="" width="24" height="24" data-theme-icon>
+          </button>
+          <h1>Polska i świat</h1>
+          <div class="dashboard-top-actions">
+            <a class="icon-pill" href="/pages/admin/notifications.html" aria-label="Notifications">
+              <span class="notification-counter" aria-hidden="true">3</span>
+              <img src="/assets/icons/social/M/notifications.svg" alt="" data-theme-icon>
+            </a>
+            <div class="settings-control">
+              <button class="icon-pill" type="button" aria-label="Settings" data-theme-toggle-trigger aria-expanded="false">
+                <img src="/assets/icons/social/M/settings.svg" alt="" data-theme-icon>
+              </button>
+              <div class="theme-switcher" id="theme-switcher" hidden>
+                <div class="theme-switcher__row">
+                  <div>
+                    <p class="theme-switcher__label">Dark mode</p>
+                    <p class="theme-switcher__hint">Remembers your preference</p>
+                  </div>
+                  <label class="theme-switcher__toggle">
+                    <input type="checkbox" id="theme-toggle-input" aria-label="Toggle dark mode">
+                    <span class="theme-switcher__slider" aria-hidden="true"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="classes-archive" aria-label="Academic years">
+          <div class="classes-archive__grid">
+                <article class="school-profile-hero__stat-card" data-entity="completion" aria-labelledby="completion-rate-title">
+                  <div class="school-profile-hero__stat-label">
+                    <h3 id="completion-rate-title" class="stat-label text-body-2" style="margin: 0;">Сompletion rate</h3>
+                  </div>
+                  <div class="school-profile-hero__stat-value">
+                    <span class="stat-value stat-value--filled">89%</span>
+                  </div>
+                </article>
+
+
+                <article class="school-profile-hero__stat-card" data-entity="performance" aria-labelledby="average-performance-title">
+                  <div class="school-profile-hero__stat-label">
+                    <h3 id="average-performance-title" class="stat-label text-body-2" style="margin: 0;">Average performance</h3>
+                  </div>
+                  <div class="school-profile-hero__stat-value">
+                    <span class="stat-value stat-value--filled">83 pkt</span>
+                  </div>
+                </article>
+
+                <article class="school-profile-hero__stat-card" data-entity="completion" aria-labelledby="completion-rate-repeat-title">
+                  <div class="school-profile-hero__stat-label">
+                    <h3 id="completion-rate-repeat-title" class="stat-label text-body-2" style="margin: 0;">Сompletion rate</h3>
+                  </div>
+                  <div class="school-profile-hero__stat-value">
+                    <span class="stat-value stat-value--filled">89%</span>
+                  </div>
+                </article>
+          </div>
+
+          <div class="classes-archive__grid classes-archive__grid--wide">
+                <article class="school-profile-hero__stat-card" data-entity="results-distribution" aria-labelledby="no-results-title">
+                  <div class="school-profile-hero__stat-label">
+                    <h3 id="no-results-title" class="stat-label text-body-2" style="margin: 0;">No results</h3>
+                  </div>
+                  <div class="school-profile-hero__stat-value">
+                    <span class="stat-value stat-value--filled">40%</span>
+                  </div>
+                </article>
+
+
+                <article class="school-profile-hero__stat-card" data-entity="results-distribution" aria-labelledby="bad-results-title">
+                  <div class="school-profile-hero__stat-label">
+                    <h3 id="bad-results-title" class="stat-label text-body-2" style="margin: 0;">Bad results</h3>
+                  </div>
+                  <div class="school-profile-hero__stat-value">
+                    <span class="stat-value stat-value--filled">15%</span>
+                  </div>
+                </article>
+
+                <article class="school-profile-hero__stat-card" data-entity="results-distribution" aria-labelledby="average-results-title">
+                  <div class="school-profile-hero__stat-label">
+                    <h3 id="average-results-title" class="stat-label text-body-2" style="margin: 0;">Average results</h3>
+                  </div>
+                  <div class="school-profile-hero__stat-value">
+                    <span class="stat-value stat-value--filled">15%</span>
+                  </div>
+                </article>
+
+                <article class="school-profile-hero__stat-card" data-entity="results-distribution" aria-labelledby="great-results-title">
+                  <div class="school-profile-hero__stat-label">
+                    <h3 id="great-results-title" class="stat-label text-body-2" style="margin: 0;">Greate results</h3>
+                  </div>
+                  <div class="school-profile-hero__stat-value">
+                    <span class="stat-value stat-value--filled">30%</span>
+                  </div>
+                </article>
+          </div>
+        </section>
+
+        <section class="quiz-results" aria-label="Pupil quiz results">
+          <table class="quiz-results-table">
+            <thead>
+              <tr>
+                <th scope="col" class="name">Pupil name</th>
+                <th scope="col">1</th>
+                <th scope="col">2</th>
+                <th scope="col">3</th>
+                <th scope="col">4</th>
+                <th scope="col">5</th>
+                <th scope="col">6</th>
+                <th scope="col">7</th>
+                <th scope="col">8</th>
+                <th scope="col">9</th>
+                <th scope="col">10</th>
+                <th scope="col" class="score-col">Results</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Pupil name</th>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-bad js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td><span class="quiz-results-score">91 pkt</span></td>
+              </tr>
+              <tr>
+                <th scope="row">Pupil name</th>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-bad js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-bad js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td><span class="quiz-results-score">91 pkt</span></td>
+              </tr>
+              <tr>
+                <th scope="row">Pupil name</th>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td><span class="quiz-results-score">91 pkt</span></td>
+              </tr>
+              <tr>
+                <th scope="row">Pupil name</th>
+                <td>
+                  <span
+                    class="quiz-result-dot is-bad js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-bad js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-good js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td><span class="quiz-results-score">91 pkt</span></td>
+              </tr>
+              <tr>
+                <th scope="row">Pupil name</th>
+                <td>
+                  <span
+                    class="quiz-result-dot is-empty js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-empty js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-empty js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-empty js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-empty js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-empty js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-empty js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-empty js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-empty js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="quiz-result-dot is-empty js-quiz-tooltip"
+                    data-question="Question 3"
+                    data-question-text="Od którego roku Polska należy do Unii Europejskiej?"
+                    data-answer="1995"
+                  >
+                    <span class="visually-hidden">Good result</span>
+                  </span>
+                </td>
+                <td><span class="quiz-results-score">91 pkt</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+      </main>
+    </div>
+    <script src="/assets/js/modal.js" defer></script>
+    <script src="/assets/js/admin-classes.js" defer></script>
+    <script src="/assets/js/admin-quiz.js" defer></script>
+    <script src="/assets/js/theme-switcher.js" defer></script>
+<script src="/assets/js/dashboard-sidebar.js" defer></script>
+  </body>
+</html>

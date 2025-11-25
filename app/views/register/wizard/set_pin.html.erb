@@ -1,17 +1,42 @@
-<div class="auth-card">
-  <h3 class="auth-title">Сome up with a 4-digit code</h3>
+<section class="auth-card auth-card--compact"
+         aria-labelledby="digit-code-title">
 
-  <p> This code will be needed to log in to the
-Academy 2.0 application.</p>
+  <a class="auth-back-link" href="<%= register_verify_phone_path %>" aria-label="Back to phone verification">
+    <%= image_tag "icons/social/M/back.svg",
+          width: 20,
+          height: 20,
+          alt: "",
+          data: { theme_icon: true } %>
+  </a>
 
-  <%= form_with url: register_set_pin_path, method: :post do %>
-    <div class="sms-inputs">
-      <%= password_field_tag :pin1, nil, maxlength: 1 %>
-      <%= password_field_tag :pin2, nil, maxlength: 1 %>
-      <%= password_field_tag :pin3, nil, maxlength: 1 %>
-      <%= password_field_tag :pin4, nil, maxlength: 1 %>
+  <header class="auth-card__header">
+    <h1 id="digit-code-title">Come up with a 4-digit code</h1>
+    <p>This code will be needed to log in to the Academy 2.0 application.</p>
+  </header>
+
+
+  <%= form_with url: register_set_pin_path,
+                method: :post,
+                class: "digit-code-form",
+                autocomplete: "off" do %>
+
+    <!-- Hidden field accumulating 4 digits -->
+    <%= password_field_tag :pin_hidden, nil,
+          class: "digit-code-hidden",
+          inputmode: "numeric",
+          pattern: "[0-9]*",
+          maxlength: 4,
+          aria: { label: "Enter a 4-digit code" },
+          autofocus: true %>
+
+    <!-- Dots UI -->
+    <div class="digit-code-input" aria-hidden="true">
+      <span class="digit-code-input__dot" data-index="0"></span>
+      <span class="digit-code-input__dot" data-index="1"></span>
+      <span class="digit-code-input__dot" data-index="2"></span>
+      <span class="digit-code-input__dot" data-index="3"></span>
     </div>
 
-    <button class="auth-btn">Save PIN</button>
   <% end %>
-</div>
+
+</section>

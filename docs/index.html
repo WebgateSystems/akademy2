@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Academy 2.0 · Create an account</title>
+    <meta name="description" content="Sign up for Academy 2.0 by sharing your basic info so you can invite teachers, pupils, and manage your school.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/main.css">
+  </head>
+  <body class="auth-body">
+    <main class="auth-layout">
+      <section class="auth-card" aria-labelledby="auth-card-title">
+        <header class="auth-card__header">
+          <h1 id="auth-card-title">Create an Account</h1>
+        </header>
+        <form class="auth-form" action="/pages/register/verify-phone-number.html">
+          <label>
+            <span>First name</span>
+            <input type="text" name="first_name" placeholder="First name" required>
+          </label>
+          <label>
+            <span>Last name</span>
+            <input type="text" name="last_name" placeholder="Last name" required>
+          </label>
+          <label>
+            <span>Date of birth</span>
+            <input type="text" name="date_of_birth" placeholder="DD.MM.YYYY" inputmode="numeric" required>
+          </label>
+          <label>
+            <span>Email</span>
+            <input type="email" name="email" placeholder="emily.corner@gmail.com" required>
+          </label>
+          <label>
+            <span>Phone</span>
+            <input type="tel" name="phone" placeholder="+48 XXX XXX XXX" required>
+          </label>
+          <label class="auth-checkbox">
+            <input type="checkbox" name="marketing_opt_in" required>
+            <span>By providing my email I agree to receive communications from Academy 2.0. I understand I can opt out at any time.</span>
+          </label>
+          <button class="auth-submit auth-submit--disabled" type="submit" disabled>Create account</button>
+        </form>
+      </section>
+    </main>
+    <script src="/assets/js/register-create-account.js" defer></script>
+    <script src="/assets/js/theme-switcher.js" defer></script>
+<script src="/assets/js/dashboard-sidebar.js" defer></script>
+  </body>
+</html>

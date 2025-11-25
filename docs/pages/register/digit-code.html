@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Academy 2.0 · Create digit code</title>
+    <meta name="description" content="Create a secure 4-digit code that you will use to log in to Academy 2.0.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/main.css">
+  </head>
+  <body class="auth-body">
+    <main class="auth-layout">
+      <section class="auth-card auth-card--compact" aria-labelledby="digit-code-title">
+        <a class="auth-back-link" href="/pages/register/verify-phone-number.html" aria-label="Back to phone verification">
+          <img src="/assets/icons/social/M/back.svg" alt="" width="20" height="20" data-theme-icon>
+        </a>
+        <header class="auth-card__header">
+          <h1 id="digit-code-title">Come up with a 4-digit code</h1>
+          <p>This code will be needed to log in to the Academy 2.0 application.</p>
+        </header>
+        <form class="digit-code-form" autocomplete="off" data-next-url="/pages/register/confirm-digit-code.html">
+          <input class="digit-code-hidden" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" aria-label="Enter a 4-digit code" autofocus>
+          <div class="digit-code-input" aria-hidden="true">
+            <span class="digit-code-input__dot" data-index="0"></span>
+            <span class="digit-code-input__dot" data-index="1"></span>
+            <span class="digit-code-input__dot" data-index="2"></span>
+            <span class="digit-code-input__dot" data-index="3"></span>
+          </div>
+        </form>
+      </section>
+    </main>
+    <script src="/assets/js/register-digit-code.js" defer></script>
+    <script src="/assets/js/theme-switcher.js" defer></script>
+<script src="/assets/js/dashboard-sidebar.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,71 @@
+
+$font-display: 'Rubik', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+$type-scale: (
+	display-1: (size: 100px,  lh: 1.10, weight: 700),
+	display-2: (size: 56px,   lh: 1.10, weight: 700),
+	display-3: (size: 36px,   lh: 1.10, weight: 700),
+
+	h1: (size: 24px, lh: 1.10, weight: 600),
+	h2: (size: 20px, lh: 1.10, weight: 600),
+	h3: (size: 18px, lh: 1.30, weight: 600),
+	h4: (size: 16px, lh: 1.30, weight: 600),
+	h5: (size: 14px, lh: 1.30, weight: 600),
+
+	body-1: (size: 16px, lh: 1.30, weight: 400),
+	body-2: (size: 14px, lh: 1.30, weight: 400),
+	body-3: (size: 12px, lh: 1.30, weight: 400),
+	body-4: (size: 10px, lh: 1.30, weight: 400),
+
+	button: (size: 14px, lh: 1.30, weight: 600)
+);
+
+@function type-size($key){
+	@return map-get(map-get($type-scale, $key), size);
+}
+
+@function type-lh($key){
+	@return map-get(map-get($type-scale, $key), lh);
+}
+
+@function type-weight($key){
+	@return map-get(map-get($type-scale, $key), weight);
+}
+
+:root {
+	--font-display: #{$font-display};
+	--font-body:    #{$font-body};
+
+	@each $name, $cfg in $type-scale {
+		--fs-#{$name}: #{map-get($cfg, size)};
+		--lh-#{$name}: #{map-get($cfg, lh)};
+		--fw-#{$name}: #{map-get($cfg, weight)};
+	}
+}
+
+html, body {
+	font-family: var(--font-body);
+	font-size: var(--fs-body-1);
+	line-height: var(--lh-body-1);
+	color: var(--content-primary);
+	background: var(--bg-primary);
+	margin: 0;
+}
+
+h1, .display-1 { font-family: var(--font-display); font-weight: var(--fw-display-1); font-size: var(--fs-display-1); line-height: var(--lh-display-1); }
+.display-2 { font-family: var(--font-display); font-weight: var(--fw-display-2); font-size: var(--fs-display-2); line-height: var(--lh-display-2); }
+.display-3 { font-family: var(--font-display); font-weight: var(--fw-display-3); font-size: var(--fs-display-3); line-height: var(--lh-display-3); }
+
+h2, h3, h4, h5 { font-family: var(--font-display); }
+h1 { font-size: var(--fs-h1); line-height: var(--lh-h1); font-weight: var(--fw-h1); }
+h2 { font-size: var(--fs-h2); line-height: var(--lh-h2); font-weight: var(--fw-h2); }
+h3 { font-size: var(--fs-h3); line-height: var(--lh-h3); font-weight: var(--fw-h3); }
+h4 { font-size: var(--fs-h4); line-height: var(--lh-h4); font-weight: var(--fw-h4); }
+h5 { font-size: var(--fs-h5); line-height: var(--lh-h5); font-weight: var(--fw-h5); }
+
+.text-body-1 { font-family: var(--font-body); font-size: var(--fs-body-1); line-height: var(--lh-body-1); font-weight: var(--fw-body-1); }
+.text-body-2 { font-family: var(--font-body); font-size: var(--fs-body-2); line-height: var(--lh-body-2); font-weight: var(--fw-body-2); }
+.text-body-3 { font-family: var(--font-body); font-size: var(--fs-body-3); line-height: var(--lh-body-3); font-weight: var(--fw-body-3); }
+
+.btn, button { font-family: var(--font-body); font-size: var(--fs-button); line-height: var(--lh-button); font-weight: var(--fw-button); text-transform: uppercase; }

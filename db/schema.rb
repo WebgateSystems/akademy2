@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_09_19_214807) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_24_120304) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -213,6 +213,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_09_19_214807) do
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.date "birthdate"
     t.datetime "confirmation_sent_at"
     t.string "confirmation_token"
     t.datetime "confirmed_at"
@@ -230,6 +231,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_09_19_214807) do
     t.string "locale", default: "pl", null: false
     t.datetime "locked_at"
     t.jsonb "metadata", default: {}, null: false
+    t.string "phone"
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"

@@ -1,10 +1,9 @@
 Rails.application.routes.draw do
   devise_for :users
 
-  # ADMIN LOGIN
-  get    "/admin/sign_in",  to: "admin/sessions#new",     as: :new_admin_session
-  post   "/admin/sign_in",  to: "admin/sessions#create",  as: :admin_session
-  delete "/admin/sign_out", to: "admin/sessions#destroy", as: :destroy_admin_session
+  get    '/admin/sign_in',  to: 'admin/sessions#new',     as: :new_admin_session
+  post   '/admin/sign_in',  to: 'admin/sessions#create',  as: :admin_session
+  delete '/admin/sign_out', to: 'admin/sessions#destroy', as: :destroy_admin_session
 
   namespace :admin do
     root to: 'dashboard#index'
@@ -18,22 +17,24 @@ Rails.application.routes.draw do
   end
 
   namespace :register do
-    get  "profile",       to: "wizard#profile",       as: :profile
-    post "profile",       to: "wizard#profile_submit"
-  
-    get  "verify-phone",  to: "wizard#verify_phone",  as: :verify_phone
-    post "verify-phone",  to: "wizard#verify_phone_submit"
-  
-    get  "set-pin",       to: "wizard#set_pin",       as: :set_pin
-    post "set-pin",       to: "wizard#set_pin_submit"
-  
-    get  "confirm-email", to: "wizard#confirm_email", as: :confirm_email
+    get  'profile',       to: 'wizard#profile', as: :profile
+    post 'profile',       to: 'wizard#profile_submit'
+
+    get  'verify-phone',  to: 'wizard#verify_phone', as: :verify_phone
+    get  'resend-code',   to: 'wizard#resend-code'
+    post 'verify-phone',  to: 'wizard#verify_phone_submit'
+
+    get  'set-pin',       to: 'wizard#set_pin', as: :set_pin
+    post 'set-pin',       to: 'wizard#set_pin_submit'
+
+    get  'set-pin-confirm', to: 'wizard#set_pin_confirm', as: :set_pin_confirm
+    post 'set-pin-confirm', to: 'wizard#set_pin_confirm_submit'
+
+    get  'confirm-email', to: 'wizard#confirm_email', as: :confirm_email
   end
-  
-  
 
   authenticated :user do
-    root "dashboard#index", as: :authenticated_root
+    root 'dashboard#index', as: :authenticated_root
   end
 
   namespace :api do
@@ -47,5 +48,5 @@ Rails.application.routes.draw do
   #   post "/api/v1/auth/register", to: "api/v1/users/registrations#create"
   # end
 
-  root "home#index"
+  root 'home#index'
 end

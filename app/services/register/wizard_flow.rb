@@ -2,9 +2,15 @@
 
 module Register
   class WizardFlow
-    attr_accessor :phone
+    SESSION_KEY = 'register_wizard'
 
-    SESSION_KEY = "register_wizard".freeze
+    STEP_RULES = {
+      profile: ->(_flow) { true },
+      verify_phone: ->(flow) { flow.profile_completed? },
+      set_pin: ->(flow) { flow.phone_verified? },
+      set_pin_confirm: ->(flow) { flow.phone_verified? && flow.pin_created? },
+      confirm_email: ->(flow) { flow.user_created? }
+    }.freeze
 
     def initialize(session)
       @session = session
@@ -25,25 +31,35 @@ module Register
       data[step_key].merge!(attrs)
     end
 
-    def phone
-      data['phone']
-    end
-
-
-    def clear!
+    def finish!
       @session.delete(SESSION_KEY)
     end
 
+    # --- Progress tracking ----
+
     def profile_completed?
-      data["profile"].present?
+      data['profile'].present?
     end
 
     def phone_verified?
-      data.dig("phone", "verified") == true
+      data.dig('phone', 'verified') == true
+    end
+
+    def pin_created?
+      data.dig('pin_temp', 'pin').present?
+    end
+
+    def pin_confirmed?
+      data.dig('pin', 'pin').present?
     end
 
     def user_created?
-      data["user_id"].present?
+      data.dig('user', 'user_id').present?
+    end
+
+    def can_access?(step)
+      rule = STEP_RULES[step.to_sym]
+      rule ? rule.call(self) : false
     end
   end
 end

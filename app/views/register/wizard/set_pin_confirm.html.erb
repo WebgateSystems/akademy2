@@ -1,0 +1,40 @@
+<section class="auth-card auth-card--compact"
+         aria-labelledby="digit-code-title">
+
+  <a class="auth-back-link"
+     href="<%= register_set_pin_path %>"
+     aria-label="Back to PIN creation">
+    <%= image_tag "icons/social/M/back.svg",
+          width: 20,
+          height: 20,
+          alt: "",
+          data: { theme_icon: true } %>
+  </a>
+
+  <header class="auth-card__header">
+    <h1 id="digit-code-title">Confirm your 4-digit code</h1>
+    <p>Please enter the code once more to confirm it.</p>
+  </header>
+
+  <%= form_with url: register_set_pin_confirm_path,
+                method: :post,
+                class: "digit-code-form",
+                autocomplete: "off" do %>
+
+    <%= password_field_tag :pin_hidden, nil,
+          class: "digit-code-hidden",
+          inputmode: "numeric",
+          pattern: "[0-9]*",
+          maxlength: 4,
+          aria: { label: "Enter a 4-digit code" },
+          autofocus: true %>
+
+    <div class="digit-code-input" aria-hidden="true">
+      <span class="digit-code-input__dot" data-index="0"></span>
+      <span class="digit-code-input__dot" data-index="1"></span>
+      <span class="digit-code-input__dot" data-index="2"></span>
+      <span class="digit-code-input__dot" data-index="3"></span>
+    </div>
+
+  <% end %>
+</section>
