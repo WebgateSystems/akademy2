@@ -1,0 +1,84 @@
+.container.login-wrapper
+  .login-card
+    / =====================
+    /   TABS
+    / =====================
+    .login-tabs
+      - role = params[:role] || "teacher"
+      button.login-tab class=(role == "teacher" ? "active" : "") data-role="teacher" Nauczyciel
+      button.login-tab class=(role == "student" ? "active" : "") data-role="student" Uczeń
+
+    .login-content
+      .text-center.mb-4
+        a.text-decoration-none href="/"
+          span.logo-title Akademy
+
+      h1.h4.mb-3.text-center Logowanie
+
+      = form_for(resource,
+                 as: resource_name,
+                 url: session_path(resource_name),
+                 html: { data: { login_form: true } }) do |f|
+
+        / Hidden role
+        = hidden_field_tag "user[role]", role, id: "login-role"
+
+        / ======================================
+        /   TEACHER — Email + Password
+        / ======================================
+        #teacher-fields class=(role == "teacher" ? "" : "hidden")
+
+          .mb-3
+            = f.label :email, 'Email', class: 'form-label'
+            = f.email_field :email,
+              autofocus: true,
+              autocomplete: 'email',
+              class: 'form-control login-input',
+              placeholder: 'name@school.edu'
+
+          .mb-3
+            .d-flex.justify-content-between.align-items-center
+              = f.label :password, 'Hasło', class: 'form-label'
+              - if devise_mapping.recoverable?
+                = link_to 'Nie pamiętasz hasła?', new_password_path(resource_name), class: 'small'
+
+            = f.password_field :password,
+              autocomplete: 'current-password',
+              class: 'form-control login-input',
+              placeholder: '••••••••'
+
+        / ======================================
+        /   STUDENT — Telefon + PIN (4 digits)
+        / ======================================
+        #student-fields class=(role == "student" ? "" : "hidden")
+
+          .mb-3
+            = label_tag :phone, 'Telefon', class: 'form-label'
+            = telephone_field_tag :phone, nil,
+              class: 'form-control login-input',
+              inputmode: "tel",
+              placeholder: "+48 123 456 789"
+
+
+          .mb-3
+            = label_tag :password, 'PIN (4 cyfry)', class: 'form-label'
+            = password_field_tag :password, nil,
+                maxlength: 4,
+                inputmode: "numeric",
+                pattern: "[0-9]*",
+                class: 'form-control login-input',
+                placeholder: "0000"
+
+        - if devise_mapping.rememberable?
+          .mb-3.form-check
+            = f.check_box :remember_me, class: 'form-check-input', id: 'remember_me'
+            = f.label :remember_me, 'Zapamiętaj mnie', class: 'form-check-label'
+
+        .d-grid
+          = f.submit 'Zaloguj się', class: 'btn login-btn'
+
+      .mt-3.text-center
+        = render 'devise/shared/links'
+
+    .login-footer
+      | © #{Time.current.year} Akademy

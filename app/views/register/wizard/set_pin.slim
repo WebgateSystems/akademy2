@@ -1,0 +1,33 @@
+section.auth-card.auth-card--compact aria-labelledby="digit-code-title"
+
+  a.auth-back-link href=register_verify_phone_path aria-label="Back to phone verification"
+    = image_tag "icons/social/M/back.svg",
+      width: 20,
+      height: 20,
+      alt: "",
+      data: { theme_icon: true }
+
+  header.auth-card__header
+    h1#digit-code-title Come up with a 4-digit code
+    p This code will be needed to log in to the Academy 2.0 application.
+
+  = form_with url: register_set_pin_path,
+              method: :post,
+              class: "digit-code-form",
+              autocomplete: "off" do
+
+    / Hidden field accumulating 4 digits
+    = password_field_tag :pin_hidden, nil,
+      class: "digit-code-hidden",
+      inputmode: "numeric",
+      pattern: "[0-9]*",
+      maxlength: 4,
+      aria: { label: "Enter a 4-digit code" },
+      autofocus: true
+
+    / Dots UI
+    .digit-code-input aria-hidden="true"
+      span.digit-code-input__dot data-index="0"
+      span.digit-code-input__dot data-index="1"
+      span.digit-code-input__dot data-index="2"
+      span.digit-code-input__dot data-index="3"

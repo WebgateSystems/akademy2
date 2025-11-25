@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 return if User.exists?
 
 log('Create Users & assign Roles...')
@@ -10,13 +11,13 @@ pwd = 'devpass!'
   email: 'sladkowski@webgate.pro', password: pwd, password_confirmation: pwd,
   first_name: 'Jerzy', last_name: 'Admin', locale: 'pl', confirmed_at: Time.current
 )
-UserRole.create!(user: @admin, role: Role.find_by!(key: 'admin'),   school: @school_a)
+UserRole.create!(user: @admin, role: Role.find_by!(key: 'admin'), school: @school_a)
 
-@mgr  = User.create!(
+@mgr = User.create!(
   email: 'manager@akademy.local', password: pwd, password_confirmation: pwd,
   first_name: 'Marek', last_name: 'Manager', locale: 'pl', confirmed_at: Time.current
 )
-UserRole.create!(user: @mgr,  role: Role.find_by!(key: 'manager'), school: @school_a)
+UserRole.create!(user: @mgr, role: Role.find_by!(key: 'manager'), school: @school_a)
 
 # School A
 @principal_a = User.create!(

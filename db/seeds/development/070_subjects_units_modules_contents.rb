@@ -8,7 +8,7 @@ log('Create Subjects / Units / Modules / Contents...') if defined?(log)
 MEDIA_DIR = Rails.root.join('db/files/media')
 FileUtils.mkdir_p(MEDIA_DIR) unless Dir.exist?(MEDIA_DIR)
 
-VIDEO      = (MEDIA_DIR.join('test.mp4').exist? ? MEDIA_DIR.join('test.mp4') : tmp_file(ext: 'mp4', content: "mp4 placeholder"))
+VIDEO      = (MEDIA_DIR.join('test.mp4').exist? ? MEDIA_DIR.join('test.mp4') : tmp_file(ext: 'mp4', content: 'mp4 placeholder'))
 SUBTITLES  = (MEDIA_DIR.join('test.srt').exist? ? MEDIA_DIR.join('test.srt') : tmp_file(ext: 'srt', content: "1\n00:00:00,000 --> 00:00:01,000\nNapisy testowe\n"))
 INFOGRAPH  = (MEDIA_DIR.join('test.png').exist? ? MEDIA_DIR.join('test.png') : tmp_file(ext: 'png', content: "\x89PNG\r\n"))
 PDF_DOC    = (MEDIA_DIR.join('test.pdf').exist? ? MEDIA_DIR.join('test.pdf') : tmp_file(ext: 'pdf', content: "%PDF-1.4\n%…minimal\n"))
@@ -20,6 +20,7 @@ school = defined?(@school_a) && @school_a.present? ? @school_a : School.first!
 def attach_file(record, attribute, path)
   src = path.is_a?(Pathname) ? path.to_s : path
   return unless File.exist?(src)
+
   record.public_send("#{attribute}=", uploaded_file(src))
   record.save!
 end

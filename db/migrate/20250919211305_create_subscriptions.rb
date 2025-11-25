@@ -9,6 +9,6 @@ class CreateSubscriptions < ActiveRecord::Migration[8.0]
       t.string  :external_ref
       t.timestamps
     end
-    add_index :subscriptions, [ :school_id, :plan_id, :starts_on ], name: :index_subs_on_school_plan_start
+    add_index :subscriptions, %i[school_id plan_id starts_on], name: :index_subs_on_school_plan_start
   end
 end

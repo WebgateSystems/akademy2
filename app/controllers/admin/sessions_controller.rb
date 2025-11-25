@@ -4,11 +4,11 @@ class Admin::SessionsController < ApplicationController
   def new; end
 
   def create
-     result = ::Api::V1::Sessions::CreateSession.call(params: { user: params })
+    result = ::Api::V1::Sessions::CreateSession.call(params: { user: params })
 
-      return handle_success(result) if result.success? && result.form.admin?
+    return handle_success(result) if result.success? && result.form.admin?
 
-      handle_failure(result)
+    handle_failure(result)
   end
 
   def destroy

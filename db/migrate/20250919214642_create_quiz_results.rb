@@ -9,6 +9,7 @@ class CreateQuizResults < ActiveRecord::Migration[8.0]
       t.datetime :completed_at, null: false
       t.timestamps
     end
-    add_index :quiz_results, [ :user_id, :learning_module_id ], unique: true, name: :index_quiz_results_unique_user_module
+    add_index :quiz_results, %i[user_id learning_module_id], unique: true,
+                                                             name: :index_quiz_results_unique_user_module
   end
 end

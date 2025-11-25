@@ -1,0 +1,141 @@
+/* ==========================================================================
+   LOGIN LAYOUT (semantic tokens only)
+   ========================================================================== */
+
+   .login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+  
+    background: var(--bg-primary);
+    color: var(--content-primary);
+  }
+  
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+  
+    background: var(--surface-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+  
+    padding: 2rem;
+  
+    box-shadow: 0 4px 16px var(--shadow-card);
+    backdrop-filter: blur(8px);
+  }
+  
+  /* ==========================================================================
+     TABS
+     ========================================================================== */
+  
+  .login-tabs {
+    display: flex;
+    margin-bottom: 24px;
+  
+    background: var(--surface-secondary);
+    border-radius: 12px;
+  
+    padding: 4px;
+  }
+  
+  .login-tab {
+    flex: 1;
+    padding: 10px 0;
+  
+    background: transparent;
+    border-radius: 8px;
+    border: none;
+  
+    cursor: pointer;
+    font-weight: 600;
+  
+    color: var(--content-secondary);
+  
+    transition: background 0.2s, color 0.2s;
+  }
+  
+  .login-tab.active {
+    background: var(--surface-accent);
+    color: var(--content-on-accent-primary);
+  }
+  
+  /* ==========================================================================
+     TEXT
+     ========================================================================== */
+  
+  .logo-title {
+    color: var(--content-primary);
+    font-size: 28px;
+    font-weight: 700;
+  }
+  
+  /* ==========================================================================
+     INPUTS
+     ========================================================================== */
+  
+   .login-input {
+    background: var(--surface-primary);       // белый (или тёмный в dark mode)
+    border: 1px solid var(--border-primary);  // четкая, но мягкая граница
+    color: var(--content-primary);
+    border-radius: 8px;
+    padding: 10px 12px;
+  
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  
+  .login-input::placeholder {
+    color: var(--content-placeholder);
+  }
+  
+  .login-input:focus {
+    border-color: var(--border-focused);       // ярче
+    box-shadow: 0 0 0 3px var(--focus-ring);   // сияние
+    outline: none;
+  }
+  
+  .login-input:disabled {
+    background: var(--surface-tertiary);
+    color: var(--content-disabled);
+    cursor: not-allowed;
+  }
+  
+  /* ==========================================================================
+     BUTTONS
+     ========================================================================== */
+  
+  .login-btn {
+    background: var(--button-primary);
+    color: var(--button-on-primary);
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+  
+    transition: background 0.2s ease;
+  }
+  
+  .login-btn:hover {
+    background: var(--button-primary-hover);
+  }
+  
+  /* ==========================================================================
+     FOOTER
+     ========================================================================== */
+  
+  .login-footer {
+    text-align: center;
+    margin-top: 16px;
+    color: var(--content-secondary);
+  }
+  
+  /* ==========================================================================
+     UTILS
+     ========================================================================== */
+  
+  .hidden {
+    display: none !important;
+  }
+  

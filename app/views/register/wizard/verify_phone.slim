@@ -1,0 +1,49 @@
+section.auth-card.auth-card--compact aria-labelledby="verify-title" data-controller="sms-code"
+
+  a.auth-back-link href="/register/profile" aria-label="Back to registration"
+    = image_tag "icons/social/M/back.svg",
+      width: 20,
+      height: 20,
+      alt: "",
+      data: { theme_icon: true }
+
+  header.auth-card__header
+    h1#verify-title Verify your phone number
+    p
+      | We sent a 4-digit code to 
+      strong = @phone
+
+  = form_with url: register_verify_phone_path,
+              method: :post,
+              class: "auth-form auth-form--otp",
+              data: { next_url: register_verify_phone_path } do
+
+    .otp-inputs role="group" aria-label="Verification code"
+      = text_field_tag :code1, nil,
+        maxlength: 1,
+        inputmode: "numeric",
+        aria: { label: "Digit 1" },
+        autofocus: true,
+        data: { "sms-code-target": "input", action: "input->sms-code#onInput" }
+
+      = text_field_tag :code2, nil,
+        maxlength: 1,
+        inputmode: "numeric",
+        aria: { label: "Digit 2" },
+        data: { "sms-code-target": "input", action: "input->sms-code#onInput" }
+
+      = text_field_tag :code3, nil,
+        maxlength: 1,
+        inputmode: "numeric",
+        aria: { label: "Digit 3" },
+        data: { "sms-code-target": "input", action: "input->sms-code#onInput" }
+
+      = text_field_tag :code4, nil,
+        maxlength: 1,
+        inputmode: "numeric",
+        aria: { label: "Digit 4" },
+        data: { "sms-code-target": "input", action: "input->sms-code#onInput" }
+
+    button.auth-submit.auth-submit--disabled.js-verify-action \
+      data-sms-code-target="continueButton" disabled=true
+      | Continue

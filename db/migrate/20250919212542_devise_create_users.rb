@@ -2,16 +2,16 @@ class DeviseCreateUsers < ActiveRecord::Migration[8.0]
   def change
     create_table :users, id: :uuid do |t|
       ## Database authenticatable
-      t.string   :email,              null: false, default: ""
-      t.string   :encrypted_password, null: false, default: ""
+      t.string   :email,              null: false, default: ''
+      t.string   :encrypted_password, null: false, default: ''
 
       ## JWT (JTIMatcher) – unikalny identyfikator tokenu
-      t.uuid     :jti, null: false, default: -> { "gen_random_uuid()" }
+      t.uuid     :jti, null: false, default: -> { 'gen_random_uuid()' }
 
       ## Domenowe pola profilu
       t.string   :first_name
       t.string   :last_name
-      t.string   :locale, null: false, default: "pl"
+      t.string   :locale, null: false, default: 'pl'
       t.references :school, type: :uuid, foreign_key: true
       t.jsonb    :metadata, null: false, default: {}
 
@@ -49,6 +49,6 @@ class DeviseCreateUsers < ActiveRecord::Migration[8.0]
     add_index :users, :reset_password_token, unique: true
     add_index :users, :confirmation_token,   unique: true
     add_index :users, :unlock_token,         unique: true
-    add_index :users, [ :school_id, :last_name, :first_name ], name: :index_users_on_school_and_name
+    add_index :users, %i[school_id last_name first_name], name: :index_users_on_school_and_name
   end
 end

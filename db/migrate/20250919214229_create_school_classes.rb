@@ -9,6 +9,6 @@ class CreateSchoolClasses < ActiveRecord::Migration[8.0]
       t.timestamps
     end
     add_index :school_classes, :qr_token, unique: true
-    add_index :school_classes, [ :school_id, :name, :year ], unique: true, name: :index_classes_on_school_name_year
+    add_index :school_classes, %i[school_id name year], unique: true, name: :index_classes_on_school_name_year
   end
 end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 return if TeacherClassAssignment.exists?
 
 log('Assign Teachers to Classes...')

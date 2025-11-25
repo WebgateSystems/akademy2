@@ -16,15 +16,12 @@ module Register
     end
 
     def profile_submit
-      @form = ProfileForm.new(profile_params)
+      result = Register::ProfileSubmit.call(params:, flow: @flow)
+      @form = result.form
 
-      if @form.valid?
-        @flow.update(:profile, @form.to_h)
-        send_sms_code(@form.phone)
-        redirect_to register_verify_phone_path
-      else
-        render :profile, status: :unprocessable_entity
-      end
+      return redirect_to register_verify_phone_path if result.success?
+
+      render :profile, status: :unprocessable_entity
     end
 
     # === STEP 2: VERIFY PHONE ===
@@ -36,22 +33,21 @@ module Register
 
     def resend_code
       phone = @flow.get(:phone)&.dig('phone')
-      send_sms_code(phone)
+      ::Register::SendSmsCode.call(phone:, flow: @flow)
+
       render json: { ok: true }
     end
 
     def verify_phone_submit
-      code = merge_code(params[:code1], params[:code2], params[:code3], params[:code4])
-      @form = VerifyPhoneForm.new(code: code)
+      result = Register::VerifyPhoneSubmit.call(params:, flow: @flow)
 
-      if @form.valid? && code == @flow['phone']['sms_code']
-        @flow.update(:phone, { 'verified' => true })
-        redirect_to register_set_pin_path
-      else
-        @phone = @flow['profile']['phone']
-        flash.now[:alert] = 'Wrong Code'
-        render :verify_phone, status: :unprocessable_entity
-      end
+      @form  = result.form
+      @phone = result.phone
+
+      return redirect_to register_set_pin_path if result.success?
+
+      flash.now[:alert] = result.error
+      render :verify_phone, status: :unprocessable_entity
     end
 
     # === STEP 3: SET PIN ===
@@ -61,15 +57,12 @@ module Register
     end
 
     def set_pin_submit
-      pin = params[:pin_hidden]
-      @form = PinForm.new(pin: pin)
+      result = Register::SetPinSubmit.call(params:, flow: @flow)
+      @form = result.form
 
-      if @form.valid?
-        @flow.update(:pin_temp, { 'pin' => pin })
-        redirect_to register_set_pin_confirm_path
-      else
-        render :set_pin, status: :unprocessable_entity
-      end
+      return redirect_to register_set_pin_confirm_path if result.success?
+
+      render :set_pin, status: :unprocessable_entity
     end
 
     # === STEP 4: CONFIRM PIN ===
@@ -79,29 +72,10 @@ module Register
     end
 
     def set_pin_confirm_submit
-      confirm_pin = params[:pin_hidden]
-      @form = PinForm.new(pin: confirm_pin)
+      result = Register::SetPinConfirmSubmit.call(params:, flow: @flow)
+      @form  = result.form
 
-      stored_pin = @flow['pin_temp']['pin']
-
-      if @form.valid? && confirm_pin == stored_pin
-        @flow.update(:pin, { 'pin' => confirm_pin })
-
-        user = build_user_from_flow
-
-        if user.save
-          @flow.update(:user, { 'user_id' => user.id })
-          user.send_confirmation_instructions
-          redirect_to register_confirm_email_path
-        else
-          flash[:alert] = user.errors.full_messages.to_sentence
-          redirect_to register_profile_path
-        end
-
-      else
-        flash.now[:alert] = 'Codes do not match'
-        render :set_pin_confirm, status: :unprocessable_entity
-      end
+      result.success? ? handle_success : handle_failure(result)
     end
 
     # === STEP 5: CONFIRM EMAIL SCREEN ===
@@ -121,39 +95,21 @@ module Register
       @flow = WizardFlow.new(session)
     end
 
-    def profile_params
-      params.require(:register_profile_form).permit(:first_name, :last_name, :birthdate, :email, :phone)
-    end
-
-    def merge_code(*digits)
-      digits.join
-    end
-
-    def send_sms_code(phone)
-      # code = '%04d' % rand(0..9999)
-      code = '0000' # for debug
-
-      @flow.update(:phone, { 'sms_code' => code, 'verified' => false, 'phone' => phone })
-      Rails.logger.info "SMS code for #{phone}: #{code}"
-    end
-
-    def build_user_from_flow
-      profile = @flow['profile'] || {}
-      pin     = @flow['pin']['pin']
-
-      User.new(
-        first_name: profile['first_name'],
-        last_name: profile['last_name'],
-        email: profile['email'],
-        phone: profile['phone'],
-        birthdate: profile['birthdate'],
-        password: pin,
-        password_confirmation: pin
-      )
-    end
-
     def ensure_step_allowed(step)
       redirect_to register_profile_path unless @flow.can_access?(step)
+    end
+
+    def handle_success
+      redirect_to register_confirm_email_path
+    end
+
+    def handle_failure(result)
+      flash[:alert] = result.message
+
+      return redirect_to(result.redirect_path) if result.redirect_path.present?
+
+      flash.now[:alert] = result.message
+      render :set_pin_confirm, status: :unprocessable_entity
     end
   end
 end

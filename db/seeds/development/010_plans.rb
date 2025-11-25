@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 return unless Plan.count.zero?
 
 log('Create Plans...')

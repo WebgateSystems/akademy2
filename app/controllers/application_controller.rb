@@ -4,7 +4,11 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
 
   rescue_from Pundit::NotAuthorizedError do
-    fallback = respond_to?(:admin_root_path) ? admin_root_path : (respond_to?(:new_user_session_path) ? new_user_session_path : "up")
-    redirect_to(request.referer.presence || fallback, alert: "Brak uprawnień.")
+    fallback = if respond_to?(:admin_root_path)
+                 admin_root_path
+               else
+                 (respond_to?(:new_user_session_path) ? new_user_session_path : 'up')
+               end
+    redirect_to(request.referer.presence || fallback, alert: 'Brak uprawnień.')
   end
 end

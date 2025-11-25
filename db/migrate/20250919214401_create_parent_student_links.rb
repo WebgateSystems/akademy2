@@ -6,7 +6,7 @@ class CreateParentStudentLinks < ActiveRecord::Migration[8.0]
       t.string :relation, null: false # mother/father/guardian/other
       t.timestamps
     end
-    add_index :parent_student_links, [ :parent_id, :student_id ], unique: true, name: :index_parent_student_unique
+    add_index :parent_student_links, %i[parent_id student_id], unique: true, name: :index_parent_student_unique
     add_foreign_key :parent_student_links, :users, column: :parent_id
     add_foreign_key :parent_student_links, :users, column: :student_id
   end

@@ -10,17 +10,18 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     if resource.save
       # powiązania domenowe wg typu zaproszenia
       case invite.kind
-      when "teacher"
+      when 'teacher'
         # rola nauczyciela „pending” do akceptacji przez dyrektora
         UserRole.create!(user: resource, role: Role.find_by!(key: :teacher), school_id: invite.school_id)
-      when "student"
+      when 'student'
         # zapis do klasy z „pending” do akceptu nauczyciela
-        StudentClassEnrollment.create!(student_id: resource.id, school_class_id: invite.school_class_id, status: "pending")
+        StudentClassEnrollment.create!(student_id: resource.id, school_class_id: invite.school_class_id,
+                                       status: 'pending')
       end
 
       invite.mark_used!
       resource.send_confirmation_instructions
-      render json: { user_id: resource.id, status: "pending_approval" }, status: :created
+      render json: { user_id: resource.id, status: 'pending_approval' }, status: :created
     else
       render json: { errors: resource.errors.full_messages }, status: :unprocessable_entity
     end
@@ -34,7 +35,8 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
 
   def find_and_validate_invite!
     token = params[:invite_token] || params[:class_token]
-    raise ActiveRecord::RecordNotFound unless token.present?
+    raise ActiveRecord::RecordNotFound if token.blank?
+
     InviteTokens::Validator.call!(token) # patrz punkt 3
   end
 end

@@ -7,6 +7,6 @@ class CreateSubjects < ActiveRecord::Migration[8.0]
       t.integer :order_index, null: false, default: 0
       t.timestamps
     end
-    add_index :subjects, [ :school_id, :slug ], unique: true, name: :index_subjects_on_school_and_slug
+    add_index :subjects, %i[school_id slug], unique: true, name: :index_subjects_on_school_and_slug
   end
 end

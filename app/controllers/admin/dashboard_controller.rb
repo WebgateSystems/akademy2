@@ -3,5 +3,3 @@ class Admin::DashboardController < Admin::BaseController
     @resources = Admin::ResourcesController::RESOURCES
   end
 end
-
-

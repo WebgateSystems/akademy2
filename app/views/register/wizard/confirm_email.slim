@@ -1,0 +1,23 @@
+section.auth-card.auth-card--compact aria-labelledby="verify-account-title"
+
+  a.auth-back-link href=register_set_pin_confirm_path aria-label="Back to digit code"
+    = image_tag "icons/social/M/back.svg",
+      width: 20,
+      height: 20,
+      alt: "",
+      data: { theme_icon: true }
+
+  header.auth-card__header
+    h1#verify-account-title Verify your account
+
+    p
+      | We’ve sent a confirmation link to 
+      strong = @user_email
+      | . Open your inbox and click the link to finish signing up.
+
+    p Don’t see it? Check your spam folder.
+
+  .confirm-email aria-label="Verify account confirmation"
+    = link_to "Next",
+      authenticated_root_path,
+      class: "auth-submit auth-submit--primary"

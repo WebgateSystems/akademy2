@@ -8,5 +8,3 @@ class AdminPolicy < ApplicationPolicy
     user&.admin? # здесь определяет, может ли юзер в админку
   end
 end
-
-

@@ -6,6 +6,6 @@ class CreateUserRoles < ActiveRecord::Migration[8.0]
       t.references :school,              type: :uuid, foreign_key: true
       t.timestamps
     end
-    add_index :user_roles, [ :user_id, :role_id, :school_id ], unique: true, name: :index_user_roles_unique_triplet
+    add_index :user_roles, %i[user_id role_id school_id], unique: true, name: :index_user_roles_unique_triplet
   end
 end

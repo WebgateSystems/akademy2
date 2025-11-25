@@ -1,0 +1,78 @@
+section.auth-card aria-labelledby="auth-card-title"
+  header.auth-card__header
+    h1#auth-card-title Create an Account
+
+  = form_with model: @form,
+              url: register_profile_path,
+              method: :post,
+              html: { class: "auth-form" } do |f|
+
+    / ===============================
+    / First name
+    / ===============================
+    label
+      span First name
+      = f.text_field :first_name,
+          placeholder: "First name",
+          class: (@form.errors[:first_name].present? ? "error-input" : "")
+      - if @form.errors[:first_name].present?
+        .field-error = @form.errors[:first_name].first
+
+    / ===============================
+    / Last name
+    / ===============================
+    label
+      span Last name
+      = f.text_field :last_name,
+          placeholder: "Last name",
+          class: (@form.errors[:last_name].present? ? "error-input" : "")
+      - if @form.errors[:last_name].present?
+        .field-error = @form.errors[:last_name].first
+
+    / ===============================
+    / Date of birth
+    / ===============================
+    label
+      span Date of birth
+      = f.text_field :birthdate,
+          placeholder: "DD.MM.YYYY",
+          inputmode: "numeric",
+          class: (@form.errors[:birthdate].present? ? "error-input" : "")
+      - if @form.errors[:birthdate].present?
+        .field-error = @form.errors[:birthdate].first
+
+    / ===============================
+    / Email
+    / ===============================
+    label
+      span Email
+      = f.email_field :email,
+          placeholder: "example@mail.com",
+          class: (@form.errors[:email].present? ? "error-input" : "")
+      - if @form.errors[:email].present?
+        .field-error = @form.errors[:email].first
+
+    / ===============================
+    / Phone
+    / ===============================
+    label
+      span Phone
+      = f.text_field :phone,
+          placeholder: "+48 XXX XXX XXX",
+          class: (@form.errors[:phone].present? ? "error-input" : "")
+      - if @form.errors[:phone].present?
+        .field-error = @form.errors[:phone].first
+
+    / ===============================
+    / Marketing checkbox
+    / ===============================
+    label.auth-checkbox
+      = f.check_box :marketing
+      span
+        | By providing my email I agree to receive communications from Academy 2.0.
+        | I understand I can opt out at any time.
+
+    / ===============================
+    / Submit button
+    / ===============================
+    button.auth-submit type="submit" Create account

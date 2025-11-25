@@ -7,7 +7,8 @@ class CreateStudentClassEnrollments < ActiveRecord::Migration[8.0]
       t.datetime :joined_at
       t.timestamps
     end
-    add_index :student_class_enrollments, [ :student_id, :school_class_id ], unique: true, name: :index_student_enrollments_unique
+    add_index :student_class_enrollments, %i[student_id school_class_id], unique: true,
+                                                                          name: :index_student_enrollments_unique
     add_foreign_key :student_class_enrollments, :users, column: :student_id
   end
 end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 return if Subscription.exists?
 
 log('Create Subscriptions...')
@@ -8,14 +9,14 @@ basic   = Plan.find_by!(key: 'basic')
 
 Subscription.create!(
   school: @school_a, plan: premium,
-  starts_on: Date.today - 15,
-  expires_on: Date.today + 365,
+  starts_on: Time.zone.today - 15,
+  expires_on: Time.zone.today + 365,
   status: 'active'
 )
 
 Subscription.create!(
   school: @school_b, plan: basic,
-  starts_on: Date.today - 15,
-  expires_on: Date.today + 365,
+  starts_on: Time.zone.today - 15,
+  expires_on: Time.zone.today + 365,
   status: 'active'
 )

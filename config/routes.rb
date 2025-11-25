@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
-  devise_for :users
+  devise_for :users,
+             controllers: {
+               sessions: 'users/sessions'
+             }
 
   get    '/admin/sign_in',  to: 'admin/sessions#new',     as: :new_admin_session
   post   '/admin/sign_in',  to: 'admin/sessions#create',  as: :admin_session

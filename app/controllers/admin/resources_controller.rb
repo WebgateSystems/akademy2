@@ -21,7 +21,7 @@ class Admin::ResourcesController < Admin::BaseController
   }.freeze
 
   before_action :set_resource_class
-  before_action :set_record, only: %i[ show edit update destroy ]
+  before_action :set_record, only: %i[show edit update destroy]
 
   def index
     @records = @resource_class.order(created_at: :desc).limit(200)
@@ -74,5 +74,3 @@ class Admin::ResourcesController < Admin::BaseController
     params.require(@resource_class.model_name.param_key).permit(columns)
   end
 end
-
-

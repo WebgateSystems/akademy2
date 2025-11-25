@@ -8,6 +8,6 @@ class CreateJwtRefreshTokens < ActiveRecord::Migration[8.0]
       t.timestamps
     end
     add_index :jwt_refresh_tokens, :token_digest, unique: true
-    add_index :jwt_refresh_tokens, [ :user_id, :exp ], name: :index_jwt_tokens_on_user_and_exp
+    add_index :jwt_refresh_tokens, %i[user_id exp], name: :index_jwt_tokens_on_user_and_exp
   end
 end
