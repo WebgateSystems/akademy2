@@ -21,8 +21,8 @@ class BaseInteractor
   end
 
   def bad_outcome
-    context.errors = current_form.errors.messages
-    context.message = current_form.errors.full_messages
+    context.errors = current_form.errors
+    context.message = current_form.messages
     context.fail!
   end
 

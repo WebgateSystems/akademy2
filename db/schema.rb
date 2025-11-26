@@ -164,6 +164,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_29_000003) do
     t.index ["user_id"], name: "index_quiz_results_on_user_id"
   end
 
+  create_table "registration_flows", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.jsonb "data", default: {}
+    t.datetime "expires_at", null: false
+    t.string "phone_code"
+    t.boolean "phone_verified", default: false
+    t.string "pin_temp"
+    t.string "step", default: "profile", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expires_at"], name: "index_registration_flows_on_expires_at"
+  end
+
   create_table "roles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "key", null: false
