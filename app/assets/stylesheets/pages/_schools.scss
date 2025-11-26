@@ -130,6 +130,20 @@
 		font-size: 14px;
 	}
 
+	.school-name-link {
+		color: inherit;
+		text-decoration: none;
+		font-weight: inherit;
+		font-size: inherit;
+		cursor: pointer;
+
+		&:hover,
+		&:focus {
+			color: inherit;
+			text-decoration: underline;
+		}
+	}
+
 	tr td:first-child {
 		border-radius: 12px 0 0 12px;
 	}

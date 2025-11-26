@@ -1,0 +1,106 @@
+// API Client for communicating with Rails API
+class ApiClient {
+  constructor() {
+    this.baseURL = '/api/v1';
+    this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+  }
+
+  getAuthToken() {
+    // Try to get token from meta tag (set by Rails)
+    const tokenMeta = document.querySelector('meta[name="admin-token"]');
+    if (tokenMeta) {
+      return tokenMeta.getAttribute('content');
+    }
+    return null;
+  }
+
+  getHeaders(contentType = 'application/json') {
+    const headers = {
+      'Content-Type': contentType,
+    };
+
+    if (this.csrfToken) {
+      headers['X-CSRF-Token'] = this.csrfToken;
+    }
+
+    const authToken = this.getAuthToken();
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+
+    return headers;
+  }
+
+  async request(method, path, data = null) {
+    const url = `${this.baseURL}${path}`;
+    const options = {
+      method,
+      headers: this.getHeaders(),
+    };
+
+    if (data) {
+      if (data instanceof FormData) {
+        // Remove Content-Type for FormData to let browser set it with boundary
+        delete options.headers['Content-Type'];
+        options.body = data;
+      } else {
+        options.body = JSON.stringify(data);
+      }
+    }
+
+    try {
+      const response = await fetch(url, options);
+      const contentType = response.headers.get('content-type');
+      
+      let responseData;
+      if (contentType && contentType.includes('application/json')) {
+        responseData = await response.json();
+      } else {
+        responseData = await response.text();
+      }
+
+      if (!response.ok) {
+        console.error('API request failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: url,
+          responseData: responseData
+        });
+        
+        const errorMessage = Array.isArray(responseData.errors) 
+          ? responseData.errors.join(', ') 
+          : (responseData.errors || responseData.error || `HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(errorMessage);
+      }
+
+      return { success: true, data: responseData };
+    } catch (error) {
+      console.error('API request failed:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async get(path) {
+    return this.request('GET', path);
+  }
+
+  async post(path, data) {
+    return this.request('POST', path, data);
+  }
+
+  async patch(path, data) {
+    return this.request('PATCH', path, data);
+  }
+
+  async delete(path) {
+    return this.request('DELETE', path);
+  }
+}
+
+// Export for use in other modules (both ES6 and global)
+// Make sure it's available immediately for inline scripts
+if (typeof window !== 'undefined') {
+  window.ApiClient = ApiClient;
+}
+export default ApiClient;
+

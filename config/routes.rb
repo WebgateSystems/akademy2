@@ -1,10 +1,7 @@
 Rails.application.routes.draw do
   mount Rswag::Ui::Engine => '/api-docs'
   mount Rswag::Api::Engine => '/api-docs'
-  devise_for :users,
-             controllers: {
-               sessions: 'users/sessions'
-             }
+  devise_for :users, controllers: { sessions: 'users/sessions' }
 
   get    '/admin/sign_in',  to: 'admin/sessions#new',     as: :new_admin_session
   post   '/admin/sign_in',  to: 'admin/sessions#create',  as: :admin_session
@@ -44,7 +41,8 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resource :session, only: :create
+      resource :session, only: [:create]
+      resources :schools, only: %i[index show create update destroy]
     end
   end
 

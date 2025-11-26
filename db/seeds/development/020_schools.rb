@@ -5,7 +5,7 @@ return if School.exists?
 log('Create Schools...')
 
 sp53_logo = Rails.root.join('db/files/schools/default.png')
-sp18_logo  = Rails.root.join('db/files/schools/sp18.png')
+sp18_logo = Rails.root.join('db/files/schools/sp18.png')
 gis_logo  = Rails.root.join('db/files/schools/gis.png')
 
 @school_a = School.new(

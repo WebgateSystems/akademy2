@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <% if current_admin %>
+      <meta name="admin-token" content="<%= session[:admin_id] %>">
+    <% end %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", type: "module" %>
   </head>

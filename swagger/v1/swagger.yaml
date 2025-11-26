@@ -82,3 +82,229 @@ paths:
               required:
               - email
               - password
+  "/api/v1/schools":
+    get:
+      summary: List schools
+      tags:
+      - Schools
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: schools list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                        attributes:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            slug:
+                              type: string
+                            address:
+                              type: string
+                              nullable: true
+                            city:
+                              type: string
+                            postcode:
+                              type: string
+                              nullable: true
+                            country:
+                              type: string
+                            phone:
+                              type: string
+                              nullable: true
+                            email:
+                              type: string
+                              nullable: true
+                            homepage:
+                              type: string
+                              nullable: true
+                            logo_url:
+                              type: string
+                              nullable: true
+                            created_at:
+                              type: string
+                            updated_at:
+                              type: string
+        '401':
+          description: unauthorized
+    post:
+      summary: Create school
+      tags:
+      - Schools
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: school created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          slug:
+                            type: string
+                          city:
+                            type: string
+                          country:
+                            type: string
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                slug:
+                  type: string
+                address:
+                  type: string
+                city:
+                  type: string
+                postcode:
+                  type: string
+                country:
+                  type: string
+                phone:
+                  type: string
+                email:
+                  type: string
+                homepage:
+                  type: string
+                logo:
+                  type: string
+                  format: binary
+              required:
+              - name
+              - city
+  "/api/v1/schools/{id}":
+    parameters:
+    - name: id
+      in: path
+      format: uuid
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Show school
+      tags:
+      - Schools
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: school found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          slug:
+                            type: string
+                          city:
+                            type: string
+        '404':
+          description: school not found
+    patch:
+      summary: Update school
+      tags:
+      - Schools
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: school updated
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                slug:
+                  type: string
+                address:
+                  type: string
+                city:
+                  type: string
+                postcode:
+                  type: string
+                country:
+                  type: string
+                phone:
+                  type: string
+                email:
+                  type: string
+                homepage:
+                  type: string
+                logo:
+                  type: string
+                  format: binary
+    delete:
+      summary: Delete school
+      tags:
+      - Schools
+      security:
+      - bearerAuth: []
+      responses:
+        '204':
+          description: school deleted
+        '404':
+          description: school not found
