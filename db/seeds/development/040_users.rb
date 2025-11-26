@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-return if User.joins(:roles).where(roles: { key: ['admin', 'manager'] }).exists?
+return if User.joins(:roles).where(roles: { key: %w[admin manager] }).exists?
 
 log('Create Global Admins & Managers...')
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-return if User.joins(:roles).where(roles: { key: ['principal', 'school_manager'] }).exists?
+return if User.joins(:roles).where(roles: { key: %w[principal school_manager] }).exists?
 
 log('Create Principals & School Managers...')
 
@@ -48,4 +48,3 @@ UserRole.create!(user: @vice_principal_b1, role: Role.find_by!(key: 'school_mana
   school: @school_b, confirmed_at: Time.current
 )
 UserRole.create!(user: @vice_principal_b2, role: Role.find_by!(key: 'school_manager'), school: @school_b)
-

@@ -9,8 +9,8 @@ teacher_role = Role.find_by!(key: 'teacher')
 
 # Teachers from https://sp18.gdynia.pl/nauczyciele,57,pl
 teachers_data = [
-  { first_name: 'Sylwia', last_name: 'Chmarzyńska', email: 'schmarzynska@sp18.edu.gdynia.pl', subjects: ['biblioteka', 'czytelnia'] },
-  { first_name: 'Krzysztofia', last_name: 'Princ-Kruczek', email: 'kprinckruczek@sp18.edu.gdynia.pl', subjects: ['biblioteka', 'czytelnia'] },
+  { first_name: 'Sylwia', last_name: 'Chmarzyńska', email: 'schmarzynska@sp18.edu.gdynia.pl', subjects: %w[biblioteka czytelnia] },
+  { first_name: 'Krzysztofia', last_name: 'Princ-Kruczek', email: 'kprinckruczek@sp18.edu.gdynia.pl', subjects: %w[biblioteka czytelnia] },
   { first_name: 'Ilona', last_name: 'Biłek-Landowska', email: 'i.bileklandowska@sp18.edu.gdynia.pl', subjects: ['biologia', 'edukacja zdrowotna', 'przyroda'] },
   { first_name: 'Aneta', last_name: 'Zocholl', email: 'zocholla@sp18.gdynia.pl', subjects: ['chemia'] },
   { first_name: 'Emilia', last_name: 'Kantecka', email: 'ekantecka@sp18.edu.gdynia.pl', subjects: ['chemia'] },
@@ -22,10 +22,10 @@ teachers_data = [
   { first_name: 'Anna', last_name: 'Ryta', email: 'aryta@sp18.edu.gdynia.pl', subjects: ['edukacja zintegrowana'] },
   { first_name: 'Monika', last_name: 'Chilicka', email: 'mchilicka@sp18.edu.gdynia.pl', subjects: ['edukacja zintegrowana'] },
   { first_name: 'Bożena', last_name: 'Żurawska', email: 'bzurawska@sp18.edu.gdynia.pl', subjects: ['edukacja zintegrowana'] },
-  { first_name: 'Karina', last_name: 'Sankowska', email: 'ksankowska@sp18.edu.gdynia.pl', subjects: ['fizyka', 'matematyka'] },
+  { first_name: 'Karina', last_name: 'Sankowska', email: 'ksankowska@sp18.edu.gdynia.pl', subjects: %w[fizyka matematyka] },
   { first_name: 'Maciej', last_name: 'Frankiewicz', email: 'mfrankiewicz@sp18.edu.gdynia.pl', subjects: ['geografia'] },
-  { first_name: 'Dorota', last_name: 'Dudzicz', email: 'ddudzicz@sp18.edu.gdynia.pl', subjects: ['historia', 'wos'] },
-  { first_name: 'Justyna', last_name: 'Jellonnek', email: 'jjellonnek@sp18.edu.gdynia.pl', subjects: ['historia', 'wos'] },
+  { first_name: 'Dorota', last_name: 'Dudzicz', email: 'ddudzicz@sp18.edu.gdynia.pl', subjects: %w[historia wos] },
+  { first_name: 'Justyna', last_name: 'Jellonnek', email: 'jjellonnek@sp18.edu.gdynia.pl', subjects: %w[historia wos] },
   { first_name: 'Elżbieta', last_name: 'Witkowska', email: 'ewitkowska@sp18.edu.gdynia.pl', subjects: ['informatyka'] },
   { first_name: 'Anna', last_name: 'Kozak', email: 'akozak@sp18.edu.gdynia.pl', subjects: ['j. polski'] },
   { first_name: 'Sylwia', last_name: 'Kwiatkowska', email: 'skwiatkowska@sp18.edu.gdynia.pl', subjects: ['j. polski'] },
@@ -35,7 +35,7 @@ teachers_data = [
   { first_name: 'Beata', last_name: 'Siemińska', email: 'bsieminska@sp18.edu.gdynia.pl', subjects: ['matematyka'] },
   { first_name: 'Justyna', last_name: 'Krawczyk', email: 'jkrawczyk@sp18.edu.gdynia.pl', subjects: ['matematyka'] },
   { first_name: 'Ewa', last_name: 'Jabłonowska-Stojek', email: 'ejablonowskastojek@sp18.edu.gdynia.pl', subjects: ['matematyka'] },
-  { first_name: 'Małgorzata', last_name: 'Portee', email: 'mportee@sp18.edu.gdynia.pl', subjects: ['muzyka', 'plastyka'] },
+  { first_name: 'Małgorzata', last_name: 'Portee', email: 'mportee@sp18.edu.gdynia.pl', subjects: %w[muzyka plastyka] },
   { first_name: 'Anna', last_name: 'Sieracka', email: 'asieracka@sp18.edu.gdynia.pl', subjects: ['technika'] },
   { first_name: 'Mariola', last_name: 'Gęsikiewicz', email: 'mgesikiewicz@sp18.edu.gdynia.pl', subjects: ['religia'] },
   { first_name: 'Adam', last_name: 'Hrubiszewski', email: 'ahrubiszewski@sp18.edu.gdynia.pl', subjects: ['religia'] },
@@ -58,7 +58,7 @@ teachers_data = [
 teachers_data.each_with_index do |teacher_data, index|
   # Use provided email or generate one
   email = teacher_data[:email] || "nauczyciel.sp18.#{index + 1}@akademy.local"
-  
+
   user = User.create!(
     email: email,
     password: pwd,
@@ -68,10 +68,10 @@ teachers_data.each_with_index do |teacher_data, index|
     locale: 'pl',
     school: @school_b,
     confirmed_at: Time.current,
-    metadata: { 
+    metadata: {
       subjects: teacher_data[:subjects] || []
     }
   )
-  
+
   UserRole.create!(user: user, role: teacher_role, school: @school_b)
 end

@@ -73,13 +73,13 @@ teachers_data = [
   { first_name: 'Karolina', last_name: 'Tomporowska', subjects: ['logopedia'] },
   { first_name: 'Agnieszka', last_name: 'Wierzbicka', subjects: ['psycholog'] },
   { first_name: 'Paweł', last_name: 'Wilmański', subjects: ['j. niemiecki'] },
-  { first_name: 'Anna', last_name: 'Wojtek-Tarasiewicz', subjects: ['plastyka', 'technika'] },
+  { first_name: 'Anna', last_name: 'Wojtek-Tarasiewicz', subjects: %w[plastyka technika] },
   { first_name: 'Natalia', last_name: 'Wołowicz' },
   { first_name: 'Aleksandra', last_name: 'Wysocka', subjects: ['logopedia'], class: '6a' },
   { first_name: 'Paweł', last_name: 'Zajączkowski', subjects: ['j.polski'] },
   { first_name: 'Magdalena', last_name: 'Zasadzińska', subjects: ['edukacja wczesnoszkolna', 'rewalidacja'], class: '1b' },
   { first_name: 'Edyta', last_name: 'Zegarlicka', subjects: ['wczesna edukacja'] },
-  { first_name: 'Hanna', last_name: 'Zydorek', subjects: ['przyroda', 'biologia', 'chemia'], class: '6a' }
+  { first_name: 'Hanna', last_name: 'Zydorek', subjects: %w[przyroda biologia chemia], class: '6a' }
 ]
 
 teachers_data.each_with_index do |teacher_data, index|
@@ -93,11 +93,10 @@ teachers_data.each_with_index do |teacher_data, index|
     locale: 'pl',
     school: @school_a,
     confirmed_at: Time.current,
-    metadata: { 
+    metadata: {
       subjects: teacher_data[:subjects] || [],
       class: teacher_data[:class] || nil
     }
   )
   UserRole.create!(user: user, role: teacher_role, school: @school_a)
 end
-

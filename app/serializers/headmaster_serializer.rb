@@ -13,4 +13,3 @@ class HeadmasterSerializer < ApplicationSerializer
     headmaster.metadata&.dig('phone')
   end
 end
-

@@ -40,7 +40,8 @@ module Api
         end
 
         def headmaster_params
-          context.params.require(:headmaster).permit(:first_name, :last_name, :email, :school_id, :password, :password_confirmation, metadata: {})
+          context.params.require(:headmaster).permit(:first_name, :last_name, :email, :school_id, :password,
+                                                     :password_confirmation, metadata: {})
         end
 
         def save_headmaster
@@ -62,4 +63,3 @@ module Api
     end
   end
 end
-

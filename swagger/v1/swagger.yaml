@@ -82,6 +82,225 @@ paths:
               required:
               - email
               - password
+  "/api/v1/headmasters":
+    get:
+      summary: List headmasters
+      tags:
+      - Headmasters
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: headmasters list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                        attributes:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            first_name:
+                              type: string
+                            last_name:
+                              type: string
+                            name:
+                              type: string
+                            email:
+                              type: string
+                            school_id:
+                              type: string
+                              format: uuid
+                            school_name:
+                              type: string
+                              nullable: true
+                            phone:
+                              type: string
+                              nullable: true
+                            created_at:
+                              type: string
+                            updated_at:
+                              type: string
+        '401':
+          description: unauthorized
+    post:
+      summary: Create headmaster
+      tags:
+      - Headmasters
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: headmaster created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          first_name:
+                            type: string
+                          last_name:
+                            type: string
+                          name:
+                            type: string
+                          email:
+                            type: string
+                          school_id:
+                            type: string
+                            format: uuid
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                headmaster:
+                  type: object
+                  properties:
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    email:
+                      type: string
+                    school_id:
+                      type: string
+                      format: uuid
+                    metadata:
+                      type: object
+                      properties:
+                        phone:
+                          type: string
+                  required:
+                  - first_name
+                  - last_name
+                  - email
+                  - school_id
+  "/api/v1/headmasters/{id}":
+    parameters:
+    - name: id
+      in: path
+      format: uuid
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Show headmaster
+      tags:
+      - Headmasters
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: headmaster found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          first_name:
+                            type: string
+                          last_name:
+                            type: string
+                          name:
+                            type: string
+                          email:
+                            type: string
+                          school_id:
+                            type: string
+                            format: uuid
+        '404':
+          description: headmaster not found
+    patch:
+      summary: Update headmaster
+      tags:
+      - Headmasters
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: headmaster updated
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                headmaster:
+                  type: object
+                  properties:
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    email:
+                      type: string
+                    school_id:
+                      type: string
+                      format: uuid
+                    metadata:
+                      type: object
+                      properties:
+                        phone:
+                          type: string
+    delete:
+      summary: Delete headmaster
+      tags:
+      - Headmasters
+      security:
+      - bearerAuth: []
+      responses:
+        '204':
+          description: headmaster deleted
+        '404':
+          description: headmaster not found
   "/api/v1/schools":
     get:
       summary: List schools

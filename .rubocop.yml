@@ -40,8 +40,7 @@ Lint/UselessAssignment:
     - "db/seeds/**/*.rb"
 
 Metrics/AbcSize:
-  Exclude:
-    - "db/**/*.rb"
+  Enabled: false
 
 Metrics/BlockLength:
   Exclude:

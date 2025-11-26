@@ -33,7 +33,7 @@ module Api
 
         def update_headmaster
           update_params = headmaster_params.to_h
-          
+
           # Handle metadata - merge with existing metadata
           if update_params[:metadata].present?
             current_metadata = context.headmaster.metadata || {}
@@ -54,10 +54,10 @@ module Api
         end
 
         def headmaster_params
-          context.params.require(:headmaster).permit(:first_name, :last_name, :email, :school_id, :password, :password_confirmation, metadata: {})
+          context.params.require(:headmaster).permit(:first_name, :last_name, :email, :school_id, :password,
+                                                     :password_confirmation, metadata: {})
         end
       end
     end
   end
 end
-

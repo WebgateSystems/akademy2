@@ -7,7 +7,7 @@ log('Create School Classes...')
 year = '2025/2026'
 
 # School A (SP53) - Classes from website or default list
-sp53_classes = ['4A', '4B', '4N', '5A', '5N', '6', '7A', '7B', '8A', '8B', '8C', '8N']
+sp53_classes = %w[4A 4B 4N 5A 5N 6 7A 7B 8A 8B 8C 8N]
 sp53_classes.each do |class_name|
   SchoolClass.create!(
     school: @school_a,
@@ -19,7 +19,7 @@ sp53_classes.each do |class_name|
 end
 
 # School B (SP18) - Classes (using same default list)
-sp18_classes = ['4A', '4B', '4N', '5A', '5N', '6', '7A', '7B', '8A', '8B', '8C', '8N']
+sp18_classes = %w[4A 4B 4N 5A 5N 6 7A 7B 8A 8B 8C 8N]
 sp18_classes.each do |class_name|
   SchoolClass.create!(
     school: @school_b,
