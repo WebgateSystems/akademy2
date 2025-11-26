@@ -1,11 +1,19 @@
 class Users::SessionsController < Devise::SessionsController
   before_action :configure_sign_in_params, only: [:create]
+  after_action :log_web_login, only: [:create], if: -> { user_signed_in? && !student_role? }
 
   # POST /resource/sign_in
   def create
     return handle_student_login if student_role?
 
     super
+  end
+
+  # DELETE /resource/sign_out
+  def destroy
+    user_to_logout = current_user
+    super
+    EventLogger.log_logout(user: user_to_logout, client: 'web') if user_to_logout
   end
 
   private
@@ -23,6 +31,7 @@ class Users::SessionsController < Devise::SessionsController
     return render_student_error('Nieprawidłowy PIN') unless valid_student_pin?
 
     sign_in(student_user)
+    EventLogger.log_login(user: student_user, client: 'web_student')
     redirect_to authenticated_root_path
   end
 
@@ -52,5 +61,9 @@ class Users::SessionsController < Devise::SessionsController
   def render_student_error(message)
     flash.now[:alert] = message
     render :new, status: :unprocessable_entity
+  end
+
+  def log_web_login
+    EventLogger.log_login(user: current_user, client: 'web') if current_user
   end
 end

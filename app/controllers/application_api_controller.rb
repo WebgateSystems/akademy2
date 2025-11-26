@@ -1,5 +1,6 @@
 class ApplicationApiController < ActionController::API
   include HandleStatusCode
+  include ApiRequestLogger
   attr_reader :current_user
 
   private

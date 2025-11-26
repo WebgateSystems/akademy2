@@ -12,11 +12,24 @@ class Admin::SessionsController < ApplicationController
   end
 
   def destroy
+    user_to_logout = current_admin
     reset_session
+    EventLogger.log_logout(user: user_to_logout, client: 'admin') if user_to_logout
     redirect_to new_admin_session_path, notice: 'Logged out'
   end
 
   private
+
+  def current_admin
+    @current_admin ||= session[:admin_id] && decode_jwt(session[:admin_id])
+  end
+
+  def decode_jwt(token)
+    decoded = ::Jwt::TokenService.decode(token)
+    ::User.find_by(id: decoded['user_id'])
+  rescue StandardError
+    nil
+  end
 
   def handle_success(result)
     session[:admin_id] = result.access_token

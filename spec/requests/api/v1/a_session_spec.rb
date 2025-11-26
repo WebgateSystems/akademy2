@@ -36,6 +36,13 @@ RSpec.describe 'Sessions', type: :request do
 
           run_test! do
             expect(response).to match_json_schema('session/create')
+
+            # Verify login event was logged
+            login_event = Event.where(event_type: 'user_login', user: user).last
+            expect(login_event).to be_present
+            expect(login_event.data['login_method']).to eq('api')
+            expect(login_event.client).to eq('api')
+            expect(login_event.school).to eq(user.school)
           end
         end
       end

@@ -37,6 +37,9 @@ module Api
 
         def generate_access_token
           context.access_token = ::Jwt::TokenService.encode({ user_id: current_user.id })
+
+          # Log login event
+          EventLogger.log_login(user: current_user, client: 'api')
         end
       end
     end

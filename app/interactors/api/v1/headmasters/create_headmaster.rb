@@ -31,7 +31,7 @@ module Api
             params_hash[:metadata] = { phone: context.params.dig(:headmaster, :metadata, :phone) }
           end
           # Generate random password if not provided
-          unless params_hash[:password].present?
+          if params_hash[:password].blank?
             random_password = SecureRandom.alphanumeric(16)
             params_hash[:password] = random_password
             params_hash[:password_confirmation] = random_password

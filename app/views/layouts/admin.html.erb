@@ -78,10 +78,10 @@
                 </div>
               </div>
             </div>
-            <% if current_user %>
+            <% if current_admin %>
               <div class="settings-control">
-                <%= button_to destroy_user_session_path, method: :delete, class: "icon-pill", "aria-label": "Logout", form: { class: "m-0 p-0" } do %>
-                  <%= image_tag "icons/social/M/settings.svg", alt: "", "data-theme-icon": true %>
+                <%= button_to destroy_admin_session_path, method: :delete, class: "icon-pill", "aria-label": "Logout", form: { class: "m-0 p-0" } do %>
+                  <%= image_tag "icons/social/M/logout.svg", alt: "", "data-theme-icon": true %>
                 <% end %>
               </div>
             <% end %>

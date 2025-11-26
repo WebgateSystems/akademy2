@@ -41,7 +41,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resource :session, only: [:create]
+      resource :session, only: [:create], path: 'session'
       resources :schools, only: %i[index show create update destroy]
       resources :headmasters, only: %i[index show create update destroy]
     end

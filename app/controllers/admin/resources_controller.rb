@@ -33,7 +33,7 @@ class Admin::ResourcesController < Admin::BaseController
       @records = @resource_class.joins(:roles).where(roles: { key: 'principal' }).includes(:school).distinct.order(created_at: :desc).limit(200)
       render 'admin/resources/headmasters' and return
     when 'events'
-      @records = @resource_class.includes(:user, :school).order(occurred_at: :desc, created_at: :desc).limit(200)
+      @records = @resource_class.includes(:user).order(occurred_at: :desc, created_at: :desc).limit(200)
       render 'admin/resources/activity_log' and return
     end
 

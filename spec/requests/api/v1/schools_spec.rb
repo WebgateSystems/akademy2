@@ -22,6 +22,17 @@ RSpec.describe 'Schools API', type: :request do
         let!(:school2) { create(:school, name: 'School 2', city: 'Warsaw') }
         let(:Authorization) { auth_token }
 
+        run_test! do
+          expect(response).to have_http_status(:ok)
+          # Verify API request was logged
+          api_event = Event.where(event_type: 'api_request', user: admin_user).last
+          expect(api_event).to be_present
+          expect(api_event.data['method']).to eq('GET')
+          expect(api_event.data['path']).to eq('/api/v1/schools')
+          expect(api_event.data['status']).to eq(200)
+          expect(api_event.client).to eq('api')
+        end
+
         schema type: :object,
                properties: {
                  data: {

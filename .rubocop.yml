@@ -75,6 +75,9 @@ RSpec/EmptyExampleGroup:
   Exclude:
     - "spec/**/*.rb"
 
+RSpec/ExampleLength:
+  Enabled: false
+
 RSpec/MultipleExpectations:
   Max: 5
 
