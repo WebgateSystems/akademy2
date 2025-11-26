@@ -1,15 +1,90 @@
-<div class="row g-3">
-  <% @resources.each do |name, klass| %>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <h6 class="card-subtitle text-muted"><%= name.titleize %></h6>
-          <h3 class="card-title my-2"><%= klass.count %></h3>
-          <%= link_to 'Przeglądaj', admin_resource_collection_path(resource: name), class: 'btn btn-sm btn-primary' %>
-        </div>
-      </div>
+<% content_for :page_title, "Dashboard" %>
+
+<section class="dashboard-stats" aria-label="Key statistics">
+  <article class="stat-card">
+    <h3 class="stat-label text-body-2">Schools</h3>
+    <p class="stat-value"><%= @schools_count %></p>
+  </article>
+  <article class="stat-card">
+    <h3 class="stat-label text-body-2">Headmasters</h3>
+    <p class="stat-value"><%= @headmasters_count %></p>
+  </article>
+  <article class="stat-card">
+    <h3 class="stat-label text-body-2">Teachers</h3>
+    <p class="stat-value"><%= @teachers_count %></p>
+  </article>
+  <article class="stat-card">
+    <h3 class="stat-label text-body-2">Pupils</h3>
+    <p class="stat-value"><%= number_with_delimiter(@pupils_count) %></p>
+  </article>
+</section>
+
+<section class="panel panel--chart" aria-label="User growth chart">
+  <div class="panel__header">
+    <div>
+      <p class="stat-label text-body-2">User growth</p>
     </div>
-  <% end %>
-</div>
+  </div>
+  <div class="chart chart--line js-line-chart" data-chart-id="user-growth">
+    <div class="chart__grid" aria-hidden="true"></div>
+    <div class="chart__canvas" role="img" aria-live="polite" aria-label="User growth through the year">
+      <svg class="chart__svg" viewBox="0 0 960 240" preserveAspectRatio="none" role="presentation"></svg>
+    </div>
+    <div class="chart__axis chart__axis--y" aria-hidden="true"></div>
+    <div class="chart__axis chart__axis--x" aria-hidden="true"></div>
+  </div>
+</section>
 
-
+<section class="content-grid" aria-label="Top performing schools and platform metrics">
+  <article class="panel">
+    <div class="panel__header panel__header--schools">
+      <h3 class="stat-label text-body-2">Top performing schools</h3>
+      <label class="schools-search schools-search--wide">
+        <span class="visually-hidden">Search schools</span>
+        <input type="search" name="top_schools_search" placeholder="Search schools">
+        <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true" %>
+      </label>
+    </div>
+    <table class="schools-table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col" class="average">Average completion rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @top_schools.each do |school| %>
+          <tr>
+            <td><%= school.name %></td>
+            <td class="rate">—</td>
+          </tr>
+        <% end %>
+        <% if @top_schools.empty? %>
+          <tr>
+            <td colspan="2" class="text-center text-muted">No schools yet</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </article>
+  <div class="content-aside">
+    <div class="mini-grid">
+      <article class="mini-card">
+        <h3 class="stat-label text-body-2">Completion rate</h3>
+        <p class="mini-card__value">—</p>
+      </article>
+      <article class="mini-card">
+        <h3 class="stat-label text-body-2">Logins</h3>
+        <p class="mini-card__value">—</p>
+      </article>
+      <article class="mini-card">
+        <h3 class="stat-label text-body-2">Videos viewed</h3>
+        <p class="mini-card__value">—</p>
+      </article>
+      <article class="mini-card">
+        <h3 class="stat-label text-body-2">Quizzes completed</h3>
+        <p class="mini-card__value">—</p>
+      </article>
+    </div>
+  </div>
+</section>

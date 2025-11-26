@@ -1,0 +1,205 @@
+<% content_for :page_title, "Schools" %>
+
+<section aria-label="Schools list">
+  <header class="schools-page__header">
+    <label class="schools-search schools-search--half">
+      <span class="visually-hidden">Search schools</span>
+      <input type="search" placeholder="Search" id="schools-search-input">
+      <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true" %>
+    </label>
+    <button class="schools-page__add" type="button" data-open-modal="add-school-modal">Add school</button>
+  </header>
+  <div class="schools-page__controls"></div>
+  <div class="schools-card">
+    <table class="schools-page__table">
+      <thead>
+        <tr>
+          <th scope="col" class="left">Name</th>
+          <th scope="col" class="left">Address</th>
+          <th scope="col" class="left">Headmaster</th>
+          <th scope="col" class="right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @records.each do |school| %>
+          <tr>
+            <td><%= school.name %></td>
+            <td><%= [school.city, school.country].compact.join(', ') %></td>
+            <td>
+              <% headmaster = User.joins(:roles).where(roles: { key: 'principal' }, school: school).first %>
+              <% if headmaster %>
+                <%= [headmaster.first_name, headmaster.last_name].compact.join(' ') || headmaster.email %>
+              <% else %>
+                —
+              <% end %>
+            </td>
+            <td class="schools-page__actions">
+              <button type="button" aria-label="Edit school" data-action="edit-school" data-school-id="<%= school.id %>" data-school-name="<%= school.name %>" data-school-city="<%= school.city %>" data-school-country="<%= school.country %>">
+                <%= image_tag "icons/social/S/edit.svg", alt: "" %>
+              </button>
+              <button type="button" aria-label="Delete school" data-action="delete-school" data-school-id="<%= school.id %>" data-school-name="<%= school.name %>">
+                <%= image_tag "icons/social/S/delete.svg", alt: "" %>
+              </button>
+            </td>
+          </tr>
+        <% end %>
+        <% if @records.empty? %>
+          <tr>
+            <td colspan="4" class="text-center" style="padding: 40px; color: var(--content-secondary);">No schools yet</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="schools-modal" id="add-school-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="add-school-title">
+    <header class="schools-modal__header">
+      <h3 id="add-school-title">Add school</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="add-school-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <%= form_with model: [:admin, School.new], url: admin_create_resource_path(resource: 'schools'), class: "schools-modal__form", id: "add-school-form" do |f| %>
+      <label>
+        <span>School name</span>
+        <%= f.text_field :name, placeholder: "School name", required: true %>
+      </label>
+      <label>
+        <span>City</span>
+        <%= f.text_field :city, placeholder: "City" %>
+      </label>
+      <label>
+        <span>Country</span>
+        <%= f.text_field :country, placeholder: "Country", value: "PL" %>
+      </label>
+      <div class="schools-modal__actions">
+        <button type="submit" class="schools-modal__primary">Add</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="add-school-modal">Cancel</button>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="schools-modal" id="edit-school-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="edit-school-title">
+    <header class="schools-modal__header">
+      <h3 id="edit-school-title">Edit school</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="edit-school-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <%= form_with model: [:admin, School.new], url: "", class: "schools-modal__form", id: "edit-school-form" do |f| %>
+      <%= f.hidden_field :id, id: "edit-school-id" %>
+      <label>
+        <span>School name</span>
+        <%= f.text_field :name, id: "edit-school-name", placeholder: "School name", required: true %>
+      </label>
+      <label>
+        <span>City</span>
+        <%= f.text_field :city, id: "edit-school-city", placeholder: "City" %>
+      </label>
+      <label>
+        <span>Country</span>
+        <%= f.text_field :country, id: "edit-school-country", placeholder: "Country" %>
+      </label>
+      <div class="schools-modal__actions">
+        <button type="submit" class="schools-modal__primary">Save</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="edit-school-modal">Cancel</button>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="schools-modal" id="delete-school-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="delete-school-modal-title">
+    <header class="schools-modal__header">
+      <h3 id="delete-school-modal-title">Delete school</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="delete-school-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <div class="schools-modal__body">
+      <p>Are you sure you want to delete <strong data-school-delete-name>this school</strong>? This action cannot be undone.</p>
+    </div>
+    <div class="schools-modal__actions">
+      <%= button_to "", method: :delete, id: "delete-school-form", class: "schools-modal__primary schools-modal__primary--danger", form: { style: "display: inline; margin: 0;" } do %>
+        Delete
+      <% end %>
+      <button type="button" class="schools-modal__secondary" data-close-modal="delete-school-modal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Modal handlers
+    document.querySelectorAll('[data-open-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-open-modal');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('is-open');
+        }
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-close-modal');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    // Edit school
+    document.querySelectorAll('[data-action="edit-school"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const form = document.getElementById('edit-school-form');
+        const id = btn.getAttribute('data-school-id');
+        const baseUrl = '<%= admin_update_resource_path(resource: 'schools', id: 'ID_PLACEHOLDER') %>';
+        form.action = baseUrl.replace('ID_PLACEHOLDER', id);
+        document.getElementById('edit-school-id').value = id;
+        document.getElementById('edit-school-name').value = btn.getAttribute('data-school-name') || '';
+        document.getElementById('edit-school-city').value = btn.getAttribute('data-school-city') || '';
+        document.getElementById('edit-school-country').value = btn.getAttribute('data-school-country') || '';
+        document.getElementById('edit-school-modal').setAttribute('aria-hidden', 'false');
+        document.getElementById('edit-school-modal').classList.add('is-open');
+      });
+    });
+
+    // Delete school
+    document.querySelectorAll('[data-action="delete-school"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-school-id');
+        const name = btn.getAttribute('data-school-name');
+        document.querySelector('[data-school-delete-name]').textContent = name;
+        const form = document.getElementById('delete-school-form');
+        const baseUrl = '<%= admin_destroy_resource_path(resource: 'schools', id: 'ID_PLACEHOLDER') %>';
+        form.action = baseUrl.replace('ID_PLACEHOLDER', id);
+        document.getElementById('delete-school-modal').setAttribute('aria-hidden', 'false');
+        document.getElementById('delete-school-modal').classList.add('is-open');
+      });
+    });
+
+    // Close on overlay click
+    document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+      overlay.addEventListener('click', function() {
+        const modal = this.closest('.schools-modal');
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+  });
+</script>
+

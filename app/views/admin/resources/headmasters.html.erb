@@ -1,0 +1,320 @@
+<% content_for :page_title, "Headmasters" %>
+
+<section aria-label="Headmasters list">
+  <header class="schools-page__header">
+    <label class="schools-search schools-search--half">
+      <span class="visually-hidden">Search headmasters</span>
+      <input type="search" placeholder="Search headmaster" id="headmasters-search-input">
+      <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true", "data-theme-icon": true %>
+    </label>
+    <button class="schools-page__add" type="button" data-open-modal="add-headmaster-modal">Add headmaster</button>
+  </header>
+  <div class="schools-page__controls"></div>
+
+  <div class="schools-card headmasters-table">
+    <table class="schools-page__table">
+      <thead>
+        <tr>
+          <th scope="col" class="left">Name</th>
+          <th scope="col" class="left">School</th>
+          <th scope="col" class="left">Email</th>
+          <th scope="col" class="left">Phone</th>
+          <th scope="col" class="left">Joined</th>
+          <th scope="col" class="right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @records.each do |headmaster| %>
+          <tr>
+            <td><%= [headmaster.first_name, headmaster.last_name].compact.join(' ') || headmaster.email %></td>
+            <td><%= headmaster.school&.name || '—' %></td>
+            <td><%= headmaster.email %></td>
+            <td><%= headmaster.metadata['phone'] || '—' %></td>
+            <td><%= headmaster.created_at.strftime('%d.%m.%Y') %></td>
+            <td class="schools-page__actions">
+              <div class="headmasters-actions">
+                <details class="headmasters-menu">
+                  <summary aria-label="Open actions menu">
+                    <%= image_tag "icons/social/S/button-3.svg", alt: "", "data-theme-icon": true %>
+                  </summary>
+                  <ul>
+                    <li>
+                      <button type="button" data-action="edit" data-headmaster-id="<%= headmaster.id %>" data-name="<%= [headmaster.first_name, headmaster.last_name].compact.join(' ') %>" data-school-id="<%= headmaster.school_id %>" data-email="<%= headmaster.email %>" data-phone="<%= headmaster.metadata['phone'] || '' %>">Edit</button>
+                    </li>
+                    <li><button type="button">Resend invite</button></li>
+                    <li>
+                      <button type="button" data-action="deactivate" data-headmaster-id="<%= headmaster.id %>" data-headmaster-name="<%= [headmaster.first_name, headmaster.last_name].compact.join(' ') %>">Deactivate</button>
+                    </li>
+                  </ul>
+                </details>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        <% if @records.empty? %>
+          <tr>
+            <td colspan="6" class="text-center" style="padding: 40px; color: var(--content-secondary);">No headmasters yet</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="schools-modal" id="add-headmaster-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="add-headmaster-title">
+    <header class="schools-modal__header">
+      <h3 id="add-headmaster-title">Add headmaster</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="add-headmaster-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <%= form_with url: admin_create_resource_path(resource: 'users'), class: "schools-modal__form headmaster-form", id: "add-headmaster-form", data: { form_mode: "add" } do |f| %>
+      <%= hidden_field_tag "user[role_key]", "principal" %>
+      <label>
+        <span>School</span>
+        <%= f.collection_select :school_id, School.all, :id, :name, { prompt: "Choose the school" }, { name: "user[school_id]", required: true } %>
+      </label>
+      <label>
+        <span>Headmaster name</span>
+        <%= f.text_field :first_name, name: "user[first_name]", placeholder: "First name", required: true %>
+      </label>
+      <label>
+        <span>Last name</span>
+        <%= f.text_field :last_name, name: "user[last_name]", placeholder: "Last name", required: true %>
+      </label>
+      <label>
+        <span>Email</span>
+        <%= f.email_field :email, name: "user[email]", placeholder: "sekretariat@milanowek.pl", required: true %>
+      </label>
+      <label>
+        <span>Phone</span>
+        <%= f.text_field :phone, name: "user[metadata][phone]", placeholder: "+48 XXX XXX XXX", value: "" %>
+      </label>
+      <div class="schools-modal__actions">
+        <button type="submit" class="schools-modal__primary">ADD</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="add-headmaster-modal">CANCEL</button>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="schools-modal" id="edit-headmaster-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="edit-headmaster-title">
+    <header class="schools-modal__header">
+      <h3 id="edit-headmaster-title">Edit headmaster</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="edit-headmaster-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <%= form_with url: "", method: :patch, class: "schools-modal__form headmaster-form", id: "edit-headmaster-form", data: { form_mode: "edit" } do |f| %>
+      <%= hidden_field_tag "user[id]", "", id: "edit-headmaster-id" %>
+      <label>
+        <span>School</span>
+        <%= f.collection_select :school_id, School.all, :id, :name, { prompt: "Choose the school" }, { name: "user[school_id]", id: "edit-headmaster-school", required: true } %>
+      </label>
+      <label>
+        <span>Headmaster name</span>
+        <%= f.text_field :first_name, name: "user[first_name]", id: "edit-headmaster-first-name", placeholder: "First name", required: true %>
+      </label>
+      <label>
+        <span>Last name</span>
+        <%= f.text_field :last_name, name: "user[last_name]", id: "edit-headmaster-last-name", placeholder: "Last name", required: true %>
+      </label>
+      <label>
+        <span>Email</span>
+        <%= f.email_field :email, name: "user[email]", id: "edit-headmaster-email", placeholder: "sekretariat@milanowek.pl", required: true %>
+      </label>
+      <label>
+        <span>Phone</span>
+        <%= f.text_field :phone, name: "user[metadata][phone]", id: "edit-headmaster-phone", placeholder: "+48 XXX XXX XXX" %>
+      </label>
+      <div class="schools-modal__actions">
+        <button type="submit" class="schools-modal__primary">Save</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="edit-headmaster-modal">Cancel</button>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="schools-modal" id="deactivate-headmaster-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="deactivate-headmaster-title">
+    <header class="schools-modal__header">
+      <h3 id="deactivate-headmaster-title">Deactivate headmaster</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="deactivate-headmaster-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <div class="schools-modal__body">
+      <p>Are you sure you want to deactivate <strong data-deactivate-name>this headmaster</strong>? They will lose access immediately.</p>
+    </div>
+    <div class="schools-modal__actions">
+      <%= button_to "", method: :delete, id: "deactivate-headmaster-form", class: "schools-modal__primary schools-modal__primary--danger", form: { style: "display: inline; margin: 0;" } do %>
+        Deactivate
+      <% end %>
+      <button type="button" class="schools-modal__secondary" data-close-modal="deactivate-headmaster-modal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle headmaster menu positioning
+    function setupHeadmasterMenus() {
+      const menus = document.querySelectorAll('.headmasters-menu');
+      const tbody = document.querySelector('.headmasters-table tbody');
+      if (!tbody) return;
+
+      menus.forEach((menu) => {
+        const summary = menu.querySelector('summary');
+        if (!summary) return;
+
+        // Listen for toggle event (fires when details opens/closes)
+        menu.addEventListener('toggle', function() {
+          if (menu.open) {
+            // Close other menus first
+            menus.forEach(m => {
+              if (m !== menu && m.open) {
+                m.open = false;
+              }
+            });
+
+            // Wait for menu to render, then check position
+            requestAnimationFrame(() => {
+              const summaryRect = summary.getBoundingClientRect();
+              const ul = menu.querySelector('ul');
+              if (!ul) return;
+
+              const ulHeight = ul.offsetHeight || 150;
+              const spaceBelow = window.innerHeight - summaryRect.bottom;
+              const spaceAbove = summaryRect.top;
+              const row = menu.closest('tr');
+              const rows = Array.from(tbody.querySelectorAll('tr'));
+              const rowIndex = rows.indexOf(row);
+              const totalRows = rows.length;
+
+              // Position menu using fixed positioning
+              if (totalRows === 1) {
+                // Single row - open downward
+                menu.removeAttribute('data-menu-align');
+                ul.style.position = 'fixed';
+                ul.style.top = (summaryRect.bottom + 10) + 'px';
+                ul.style.right = (window.innerWidth - summaryRect.right) + 'px';
+                ul.style.bottom = 'auto';
+              } else if (spaceBelow < ulHeight + 20 && spaceAbove > ulHeight + 20 && rowIndex >= totalRows - 2) {
+                // Open upward
+                menu.setAttribute('data-menu-align', 'top');
+                ul.style.position = 'fixed';
+                ul.style.bottom = (window.innerHeight - summaryRect.top + 10) + 'px';
+                ul.style.right = (window.innerWidth - summaryRect.right) + 'px';
+                ul.style.top = 'auto';
+              } else {
+                // Open downward
+                menu.removeAttribute('data-menu-align');
+                ul.style.position = 'fixed';
+                ul.style.top = (summaryRect.bottom + 10) + 'px';
+                ul.style.right = (window.innerWidth - summaryRect.right) + 'px';
+                ul.style.bottom = 'auto';
+              }
+            });
+          }
+        });
+
+        // Prevent clicks inside menu from closing it
+        const ul = menu.querySelector('ul');
+        if (ul) {
+          ul.addEventListener('click', function(e) {
+            e.stopPropagation();
+          });
+        }
+      });
+
+      // Close menu when clicking outside (but don't interfere with existing handlers)
+      let clickHandler = function(e) {
+        if (!e.target.closest('.headmasters-menu')) {
+          menus.forEach(m => {
+            if (m.open) {
+              m.open = false;
+            }
+          });
+        }
+      };
+      
+      // Use capture phase to run before other handlers
+      document.addEventListener('click', clickHandler, true);
+    }
+
+    setupHeadmasterMenus();
+
+    // Modal handlers
+    document.querySelectorAll('[data-open-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-open-modal');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('is-open');
+        }
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-close-modal');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    // Edit headmaster
+    document.querySelectorAll('[data-action="edit"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const form = document.getElementById('edit-headmaster-form');
+        const id = btn.getAttribute('data-headmaster-id');
+        const baseUrl = '<%= admin_update_resource_path(resource: 'users', id: 'ID_PLACEHOLDER') %>';
+        form.action = baseUrl.replace('ID_PLACEHOLDER', id);
+        document.getElementById('edit-headmaster-id').value = id;
+        document.getElementById('edit-headmaster-school').value = btn.getAttribute('data-school-id') || '';
+        const nameParts = (btn.getAttribute('data-name') || '').split(' ');
+        document.getElementById('edit-headmaster-first-name').value = nameParts[0] || '';
+        document.getElementById('edit-headmaster-last-name').value = nameParts.slice(1).join(' ') || '';
+        document.getElementById('edit-headmaster-email').value = btn.getAttribute('data-email') || '';
+        document.getElementById('edit-headmaster-phone').value = btn.getAttribute('data-phone') || '';
+        document.getElementById('edit-headmaster-modal').setAttribute('aria-hidden', 'false');
+        document.getElementById('edit-headmaster-modal').classList.add('is-open');
+      });
+    });
+
+    // Deactivate headmaster
+    document.querySelectorAll('[data-action="deactivate"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-headmaster-id');
+        const name = btn.getAttribute('data-headmaster-name');
+        document.querySelector('[data-deactivate-name]').textContent = name;
+        const form = document.getElementById('deactivate-headmaster-form');
+        const baseUrl = '<%= admin_destroy_resource_path(resource: 'users', id: 'ID_PLACEHOLDER') %>';
+        form.action = baseUrl.replace('ID_PLACEHOLDER', id);
+        document.getElementById('deactivate-headmaster-modal').setAttribute('aria-hidden', 'false');
+        document.getElementById('deactivate-headmaster-modal').classList.add('is-open');
+      });
+    });
+
+    // Close on overlay click
+    document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+      overlay.addEventListener('click', function() {
+        const modal = this.closest('.schools-modal');
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+  });
+</script>
+

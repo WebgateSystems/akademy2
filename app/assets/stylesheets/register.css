@@ -433,7 +433,6 @@ h5 {
   min-height: 100vh;
   display: grid;
   grid-template-columns: var(--dashboard-sidebar-width) minmax(0, 1fr);
-  column-gap: 32px;
   background: var(--bg-secondary);
   color: var(--content-primary);
 }

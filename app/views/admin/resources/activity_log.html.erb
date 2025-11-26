@@ -1,0 +1,185 @@
+<% content_for :page_title, "Activity log" %>
+
+<section class="activity-log" aria-label="Activity log">
+  <div class="activity-log__filters">
+    <div class="activity-filter activity-filter--date">
+      <label class="activity-filter__label" for="activity-date-from">From</label>
+      <div class="activity-date-picker" data-date-role="from">
+        <input id="activity-date-from" class="activity-date-picker__display" type="text" aria-label="From date" placeholder="DD.MM.YYYY HH:MM">
+        <input class="activity-date-picker__native" type="datetime-local" aria-hidden="true" tabindex="-1">
+        <button class="activity-date-picker__clear" type="button" aria-label="Clear from date">
+          <%= image_tag "icons/social/XS/Close.svg", alt: "" %>
+        </button>
+        <button class="activity-date-picker__calendar" type="button" aria-label="Select from date">
+          <%= image_tag "icons/social/M/calendar.svg", alt: "", "data-theme-icon": true %>
+        </button>
+      </div>
+    </div>
+    <div class="activity-filter activity-filter--date">
+      <label class="activity-filter__label" for="activity-date-to">To</label>
+      <div class="activity-date-picker" data-date-role="to">
+        <input id="activity-date-to" class="activity-date-picker__display" type="text" aria-label="To date" placeholder="DD.MM.YYYY HH:MM">
+        <input class="activity-date-picker__native" type="datetime-local" aria-hidden="true" tabindex="-1">
+        <button class="activity-date-picker__clear" type="button" aria-label="Clear to date">
+          <%= image_tag "icons/social/XS/Close.svg", alt: "" %>
+        </button>
+        <button class="activity-date-picker__calendar" type="button" aria-label="Select to date">
+          <%= image_tag "icons/social/M/calendar.svg", alt: "", "data-theme-icon": true %>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="activity-log__table">
+    <div class="activity-log__head">
+      <span>Date</span>
+      <span>Source</span>
+      <span>Action</span>
+      <span>Subject</span>
+      <span>Subject ID</span>
+    </div>
+    <div class="activity-log__body">
+      <% @records.each do |event| %>
+        <% 
+          occurred_at = event.occurred_at || event.created_at
+          subject_type = event.data['subject_type'] || event.data['subject'] || event.event_type
+          subject_id = event.data['subject_id'] || event.id
+          subject_owner_id = event.data['subject_owner_id']
+        %>
+        <details class="activity-entry">
+          <summary>
+            <span class="activity-cell activity-cell--date">
+              <%= image_tag "icons/social/XS/dropdown.svg", class: "activity-entry__chevron", alt: "", width: "8", height: "8", "aria-hidden": "true" %>
+              <span class="activity-entry__datetime">
+                <span><%= occurred_at.strftime('%d.%m.%Y') %></span>
+                <span><%= occurred_at.strftime('%H:%M:%S') %></span>
+              </span>
+            </span>
+            <span class="activity-cell"><%= event.user ? [event.user.first_name, event.user.last_name].compact.join(' ') || event.user.email : '—' %></span>
+            <span class="activity-cell"><%= event.event_type || '—' %></span>
+            <span class="activity-cell"><%= subject_type || '—' %></span>
+            <span class="activity-cell"><%= subject_id || '—' %></span>
+          </summary>
+          <div class="activity-entry__details">
+            <dl>
+              <div>
+                <dt>Date:</dt>
+                <dd><%= occurred_at.strftime('%d.%m.%Y') %> &nbsp; <%= occurred_at.strftime('%H:%M:%S') %></dd>
+              </div>
+              <div>
+                <dt>Source:</dt>
+                <dd><%= event.user ? [event.user.first_name, event.user.last_name].compact.join(' ') || event.user.email : '—' %></dd>
+              </div>
+              <div>
+                <dt>Action:</dt>
+                <dd><%= event.event_type || '—' %></dd>
+              </div>
+              <div>
+                <dt>Subject:</dt>
+                <dd><%= subject_type || '—' %></dd>
+              </div>
+              <div>
+                <dt>Subject ID:</dt>
+                <dd>
+                  <span class="activity-entry__value"><%= subject_id || '—' %></span>
+                  <% if subject_id %>
+                    <button class="activity-copy-btn" type="button" aria-label="Copy Subject ID" data-copy-value="<%= subject_id %>">
+                      <%= image_tag "icons/social/XS/copy.svg", class: "activity-copy-btn__icon activity-copy-btn__icon--copy", alt: "" %>
+                      <svg class="activity-copy-btn__icon activity-copy-btn__icon--success" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                        <path d="M3 8.5l3 3L13 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  <% end %>
+                </dd>
+              </div>
+              <% if subject_owner_id %>
+                <div>
+                  <dt>Subject owner ID:</dt>
+                  <dd>
+                    <span class="activity-entry__value"><%= subject_owner_id %></span>
+                    <button class="activity-copy-btn" type="button" aria-label="Copy Subject owner ID" data-copy-value="<%= subject_owner_id %>">
+                      <%= image_tag "icons/social/XS/copy.svg", class: "activity-copy-btn__icon activity-copy-btn__icon--copy", alt: "" %>
+                      <svg class="activity-copy-btn__icon activity-copy-btn__icon--success" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                        <path d="M3 8.5l3 3L13 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </dd>
+                </div>
+              <% end %>
+            </dl>
+            <% if event.data.present? && event.data.any? %>
+              <div class="activity-entry__json">
+                <div class="activity-entry__json-header">
+                  <span>Details:</span>
+                  <button class="activity-copy-btn" type="button" aria-label="Copy details" data-copy-json>
+                    <%= image_tag "icons/social/XS/copy.svg", class: "activity-copy-btn__icon activity-copy-btn__icon--copy", alt: "" %>
+                    <svg class="activity-copy-btn__icon activity-copy-btn__icon--success" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                      <path d="M3 8.5l3 3L13 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <pre><%= JSON.pretty_generate(event.data) %></pre>
+              </div>
+            <% end %>
+          </div>
+        </details>
+      <% end %>
+      <% if @records.empty? %>
+        <div class="activity-log__empty">
+          <p>No activity logged yet</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Copy buttons functionality
+    document.querySelectorAll('[data-copy-value]').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        const value = this.getAttribute('data-copy-value');
+        try {
+          await navigator.clipboard.writeText(value);
+          const copyIcon = this.querySelector('.activity-copy-btn__icon--copy');
+          const successIcon = this.querySelector('.activity-copy-btn__icon--success');
+          if (copyIcon && successIcon) {
+            copyIcon.style.display = 'none';
+            successIcon.style.display = 'block';
+            setTimeout(() => {
+              copyIcon.style.display = 'block';
+              successIcon.style.display = 'none';
+            }, 2000);
+          }
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      });
+    });
+
+    // Copy JSON functionality
+    document.querySelectorAll('[data-copy-json]').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        const pre = this.closest('.activity-entry__json').querySelector('pre');
+        if (pre) {
+          try {
+            await navigator.clipboard.writeText(pre.textContent);
+            const copyIcon = this.querySelector('.activity-copy-btn__icon--copy');
+            const successIcon = this.querySelector('.activity-copy-btn__icon--success');
+            if (copyIcon && successIcon) {
+              copyIcon.style.display = 'none';
+              successIcon.style.display = 'block';
+              setTimeout(() => {
+                copyIcon.style.display = 'block';
+                successIcon.style.display = 'none';
+              }, 2000);
+            }
+          } catch (err) {
+            console.error('Failed to copy:', err);
+          }
+        }
+      });
+    });
+  });
+</script>
+
