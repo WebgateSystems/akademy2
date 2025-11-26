@@ -94,7 +94,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resource :session, only: [:create], path: 'session'
+      resource :session, only: :create
       resources :schools, only: %i[index show create update destroy]
       resources :headmasters, only: %i[index show create update destroy] do
         member do
@@ -123,13 +123,18 @@ Rails.application.routes.draw do
       resources :units, only: %i[index show]
       resources :learning_modules, only: %i[index show]
       resources :contents, only: %i[index show]
+
+      namespace :register do
+        get 'flow', to: 'flows#create'
+
+        post 'profile',        to: 'steps#profile'
+        post 'verify_phone',   to: 'steps#verify_phone'
+        post 'set_pin',        to: 'steps#set_pin'
+        post 'confirm_pin',    to: 'steps#confirm_pin'
+      end
     end
   end
 
-  # API
-  # devise_scope :user do
-  #   post "/api/v1/auth/register", to: "api/v1/users/registrations#create"
-  # end
-
+  get '/home', to: 'home#index', as: :public_home
   root 'home#index'
 end

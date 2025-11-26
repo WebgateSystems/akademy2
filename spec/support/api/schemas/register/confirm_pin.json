@@ -1,0 +1,62 @@
+{
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "type": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "school_id": {
+              "type": "null"
+            },
+            "locale": {
+              "type": "string"
+            },
+            "jti": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "metadata": {
+              "type": "object"
+            },
+            "birthdate": {
+              "type": "string",
+              "format": "date"
+            },
+            "phone": {
+              "type": "null"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "access_token": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

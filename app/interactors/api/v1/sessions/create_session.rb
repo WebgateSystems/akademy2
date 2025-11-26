@@ -3,43 +3,58 @@ module Api
     module Sessions
       class CreateSession < BaseInteractor
         def call
-          user_not_exist unless current_user
+          context.strategy = ::Auth::AuthStrategyResolver.resolve(session_params)
+          invalid_credentials unless strategy
+
+          context.user = strategy.user
+          user_not_exist unless user
+
           wrong_password unless authenticate
 
-          generate_access_token
-          setup_varialbes
+          create_jwt
+          success
         end
 
         private
 
-        def setup_varialbes
-          context.form = current_user
-          context.status = :created
+        def strategy
+          context.strategy
         end
 
-        def user_not_exist
-          context.message = [I18n.t('session.errors.email')]
-          context.fail!
+        def session_params
+          context.params[:user] || {}
         end
 
-        def current_user
-          @current_user ||= User.find_by(email: context.params[:user][:email].downcase)
+        def user
+          context.user
         end
 
         def authenticate
-          current_user.valid_password?(context.params[:user][:password])
+          user.valid_password?(strategy.password)
+        end
+
+        def invalid_credentials
+          context.fail!(message: ['Missing login fields'])
+        end
+
+        def user_not_exist
+          context.fail!(message: ['User does not exist'])
         end
 
         def wrong_password
-          context.message = [I18n.t('session.errors.password')]
-          context.fail!
+          context.fail!(message: ['Invalid password or PIN'])
         end
 
-        def generate_access_token
-          context.access_token = ::Jwt::TokenService.encode({ user_id: current_user.id })
+        def create_jwt
+          context.access_token = Jwt::TokenService.encode(user_id: user.id)
 
           # Log login event
-          EventLogger.log_login(user: current_user, client: 'api')
+          EventLogger.log_login(user:, client: 'api')
+        end
+
+        def success
+          context.status = :created
+          context.form = user
         end
       end
     end
