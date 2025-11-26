@@ -47,7 +47,7 @@ end
 group :test do
   gem 'json_matchers'
   gem 'rspec_junit_formatter'
-  gem 'shoulda-matchers', '~> 5.0'
+  gem 'shoulda-matchers', '~> 7.0'
   gem 'simplecov', require: false
   gem 'webmock'
 end
