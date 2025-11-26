@@ -1,4 +1,6 @@
 class Users::SessionsController < Devise::SessionsController
+  before_action :configure_sign_in_params, only: [:create]
+
   # POST /resource/sign_in
   def create
     return handle_student_login if student_role?
@@ -7,6 +9,10 @@ class Users::SessionsController < Devise::SessionsController
   end
 
   private
+
+  def configure_sign_in_params
+    devise_parameter_sanitizer.permit(:sign_in, keys: [:role])
+  end
 
   # ============================
   #  STUDENT LOGIN

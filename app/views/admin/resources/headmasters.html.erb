@@ -39,11 +39,19 @@
                   </summary>
                   <ul>
                     <li>
-                      <button type="button" data-action="edit" data-headmaster-id="<%= headmaster.id %>" data-name="<%= [headmaster.first_name, headmaster.last_name].compact.join(' ') %>" data-school-id="<%= headmaster.school_id %>" data-email="<%= headmaster.email %>" data-phone="<%= headmaster.metadata['phone'] || '' %>">Edit</button>
+                      <button type="button" data-action="edit-headmaster" 
+                              data-headmaster-id="<%= headmaster.id %>" 
+                              data-headmaster-first-name="<%= h(headmaster.first_name&.to_s || '') %>" 
+                              data-headmaster-last-name="<%= h(headmaster.last_name&.to_s || '') %>" 
+                              data-headmaster-school-id="<%= headmaster.school_id %>" 
+                              data-headmaster-email="<%= h(headmaster.email&.to_s || '') %>" 
+                              data-headmaster-phone="<%= h(headmaster.metadata&.dig('phone')&.to_s || '') %>">Edit</button>
                     </li>
                     <li><button type="button">Resend invite</button></li>
                     <li>
-                      <button type="button" data-action="deactivate" data-headmaster-id="<%= headmaster.id %>" data-headmaster-name="<%= [headmaster.first_name, headmaster.last_name].compact.join(' ') %>">Deactivate</button>
+                      <button type="button" data-action="deactivate-headmaster" 
+                              data-headmaster-id="<%= headmaster.id %>" 
+                              data-headmaster-name="<%= h([headmaster.first_name, headmaster.last_name].compact.join(' ') || headmaster.email) %>">Deactivate</button>
                     </li>
                   </ul>
                 </details>
@@ -70,33 +78,37 @@
         <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
       </button>
     </header>
-    <%= form_with url: admin_create_resource_path(resource: 'users'), class: "schools-modal__form headmaster-form", id: "add-headmaster-form", data: { form_mode: "add" } do |f| %>
-      <%= hidden_field_tag "user[role_key]", "principal" %>
+    <form class="schools-modal__form headmaster-form" id="add-headmaster-form">
       <label>
-        <span>School</span>
-        <%= f.collection_select :school_id, School.all, :id, :name, { prompt: "Choose the school" }, { name: "user[school_id]", required: true } %>
+        <span>School<sup style="color: var(--content-secondary);">*</sup></span>
+        <select name="headmaster[school_id]" id="add-headmaster-school" required>
+          <option value="">Choose the school</option>
+          <% School.all.each do |school| %>
+            <option value="<%= school.id %>"><%= school.name %></option>
+          <% end %>
+        </select>
       </label>
       <label>
-        <span>Headmaster name</span>
-        <%= f.text_field :first_name, name: "user[first_name]", placeholder: "First name", required: true %>
+        <span>Headmaster name<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="headmaster[first_name]" id="add-headmaster-first-name" placeholder="First name" required>
       </label>
       <label>
-        <span>Last name</span>
-        <%= f.text_field :last_name, name: "user[last_name]", placeholder: "Last name", required: true %>
+        <span>Last name<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="headmaster[last_name]" id="add-headmaster-last-name" placeholder="Last name" required>
       </label>
       <label>
-        <span>Email</span>
-        <%= f.email_field :email, name: "user[email]", placeholder: "sekretariat@milanowek.pl", required: true %>
+        <span>Email<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="email" name="headmaster[email]" id="add-headmaster-email" placeholder="sekretariat@milanowek.pl" required>
       </label>
       <label>
         <span>Phone</span>
-        <%= f.text_field :phone, name: "user[metadata][phone]", placeholder: "+48 XXX XXX XXX", value: "" %>
+        <input type="text" name="headmaster[metadata][phone]" id="add-headmaster-phone" placeholder="+48 XXX XXX XXX">
       </label>
       <div class="schools-modal__actions">
-        <button type="submit" class="schools-modal__primary">ADD</button>
-        <button type="button" class="schools-modal__secondary" data-close-modal="add-headmaster-modal">CANCEL</button>
+        <button type="submit" class="schools-modal__primary">Add</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="add-headmaster-modal">Cancel</button>
       </div>
-    <% end %>
+    </form>
   </div>
 </div>
 
@@ -109,33 +121,38 @@
         <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
       </button>
     </header>
-    <%= form_with url: "", method: :patch, class: "schools-modal__form headmaster-form", id: "edit-headmaster-form", data: { form_mode: "edit" } do |f| %>
-      <%= hidden_field_tag "user[id]", "", id: "edit-headmaster-id" %>
+    <form class="schools-modal__form headmaster-form" id="edit-headmaster-form">
+      <input type="hidden" id="edit-headmaster-id" value="">
       <label>
-        <span>School</span>
-        <%= f.collection_select :school_id, School.all, :id, :name, { prompt: "Choose the school" }, { name: "user[school_id]", id: "edit-headmaster-school", required: true } %>
+        <span>School<sup style="color: var(--content-secondary);">*</sup></span>
+        <select name="headmaster[school_id]" id="edit-headmaster-school" required>
+          <option value="">Choose the school</option>
+          <% School.all.each do |school| %>
+            <option value="<%= school.id %>"><%= school.name %></option>
+          <% end %>
+        </select>
       </label>
       <label>
-        <span>Headmaster name</span>
-        <%= f.text_field :first_name, name: "user[first_name]", id: "edit-headmaster-first-name", placeholder: "First name", required: true %>
+        <span>Headmaster name<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="headmaster[first_name]" id="edit-headmaster-first-name" placeholder="First name" required>
       </label>
       <label>
-        <span>Last name</span>
-        <%= f.text_field :last_name, name: "user[last_name]", id: "edit-headmaster-last-name", placeholder: "Last name", required: true %>
+        <span>Last name<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="headmaster[last_name]" id="edit-headmaster-last-name" placeholder="Last name" required>
       </label>
       <label>
-        <span>Email</span>
-        <%= f.email_field :email, name: "user[email]", id: "edit-headmaster-email", placeholder: "sekretariat@milanowek.pl", required: true %>
+        <span>Email<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="email" name="headmaster[email]" id="edit-headmaster-email" placeholder="sekretariat@milanowek.pl" required>
       </label>
       <label>
         <span>Phone</span>
-        <%= f.text_field :phone, name: "user[metadata][phone]", id: "edit-headmaster-phone", placeholder: "+48 XXX XXX XXX" %>
+        <input type="text" name="headmaster[metadata][phone]" id="edit-headmaster-phone" placeholder="+48 XXX XXX XXX">
       </label>
       <div class="schools-modal__actions">
-        <button type="submit" class="schools-modal__primary">Save</button>
+        <button type="submit" class="schools-modal__primary" id="edit-headmaster-save-btn">Save</button>
         <button type="button" class="schools-modal__secondary" data-close-modal="edit-headmaster-modal">Cancel</button>
       </div>
-    <% end %>
+    </form>
   </div>
 </div>
 
@@ -152,9 +169,7 @@
       <p>Are you sure you want to deactivate <strong data-deactivate-name>this headmaster</strong>? They will lose access immediately.</p>
     </div>
     <div class="schools-modal__actions">
-      <%= button_to "", method: :delete, id: "deactivate-headmaster-form", class: "schools-modal__primary schools-modal__primary--danger", form: { style: "display: inline; margin: 0;" } do %>
-        Deactivate
-      <% end %>
+      <button type="button" id="deactivate-headmaster-confirm-btn" class="schools-modal__primary schools-modal__primary--danger">Deactivate</button>
       <button type="button" class="schools-modal__secondary" data-close-modal="deactivate-headmaster-modal">Cancel</button>
     </div>
   </div>
@@ -266,42 +281,15 @@
         const modalId = btn.getAttribute('data-close-modal');
         const modal = document.getElementById(modalId);
         if (modal) {
+          // Remove focus from any element inside modal before hiding it
+          const focusedElement = modal.querySelector(':focus');
+          if (focusedElement) {
+            focusedElement.blur();
+          }
+          // Set aria-hidden and remove class
           modal.setAttribute('aria-hidden', 'true');
           modal.classList.remove('is-open');
         }
-      });
-    });
-
-    // Edit headmaster
-    document.querySelectorAll('[data-action="edit"]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const form = document.getElementById('edit-headmaster-form');
-        const id = btn.getAttribute('data-headmaster-id');
-        const baseUrl = '<%= admin_update_resource_path(resource: 'users', id: 'ID_PLACEHOLDER') %>';
-        form.action = baseUrl.replace('ID_PLACEHOLDER', id);
-        document.getElementById('edit-headmaster-id').value = id;
-        document.getElementById('edit-headmaster-school').value = btn.getAttribute('data-school-id') || '';
-        const nameParts = (btn.getAttribute('data-name') || '').split(' ');
-        document.getElementById('edit-headmaster-first-name').value = nameParts[0] || '';
-        document.getElementById('edit-headmaster-last-name').value = nameParts.slice(1).join(' ') || '';
-        document.getElementById('edit-headmaster-email').value = btn.getAttribute('data-email') || '';
-        document.getElementById('edit-headmaster-phone').value = btn.getAttribute('data-phone') || '';
-        document.getElementById('edit-headmaster-modal').setAttribute('aria-hidden', 'false');
-        document.getElementById('edit-headmaster-modal').classList.add('is-open');
-      });
-    });
-
-    // Deactivate headmaster
-    document.querySelectorAll('[data-action="deactivate"]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-headmaster-id');
-        const name = btn.getAttribute('data-headmaster-name');
-        document.querySelector('[data-deactivate-name]').textContent = name;
-        const form = document.getElementById('deactivate-headmaster-form');
-        const baseUrl = '<%= admin_destroy_resource_path(resource: 'users', id: 'ID_PLACEHOLDER') %>';
-        form.action = baseUrl.replace('ID_PLACEHOLDER', id);
-        document.getElementById('deactivate-headmaster-modal').setAttribute('aria-hidden', 'false');
-        document.getElementById('deactivate-headmaster-modal').classList.add('is-open');
       });
     });
 
@@ -310,11 +298,321 @@
       overlay.addEventListener('click', function() {
         const modal = this.closest('.schools-modal');
         if (modal) {
+          // Remove focus from any element inside modal before hiding it
+          const focusedElement = modal.querySelector(':focus');
+          if (focusedElement) {
+            focusedElement.blur();
+          }
+          // Set aria-hidden and remove class
           modal.setAttribute('aria-hidden', 'true');
           modal.classList.remove('is-open');
         }
       });
     });
+
+    // Step 2: Edit headmaster button handler
+    document.querySelectorAll('[data-action="edit-headmaster"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById('edit-headmaster-modal');
+        if (!modal) {
+          console.error('Edit headmaster modal not found');
+          return;
+        }
+
+        // Get headmaster data from data attributes
+        const headmasterId = btn.getAttribute('data-headmaster-id');
+        const firstName = btn.getAttribute('data-headmaster-first-name') || '';
+        const lastName = btn.getAttribute('data-headmaster-last-name') || '';
+        const schoolId = btn.getAttribute('data-headmaster-school-id') || '';
+        const email = btn.getAttribute('data-headmaster-email') || '';
+        const phone = btn.getAttribute('data-headmaster-phone') || '';
+
+        // Set form values
+        const idField = document.getElementById('edit-headmaster-id');
+        if (idField) idField.value = headmasterId || '';
+
+        const schoolField = document.getElementById('edit-headmaster-school');
+        if (schoolField) schoolField.value = schoolId;
+
+        const firstNameField = document.getElementById('edit-headmaster-first-name');
+        if (firstNameField) firstNameField.value = firstName;
+
+        const lastNameField = document.getElementById('edit-headmaster-last-name');
+        if (lastNameField) lastNameField.value = lastName;
+
+        const emailField = document.getElementById('edit-headmaster-email');
+        if (emailField) emailField.value = email;
+
+        const phoneField = document.getElementById('edit-headmaster-phone');
+        if (phoneField) phoneField.value = phone;
+
+        // Enable Save button
+        const saveBtn = document.getElementById('edit-headmaster-save-btn');
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.removeAttribute('aria-disabled');
+          saveBtn.classList.remove('is-disabled');
+        }
+
+        // Listen for changes in form fields
+        const form = document.getElementById('edit-headmaster-form');
+        if (form) {
+          const formInputs = form.querySelectorAll('input, select');
+          formInputs.forEach(input => {
+            input.addEventListener('input', () => {
+              if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.removeAttribute('aria-disabled');
+                saveBtn.classList.remove('is-disabled');
+              }
+            });
+            input.addEventListener('change', () => {
+              if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.removeAttribute('aria-disabled');
+                saveBtn.classList.remove('is-disabled');
+              }
+            });
+          });
+        }
+
+        // Open modal
+        modal.setAttribute('aria-hidden', 'false');
+        modal.classList.add('is-open');
+      });
+    });
+
+    // Step 3: Form submission handlers using API
+    if (typeof window.ApiClient === 'undefined') {
+      console.error('ApiClient not available. Make sure api_client.js is loaded.');
+    } else {
+      const api = new window.ApiClient();
+
+      // Add headmaster form submission
+      const addForm = document.getElementById('add-headmaster-form');
+      if (addForm) {
+        addForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = addForm.querySelector('button[type="submit"]');
+          const originalText = submitBtn.textContent;
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Adding...';
+
+          try {
+            const formData = new FormData(addForm);
+            const data = {
+              headmaster: {
+                school_id: formData.get('headmaster[school_id]'),
+                first_name: formData.get('headmaster[first_name]'),
+                last_name: formData.get('headmaster[last_name]'),
+                email: formData.get('headmaster[email]'),
+                metadata: {
+                  phone: formData.get('headmaster[metadata][phone]') || ''
+                }
+              }
+            };
+
+            const result = await api.post('/headmasters', data);
+            
+            if (result.success) {
+              // Close modal
+              const modal = document.getElementById('add-headmaster-modal');
+              if (modal) {
+                const focusedElement = modal.querySelector(':focus');
+                if (focusedElement) focusedElement.blur();
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+              }
+              // Reload page to show new headmaster
+              window.location.reload();
+            } else {
+              console.error('API error:', result.error);
+              alert('Error: ' + String(result.error || 'Failed to create headmaster'));
+              submitBtn.disabled = false;
+              submitBtn.textContent = originalText;
+            }
+          } catch (error) {
+            console.error('Form submission error:', error);
+            alert('Error: ' + String(error.message || 'Unknown error'));
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        });
+      }
+
+      // Edit headmaster form submission
+      const editForm = document.getElementById('edit-headmaster-form');
+      if (editForm) {
+        editForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = editForm.querySelector('button[type="submit"]');
+          const originalText = submitBtn.textContent;
+          const headmasterIdField = document.getElementById('edit-headmaster-id');
+          
+          if (!headmasterIdField || !headmasterIdField.value) {
+            alert('Error: Headmaster ID is missing');
+            return;
+          }
+          
+          const headmasterId = headmasterIdField.value;
+          
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Saving...';
+
+          try {
+            const formData = new FormData(editForm);
+            const data = {
+              headmaster: {
+                school_id: formData.get('headmaster[school_id]'),
+                first_name: formData.get('headmaster[first_name]'),
+                last_name: formData.get('headmaster[last_name]'),
+                email: formData.get('headmaster[email]'),
+                metadata: {
+                  phone: formData.get('headmaster[metadata][phone]') || ''
+                }
+              }
+            };
+
+            const result = await api.patch(`/headmasters/${headmasterId}`, data);
+            
+            if (result.success) {
+              // Close modal
+              const modal = document.getElementById('edit-headmaster-modal');
+              if (modal) {
+                const focusedElement = modal.querySelector(':focus');
+                if (focusedElement) focusedElement.blur();
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+              }
+              // Reload page to show updated headmaster
+              window.location.reload();
+            } else {
+              console.error('API error:', result.error);
+              alert('Error: ' + String(result.error || 'Failed to update headmaster'));
+              submitBtn.disabled = false;
+              submitBtn.textContent = originalText;
+            }
+          } catch (error) {
+            console.error('Form submission error:', error);
+            alert('Error: ' + String(error.message || 'Unknown error'));
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        });
+      }
+
+      // Deactivate headmaster handler
+      let deactivateHeadmasterId = null;
+      document.querySelectorAll('[data-action="deactivate-headmaster"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          deactivateHeadmasterId = btn.getAttribute('data-headmaster-id');
+          const name = btn.getAttribute('data-headmaster-name') || '';
+          const deactivateNameEl = document.querySelector('[data-deactivate-name]');
+          if (deactivateNameEl) {
+            deactivateNameEl.textContent = name;
+          }
+          const deactivateModal = document.getElementById('deactivate-headmaster-modal');
+          if (deactivateModal) {
+            deactivateModal.setAttribute('aria-hidden', 'false');
+            deactivateModal.classList.add('is-open');
+          }
+        });
+      });
+
+      // Deactivate headmaster confirm
+      const deactivateBtn = document.getElementById('deactivate-headmaster-confirm-btn');
+      if (deactivateBtn) {
+        deactivateBtn.addEventListener('click', async () => {
+          if (!deactivateHeadmasterId) return;
+          
+          deactivateBtn.disabled = true;
+          deactivateBtn.textContent = 'Deactivating...';
+
+          try {
+            const result = await api.delete(`/headmasters/${deactivateHeadmasterId}`);
+            
+            if (result.success) {
+              // Close modal
+              const modal = document.getElementById('deactivate-headmaster-modal');
+              if (modal) {
+                const focusedElement = modal.querySelector(':focus');
+                if (focusedElement) focusedElement.blur();
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+              }
+              // Reload page to show updated list
+              window.location.reload();
+            } else {
+              alert('Error: ' + String(result.error || 'Failed to deactivate headmaster'));
+              deactivateBtn.disabled = false;
+              deactivateBtn.textContent = 'Deactivate';
+            }
+          } catch (error) {
+            console.error('Deactivate error:', error);
+            alert('Error: ' + String(error.message || 'Unknown error'));
+            deactivateBtn.disabled = false;
+            deactivateBtn.textContent = 'Deactivate';
+          }
+        });
+      }
+    }
+
+    // Step 4: Search/filter functionality
+    const searchInput = document.getElementById('headmasters-search-input');
+    const headmastersTable = document.querySelector('.headmasters-table tbody');
+    
+    if (searchInput && headmastersTable) {
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        const rows = headmastersTable.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+          // Skip empty row message
+          if (row.querySelector('td[colspan]')) {
+            row.style.display = '';
+            return;
+          }
+          
+          // Get text content from relevant cells
+          const cells = row.querySelectorAll('td');
+          if (cells.length < 6) return;
+          
+          const nameCell = cells[0];
+          const schoolCell = cells[1];
+          const emailCell = cells[2];
+          const phoneCell = cells[3];
+          
+          // Get text content
+          const nameText = nameCell.textContent.toLowerCase();
+          const schoolText = schoolCell.textContent.toLowerCase();
+          const emailText = emailCell.textContent.toLowerCase();
+          const phoneText = phoneCell.textContent.toLowerCase();
+          
+          // Check if search term matches any of the fields
+          const matches = 
+            nameText.includes(searchTerm) ||
+            schoolText.includes(searchTerm) ||
+            emailText.includes(searchTerm) ||
+            phoneText.includes(searchTerm);
+          
+          // Show/hide row based on match
+          row.style.display = matches ? '' : 'none';
+        });
+        
+        // Show/hide empty message based on visible rows
+        const visibleRows = Array.from(rows).filter(row => {
+          return row.style.display !== 'none' && !row.querySelector('td[colspan]');
+        });
+        
+        const emptyRow = headmastersTable.querySelector('tr td[colspan]');
+        if (emptyRow) {
+          const emptyRowElement = emptyRow.closest('tr');
+          if (emptyRowElement) {
+            emptyRowElement.style.display = visibleRows.length === 0 ? '' : 'none';
+          }
+        }
+      });
+    }
   });
 </script>
 

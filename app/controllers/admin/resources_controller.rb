@@ -30,7 +30,7 @@ class Admin::ResourcesController < Admin::BaseController
       render 'admin/resources/schools' and return
     when 'users'
       # Filter for headmasters (principals)
-      @records = @resource_class.joins(:roles).where(roles: { key: 'principal' }).distinct.order(created_at: :desc).limit(200)
+      @records = @resource_class.joins(:roles).where(roles: { key: 'principal' }).includes(:school).distinct.order(created_at: :desc).limit(200)
       render 'admin/resources/headmasters' and return
     when 'events'
       @records = @resource_class.includes(:user, :school).order(occurred_at: :desc, created_at: :desc).limit(200)
