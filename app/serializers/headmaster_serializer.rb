@@ -12,4 +12,10 @@ class HeadmasterSerializer < ApplicationSerializer
   attribute :phone do |headmaster|
     headmaster.metadata&.dig('phone')
   end
+
+  attribute :locked_at, &:locked_at
+
+  attribute :is_locked do |headmaster|
+    headmaster.locked_at.present?
+  end
 end

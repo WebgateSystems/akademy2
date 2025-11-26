@@ -1,6 +1,7 @@
 class Admin::ResourcesController < Admin::BaseController
   RESOURCES = {
     'users' => User,
+    'teachers' => User,
     'roles' => Role,
     'user_roles' => UserRole,
     'schools' => School,
@@ -23,18 +24,22 @@ class Admin::ResourcesController < Admin::BaseController
   before_action :set_resource_class
   before_action :set_record, only: %i[show edit update destroy]
 
+  # rubocop:disable Metrics/MethodLength
   def index
     case params[:resource]
     when 'schools'
       load_schools
     when 'users'
       load_headmasters
+    when 'teachers'
+      load_teachers
     when 'events'
       load_events
     else
       load_default_records
     end
   end
+  # rubocop:enable Metrics/MethodLength
 
   def show; end
 
@@ -107,6 +112,12 @@ class Admin::ResourcesController < Admin::BaseController
                .order(created_at: :desc)
                .limit(200)
     render 'admin/resources/headmasters'
+  end
+
+  def load_teachers
+    # Don't load records server-side, let JavaScript load them via API
+    @records = []
+    render 'admin/resources/teachers'
   end
 
   def load_events

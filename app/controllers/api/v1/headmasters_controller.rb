@@ -32,6 +32,11 @@ module Api
         result = Api::V1::Headmasters::ResendInviteHeadmaster.call(params:, current_user:)
         default_handler(result)
       end
+
+      def lock
+        result = Api::V1::Headmasters::LockHeadmaster.call(params:, current_user:)
+        default_handler(result)
+      end
     end
   end
 end

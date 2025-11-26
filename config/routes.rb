@@ -46,6 +46,13 @@ Rails.application.routes.draw do
       resources :headmasters, only: %i[index show create update destroy] do
         member do
           post :resend_invite
+          post :lock
+        end
+      end
+      resources :teachers, only: %i[index show create update destroy] do
+        member do
+          post :resend_invite
+          post :lock
         end
       end
     end

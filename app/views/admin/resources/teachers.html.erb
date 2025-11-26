@@ -1,0 +1,1211 @@
+<% content_for :page_title, "Teachers" %>
+<%# Store asset path for JavaScript in a script tag %>
+<script>
+  window.TEACHERS_ASSET_PATHS = {
+    buttonIcon: '<%= asset_path("icons/social/S/button-3.svg") %>'
+  };
+</script>
+
+<section aria-label="Teachers list">
+  <header class="schools-page__header">
+    <label class="schools-search schools-search--half">
+      <span class="visually-hidden">Search teachers</span>
+      <input type="search" placeholder="Search teacher" id="teachers-search-input">
+      <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true", "data-theme-icon": true %>
+    </label>
+    <button class="schools-page__add" type="button" data-open-modal="add-teacher-modal">Add teacher</button>
+  </header>
+  <div class="schools-page__controls"></div>
+
+  <div class="teachers-panel">
+    <table class="teachers-table">
+      <thead class="teachers-table__head">
+        <tr>
+          <th scope="col" class="teachers-table__heading">Teacher name</th>
+          <th scope="col" class="teachers-table__heading">Birth date</th>
+          <th scope="col" class="teachers-table__heading">Email</th>
+          <th scope="col" class="teachers-table__heading">Phone</th>
+          <th scope="col" class="teachers-table__heading">School</th>
+          <th scope="col" class="teachers-table__heading">Status</th>
+          <th scope="col" class="teachers-table__heading teachers-table__heading--actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="teachers-table__body" id="teachers-table-body">
+        <!-- Teachers will be loaded via API -->
+      </tbody>
+    </table>
+    <div id="teachers-loading-indicator" class="teachers-loading" style="display: none; padding: 20px; text-align: center;">
+      <div class="spinner" style="display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--content-primary); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+      <span style="margin-left: 12px; color: var(--content-secondary);">Loading teachers...</span>
+    </div>
+    <div id="teachers-empty-message" class="text-center" style="padding: 40px; color: var(--content-secondary); display: none;">
+      No teachers yet
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+</style>
+    </table>
+  </div>
+</section>
+
+<div class="schools-modal" id="add-teacher-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="add-teacher-title">
+    <header class="schools-modal__header">
+      <h3 id="add-teacher-title">Add teacher</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="add-teacher-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <form class="schools-modal__form headmaster-form" id="add-teacher-form">
+      <label>
+        <span>School<sup style="color: var(--content-secondary);">*</sup></span>
+        <select name="teacher[school_id]" id="add-teacher-school" required>
+          <option value="">Choose the school</option>
+          <% School.all.each do |school| %>
+            <option value="<%= school.id %>"><%= school.name %></option>
+          <% end %>
+        </select>
+      </label>
+      <label>
+        <span>Teacher name<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="teacher[first_name]" id="add-teacher-first-name" placeholder="First name" required>
+      </label>
+      <label>
+        <span>Last name<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="teacher[last_name]" id="add-teacher-last-name" placeholder="Last name" required>
+      </label>
+      <label>
+        <span>Email<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="email" name="teacher[email]" id="add-teacher-email" placeholder="teacher@school.pl" required>
+      </label>
+      <label>
+        <span>Phone</span>
+        <input type="text" name="teacher[metadata][phone]" id="add-teacher-phone" placeholder="+48 XXX XXX XXX">
+      </label>
+      <label>
+        <span>Birth date</span>
+        <input type="date" name="teacher[metadata][birth_date]" id="add-teacher-birth-date">
+      </label>
+      <div class="schools-modal__actions">
+        <button type="submit" class="schools-modal__primary">Add</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="add-teacher-modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="schools-modal" id="edit-teacher-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="edit-teacher-title">
+    <header class="schools-modal__header">
+      <h3 id="edit-teacher-title">Edit teacher</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="edit-teacher-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <form class="schools-modal__form headmaster-form" id="edit-teacher-form">
+      <input type="hidden" id="edit-teacher-id" value="">
+      <label>
+        <span>School<sup style="color: var(--content-secondary);">*</sup></span>
+        <select name="teacher[school_id]" id="edit-teacher-school" required>
+          <option value="">Choose the school</option>
+          <% School.all.each do |school| %>
+            <option value="<%= school.id %>"><%= school.name %></option>
+          <% end %>
+        </select>
+      </label>
+      <label>
+        <span>Teacher name<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="teacher[first_name]" id="edit-teacher-first-name" placeholder="First name" required>
+      </label>
+      <label>
+        <span>Last name<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="teacher[last_name]" id="edit-teacher-last-name" placeholder="Last name" required>
+      </label>
+      <label>
+        <span>Email<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="email" name="teacher[email]" id="edit-teacher-email" placeholder="teacher@school.pl" required>
+      </label>
+      <label>
+        <span>Phone</span>
+        <input type="text" name="teacher[metadata][phone]" id="edit-teacher-phone" placeholder="+48 XXX XXX XXX">
+      </label>
+      <label>
+        <span>Birth date</span>
+        <input type="date" name="teacher[metadata][birth_date]" id="edit-teacher-birth-date">
+      </label>
+      <div class="schools-modal__actions">
+        <button type="submit" class="schools-modal__primary" id="edit-teacher-save-btn">Save</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="edit-teacher-modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="schools-modal" id="deactivate-teacher-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="deactivate-teacher-title">
+    <header class="schools-modal__header">
+      <h3 id="deactivate-teacher-title">Deactivate teacher</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="deactivate-teacher-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <div class="schools-modal__body">
+      <p id="deactivate-teacher-message">Are you sure you want to deactivate <strong data-deactivate-name>this teacher</strong>? They will lose access immediately.</p>
+    </div>
+    <div class="schools-modal__actions">
+      <button type="button" id="deactivate-teacher-confirm-btn" class="schools-modal__primary schools-modal__primary--danger">Deactivate</button>
+      <button type="button" class="schools-modal__secondary" data-close-modal="deactivate-teacher-modal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Infinite scroll implementation
+    let currentPage = 1;
+    let isLoading = false;
+    let hasMore = true;
+    let allTeachers = [];
+    let filteredTeachers = [];
+    let isSearching = false;
+    let currentSearchTerm = '';
+    let searchTimeout = null;
+    const perPage = 20;
+    const SEARCH_MIN_LENGTH = 3; // Minimum characters to trigger API search
+    const tbody = document.getElementById('teachers-table-body');
+    const loadingIndicator = document.getElementById('teachers-loading-indicator');
+    const emptyMessage = document.getElementById('teachers-empty-message');
+    const searchInput = document.getElementById('teachers-search-input');
+
+    if (typeof window.ApiClient === 'undefined') {
+      console.error('ApiClient not available. Make sure api_client.js is loaded.');
+      return;
+    }
+
+    const api = new window.ApiClient();
+
+    // Function to render a teacher row
+    function renderTeacherRow(teacher) {
+      // Handle JSONAPI format: teacher might be { id, type, attributes: {...} }
+      const attrs = teacher.attributes || teacher;
+      const name = [attrs.first_name, attrs.last_name].filter(Boolean).join(' ') || attrs.email;
+      const birthDate = attrs.birth_date || '—';
+      const email = attrs.email || '—';
+      const phone = attrs.phone || '—';
+      const schoolName = attrs.school_name || '—';
+      const teacherId = teacher.id || attrs.id;
+
+      const row = document.createElement('tr');
+      row.className = 'teachers-table__row';
+      
+      // Check if teacher is locked
+      const isLocked = attrs.is_locked || attrs.locked_at;
+      
+      // Create cells
+      const cells = [
+        name, birthDate, email, phone, schoolName
+      ].map(text => {
+        const cell = document.createElement('td');
+        cell.className = 'teachers-table__cell';
+        cell.textContent = text;
+        return cell;
+      });
+      
+      // Status cell
+      const statusCell = document.createElement('td');
+      statusCell.className = 'teachers-table__cell';
+      const statusBadge = document.createElement('span');
+      if (isLocked) {
+        statusBadge.textContent = 'Inactive';
+        statusBadge.style.color = 'var(--state-error)';
+        statusBadge.style.fontWeight = '500';
+      } else {
+        statusBadge.textContent = 'Active';
+        statusBadge.style.color = 'var(--state-success)';
+        statusBadge.style.fontWeight = '500';
+      }
+      statusCell.appendChild(statusBadge);
+      
+      // Actions cell
+      const actionsCell = document.createElement('td');
+      actionsCell.className = 'teachers-table__cell teachers-table__cell--actions';
+      
+      const teachersActionsDiv = document.createElement('div');
+      teachersActionsDiv.className = 'teachers-actions';
+      
+      const headmastersActionsDiv = document.createElement('div');
+      headmastersActionsDiv.className = 'headmasters-actions';
+      
+      const details = document.createElement('details');
+      details.className = 'headmasters-menu';
+      
+      const summary = document.createElement('summary');
+      summary.setAttribute('aria-label', 'Open actions menu');
+      const img = document.createElement('img');
+      // Get asset path from window variable set by Rails
+      const buttonIconPath = (typeof window.TEACHERS_ASSET_PATHS !== 'undefined' && window.TEACHERS_ASSET_PATHS.buttonIcon) || '/assets/icons/social/S/button-3.svg';
+      img.src = buttonIconPath;
+      img.alt = '';
+      img.setAttribute('data-theme-icon', 'true');
+      summary.appendChild(img);
+      
+      const ul = document.createElement('ul');
+      
+      // Edit button
+      const editLi = document.createElement('li');
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.setAttribute('data-action', 'edit-teacher');
+      editBtn.setAttribute('data-teacher-id', teacherId);
+      editBtn.setAttribute('data-teacher-first-name', attrs.first_name || '');
+      editBtn.setAttribute('data-teacher-last-name', attrs.last_name || '');
+      editBtn.setAttribute('data-teacher-school-id', attrs.school_id || '');
+      editBtn.setAttribute('data-teacher-email', attrs.email || '');
+      editBtn.setAttribute('data-teacher-phone', attrs.phone || '');
+      editBtn.setAttribute('data-teacher-birth-date', attrs.birth_date || '');
+      editBtn.textContent = 'Edit';
+      editLi.appendChild(editBtn);
+      
+      // Resend invite button
+      const resendLi = document.createElement('li');
+      const resendBtn = document.createElement('button');
+      resendBtn.type = 'button';
+      resendBtn.setAttribute('data-action', 'resend-invite');
+      resendBtn.setAttribute('data-teacher-id', teacherId);
+      resendBtn.setAttribute('data-teacher-email', attrs.email || '');
+      resendBtn.textContent = 'Resend invite';
+      resendLi.appendChild(resendBtn);
+      
+      // Deactivate/Activate button
+      const deactivateLi = document.createElement('li');
+      const deactivateBtn = document.createElement('button');
+      deactivateBtn.type = 'button';
+      deactivateBtn.setAttribute('data-action', 'deactivate-teacher');
+      deactivateBtn.setAttribute('data-teacher-id', teacherId);
+      deactivateBtn.setAttribute('data-teacher-name', name);
+      deactivateBtn.setAttribute('data-teacher-is-locked', isLocked ? 'true' : 'false');
+      deactivateBtn.textContent = isLocked ? 'Activate' : 'Deactivate';
+      deactivateLi.appendChild(deactivateBtn);
+      
+      ul.appendChild(editLi);
+      ul.appendChild(resendLi);
+      ul.appendChild(deactivateLi);
+      
+      details.appendChild(summary);
+      details.appendChild(ul);
+      headmastersActionsDiv.appendChild(details);
+      teachersActionsDiv.appendChild(headmastersActionsDiv);
+      actionsCell.appendChild(teachersActionsDiv);
+      
+      // Append all cells to row
+      cells.forEach(cell => row.appendChild(cell));
+      row.appendChild(statusCell);
+      row.appendChild(actionsCell);
+      
+      return row;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Function to load teachers from API
+    async function loadTeachers(page = 1, searchTerm = '') {
+      if (isLoading || (!hasMore && page > 1)) return;
+
+      isLoading = true;
+      loadingIndicator.style.display = 'block';
+
+      try {
+        let url = `/teachers?page=${page}&per_page=${perPage}`;
+        if (searchTerm && searchTerm.length >= SEARCH_MIN_LENGTH) {
+          url += `&search=${encodeURIComponent(searchTerm)}`;
+        }
+        const result = await api.get(url);
+        
+        if (result.success && result.data) {
+          // JSONAPI::Serializer returns: { data: [{ id, type, attributes: {...} }, ...], pagination: {...} }
+          // result.data is the whole response object
+          const responseData = result.data;
+          let teachers = [];
+          
+          // Extract teachers array from JSONAPI format
+          if (responseData.data && Array.isArray(responseData.data)) {
+            teachers = responseData.data;
+          } else if (Array.isArray(responseData)) {
+            // Fallback: if it's already an array
+            teachers = responseData;
+          }
+          
+          const pagination = responseData.pagination || {};
+
+          if (page === 1) {
+            allTeachers = [];
+            tbody.innerHTML = '';
+          }
+
+          allTeachers = allTeachers.concat(teachers);
+          filteredTeachers = allTeachers;
+
+          // Render teachers
+          teachers.forEach(teacher => {
+            tbody.appendChild(renderTeacherRow(teacher));
+          });
+
+          // Update pagination state
+          hasMore = pagination.has_more || false;
+          currentPage = page;
+
+          // Show/hide empty message
+          if (allTeachers.length === 0) {
+            emptyMessage.style.display = 'block';
+          } else {
+            emptyMessage.style.display = 'none';
+          }
+
+          // Re-setup menus for new rows
+          setupTeacherMenus();
+          // Re-setup event handlers for dynamically added buttons
+          setupEditTeacherHandler();
+          setupResendInviteHandler();
+          setupDeactivateTeacherHandler();
+        } else {
+          console.error('Failed to load teachers:', result.error);
+        }
+      } catch (error) {
+        console.error('Error loading teachers:', error);
+      } finally {
+        isLoading = false;
+        loadingIndicator.style.display = 'none';
+      }
+    }
+
+    // Infinite scroll handler
+    function handleScroll() {
+      if (isLoading || !hasMore) return;
+      
+      // Don't load more if searching locally (short search term)
+      if (isSearching && currentSearchTerm.length < SEARCH_MIN_LENGTH) {
+        return;
+      }
+
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+
+      // Load more when user is 200px from bottom
+      if (scrollTop + windowHeight >= documentHeight - 200) {
+        loadTeachers(currentPage + 1, currentSearchTerm);
+      }
+    }
+
+    // Throttle scroll events
+    let scrollTimeout;
+    window.addEventListener('scroll', function() {
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+      scrollTimeout = setTimeout(handleScroll, 100);
+    });
+
+    // Search/filter functionality
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim();
+        currentSearchTerm = searchTerm;
+        
+        // Clear previous timeout
+        if (searchTimeout) {
+          clearTimeout(searchTimeout);
+        }
+
+        // If search is empty, reset to show all loaded teachers
+        if (!searchTerm) {
+          isSearching = false;
+          currentPage = 1;
+          hasMore = true;
+          allTeachers = [];
+          tbody.innerHTML = '';
+          loadTeachers(1);
+          return;
+        }
+
+        // If search term is long enough, search via API
+        if (searchTerm.length >= SEARCH_MIN_LENGTH) {
+          isSearching = true;
+          // Debounce API calls
+          searchTimeout = setTimeout(() => {
+            currentPage = 1;
+            hasMore = true;
+            allTeachers = [];
+            tbody.innerHTML = '';
+            loadTeachers(1, searchTerm);
+          }, 300); // Wait 300ms after user stops typing
+        } else {
+          // For short search terms, filter locally from loaded teachers
+          isSearching = true;
+          const searchTermLower = searchTerm.toLowerCase();
+          
+          filteredTeachers = allTeachers.filter(teacher => {
+            const attrs = teacher.attributes || teacher;
+            const name = [attrs.first_name, attrs.last_name].filter(Boolean).join(' ').toLowerCase() || (attrs.email || '').toLowerCase();
+            const birthDate = (attrs.birth_date || '').toLowerCase();
+            const email = (attrs.email || '').toLowerCase();
+            const phone = (attrs.phone || '').toLowerCase();
+            const schoolName = (attrs.school_name || '').toLowerCase();
+
+          return name.includes(searchTermLower) ||
+                 birthDate.includes(searchTermLower) ||
+                 email.includes(searchTermLower) ||
+                 phone.includes(searchTermLower) ||
+                 schoolName.includes(searchTermLower) ||
+                 status.includes(searchTermLower);
+          });
+
+          // Re-render filtered teachers
+          tbody.innerHTML = '';
+          filteredTeachers.forEach(teacher => {
+            tbody.appendChild(renderTeacherRow(teacher));
+          });
+
+          // Show/hide empty message
+          if (filteredTeachers.length === 0) {
+            emptyMessage.style.display = 'block';
+          } else {
+            emptyMessage.style.display = 'none';
+          }
+
+          setupTeacherMenus();
+        }
+      });
+    }
+
+    // Load initial teachers
+    loadTeachers(1);
+
+    // Handle teacher menu positioning (same as headmasters)
+    function setupTeacherMenus() {
+      const menus = document.querySelectorAll('.headmasters-menu');
+      const tbody = document.querySelector('.teachers-table__body');
+      if (!tbody) return;
+
+      menus.forEach((menu) => {
+        const summary = menu.querySelector('summary');
+        if (!summary) return;
+
+        menu.addEventListener('toggle', function() {
+          if (menu.open) {
+            menus.forEach(m => {
+              if (m !== menu && m.open) {
+                m.open = false;
+              }
+            });
+
+            requestAnimationFrame(() => {
+              const summaryRect = summary.getBoundingClientRect();
+              const ul = menu.querySelector('ul');
+              if (!ul) return;
+
+              const ulHeight = ul.offsetHeight || 150;
+              const spaceBelow = window.innerHeight - summaryRect.bottom;
+              const spaceAbove = summaryRect.top;
+              const row = menu.closest('tr');
+              const rows = Array.from(tbody.querySelectorAll('tr'));
+              const rowIndex = rows.indexOf(row);
+              const totalRows = rows.length;
+
+              ul.style.position = 'fixed';
+              ul.style.zIndex = '999999';
+              ul.style.isolation = 'isolate';
+              ul.style.transform = 'translateZ(0)';
+              ul.style.willChange = 'transform';
+              
+              if (totalRows === 1) {
+                menu.removeAttribute('data-menu-align');
+                ul.style.top = (summaryRect.bottom + 10) + 'px';
+                ul.style.right = (window.innerWidth - summaryRect.right) + 'px';
+                ul.style.bottom = 'auto';
+              } else if (spaceBelow < ulHeight + 20 && spaceAbove > ulHeight + 20 && rowIndex >= totalRows - 2) {
+                menu.setAttribute('data-menu-align', 'top');
+                ul.style.bottom = (window.innerHeight - summaryRect.top + 10) + 'px';
+                ul.style.right = (window.innerWidth - summaryRect.right) + 'px';
+                ul.style.top = 'auto';
+              } else {
+                menu.removeAttribute('data-menu-align');
+                ul.style.top = (summaryRect.bottom + 10) + 'px';
+                ul.style.right = (window.innerWidth - summaryRect.right) + 'px';
+                ul.style.bottom = 'auto';
+              }
+            });
+          } else {
+            const ul = menu.querySelector('ul');
+            if (ul) {
+              ul.style.position = '';
+              ul.style.top = '';
+              ul.style.bottom = '';
+              ul.style.right = '';
+              ul.style.zIndex = '';
+              ul.style.transform = '';
+              ul.style.willChange = '';
+            }
+          }
+        });
+
+        const ul = menu.querySelector('ul');
+        if (ul) {
+          ul.addEventListener('click', function(e) {
+            e.stopPropagation();
+          });
+        }
+      });
+
+      let clickHandler = function(e) {
+        if (!e.target.closest('.headmasters-menu')) {
+          menus.forEach(m => {
+            if (m.open) {
+              m.open = false;
+            }
+          });
+        }
+      };
+      
+      document.addEventListener('click', clickHandler, true);
+    }
+
+    setupTeacherMenus();
+
+    // Modal handlers
+    document.querySelectorAll('[data-open-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-open-modal');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('is-open');
+        }
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-close-modal');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          const focusedElement = modal.querySelector(':focus');
+          if (focusedElement) {
+            focusedElement.blur();
+          }
+          
+          // Reset deactivate modal state when closing
+          if (modalId === 'deactivate-teacher-modal') {
+            const confirmBtn = document.getElementById('deactivate-teacher-confirm-btn');
+            if (confirmBtn) {
+              confirmBtn.disabled = false;
+              confirmBtn.removeAttribute('aria-disabled');
+              confirmBtn.textContent = 'Deactivate'; // Reset to default
+            }
+            deactivateTeacherId = null;
+          }
+          
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+      overlay.addEventListener('click', function() {
+        const modal = this.closest('.schools-modal');
+        if (modal) {
+          const focusedElement = modal.querySelector(':focus');
+          if (focusedElement) {
+            focusedElement.blur();
+          }
+          
+          // Reset deactivate modal state when closing via overlay
+          if (modal.id === 'deactivate-teacher-modal') {
+            const confirmBtn = document.getElementById('deactivate-teacher-confirm-btn');
+            if (confirmBtn) {
+              confirmBtn.disabled = false;
+              confirmBtn.removeAttribute('aria-disabled');
+              confirmBtn.textContent = 'Deactivate'; // Reset to default
+            }
+            deactivateTeacherId = null;
+          }
+          
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    // Edit teacher button handler - using event delegation for dynamically added buttons
+    function setupEditTeacherHandler() {
+      // Use capture phase to catch events before they bubble
+      if (tbody) {
+        tbody.removeEventListener('click', handleEditTeacherClick, true);
+        tbody.addEventListener('click', handleEditTeacherClick, true);
+      }
+    }
+
+    async function handleEditTeacherClick(e) {
+      // Check if clicked element or its parent is the edit button
+      const btn = e.target.closest('[data-action="edit-teacher"]');
+      if (!btn) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      const modal = document.getElementById('edit-teacher-modal');
+      if (!modal) {
+        console.error('Edit teacher modal not found');
+        return;
+      }
+
+      const teacherId = btn.getAttribute('data-teacher-id');
+      if (!teacherId) {
+        console.error('Teacher ID not found');
+        return;
+      }
+
+      // Get initial values from data attributes (for quick display)
+      const firstName = btn.getAttribute('data-teacher-first-name') || '';
+      const lastName = btn.getAttribute('data-teacher-last-name') || '';
+      const schoolId = btn.getAttribute('data-teacher-school-id') || '';
+      const email = btn.getAttribute('data-teacher-email') || '';
+      const phone = btn.getAttribute('data-teacher-phone') || '';
+      const birthDate = btn.getAttribute('data-teacher-birth-date') || '';
+
+      // Set basic fields immediately
+      const idField = document.getElementById('edit-teacher-id');
+      if (idField) idField.value = teacherId || '';
+
+      const firstNameField = document.getElementById('edit-teacher-first-name');
+      if (firstNameField) firstNameField.value = firstName;
+
+      const lastNameField = document.getElementById('edit-teacher-last-name');
+      if (lastNameField) lastNameField.value = lastName;
+
+      const emailField = document.getElementById('edit-teacher-email');
+      if (emailField) emailField.value = email;
+
+      const phoneField = document.getElementById('edit-teacher-phone');
+      if (phoneField) phoneField.value = phone;
+
+      // Set birth date from button attribute
+      const birthDateField = document.getElementById('edit-teacher-birth-date');
+      if (birthDateField && birthDate && birthDate.trim() !== '') {
+        const parts = birthDate.split('.');
+        if (parts.length === 3) {
+          const [day, month, year] = parts;
+          birthDateField.value = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+      }
+
+      // Open modal immediately
+      modal.setAttribute('aria-hidden', 'false');
+      modal.classList.add('is-open');
+
+      // Fetch full teacher data from API to ensure we have the correct school_id
+      try {
+        const result = await api.get(`/teachers/${teacherId}`);
+        const schoolField = document.getElementById('edit-teacher-school');
+        
+        if (result.success && result.data && schoolField) {
+          // Handle JSONAPI format: result.data might be { data: { id, type, attributes: {...} } }
+          let teacherData = null;
+          let apiSchoolId = null;
+          
+          if (result.data.data && result.data.data.attributes) {
+            // JSONAPI format: { data: { data: { attributes: {...} } } }
+            teacherData = result.data.data.attributes;
+            apiSchoolId = teacherData.school_id;
+          } else if (result.data.attributes) {
+            // JSONAPI format: { data: { attributes: {...} } }
+            teacherData = result.data.attributes;
+            apiSchoolId = teacherData.school_id;
+          } else if (result.data.school_id !== undefined) {
+            // Direct format: { data: { school_id: ... } }
+            teacherData = result.data;
+            apiSchoolId = teacherData.school_id;
+          }
+          
+          // Set school_id from API response
+          if (apiSchoolId) {
+            const schoolIdStr = String(apiSchoolId).trim();
+            
+            // Remove selected attribute from all options first
+            Array.from(schoolField.options).forEach(opt => {
+              opt.removeAttribute('selected');
+              opt.selected = false;
+            });
+            
+            // Find and select the matching option
+            const matchingOption = Array.from(schoolField.options).find(opt => {
+              return String(opt.value).trim() === schoolIdStr;
+            });
+            
+            if (matchingOption) {
+              matchingOption.selected = true;
+              matchingOption.setAttribute('selected', 'selected');
+              schoolField.value = schoolIdStr;
+            }
+          } else if (schoolId) {
+            // Fallback to button value if API doesn't have school_id
+            const schoolIdStr = String(schoolId).trim();
+            Array.from(schoolField.options).forEach(opt => {
+              opt.removeAttribute('selected');
+              opt.selected = false;
+            });
+            const matchingOption = Array.from(schoolField.options).find(opt => {
+              return String(opt.value).trim() === schoolIdStr;
+            });
+            if (matchingOption) {
+              matchingOption.selected = true;
+              matchingOption.setAttribute('selected', 'selected');
+              schoolField.value = schoolIdStr;
+            }
+          }
+          
+          // Update birth date if available from API
+          if (teacherData && teacherData.birth_date) {
+            const birthDateField = document.getElementById('edit-teacher-birth-date');
+            if (birthDateField) {
+              const parts = teacherData.birth_date.split('.');
+              if (parts.length === 3) {
+                const [day, month, year] = parts;
+                birthDateField.value = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+              }
+            }
+          }
+        } else if (schoolField && schoolId) {
+          // Fallback to button value if API response is not successful
+          schoolField.value = schoolId;
+        }
+      } catch (error) {
+        console.error('Error fetching teacher data:', error);
+        // Fallback to button values if API call fails
+        const schoolField = document.getElementById('edit-teacher-school');
+        if (schoolField && schoolId) {
+          schoolField.value = schoolId;
+        }
+      }
+
+      const saveBtn = document.getElementById('edit-teacher-save-btn');
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.removeAttribute('aria-disabled');
+        saveBtn.classList.remove('is-disabled');
+      }
+
+      // Remove old listeners to avoid duplicates
+      const form = document.getElementById('edit-teacher-form');
+      if (form) {
+        const formInputs = form.querySelectorAll('input, select');
+        const enableSaveBtn = () => {
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.removeAttribute('aria-disabled');
+            saveBtn.classList.remove('is-disabled');
+          }
+        };
+        
+        // Remove old listeners by cloning and replacing
+        formInputs.forEach(input => {
+          const newInput = input.cloneNode(true);
+          input.parentNode.replaceChild(newInput, input);
+          newInput.addEventListener('input', enableSaveBtn);
+          newInput.addEventListener('change', enableSaveBtn);
+        });
+      }
+
+      // Close the menu
+      const menu = btn.closest('.headmasters-menu');
+      if (menu) menu.open = false;
+    }
+
+    setupEditTeacherHandler();
+
+    // Form submission handlers using API
+    if (typeof window.ApiClient === 'undefined') {
+      console.error('ApiClient not available. Make sure api_client.js is loaded.');
+    } else {
+      const api = new window.ApiClient();
+
+      // Add teacher form submission
+      const addForm = document.getElementById('add-teacher-form');
+      if (addForm) {
+        addForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = addForm.querySelector('button[type="submit"]');
+          const originalText = submitBtn.textContent;
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Adding...';
+
+          try {
+            const formData = new FormData(addForm);
+            
+            // Convert date from YYYY-MM-DD to DD.MM.YYYY format
+            const birthDateRaw = formData.get('teacher[metadata][birth_date]') || '';
+            let birthDate = '';
+            if (birthDateRaw) {
+              const dateParts = birthDateRaw.split('-');
+              if (dateParts.length === 3) {
+                const [year, month, day] = dateParts;
+                birthDate = `${day}.${month}.${year}`;
+              }
+            }
+            
+            const data = {
+              teacher: {
+                school_id: formData.get('teacher[school_id]'),
+                first_name: formData.get('teacher[first_name]'),
+                last_name: formData.get('teacher[last_name]'),
+                email: formData.get('teacher[email]'),
+                metadata: {
+                  phone: formData.get('teacher[metadata][phone]') || '',
+                  birth_date: birthDate
+                }
+              }
+            };
+
+            const result = await api.post('/teachers', data);
+            
+            if (result.success) {
+              const modal = document.getElementById('add-teacher-modal');
+              if (modal) {
+                const focusedElement = modal.querySelector(':focus');
+                if (focusedElement) focusedElement.blur();
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+              }
+              // Reload teachers list
+              currentPage = 1;
+              hasMore = true;
+              allTeachers = [];
+              currentSearchTerm = '';
+              searchInput.value = '';
+              loadTeachers(1);
+            } else {
+              console.error('API error:', result.error);
+              alert('Error: ' + String(result.error || 'Failed to create teacher'));
+              submitBtn.disabled = false;
+              submitBtn.textContent = originalText;
+            }
+          } catch (error) {
+            console.error('Form submission error:', error);
+            alert('Error: ' + String(error.message || 'Unknown error'));
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        });
+      }
+
+      // Edit teacher form submission
+      const editForm = document.getElementById('edit-teacher-form');
+      if (editForm) {
+        editForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = editForm.querySelector('button[type="submit"]');
+          const originalText = submitBtn.textContent;
+          const teacherIdField = document.getElementById('edit-teacher-id');
+          
+          if (!teacherIdField || !teacherIdField.value) {
+            alert('Error: Teacher ID is missing');
+            return;
+          }
+          
+          const teacherId = teacherIdField.value;
+          
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Saving...';
+
+          try {
+            const formData = new FormData(editForm);
+            
+            // Convert date from YYYY-MM-DD to DD.MM.YYYY format
+            const birthDateRaw = formData.get('teacher[metadata][birth_date]') || '';
+            let birthDate = '';
+            if (birthDateRaw) {
+              const dateParts = birthDateRaw.split('-');
+              if (dateParts.length === 3) {
+                const [year, month, day] = dateParts;
+                birthDate = `${day}.${month}.${year}`;
+              }
+            }
+            
+            const data = {
+              teacher: {
+                school_id: formData.get('teacher[school_id]'),
+                first_name: formData.get('teacher[first_name]'),
+                last_name: formData.get('teacher[last_name]'),
+                email: formData.get('teacher[email]'),
+                metadata: {
+                  phone: formData.get('teacher[metadata][phone]') || '',
+                  birth_date: birthDate
+                }
+              }
+            };
+
+            const result = await api.patch(`/teachers/${teacherId}`, data);
+            
+            if (result.success) {
+              const modal = document.getElementById('edit-teacher-modal');
+              if (modal) {
+                const focusedElement = modal.querySelector(':focus');
+                if (focusedElement) focusedElement.blur();
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+              }
+              // Reload teachers list
+              currentPage = 1;
+              hasMore = true;
+              allTeachers = [];
+              currentSearchTerm = '';
+              searchInput.value = '';
+              loadTeachers(1);
+            } else {
+              console.error('API error:', result.error);
+              alert('Error: ' + String(result.error || 'Failed to update teacher'));
+              submitBtn.disabled = false;
+              submitBtn.textContent = originalText;
+            }
+          } catch (error) {
+            console.error('Form submission error:', error);
+            alert('Error: ' + String(error.message || 'Unknown error'));
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        });
+      }
+
+      // Resend invite handler - using event delegation
+      function setupResendInviteHandler() {
+        tbody.removeEventListener('click', handleResendInviteClick, true);
+        tbody.addEventListener('click', handleResendInviteClick, true);
+      }
+
+      async function handleResendInviteClick(e) {
+        const btn = e.target.closest('[data-action="resend-invite"]');
+        if (!btn) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        const teacherId = btn.getAttribute('data-teacher-id');
+        
+        if (!teacherId) {
+          console.error('Error: Teacher ID is missing');
+          return;
+        }
+        
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+        
+        try {
+          const result = await api.post(`/teachers/${teacherId}/resend_invite`, {});
+          
+          if (result.success) {
+            btn.textContent = 'Sent!';
+            btn.style.color = 'var(--state-success)';
+            
+            // Close the menu
+            const menu = btn.closest('.headmasters-menu');
+            if (menu) menu.open = false;
+            
+            setTimeout(() => {
+              btn.disabled = false;
+              btn.textContent = originalText;
+              btn.style.color = '';
+            }, 2000);
+          } else {
+            console.error('Error:', result.error || 'Failed to resend invite');
+            btn.disabled = false;
+            btn.textContent = originalText;
+          }
+        } catch (error) {
+          console.error('Resend invite error:', error);
+          btn.disabled = false;
+          btn.textContent = originalText;
+        }
+      }
+
+      setupResendInviteHandler();
+
+      // Deactivate teacher handler - using event delegation
+      let deactivateTeacherId = null;
+      
+      function setupDeactivateTeacherHandler() {
+        tbody.removeEventListener('click', handleDeactivateTeacherClick, true);
+        tbody.addEventListener('click', handleDeactivateTeacherClick, true);
+      }
+
+      function handleDeactivateTeacherClick(e) {
+        const btn = e.target.closest('[data-action="deactivate-teacher"]');
+        if (!btn) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        deactivateTeacherId = btn.getAttribute('data-teacher-id');
+        const name = btn.getAttribute('data-teacher-name') || '';
+        const isLocked = btn.getAttribute('data-teacher-is-locked') === 'true';
+        
+        const deactivateNameEl = document.querySelector('[data-deactivate-name]');
+        if (deactivateNameEl) {
+          deactivateNameEl.textContent = name;
+        }
+        
+        // Reset and update modal title and message based on status
+        const modalTitle = document.getElementById('deactivate-teacher-title');
+        const modalMessage = document.getElementById('deactivate-teacher-message');
+        const confirmBtn = document.getElementById('deactivate-teacher-confirm-btn');
+        
+        // Always reset button state first
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.removeAttribute('aria-disabled');
+        }
+        
+        if (isLocked) {
+          if (modalTitle) modalTitle.textContent = 'Activate teacher';
+          if (modalMessage) modalMessage.textContent = `Are you sure you want to activate ${name}? They will regain access immediately.`;
+          if (confirmBtn) {
+            confirmBtn.textContent = 'Activate';
+            confirmBtn.classList.remove('schools-modal__primary--danger');
+          }
+        } else {
+          if (modalTitle) modalTitle.textContent = 'Deactivate teacher';
+          if (modalMessage) modalMessage.textContent = `Are you sure you want to deactivate ${name}? They will lose access immediately.`;
+          if (confirmBtn) {
+            confirmBtn.textContent = 'Deactivate';
+            confirmBtn.classList.add('schools-modal__primary--danger');
+          }
+        }
+        
+        // Close the menu
+        const menu = btn.closest('.headmasters-menu');
+        if (menu) menu.open = false;
+        
+        const deactivateModal = document.getElementById('deactivate-teacher-modal');
+        if (deactivateModal) {
+          deactivateModal.setAttribute('aria-hidden', 'false');
+          deactivateModal.classList.add('is-open');
+        }
+      }
+
+      setupDeactivateTeacherHandler();
+
+      // Deactivate teacher confirm
+      const deactivateBtn = document.getElementById('deactivate-teacher-confirm-btn');
+      if (deactivateBtn) {
+        deactivateBtn.addEventListener('click', async () => {
+          if (!deactivateTeacherId) return;
+          
+          const originalText = deactivateBtn.textContent;
+          deactivateBtn.disabled = true;
+          deactivateBtn.textContent = 'Processing...';
+
+          try {
+            const result = await api.post(`/teachers/${deactivateTeacherId}/lock`, {});
+            
+            if (result.success) {
+              const modal = document.getElementById('deactivate-teacher-modal');
+              if (modal) {
+                const focusedElement = modal.querySelector(':focus');
+                if (focusedElement) focusedElement.blur();
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+              }
+              
+              // Find the button that triggered this action to get current locked status
+              const triggerBtn = Array.from(document.querySelectorAll('[data-action="deactivate-teacher"]'))
+                .find(btn => btn.getAttribute('data-teacher-id') === deactivateTeacherId);
+              
+              if (triggerBtn) {
+                const wasLocked = triggerBtn.getAttribute('data-teacher-is-locked') === 'true';
+                const newLockedStatus = !wasLocked;
+                
+                // Find and update the row in DOM
+                const row = triggerBtn.closest('tr');
+                if (row) {
+                  // Update status cell (6th column - after name, birth date, email, phone, school)
+                  const statusCell = row.querySelector('td:nth-child(6)');
+                  if (statusCell) {
+                    const statusBadge = statusCell.querySelector('span');
+                    if (statusBadge) {
+                      if (newLockedStatus) {
+                        statusBadge.textContent = 'Inactive';
+                        statusBadge.style.color = 'var(--state-error)';
+                      } else {
+                        statusBadge.textContent = 'Active';
+                        statusBadge.style.color = 'var(--state-success)';
+                      }
+                    }
+                  }
+                  
+                  // Update deactivate button text and data attribute
+                  triggerBtn.textContent = newLockedStatus ? 'Activate' : 'Deactivate';
+                  triggerBtn.setAttribute('data-teacher-is-locked', newLockedStatus ? 'true' : 'false');
+                }
+                
+                // Update teacher in local data
+                const teacherIndex = allTeachers.findIndex(t => {
+                  const attrs = t.attributes || t;
+                  const id = t.id || attrs.id;
+                  return id === deactivateTeacherId;
+                });
+                
+                if (teacherIndex !== -1) {
+                  const teacher = allTeachers[teacherIndex];
+                  const attrs = teacher.attributes || teacher;
+                  
+                  // Update locked status in local data
+                  if (teacher.attributes) {
+                    teacher.attributes.is_locked = newLockedStatus;
+                    teacher.attributes.locked_at = newLockedStatus ? new Date().toISOString() : null;
+                  } else if (attrs) {
+                    attrs.is_locked = newLockedStatus;
+                    attrs.locked_at = newLockedStatus ? new Date().toISOString() : null;
+                  }
+                }
+              } else {
+                // If button not found, reload from API
+                currentPage = 1;
+                hasMore = true;
+                allTeachers = [];
+                currentSearchTerm = '';
+                if (searchInput) searchInput.value = '';
+                loadTeachers(1);
+              }
+            } else {
+              alert('Error: ' + String(result.error || 'Failed to update teacher status'));
+              deactivateBtn.disabled = false;
+              deactivateBtn.textContent = originalText;
+            }
+          } catch (error) {
+            console.error('Deactivate error:', error);
+            alert('Error: ' + String(error.message || 'Unknown error'));
+            deactivateBtn.disabled = false;
+            deactivateBtn.textContent = originalText;
+          }
+        });
+      }
+    }
+  });
+</script>
+

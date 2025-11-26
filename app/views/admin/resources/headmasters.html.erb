@@ -20,6 +20,7 @@
           <th scope="col" class="left">Email</th>
           <th scope="col" class="left">Phone</th>
           <th scope="col" class="left">Joined</th>
+          <th scope="col" class="left">Status</th>
           <th scope="col" class="right">Actions</th>
         </tr>
       </thead>
@@ -31,6 +32,13 @@
             <td><%= headmaster.email %></td>
             <td><%= headmaster.metadata['phone'] || '—' %></td>
             <td><%= headmaster.created_at.strftime('%d.%m.%Y') %></td>
+            <td>
+              <% if headmaster.locked_at.present? %>
+                <span style="color: var(--state-error); font-weight: 500;">Inactive</span>
+              <% else %>
+                <span style="color: var(--state-success); font-weight: 500;">Active</span>
+              <% end %>
+            </td>
             <td class="schools-page__actions">
               <div class="headmasters-actions">
                 <details class="headmasters-menu">
@@ -55,7 +63,10 @@
                     <li>
                       <button type="button" data-action="deactivate-headmaster" 
                               data-headmaster-id="<%= headmaster.id %>" 
-                              data-headmaster-name="<%= h([headmaster.first_name, headmaster.last_name].compact.join(' ') || headmaster.email) %>">Deactivate</button>
+                              data-headmaster-name="<%= h([headmaster.first_name, headmaster.last_name].compact.join(' ') || headmaster.email) %>"
+                              data-headmaster-is-locked="<%= headmaster.locked_at.present? ? 'true' : 'false' %>">
+                        <%= headmaster.locked_at.present? ? 'Activate' : 'Deactivate' %>
+                      </button>
                     </li>
                   </ul>
                 </details>
@@ -65,7 +76,7 @@
         <% end %>
         <% if @records.empty? %>
           <tr>
-            <td colspan="6" class="text-center" style="padding: 40px; color: var(--content-secondary);">No headmasters yet</td>
+            <td colspan="7" class="text-center" style="padding: 40px; color: var(--content-secondary);">No headmasters yet</td>
           </tr>
         <% end %>
       </tbody>
@@ -170,7 +181,7 @@
       </button>
     </header>
     <div class="schools-modal__body">
-      <p>Are you sure you want to deactivate <strong data-deactivate-name>this headmaster</strong>? They will lose access immediately.</p>
+      <p id="deactivate-headmaster-message">Are you sure you want to deactivate <strong data-deactivate-name>this headmaster</strong>? They will lose access immediately.</p>
     </div>
     <div class="schools-modal__actions">
       <button type="button" id="deactivate-headmaster-confirm-btn" class="schools-modal__primary schools-modal__primary--danger">Deactivate</button>
@@ -295,6 +306,18 @@
           if (focusedElement) {
             focusedElement.blur();
           }
+          
+          // Reset deactivate modal state when closing
+          if (modalId === 'deactivate-headmaster-modal') {
+            const confirmBtn = document.getElementById('deactivate-headmaster-confirm-btn');
+            if (confirmBtn) {
+              confirmBtn.disabled = false;
+              confirmBtn.removeAttribute('aria-disabled');
+              confirmBtn.textContent = 'Deactivate'; // Reset to default
+            }
+            deactivateHeadmasterId = null;
+          }
+          
           // Set aria-hidden and remove class
           modal.setAttribute('aria-hidden', 'true');
           modal.classList.remove('is-open');
@@ -312,6 +335,18 @@
           if (focusedElement) {
             focusedElement.blur();
           }
+          
+          // Reset deactivate modal state when closing via overlay
+          if (modal.id === 'deactivate-headmaster-modal') {
+            const confirmBtn = document.getElementById('deactivate-headmaster-confirm-btn');
+            if (confirmBtn) {
+              confirmBtn.disabled = false;
+              confirmBtn.removeAttribute('aria-disabled');
+              confirmBtn.textContent = 'Deactivate'; // Reset to default
+            }
+            deactivateHeadmasterId = null;
+          }
+          
           // Set aria-hidden and remove class
           modal.setAttribute('aria-hidden', 'true');
           modal.classList.remove('is-open');
@@ -557,10 +592,40 @@
         btn.addEventListener('click', () => {
           deactivateHeadmasterId = btn.getAttribute('data-headmaster-id');
           const name = btn.getAttribute('data-headmaster-name') || '';
+          const isLocked = btn.getAttribute('data-headmaster-is-locked') === 'true';
+          
           const deactivateNameEl = document.querySelector('[data-deactivate-name]');
           if (deactivateNameEl) {
             deactivateNameEl.textContent = name;
           }
+          
+          // Reset and update modal title and message based on status
+          const modalTitle = document.getElementById('deactivate-headmaster-title');
+          const modalMessage = document.getElementById('deactivate-headmaster-message');
+          const confirmBtn = document.getElementById('deactivate-headmaster-confirm-btn');
+          
+          // Always reset button state first
+          if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.removeAttribute('aria-disabled');
+          }
+          
+          if (isLocked) {
+            if (modalTitle) modalTitle.textContent = 'Activate headmaster';
+            if (modalMessage) modalMessage.textContent = `Are you sure you want to activate ${name}? They will regain access immediately.`;
+            if (confirmBtn) {
+              confirmBtn.textContent = 'Activate';
+              confirmBtn.classList.remove('schools-modal__primary--danger');
+            }
+          } else {
+            if (modalTitle) modalTitle.textContent = 'Deactivate headmaster';
+            if (modalMessage) modalMessage.textContent = `Are you sure you want to deactivate ${name}? They will lose access immediately.`;
+            if (confirmBtn) {
+              confirmBtn.textContent = 'Deactivate';
+              confirmBtn.classList.add('schools-modal__primary--danger');
+            }
+          }
+          
           const deactivateModal = document.getElementById('deactivate-headmaster-modal');
           if (deactivateModal) {
             deactivateModal.setAttribute('aria-hidden', 'false');
@@ -575,14 +640,47 @@
         deactivateBtn.addEventListener('click', async () => {
           if (!deactivateHeadmasterId) return;
           
+          const originalText = deactivateBtn.textContent;
           deactivateBtn.disabled = true;
-          deactivateBtn.textContent = 'Deactivating...';
+          deactivateBtn.textContent = 'Processing...';
 
           try {
-            const result = await api.delete(`/headmasters/${deactivateHeadmasterId}`);
+            const result = await api.post(`/headmasters/${deactivateHeadmasterId}/lock`, {});
             
             if (result.success) {
-              // Close modal
+              // Find and update the row in DOM
+              const rows = document.querySelectorAll('.headmasters-table tbody tr');
+              rows.forEach(row => {
+                const btn = row.querySelector(`[data-headmaster-id="${deactivateHeadmasterId}"]`);
+                if (btn) {
+                  const isLocked = btn.getAttribute('data-headmaster-is-locked') === 'true';
+                  const newLockedStatus = !isLocked;
+                  
+                  // Update status cell (6th column)
+                  const statusCell = row.querySelector('td:nth-child(6)');
+                  if (statusCell) {
+                    const statusBadge = statusCell.querySelector('span');
+                    if (statusBadge) {
+                      if (newLockedStatus) {
+                        statusBadge.textContent = 'Inactive';
+                        statusBadge.style.color = 'var(--state-error)';
+                      } else {
+                        statusBadge.textContent = 'Active';
+                        statusBadge.style.color = 'var(--state-success)';
+                      }
+                    }
+                  }
+                  
+                  // Update deactivate button text
+                  const deactivateBtnInRow = row.querySelector('[data-action="deactivate-headmaster"]');
+                  if (deactivateBtnInRow) {
+                    deactivateBtnInRow.textContent = newLockedStatus ? 'Activate' : 'Deactivate';
+                    deactivateBtnInRow.setAttribute('data-headmaster-is-locked', newLockedStatus ? 'true' : 'false');
+                  }
+                }
+              });
+              
+              // Close modal and reset button state
               const modal = document.getElementById('deactivate-headmaster-modal');
               if (modal) {
                 const focusedElement = modal.querySelector(':focus');
@@ -590,18 +688,21 @@
                 modal.setAttribute('aria-hidden', 'true');
                 modal.classList.remove('is-open');
               }
-              // Reload page to show updated list
-              window.location.reload();
-            } else {
-              alert('Error: ' + String(result.error || 'Failed to deactivate headmaster'));
+              
+              // Reset button state
               deactivateBtn.disabled = false;
-              deactivateBtn.textContent = 'Deactivate';
+              deactivateBtn.textContent = 'Deactivate'; // Reset to default
+              deactivateHeadmasterId = null;
+            } else {
+              alert('Error: ' + String(result.error || 'Failed to update headmaster status'));
+              deactivateBtn.disabled = false;
+              deactivateBtn.textContent = originalText;
             }
           } catch (error) {
             console.error('Deactivate error:', error);
             alert('Error: ' + String(error.message || 'Unknown error'));
             deactivateBtn.disabled = false;
-            deactivateBtn.textContent = 'Deactivate';
+            deactivateBtn.textContent = originalText;
           }
         });
       }
