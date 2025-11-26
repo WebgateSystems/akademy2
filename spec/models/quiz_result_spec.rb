@@ -11,8 +11,8 @@ RSpec.describe QuizResult, type: :model do
   describe 'callbacks' do
     let(:user) { create(:user) }
     let(:school) { user.school }
-    let(:subject) { create(:subject, school: school) }
-    let(:unit) { create(:unit, subject: subject) }
+    let(:subject_model) { create(:subject, school: school) }
+    let(:unit) { create(:unit, subject: subject_model) }
     let(:learning_module) { create(:learning_module, unit: unit) }
 
     describe 'after_create :log_quiz_completion' do

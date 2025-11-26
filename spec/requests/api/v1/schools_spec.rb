@@ -18,8 +18,11 @@ RSpec.describe 'Schools API', type: :request do
       security [bearerAuth: []]
 
       response '200', 'schools list' do
-        let!(:school1) { create(:school, name: 'School 1', city: 'Gdynia') }
-        let!(:school2) { create(:school, name: 'School 2', city: 'Warsaw') }
+        before do
+          create(:school, name: 'School 1', city: 'Gdynia')
+          create(:school, name: 'School 2', city: 'Warsaw')
+        end
+
         let(:Authorization) { auth_token }
 
         run_test! do

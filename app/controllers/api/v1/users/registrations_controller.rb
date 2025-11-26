@@ -6,25 +6,40 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     invite = find_and_validate_invite!
     build_resource(sign_up_params)
 
-    resource.skip_confirmation_notification! # wyślesz po udanej walidacji/utworzeniu
+    resource.skip_confirmation_notification!
     if resource.save
-      # powiązania domenowe wg typu zaproszenia
-      case invite.kind
-      when 'teacher'
-        # rola nauczyciela „pending” do akceptacji przez dyrektora
-        UserRole.create!(user: resource, role: Role.find_by!(key: :teacher), school_id: invite.school_id)
-      when 'student'
-        # zapis do klasy z „pending” do akceptu nauczyciela
-        StudentClassEnrollment.create!(student_id: resource.id, school_class_id: invite.school_class_id,
-                                       status: 'pending')
-      end
-
+      create_domain_links(invite)
       invite.mark_used!
       resource.send_confirmation_instructions
       render json: { user_id: resource.id, status: 'pending_approval' }, status: :created
     else
       render json: { errors: resource.errors.full_messages }, status: :unprocessable_entity
     end
+  end
+
+  def create_domain_links(invite)
+    case invite.kind
+    when 'teacher'
+      create_teacher_role(invite)
+    when 'student'
+      create_student_enrollment(invite)
+    end
+  end
+
+  def create_teacher_role(invite)
+    UserRole.create!(
+      user: resource,
+      role: Role.find_by!(key: :teacher),
+      school_id: invite.school_id
+    )
+  end
+
+  def create_student_enrollment(invite)
+    StudentClassEnrollment.create!(
+      student_id: resource.id,
+      school_class_id: invite.school_class_id,
+      status: 'pending'
+    )
   end
 
   private

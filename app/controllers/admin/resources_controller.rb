@@ -26,18 +26,14 @@ class Admin::ResourcesController < Admin::BaseController
   def index
     case params[:resource]
     when 'schools'
-      @records = @resource_class.order(created_at: :desc).limit(200)
-      render 'admin/resources/schools' and return
+      load_schools
     when 'users'
-      # Filter for headmasters (principals)
-      @records = @resource_class.joins(:roles).where(roles: { key: 'principal' }).includes(:school).distinct.order(created_at: :desc).limit(200)
-      render 'admin/resources/headmasters' and return
+      load_headmasters
     when 'events'
-      @records = @resource_class.includes(:user).order(occurred_at: :desc, created_at: :desc).limit(200)
-      render 'admin/resources/activity_log' and return
+      load_events
+    else
+      load_default_records
     end
-
-    @records = @resource_class.order(created_at: :desc).limit(200)
   end
 
   def show; end
@@ -50,26 +46,10 @@ class Admin::ResourcesController < Admin::BaseController
 
   def create
     @record = @resource_class.new(permitted_params)
-
-    # Special handling for User creation as headmaster
-    if @resource_class == User && params[:user][:role_key] == 'principal' && params.dig(
-      :user, :metadata, :phone
-    ).present?
-      @record.metadata = (@record.metadata || {}).merge(phone: params.dig(:user, :metadata, :phone))
-    end
-
-    # Handle slug for School - generate if blank
-    if @resource_class == School && @record.slug.blank? && @record.name.present?
-      @record.slug = @record.name.parameterize
-    end
+    prepare_record_for_creation
+    assign_principal_role if creating_headmaster?
 
     if @record.save
-      # Assign principal role if creating headmaster
-      if @resource_class == User && params[:user][:role_key] == 'principal'
-        principal_role = Role.find_by(key: 'principal')
-        UserRole.create!(user: @record, role: principal_role, school: @record.school) if principal_role
-      end
-
       redirect_to admin_resource_collection_path(resource: params[:resource]), notice: 'Utworzono.'
     else
       render :new, status: :unprocessable_entity
@@ -78,18 +58,7 @@ class Admin::ResourcesController < Admin::BaseController
 
   def update
     update_params = permitted_params
-
-    # Handle metadata for User
-    if @resource_class == User && params[:user][:metadata].present?
-      current_metadata = @record.metadata || {}
-      new_metadata = params[:user][:metadata].to_unsafe_h
-      update_params[:metadata] = current_metadata.merge(new_metadata)
-    end
-
-    # Handle slug for School - generate if blank
-    if @resource_class == School && update_params[:slug].blank? && update_params[:name].present?
-      update_params[:slug] = update_params[:name].parameterize
-    end
+    prepare_params_for_update(update_params)
 
     if @record.update(update_params)
       redirect_to admin_resource_collection_path(resource: params[:resource]), notice: 'Zaktualizowano.'
@@ -119,12 +88,103 @@ class Admin::ResourcesController < Admin::BaseController
     columns += %w[password password_confirmation] if @resource_class == User
 
     permitted = params.require(@resource_class.model_name.param_key).permit(columns)
-
-    # Handle metadata for User
-    if @resource_class == User && params[:user][:metadata].present?
-      permitted[:metadata] = (permitted[:metadata] || {}).merge(params[:user][:metadata].to_unsafe_h)
-    end
+    merge_user_metadata(permitted) if @resource_class == User
 
     permitted
+  end
+
+  def load_schools
+    @records = @resource_class.order(created_at: :desc).limit(200)
+    render 'admin/resources/schools'
+  end
+
+  def load_headmasters
+    @records = @resource_class
+               .joins(:roles)
+               .where(roles: { key: 'principal' })
+               .includes(:school)
+               .distinct
+               .order(created_at: :desc)
+               .limit(200)
+    render 'admin/resources/headmasters'
+  end
+
+  def load_events
+    @records = @resource_class
+               .includes(:user)
+               .order(occurred_at: :desc, created_at: :desc)
+               .limit(200)
+    render 'admin/resources/activity_log'
+  end
+
+  def load_default_records
+    @records = @resource_class.order(created_at: :desc).limit(200)
+  end
+
+  def prepare_record_for_creation
+    handle_headmaster_metadata if creating_headmaster?
+    handle_school_slug if creating_school?
+  end
+
+  def creating_headmaster?
+    @resource_class == User && params[:user][:role_key] == 'principal'
+  end
+
+  def creating_school?
+    @resource_class == School
+  end
+
+  def handle_headmaster_metadata
+    return if params.dig(:user, :metadata, :phone).blank?
+
+    @record.metadata = (@record.metadata || {}).merge(phone: params.dig(:user, :metadata, :phone))
+  end
+
+  def handle_school_slug
+    return unless @record.slug.blank? && @record.name.present?
+
+    @record.slug = @record.name.parameterize
+  end
+
+  def assign_principal_role
+    return unless creating_headmaster?
+
+    principal_role = Role.find_by(key: 'principal')
+    return unless principal_role
+
+    UserRole.create!(user: @record, role: principal_role, school: @record.school)
+  end
+
+  def prepare_params_for_update(update_params)
+    merge_user_metadata_for_update(update_params) if updating_user?
+    handle_school_slug_update(update_params) if updating_school?
+  end
+
+  def updating_user?
+    @resource_class == User
+  end
+
+  def updating_school?
+    @resource_class == School
+  end
+
+  def merge_user_metadata_for_update(update_params)
+    return if params[:user][:metadata].blank?
+
+    current_metadata = @record.metadata || {}
+    new_metadata = params[:user][:metadata].to_unsafe_h
+    update_params[:metadata] = current_metadata.merge(new_metadata)
+  end
+
+  def handle_school_slug_update(update_params)
+    return unless update_params[:slug].blank? && update_params[:name].present?
+
+    update_params[:slug] = update_params[:name].parameterize
+  end
+
+  def merge_user_metadata(permitted)
+    return if params[:user][:metadata].blank?
+
+    permitted[:metadata] = (permitted[:metadata] || {}).merge(params[:user][:metadata].to_unsafe_h)
   end
 end

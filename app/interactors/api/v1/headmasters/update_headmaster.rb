@@ -33,15 +33,7 @@ module Api
 
         def update_headmaster
           update_params = headmaster_params.to_h
-
-          # Handle metadata - merge with existing metadata
-          if update_params[:metadata].present?
-            current_metadata = context.headmaster.metadata || {}
-            update_params[:metadata] = current_metadata.deep_merge(update_params[:metadata].symbolize_keys)
-          elsif context.params.dig(:headmaster, :metadata, :phone).present?
-            current_metadata = context.headmaster.metadata || {}
-            update_params[:metadata] = current_metadata.merge(phone: context.params.dig(:headmaster, :metadata, :phone))
-          end
+          merge_metadata(update_params)
 
           if context.headmaster.update(update_params)
             context.form = context.headmaster
@@ -50,6 +42,18 @@ module Api
           else
             context.message = context.headmaster.errors.full_messages
             context.fail!
+          end
+        end
+
+        def merge_metadata(update_params)
+          if update_params[:metadata].present?
+            current_metadata = context.headmaster.metadata || {}
+            update_params[:metadata] = current_metadata.deep_merge(update_params[:metadata].symbolize_keys)
+          elsif context.params.dig(:headmaster, :metadata, :phone).present?
+            current_metadata = context.headmaster.metadata || {}
+            update_params[:metadata] = current_metadata.merge(
+              phone: context.params.dig(:headmaster, :metadata, :phone)
+            )
           end
         end
 

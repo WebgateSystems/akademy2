@@ -49,10 +49,14 @@ Metrics/BlockLength:
     - "db/**/*.rb"
     - "lib/tasks/*.rake"
 
+Metrics/ClassLength:
+  Exclude:
+    - "app/controllers/admin/resources_controller.rb"
+
 Metrics/MethodLength:
   Exclude:
     - "db/**/*.rb"
-    - 'app/services/update_exchange_rates.rb'
+    - 'app/controllers/api/v1/users/registrations_controller.rb'
 
 Naming/MethodName:
   Exclude:

@@ -12,16 +12,11 @@ RSpec.describe Admin::SessionsController, type: :request do
 
   describe 'DELETE /admin/sign_out' do
     before do
-      # Set up admin user with admin role
       admin_user # Ensure user is created
-
-      # Create a valid JWT token
-      token = Jwt::TokenService.encode({ user_id: admin_user.id })
-
-      # Mock session and current_admin
-      allow_any_instance_of(described_class).to receive(:session).and_return({ admin_id: token })
-      allow_any_instance_of(described_class).to receive(:decode_jwt).with(token).and_return(admin_user)
+      # Mock current_admin to return admin_user directly
+      # rubocop:disable RSpec/AnyInstance
       allow_any_instance_of(described_class).to receive(:current_admin).and_return(admin_user)
+      # rubocop:enable RSpec/AnyInstance
     end
 
     it 'logs logout event' do

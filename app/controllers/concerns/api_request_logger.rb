@@ -21,17 +21,18 @@ module ApiRequestLogger
     start_time = Time.current
     yield
   ensure
-    if current_user && response.status < 500
-      response_time = ((Time.current - start_time) * 1000).round(2)
+    log_request_if_needed(start_time) if current_user && response.status < 500
+  end
 
-      EventLogger.log_api_request(
-        method: request.method,
-        path: request.path,
-        user: current_user,
-        status: response.status,
-        params: request.params.except('controller', 'action', 'format'),
-        response_time: response_time
-      )
-    end
+  def log_request_if_needed(start_time)
+    response_time = ((Time.current - start_time) * 1000).round(2)
+    EventLogger.log_api_request(
+      method: request.method,
+      path: request.path,
+      user: current_user,
+      status: response.status,
+      params: request.params.except('controller', 'action', 'format'),
+      response_time: response_time
+    )
   end
 end

@@ -20,16 +20,13 @@ RSpec.describe 'Headmasters API', type: :request do
       security [bearerAuth: []]
 
       response '200', 'headmasters list' do
-        let!(:headmaster1) do
-          user = create(:user, first_name: 'Jan', last_name: 'Kowalski', school: school)
-          UserRole.create!(user: user, role: principal_role, school: school)
-          user
+        before do
+          user1 = create(:user, first_name: 'Jan', last_name: 'Kowalski', school: school)
+          UserRole.create!(user: user1, role: principal_role, school: school)
+          user2 = create(:user, first_name: 'Anna', last_name: 'Nowak', school: school)
+          UserRole.create!(user: user2, role: principal_role, school: school)
         end
-        let!(:headmaster2) do
-          user = create(:user, first_name: 'Anna', last_name: 'Nowak', school: school)
-          UserRole.create!(user: user, role: principal_role, school: school)
-          user
-        end
+
         let(:Authorization) { auth_token }
 
         schema type: :object,

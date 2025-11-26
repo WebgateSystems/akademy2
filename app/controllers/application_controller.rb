@@ -9,6 +9,8 @@ class ApplicationController < ActionController::Base
                else
                  (respond_to?(:new_user_session_path) ? new_user_session_path : 'up')
                end
+    # rubocop:disable I18n/GetText/DecorateString
     redirect_to(request.referer.presence || fallback, alert: 'Brak uprawnień.')
+    # rubocop:enable I18n/GetText/DecorateString
   end
 end

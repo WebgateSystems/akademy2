@@ -24,19 +24,25 @@ module Api
 
         def build_headmaster
           params_hash = headmaster_params.to_h
-          # Handle metadata - merge with existing if needed
+          handle_metadata(params_hash)
+          generate_password_if_needed(params_hash)
+          context.headmaster = User.new(params_hash)
+        end
+
+        def handle_metadata(params_hash)
           if params_hash[:metadata].present?
             params_hash[:metadata] = params_hash[:metadata].symbolize_keys
           elsif context.params.dig(:headmaster, :metadata, :phone).present?
             params_hash[:metadata] = { phone: context.params.dig(:headmaster, :metadata, :phone) }
           end
-          # Generate random password if not provided
-          if params_hash[:password].blank?
-            random_password = SecureRandom.alphanumeric(16)
-            params_hash[:password] = random_password
-            params_hash[:password_confirmation] = random_password
-          end
-          context.headmaster = User.new(params_hash)
+        end
+
+        def generate_password_if_needed(params_hash)
+          return if params_hash[:password].present?
+
+          random_password = SecureRandom.alphanumeric(16)
+          params_hash[:password] = random_password
+          params_hash[:password_confirmation] = random_password
         end
 
         def headmaster_params
@@ -46,11 +52,7 @@ module Api
 
         def save_headmaster
           if context.headmaster.save
-            # Assign principal role
-            principal_role = Role.find_by(key: 'principal')
-            if principal_role
-              UserRole.create!(user: context.headmaster, role: principal_role, school: context.headmaster.school)
-            end
+            assign_principal_role
             context.form = context.headmaster
             context.status = :created
             context.serializer = HeadmasterSerializer
@@ -58,6 +60,17 @@ module Api
             context.message = context.headmaster.errors.full_messages
             context.fail!
           end
+        end
+
+        def assign_principal_role
+          principal_role = Role.find_by(key: 'principal')
+          return unless principal_role
+
+          UserRole.create!(
+            user: context.headmaster,
+            role: principal_role,
+            school: context.headmaster.school
+          )
         end
       end
     end

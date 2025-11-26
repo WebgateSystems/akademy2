@@ -22,7 +22,13 @@ module Api
         end
 
         def load_headmasters
-          headmasters = User.joins(:roles).where(roles: { key: 'principal' }).includes(:school).distinct.order(created_at: :desc).limit(200)
+          headmasters = User
+                        .joins(:roles)
+                        .where(roles: { key: 'principal' })
+                        .includes(:school)
+                        .distinct
+                        .order(created_at: :desc)
+                        .limit(200)
           context.form = headmasters
           context.status = :ok
           context.serializer = HeadmasterSerializer

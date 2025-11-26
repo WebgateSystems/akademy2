@@ -14,6 +14,7 @@ RSpec.describe ApiRequestLogger, type: :request do
   let(:auth_token) { "Bearer #{generate_token(admin_user)}" }
 
   describe 'API request logging' do
+    # rubocop:disable RSpec/MultipleExpectations
     it 'logs successful API requests' do
       expect do
         get '/api/v1/schools', headers: { 'Authorization' => auth_token }
@@ -27,6 +28,7 @@ RSpec.describe ApiRequestLogger, type: :request do
       expect(event.data['status']).to eq(200)
       expect(event.client).to eq('api')
     end
+    # rubocop:enable RSpec/MultipleExpectations
 
     it 'includes response time in event data' do
       get '/api/v1/schools', headers: { 'Authorization' => auth_token }
