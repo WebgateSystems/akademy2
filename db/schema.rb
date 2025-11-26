@@ -135,11 +135,16 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_24_120304) do
   end
 
   create_table "schools", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "city"
-    t.string "country"
+    t.string "address"
+    t.string "city", default: "Gdynia", null: false
+    t.string "country", default: "PL", null: false
     t.datetime "created_at", null: false
+    t.string "email"
+    t.string "homepage"
     t.string "logo"
     t.string "name", null: false
+    t.string "phone"
+    t.string "postcode"
     t.string "slug", null: false
     t.datetime "updated_at", null: false
     t.index ["slug"], name: "index_schools_on_slug", unique: true

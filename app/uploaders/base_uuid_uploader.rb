@@ -3,7 +3,7 @@ class BaseUuidUploader < CarrierWave::Uploader::Base
 
   def store_dir
     parts = model.id.to_s.scan(/.{1,2}/).first(2).join('/')
-    "public/uploads/#{model.class.name.underscore}/#{mounted_as}/#{parts}/#{model.id}"
+    "uploads/#{model.class.name.underscore}/#{mounted_as}/#{parts}/#{model.id}"
   end
 
   def filename

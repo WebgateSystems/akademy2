@@ -4,24 +4,44 @@ return if School.exists?
 
 log('Create Schools...')
 
-# Umieść pliki w: db/files/schools/sp53.png, db/files/schools/lo2.png
-sp53_logo = Rails.root.join('db/files/schools/sp53.png')
-lo2_logo  = Rails.root.join('db/files/schools/lo2.png')
+sp53_logo = Rails.root.join('db/files/schools/default.png')
+sp18_logo  = Rails.root.join('db/files/schools/sp18.png')
+gis_logo  = Rails.root.join('db/files/schools/gis.png')
 
 @school_a = School.new(
-  name: 'Szkoła Podstawowa nr 53 w Gdyni',
+  name: 'Szkoła Podstawowa nr 53',
   slug: 'sp53-gdynia',
+  address: 'ul. Gen. J. Hallera 9',
+  postcode: '81-453',
   city: 'Gdynia',
-  country: 'PL'
+  phone: '+48 58 622 22 24',
+  email: 'sekretariat@zso6.edu.gdynia.pl',
+  homepage: 'https://sp53gdynia.pl/'
 )
 @school_a.logo = uploaded_file(sp53_logo) if File.exist?(sp53_logo)
 @school_a.save!
 
 @school_b = School.new(
-  name: 'LO nr 2 w Gdańsku',
-  slug: 'lo2-gdansk',
-  city: 'Gdańsk',
-  country: 'PL'
+  name: 'Szkoła Podstawowa nr 18',
+  slug: 'sp18-gdynia',
+  address: 'ul. Krasickiego 28',
+  postcode: '81-385',
+  city: 'Gdynia',
+  phone: '+48 58 620 69 43',
+  email: 'sekretariat@sp18.edu.gdynia.pl',
+  homepage: 'https://sp18.gdynia.pl/'
 )
-@school_b.logo = uploaded_file(lo2_logo) if File.exist?(lo2_logo)
+@school_b.logo = uploaded_file(sp18_logo) if File.exist?(sp18_logo)
 @school_b.save!
+
+@school_c = School.new(
+  name: 'Gdynia International School (GIS)',
+  slug: 'gis-gdynia',
+  address: 'ul. Kapitańska 37',
+  postcode: '81-249',
+  city: 'Gdynia',
+  phone: '+48 782 777 155',
+  homepage: 'https://gis.gdynia.pl/'
+)
+@school_c.logo = uploaded_file(gis_logo) if File.exist?(gis_logo)
+@school_c.save!
