@@ -43,7 +43,11 @@ Rails.application.routes.draw do
     namespace :v1 do
       resource :session, only: [:create], path: 'session'
       resources :schools, only: %i[index show create update destroy]
-      resources :headmasters, only: %i[index show create update destroy]
+      resources :headmasters, only: %i[index show create update destroy] do
+        member do
+          post :resend_invite
+        end
+      end
     end
   end
 

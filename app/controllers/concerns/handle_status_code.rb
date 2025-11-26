@@ -18,7 +18,13 @@ module HandleStatusCode
   end
 
   def success_response_params(result)
-    data = (result.serializer&.new(result.form, params: result.to_h) || result.form).serializable_hash
+    data = if result.form.is_a?(Hash)
+             result.form
+           elsif result.serializer
+             result.serializer.new(result.form, params: result.to_h).serializable_hash
+           else
+             result.form.serializable_hash
+           end
     data[:pagination] = result.pagination if result.pagination
     data[:access_token] = result.access_token if result.access_token
     data

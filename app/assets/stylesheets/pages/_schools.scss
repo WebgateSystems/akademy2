@@ -104,6 +104,13 @@
 	
 	tbody tr {
 		position: relative;
+		// Don't set z-index to avoid creating stacking context
+	}
+	
+	// Ensure actions cell doesn't create stacking context that blocks popup
+	td.schools-page__actions {
+		position: static;
+		z-index: auto;
 	}
 
 	.right {
@@ -157,8 +164,8 @@
 	display: flex;
 	justify-content: flex-end;
 	gap: 8px;
-	position: relative;
-	z-index: 1;
+	position: static;
+	z-index: auto;
 
 	button,
 	.schools-page__actions-button {

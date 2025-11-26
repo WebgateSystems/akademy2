@@ -27,6 +27,11 @@ module Api
         result = Api::V1::Headmasters::DestroyHeadmaster.call(params:, current_user:)
         default_handler(result)
       end
+
+      def resend_invite
+        result = Api::V1::Headmasters::ResendInviteHeadmaster.call(params:, current_user:)
+        default_handler(result)
+      end
     end
   end
 end

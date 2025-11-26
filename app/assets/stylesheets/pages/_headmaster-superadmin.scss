@@ -1,13 +1,13 @@
 .headmasters-actions {
-	position: relative;
+	position: static;
 	display: flex;
 	justify-content: flex-end;
 	width: 100%;
-	z-index: 1;
+	z-index: auto;
 
 	.headmasters-menu {
 		position: relative;
-		z-index: 99999;
+		z-index: auto;
 
 		summary {
 			list-style: none;
@@ -29,7 +29,7 @@
 		}
 
 		ul {
-			position: fixed;
+			position: fixed !important;
 			min-width: 180px;
 			padding: 12px 0;
 			margin: 0;
@@ -38,10 +38,13 @@
 			background: var(--surface-primary);
 			box-shadow: 0 20px 45px var(--shadow-strong);
 			border: 1px solid var(--border-contrast);
-			z-index: 99999;
+			z-index: 999999 !important;
 			display: none;
 			max-height: min(260px, calc(100vh - 200px));
 			overflow-y: auto;
+			isolation: isolate;
+			transform: translateZ(0);
+			will-change: transform;
 		}
 
 		&[open] ul {

@@ -47,7 +47,11 @@
                               data-headmaster-email="<%= h(headmaster.email&.to_s || '') %>" 
                               data-headmaster-phone="<%= h(headmaster.metadata&.dig('phone')&.to_s || '') %>">Edit</button>
                     </li>
-                    <li><button type="button">Resend invite</button></li>
+                    <li>
+                      <button type="button" data-action="resend-invite" 
+                              data-headmaster-id="<%= headmaster.id %>" 
+                              data-headmaster-email="<%= h(headmaster.email&.to_s || '') %>">Resend invite</button>
+                    </li>
                     <li>
                       <button type="button" data-action="deactivate-headmaster" 
                               data-headmaster-id="<%= headmaster.id %>" 
@@ -212,24 +216,29 @@
               const totalRows = rows.length;
 
               // Position menu using fixed positioning
+              // Set very high z-index to ensure popup is always on top
+              // Use transform to create new stacking context above table
+              ul.style.position = 'fixed';
+              ul.style.zIndex = '999999';
+              ul.style.isolation = 'isolate';
+              ul.style.transform = 'translateZ(0)';
+              ul.style.willChange = 'transform';
+              
               if (totalRows === 1) {
                 // Single row - open downward
                 menu.removeAttribute('data-menu-align');
-                ul.style.position = 'fixed';
                 ul.style.top = (summaryRect.bottom + 10) + 'px';
                 ul.style.right = (window.innerWidth - summaryRect.right) + 'px';
                 ul.style.bottom = 'auto';
               } else if (spaceBelow < ulHeight + 20 && spaceAbove > ulHeight + 20 && rowIndex >= totalRows - 2) {
                 // Open upward
                 menu.setAttribute('data-menu-align', 'top');
-                ul.style.position = 'fixed';
                 ul.style.bottom = (window.innerHeight - summaryRect.top + 10) + 'px';
                 ul.style.right = (window.innerWidth - summaryRect.right) + 'px';
                 ul.style.top = 'auto';
               } else {
                 // Open downward
                 menu.removeAttribute('data-menu-align');
-                ul.style.position = 'fixed';
                 ul.style.top = (summaryRect.bottom + 10) + 'px';
                 ul.style.right = (window.innerWidth - summaryRect.right) + 'px';
                 ul.style.bottom = 'auto';
@@ -500,6 +509,47 @@
           }
         });
       }
+
+      // Resend invite handler
+      document.querySelectorAll('[data-action="resend-invite"]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const headmasterId = btn.getAttribute('data-headmaster-id');
+          
+          if (!headmasterId) {
+            console.error('Error: Headmaster ID is missing');
+            return;
+          }
+          
+          const originalText = btn.textContent;
+          btn.disabled = true;
+          btn.textContent = 'Sending...';
+          
+          try {
+            const result = await api.post(`/headmasters/${headmasterId}/resend_invite`, {});
+            
+            if (result.success) {
+              // Show success feedback
+              btn.textContent = 'Sent!';
+              btn.style.color = 'var(--state-success)';
+              
+              // Reset after 2 seconds
+              setTimeout(() => {
+                btn.disabled = false;
+                btn.textContent = originalText;
+                btn.style.color = '';
+              }, 2000);
+            } else {
+              console.error('Error:', result.error || 'Failed to resend invite');
+              btn.disabled = false;
+              btn.textContent = originalText;
+            }
+          } catch (error) {
+            console.error('Resend invite error:', error);
+            btn.disabled = false;
+            btn.textContent = originalText;
+          }
+        });
+      });
 
       // Deactivate headmaster handler
       let deactivateHeadmasterId = null;
