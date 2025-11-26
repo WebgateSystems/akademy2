@@ -70,7 +70,7 @@ group :development do
   gem 'reek', require: false
   gem 'rubocop', '~> 1.64', require: false
   gem 'rubocop-factory_bot', require: false
-  gem 'rubocop-rails', '~> 2.25', require: false
+  gem 'rubocop-rails', '~> 2.34', require: false
   gem 'rubocop-rspec_rails', require: false
 
   gem 'rubocop-i18n', require: false
