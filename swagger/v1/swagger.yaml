@@ -1,0 +1,84 @@
+---
+openapi: 3.0.1
+info:
+  title: My API
+  version: v1
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Use POST /api/v1/session to get access_token and paste here
+security: []
+paths:
+  "/api/v1/session":
+    post:
+      summary: Creates a session
+      tags:
+      - Session
+      parameters: []
+      responses:
+        '201':
+          description: session create
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          email:
+                            type: string
+                            format: email
+                          first_name:
+                            type: string
+                          last_name:
+                            type: string
+                          school_id:
+                            type: string
+                            format: uuid
+                          locale:
+                            type: string
+                          jti:
+                            type: string
+                            format: uuid
+                          metadata:
+                            type: object
+                          birthdate:
+                            type: string
+                            format: date
+                          phone:
+                            type: string
+                        additionalProperties: false
+                    additionalProperties: false
+                  access_token:
+                    type: string
+                additionalProperties: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    password:
+                      type: string
+              required:
+              - email
+              - password

@@ -1,0 +1,6 @@
+pl:
+  session:
+    errors:
+      email: 'Użytkownik nie istnieje'
+      password: 'Nieprawidłowe hasło'
+      not_autorized: 'Brak autoryzacji'

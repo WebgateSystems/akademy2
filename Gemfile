@@ -15,6 +15,7 @@ gem 'carrierwave', '~> 3.0'
 gem 'cssbundling-rails', '~> 1.4'
 gem 'devise', '~> 4.9'
 gem 'devise-jwt', '~> 0.12.1'
+gem 'ffaker'
 gem 'image_processing', '~> 1.14'
 gem 'interactor', '~> 3.0'
 gem 'jsbundling-rails', '~> 1.3'
@@ -25,6 +26,7 @@ gem 'pry'
 gem 'pundit', '~> 2.5'
 gem 'rack-attack', '~> 6.7'
 gem 'rqrcode', '~> 3.1'
+gem 'rswag'
 gem 'sidekiq', '~> 8.0'
 gem 'slim-rails'
 gem 'solid_cable'
@@ -34,10 +36,10 @@ gem 'thruster', require: false
 gem 'wicked_pdf', '~> 2.8'
 
 group :development, :test do
-  gem 'brakeman', require: false
+  gem 'bullet'
   gem 'debug', platforms: %i[mri windows], require: 'debug/prelude'
   gem 'factory_bot_rails'
-  # gem "rubocop-rails-omakase", require: false
+  gem 'letter_opener', github: 'ryanb/letter_opener'
   gem 'rspec-rails', '~> 8.0'
 end
 
@@ -50,6 +52,7 @@ group :test do
 end
 
 group :development do
+  gem 'brakeman', require: false
   gem 'bundle-audit', require: false
 
   # Deploy with Capistrano
