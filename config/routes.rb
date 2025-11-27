@@ -55,6 +55,7 @@ Rails.application.routes.draw do
           post :lock
         end
       end
+      resources :events, only: [:index]
     end
   end
 

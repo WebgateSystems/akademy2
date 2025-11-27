@@ -13,6 +13,7 @@ module ApiRequestLogger
     # Skip logging for certain endpoints
     return false if request.path.include?('/api-docs')
     return false if request.path == '/api/v1/session' && request.method == 'POST' # Login is logged separately
+    return false if request.path.start_with?('/api/v1/events') # Don't log events endpoint to avoid infinite loop
 
     true
   end

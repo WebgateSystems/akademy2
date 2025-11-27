@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
-return if User.joins(:roles).where(roles: { key: 'teacher' }, school: @school_b).exists?
+# Check if teachers from this seed already exist (by checking if any teacher with teacher role
+# has email from sp18.edu.gdynia.pl domain or generated email pattern)
+return if User.joins(:roles)
+              .where(roles: { key: 'teacher' })
+              .where('email LIKE ? OR email LIKE ?', '%@sp18.edu.gdynia.pl', 'nauczyciel.sp18.%@akademy.local')
+              .exists?
 
 log('Create Teachers for SP18...')
 

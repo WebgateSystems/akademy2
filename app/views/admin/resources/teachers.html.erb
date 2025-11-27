@@ -463,13 +463,15 @@
             const email = (attrs.email || '').toLowerCase();
             const phone = (attrs.phone || '').toLowerCase();
             const schoolName = (attrs.school_name || '').toLowerCase();
+            const isLocked = attrs.is_locked || attrs.locked_at;
+            const status = isLocked ? 'inactive' : 'active';
 
-          return name.includes(searchTermLower) ||
-                 birthDate.includes(searchTermLower) ||
-                 email.includes(searchTermLower) ||
-                 phone.includes(searchTermLower) ||
-                 schoolName.includes(searchTermLower) ||
-                 status.includes(searchTermLower);
+            return name.includes(searchTermLower) ||
+                   birthDate.includes(searchTermLower) ||
+                   email.includes(searchTermLower) ||
+                   phone.includes(searchTermLower) ||
+                   schoolName.includes(searchTermLower) ||
+                   status.includes(searchTermLower);
           });
 
           // Re-render filtered teachers

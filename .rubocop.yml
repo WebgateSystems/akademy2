@@ -53,9 +53,14 @@ Metrics/ClassLength:
   Exclude:
     - "app/controllers/admin/resources_controller.rb"
 
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - "app/interactors/api/v1/events/list_events.rb"
+
 Metrics/MethodLength:
   Exclude:
     - "db/**/*.rb"
+    - "app/interactors/api/v1/events/list_events.rb"
     - 'app/controllers/api/v1/users/registrations_controller.rb'
 
 Naming/MethodName:

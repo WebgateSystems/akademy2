@@ -121,10 +121,8 @@ class Admin::ResourcesController < Admin::BaseController
   end
 
   def load_events
-    @records = @resource_class
-               .includes(:user)
-               .order(occurred_at: :desc, created_at: :desc)
-               .limit(200)
+    # Don't load records server-side, let JavaScript load them via API
+    @records = []
     render 'admin/resources/activity_log'
   end
 
