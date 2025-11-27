@@ -301,6 +301,46 @@ paths:
           description: headmaster deleted
         '404':
           description: headmaster not found
+  "/api/v1/management/notifications/mark_as_read":
+    post:
+      summary: Mark notification as read
+      tags:
+      - Management Notifications
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: notification marked as read
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: bad request when notification_id is missing
+        '404':
+          description: notification not found
+        '401':
+          description: unauthorized
+        '403':
+          description: forbidden for non-school-management users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notification_id:
+                  type: string
+                  format: uuid
+                  description: Notification ID
+              required:
+              - notification_id
   "/api/v1/schools":
     get:
       summary: List schools

@@ -2,7 +2,7 @@
 
 module Api
   module V1
-    module Teachers
+    module Management
       class UpdateTeacher < BaseInteractor
         def call
           authorize!
@@ -13,7 +13,7 @@ module Api
         private
 
         def authorize!
-          policy = AdminPolicy.new(current_user, :admin)
+          policy = SchoolManagementPolicy.new(current_user, :school_management)
           return if policy.access?
 
           context.message = ['Brak uprawnień']
@@ -24,8 +24,30 @@ module Api
           context.current_user
         end
 
+        def school
+          @school ||= begin
+            user_school = current_user.school
+            return user_school if user_school
+
+            user_role = current_user.user_roles
+                                    .joins(:role)
+                                    .where(roles: { key: %w[principal school_manager] })
+                                    .first
+            user_role&.school
+          end
+        end
+
         def find_teacher
-          context.teacher = User.joins(:roles).where(id: context.params[:id], roles: { key: 'teacher' }).first
+          return context.fail!(message: ['Brak przypisanej szkoły']) unless school
+
+          context.teacher = User.joins(:user_roles)
+                                .joins('INNER JOIN roles ON user_roles.role_id = roles.id')
+                                .where(id: context.params[:id],
+                                       user_roles: { school_id: school.id },
+                                       roles: { key: 'teacher' })
+                                .distinct
+                                .first
+
           return if context.teacher
 
           context.message = ['Nauczyciel nie został znaleziony']
@@ -36,6 +58,9 @@ module Api
         def update_teacher
           update_params = teacher_params.to_h
           merge_metadata(update_params)
+
+          # Ensure school_id cannot be changed
+          update_params[:school_id] = school.id
 
           # Skip Devise confirmation email when updating email (admin action)
           email_changed = update_params[:email].present? && context.teacher.email != update_params[:email]
@@ -64,7 +89,7 @@ module Api
         end
 
         def teacher_params
-          context.params.require(:teacher).permit(:first_name, :last_name, :email, :school_id, :password,
+          context.params.require(:teacher).permit(:first_name, :last_name, :email, :password,
                                                   :password_confirmation, metadata: {})
         end
       end

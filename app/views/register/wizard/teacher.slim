@@ -1,0 +1,67 @@
+section.auth-card aria-labelledby="auth-card-title"
+  header.auth-card__header
+    h1#auth-card-title Rejestracja nauczyciela
+    - if @school.present?
+      p.auth-card__subtitle Szkoła: #{@school.name}
+
+  - if @school.nil?
+    .alert.alert-danger
+      | Nieprawidłowy link rejestracji
+  - else
+    = form_with model: @form,
+                url: register_profile_path,
+                method: :post,
+                html: { class: "auth-form" } do |f|
+
+      = f.hidden_field :school_id, value: @school.id
+      = f.hidden_field :school_slug, value: @school.slug
+
+      / ===============================
+      / First name
+      / ===============================
+      label
+        span First name
+        = f.text_field :first_name,
+            placeholder: "First name",
+            class: (@form.errors[:first_name].present? ? "error-input" : "")
+        - if @form.errors[:first_name].present?
+          .field-error = @form.errors[:first_name].first
+
+      / ===============================
+      / Last name
+      / ===============================
+      label
+        span Last name
+        = f.text_field :last_name,
+            placeholder: "Last name",
+            class: (@form.errors[:last_name].present? ? "error-input" : "")
+        - if @form.errors[:last_name].present?
+          .field-error = @form.errors[:last_name].first
+
+      / ===============================
+      / Email
+      / ===============================
+      label
+        span Email
+        = f.email_field :email,
+            placeholder: "example@mail.com",
+            class: (@form.errors[:email].present? ? "error-input" : "")
+        - if @form.errors[:email].present?
+          .field-error = @form.errors[:email].first
+
+      / ===============================
+      / Phone
+      / ===============================
+      label
+        span Phone
+        = f.text_field :phone,
+            placeholder: "+48 XXX XXX XXX",
+            class: (@form.errors[:phone].present? ? "error-input" : "")
+        - if @form.errors[:phone].present?
+          .field-error = @form.errors[:phone].first
+
+      / ===============================
+      / Submit button
+      / ===============================
+      button.auth-submit type="submit" Create account
+

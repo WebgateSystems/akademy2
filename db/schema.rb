@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_24_120304) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_27_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -78,6 +78,40 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_24_120304) do
     t.uuid "unit_id", null: false
     t.datetime "updated_at", null: false
     t.index ["unit_id"], name: "index_learning_modules_on_unit_id"
+  end
+
+  create_table "notification_reads", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "notification_id", null: false
+    t.datetime "read_at", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["notification_id"], name: "index_notification_reads_on_notification_id"
+    t.index ["user_id", "notification_id"], name: "index_notification_reads_on_user_id_and_notification_id", unique: true
+    t.index ["user_id"], name: "index_notification_reads_on_user_id"
+  end
+
+  create_table "notifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "message", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.string "notification_type", null: false
+    t.datetime "read_at"
+    t.uuid "read_by_user_id"
+    t.datetime "resolved_at"
+    t.uuid "school_id"
+    t.string "target_role", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id"
+    t.index ["notification_type"], name: "index_notifications_on_notification_type"
+    t.index ["read_at"], name: "index_notifications_on_read_at"
+    t.index ["read_by_user_id"], name: "index_notifications_on_read_by_user_id"
+    t.index ["resolved_at"], name: "index_notifications_on_resolved_at"
+    t.index ["school_id"], name: "index_notifications_on_school_id"
+    t.index ["target_role", "school_id", "read_at"], name: "index_notifications_on_target_role_and_school_id_and_read_at"
+    t.index ["target_role"], name: "index_notifications_on_target_role"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "parent_student_links", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -260,6 +294,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_24_120304) do
   add_foreign_key "events", "users"
   add_foreign_key "jwt_refresh_tokens", "users"
   add_foreign_key "learning_modules", "units"
+  add_foreign_key "notification_reads", "users"
+  add_foreign_key "notifications", "schools"
+  add_foreign_key "notifications", "users"
+  add_foreign_key "notifications", "users", column: "read_by_user_id"
   add_foreign_key "parent_student_links", "users", column: "parent_id"
   add_foreign_key "parent_student_links", "users", column: "student_id"
   add_foreign_key "quiz_results", "learning_modules"

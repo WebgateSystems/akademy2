@@ -64,7 +64,6 @@ module Api
           end
         end
 
-        # rubocop:disable Metrics/MethodLength
         def assign_student_role
           student_role = Role.find_by(key: 'student')
           return unless student_role
@@ -81,7 +80,6 @@ module Api
             school: school
           )
         end
-        # rubocop:enable Metrics/MethodLength
       end
     end
   end

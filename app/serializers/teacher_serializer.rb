@@ -29,4 +29,10 @@ class TeacherSerializer < ApplicationSerializer
   attribute :is_locked do |teacher|
     teacher.locked_at.present?
   end
+
+  attribute :confirmed_at, &:confirmed_at
+
+  attribute :is_confirmed do |teacher|
+    teacher.confirmed_at.present?
+  end
 end

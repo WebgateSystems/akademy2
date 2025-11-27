@@ -23,7 +23,6 @@ module Api
           context.current_user
         end
 
-        # rubocop:disable Metrics/MethodLength
         def load_teachers
           page = (context.params[:page] || 1).to_i
           per_page = (context.params[:per_page] || 20).to_i
@@ -42,7 +41,6 @@ module Api
           context.serializer = TeacherSerializer
           context.pagination = build_pagination(page, per_page, total_count, offset)
         end
-        # rubocop:enable Metrics/MethodLength
 
         def build_base_query
           User.joins(:roles).where(roles: { key: 'teacher' }).distinct
