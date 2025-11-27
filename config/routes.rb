@@ -43,6 +43,7 @@ Rails.application.routes.draw do
     get 'qr_code.svg', to: 'qr_codes#svg', as: :qr_code_svg
     get 'qr_code.png', to: 'qr_codes#png', as: :qr_code_png
     get 'teachers', to: 'teachers#index', as: :teachers
+    get 'students', to: 'students#index', as: :students
     get 'notifications', to: 'notifications#index', as: :notifications
   end
 
@@ -55,6 +56,14 @@ Rails.application.routes.draw do
             post :lock
             post :approve
             post :decline
+          end
+        end
+        resources :students, only: %i[index show create update destroy] do
+          member do
+            post :resend_invite
+            post :lock
+            post :approve
+            delete :decline
           end
         end
         resources :notifications, only: [] do

@@ -38,13 +38,16 @@
           <%= link_to management_teachers_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/teachers')}" do %>
             <i class="bi bi-person-workspace" aria-hidden="true"></i>
             <span class="dashboard-nav__label">Teachers</span>
-            <% if @notifications_count && @notifications_count > 0 %>
-              <span class="notification-counter" aria-hidden="true"><%= @notifications_count %></span>
+            <% if @teachers_notifications_count && @teachers_notifications_count > 0 %>
+              <span class="notification-counter" aria-hidden="true"><%= @teachers_notifications_count %></span>
             <% end %>
           <% end %>
-          <%= link_to '#', class: "dashboard-nav__button #{'is-active' if request.path.include?('/pupils')}" do %>
+          <%= link_to management_students_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/students')}" do %>
             <i class="bi bi-people" aria-hidden="true"></i>
             <span class="dashboard-nav__label">Pupils</span>
+            <% if @students_notifications_count && @students_notifications_count > 0 %>
+              <span class="notification-counter" aria-hidden="true"><%= @students_notifications_count %></span>
+            <% end %>
           <% end %>
           <%= link_to '#', class: "dashboard-nav__button #{'is-active' if request.path.include?('/classes')}" do %>
             <i class="bi bi-people-fill" aria-hidden="true"></i>

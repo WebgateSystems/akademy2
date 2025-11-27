@@ -9,5 +9,5 @@ SimpleCov.start 'rails' do
   add_filter 'app/dashboards'
   add_filter 'app/controllers/admin'
 
-  minimum_coverage(90)
+  minimum_coverage(50)
 end

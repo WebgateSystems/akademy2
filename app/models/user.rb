@@ -5,6 +5,8 @@ class User < ApplicationRecord
   belongs_to :school, optional: true
   has_many :user_roles, dependent: :destroy
   has_many :roles, through: :user_roles
+  has_many :student_class_enrollments, foreign_key: 'student_id', dependent: :destroy, inverse_of: :student
+  has_many :school_classes, through: :student_class_enrollments
 
   devise :database_authenticatable,
          :registerable,

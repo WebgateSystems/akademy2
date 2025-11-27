@@ -27,7 +27,13 @@ module HandleStatusCode
            end
     data[:pagination] = result.pagination if result.pagination
     data[:access_token] = result.access_token if result.access_token
-    data
+
+    # Management API should return success: true wrapper
+    if self.class.name.include?('Management')
+      { success: true, data: data }
+    else
+      data
+    end
   end
 
   def invalid_response(result)
