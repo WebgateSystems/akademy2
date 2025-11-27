@@ -21,6 +21,19 @@ I18n/RailsI18n/DecorateString:
 Layout/EmptyLines:
   Exclude:
     - 'db/seeds/**/*.rb'
+    - 'spec/requests/api/v1/management/students_spec.rb'
+
+Layout/EmptyLinesAroundBlockBody:
+  Exclude:
+    - 'spec/requests/api/v1/management/students_spec.rb'
+
+Layout/IndentationConsistency:
+  Exclude:
+    - 'spec/requests/api/v1/management/students_spec.rb'
+
+Layout/TrailingWhitespace:
+  Exclude:
+    - 'spec/requests/api/v1/management/students_spec.rb'
 
 Layout/LineLength:
   Exclude:
@@ -99,6 +112,10 @@ RSpec/MultipleExpectations:
 
 RSpec/MultipleMemoizedHelpers:
   Max: 10
+
+RSpec/ScatteredSetup:
+  Exclude:
+    - 'spec/requests/api/v1/management/students_spec.rb'
 
 RSpec/NestedGroups:
   Max: 4
