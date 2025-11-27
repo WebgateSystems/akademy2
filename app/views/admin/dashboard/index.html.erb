@@ -1,22 +1,22 @@
 <% content_for :page_title, "Dashboard" %>
 
 <section class="dashboard-stats" aria-label="Key statistics">
-  <article class="stat-card">
+  <%= link_to admin_resource_collection_path(resource: 'schools'), class: 'stat-card stat-card--link' do %>
     <h3 class="stat-label text-body-2">Schools</h3>
     <p class="stat-value"><%= @schools_count %></p>
-  </article>
-  <article class="stat-card">
+  <% end %>
+  <%= link_to admin_resource_collection_path(resource: 'users'), class: 'stat-card stat-card--link' do %>
     <h3 class="stat-label text-body-2">Headmasters</h3>
     <p class="stat-value"><%= @headmasters_count %></p>
-  </article>
-  <article class="stat-card">
+  <% end %>
+  <%= link_to admin_resource_collection_path(resource: 'teachers'), class: 'stat-card stat-card--link' do %>
     <h3 class="stat-label text-body-2">Teachers</h3>
     <p class="stat-value"><%= @teachers_count %></p>
-  </article>
-  <article class="stat-card">
+  <% end %>
+  <%= link_to admin_resource_collection_path(resource: 'students'), class: 'stat-card stat-card--link' do %>
     <h3 class="stat-label text-body-2">Pupils</h3>
     <p class="stat-value"><%= number_with_delimiter(@pupils_count) %></p>
-  </article>
+  <% end %>
 </section>
 
 <section class="panel panel--chart" aria-label="User growth chart">
@@ -41,26 +41,26 @@
       <h3 class="stat-label text-body-2">Top performing schools</h3>
       <label class="schools-search schools-search--wide">
         <span class="visually-hidden">Search schools</span>
-        <input type="search" name="top_schools_search" placeholder="Search schools">
+        <input type="search" name="top_schools_search" id="top-schools-search-input" placeholder="Search schools">
         <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true" %>
       </label>
     </div>
-    <table class="schools-table">
+    <table class="schools-table" id="top-schools-table">
       <thead>
         <tr>
           <th scope="col">Name</th>
           <th scope="col" class="average">Average completion rate</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="top-schools-table-body">
         <% @top_schools.each do |school| %>
-          <tr>
+          <tr data-school-name="<%= school.name.downcase %>">
             <td><%= school.name %></td>
             <td class="rate">—</td>
           </tr>
         <% end %>
         <% if @top_schools.empty? %>
-          <tr>
+          <tr id="top-schools-empty-message">
             <td colspan="2" class="text-center text-muted">No schools yet</td>
           </tr>
         <% end %>
@@ -73,18 +73,70 @@
         <h3 class="stat-label text-body-2">Completion rate</h3>
         <p class="mini-card__value">—</p>
       </article>
-      <article class="mini-card">
+      <%= link_to admin_resource_collection_path(resource: 'events'), class: 'mini-card mini-card--link' do %>
         <h3 class="stat-label text-body-2">Logins</h3>
-        <p class="mini-card__value">—</p>
-      </article>
+        <p class="mini-card__value"><%= number_with_delimiter(@logins_count) %></p>
+      <% end %>
       <article class="mini-card">
         <h3 class="stat-label text-body-2">Videos viewed</h3>
-        <p class="mini-card__value">—</p>
+        <p class="mini-card__value"><%= number_with_delimiter(@videos_viewed_count) %></p>
       </article>
       <article class="mini-card">
         <h3 class="stat-label text-body-2">Quizzes completed</h3>
-        <p class="mini-card__value">—</p>
+        <p class="mini-card__value"><%= number_with_delimiter(@quizzes_completed_count) %></p>
       </article>
     </div>
   </div>
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Top schools search functionality
+    const topSchoolsSearchInput = document.getElementById('top-schools-search-input');
+    const topSchoolsTableBody = document.getElementById('top-schools-table-body');
+    const topSchoolsEmptyMessage = document.getElementById('top-schools-empty-message');
+    
+    if (topSchoolsSearchInput && topSchoolsTableBody) {
+      topSchoolsSearchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        const rows = topSchoolsTableBody.querySelectorAll('tr');
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+          // Skip empty message row
+          if (row.id === 'top-schools-empty-message') {
+            return;
+          }
+          
+          const schoolName = row.getAttribute('data-school-name') || '';
+          const matches = schoolName.includes(searchTerm);
+          
+          // Show/hide row based on match
+          row.style.display = matches ? '' : 'none';
+          if (matches) {
+            visibleCount++;
+          }
+        });
+        
+        // Show/hide empty message based on visible rows
+        if (topSchoolsEmptyMessage) {
+          if (visibleCount === 0 && searchTerm !== '') {
+            topSchoolsEmptyMessage.style.display = '';
+            const emptyCell = topSchoolsEmptyMessage.querySelector('td');
+            if (emptyCell) {
+              emptyCell.textContent = 'No schools found';
+            }
+          } else if (visibleCount === 0 && searchTerm === '') {
+            topSchoolsEmptyMessage.style.display = '';
+            const emptyCell = topSchoolsEmptyMessage.querySelector('td');
+            if (emptyCell) {
+              emptyCell.textContent = 'No schools yet';
+            }
+          } else {
+            topSchoolsEmptyMessage.style.display = 'none';
+          }
+        }
+      });
+    }
+  });
+</script>
