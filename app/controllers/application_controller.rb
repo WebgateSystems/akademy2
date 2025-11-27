@@ -13,4 +13,16 @@ class ApplicationController < ActionController::Base
     redirect_to(request.referer.presence || fallback, alert: 'Brak uprawnień.')
     # rubocop:enable I18n/GetText/DecorateString
   end
+
+  # Redirect after sign in based on user roles
+  def after_sign_in_path_for(resource)
+    return super unless resource.is_a?(User)
+
+    user_roles = resource.roles.pluck(:key)
+    has_management_role = user_roles.include?('principal') || user_roles.include?('school_manager')
+
+    return management_root_path if has_management_role
+
+    authenticated_root_path
+  end
 end

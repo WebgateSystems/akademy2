@@ -2,7 +2,7 @@
 
 # rubocop:disable Metrics/ClassLength
 class EventLogger
-  # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
+  # rubocop:disable Metrics/ParameterLists
   def self.log(event_type:, user: nil, school: nil, data: {}, client: nil, occurred_at: nil)
     occurred_at ||= Time.current
 
@@ -19,10 +19,10 @@ class EventLogger
     Rails.logger.error("Failed to log event: #{e.message}")
     Rails.logger.error(e.backtrace.join("\n"))
   end
-  # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
+  # rubocop:enable Metrics/ParameterLists
 
   # Convenience methods for common event types
-  # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
+  # rubocop:disable Metrics/ParameterLists
   def self.log_api_request(method:, path:, user:, status:, params: {}, response_time: nil)
     log(
       event_type: 'api_request',
@@ -38,7 +38,7 @@ class EventLogger
       client: 'api'
     )
   end
-  # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
+  # rubocop:enable Metrics/ParameterLists
 
   def self.log_login(user:, client: 'web')
     log(
@@ -62,7 +62,6 @@ class EventLogger
     )
   end
 
-  # rubocop:disable Metrics/MethodLength
   def self.log_video_view(content:, user:, duration: nil, progress: nil)
     log(
       event_type: 'video_view',
@@ -78,9 +77,7 @@ class EventLogger
       client: 'web'
     )
   end
-  # rubocop:enable Metrics/MethodLength
 
-  # rubocop:disable Metrics/MethodLength
   def self.log_quiz_start(quiz:, user:)
     log(
       event_type: 'quiz_start',
@@ -94,9 +91,7 @@ class EventLogger
       client: 'web'
     )
   end
-  # rubocop:enable Metrics/MethodLength
 
-  # rubocop:disable Metrics/MethodLength
   def self.log_quiz_complete(quiz_result:, user:)
     log(
       event_type: 'quiz_complete',
@@ -111,9 +106,7 @@ class EventLogger
       client: 'web'
     )
   end
-  # rubocop:enable Metrics/MethodLength
 
-  # rubocop:disable Metrics/MethodLength
   def self.log_content_access(content:, user:, action: 'view')
     log(
       event_type: "content_#{action}",
@@ -128,9 +121,7 @@ class EventLogger
       client: 'web'
     )
   end
-  # rubocop:enable Metrics/MethodLength
 
-  # rubocop:disable Metrics/MethodLength
   def self.sanitize_params(params)
     # Remove sensitive data from params
     # Convert ActionController::Parameters to hash if needed
@@ -149,6 +140,5 @@ class EventLogger
     sanitized.delete(:refresh_token)
     sanitized
   end
-  # rubocop:enable Metrics/MethodLength
 end
 # rubocop:enable Metrics/ClassLength

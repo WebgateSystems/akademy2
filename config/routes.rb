@@ -33,6 +33,37 @@ Rails.application.routes.draw do
     post 'set-pin-confirm', to: 'wizard#set_pin_confirm_submit'
 
     get  'confirm-email', to: 'wizard#confirm_email', as: :confirm_email
+
+    # Teacher registration
+    get 'teacher', to: 'wizard#teacher', as: :teacher
+  end
+
+  namespace :management do
+    root to: 'dashboard#index'
+    get 'qr_code.svg', to: 'qr_codes#svg', as: :qr_code_svg
+    get 'qr_code.png', to: 'qr_codes#png', as: :qr_code_png
+    get 'teachers', to: 'teachers#index', as: :teachers
+    get 'notifications', to: 'notifications#index', as: :notifications
+  end
+
+  namespace :api do
+    namespace :v1 do
+      namespace :management do
+        resources :teachers, only: %i[index show create update destroy] do
+          member do
+            post :resend_invite
+            post :lock
+            post :approve
+            post :decline
+          end
+        end
+        resources :notifications, only: [] do
+          collection do
+            post :mark_as_read
+          end
+        end
+      end
+    end
   end
 
   authenticated :user do

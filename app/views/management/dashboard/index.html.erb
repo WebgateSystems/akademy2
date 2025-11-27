@@ -1,0 +1,253 @@
+<div class="school-profile" data-state="<%= @school.present? ? 'filled' : 'empty' %>">
+  <section class="school-profile-hero" aria-label="Invite teachers to your school">
+    <div class="school-profile-hero__text">
+      <h2>Let's build your school together!</h2>
+      <p>Download the QR code or share the school code so your teachers can join your school.</p>
+      <div class="school-profile-hero__actions">
+        <button class="school-profile-hero__button school-profile-hero__button--primary" type="button" id="download-qr-btn">Download</button>
+        <button class="school-profile-hero__button" type="button" id="copy-code-btn">Copy code</button>
+      </div>
+    </div>
+    <div class="school-profile-hero__visuals">
+      <div class="school-profile-hero__qr" id="qr-code-container">
+        <%= image_tag "icons/social/L/QR-code.svg",
+          width: 250,
+          height: 250,
+          alt: "",
+          id: "qr-code-image",
+          data: { theme_icon: true } %>
+      </div>
+      <div class="school-profile-hero__stats" aria-labelledby="school-stats-heading">
+        <h3 id="school-stats-heading" class="visually-hidden">Teacher and pupil counters</h3>
+        <%= link_to management_teachers_path, class: 'school-profile-hero__stat-card school-profile-hero__stat-card--link', data: { entity: 'teachers' } do %>
+          <div class="school-profile-hero__stat-label">
+            <h4 class="stat-label">Teachers</h4>
+          </div>
+          <div class="school-profile-hero__stat-value">
+            <span class="stat-value stat-value--empty">0</span>
+            <span class="stat-value stat-value--filled"><%= @teachers_count || 0 %></span>
+            <% if @teachers_awaiting && @teachers_awaiting > 0 %>
+              <span class="stat-awaiting"><%= @teachers_awaiting %> awaiting</span>
+            <% end %>
+          </div>
+        <% end %>
+        <%= link_to '#', class: 'school-profile-hero__stat-card school-profile-hero__stat-card--link', data: { entity: 'pupils' } do %>
+          <div class="school-profile-hero__stat-label">
+            <h4 class="stat-label">Pupils</h4>
+          </div>
+          <div class="school-profile-hero__stat-value">
+            <span class="stat-value stat-value--empty">0</span>
+            <span class="stat-value stat-value--filled"><%= @students_count || 0 %></span>
+            <% if @students_awaiting && @students_awaiting > 0 %>
+              <span class="stat-awaiting">(<%= @students_awaiting %> awaiting)</span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <section class="school-profile-info" aria-label="School profile info">
+    <h2>School profile info</h2>
+    <div class="school-profile-info__grid">
+      <article class="school-profile-logo-card" aria-label="School logo placeholder">
+        <% if @school&.logo.present? %>
+          <%= image_tag @school.logo.url,
+            class: "school-profile-logo-card__image",
+            alt: "School emblem",
+            loading: "lazy" %>
+        <% else %>
+          <div class="school-profile-logo-card__empty" aria-hidden="true">
+            <%= image_tag "icons/social/L/insert_photo.png", alt: "" %>
+          </div>
+        <% end %>
+      </article>
+      <article class="school-profile-details">
+        <div class="school-profile-details__header">
+          <div>
+            <h3><%= @school&.name || '—' %></h3>
+            <p><%= @school&.address || '—' %></p>
+          </div>
+          <button class="icon-pill js-open-school-modal" type="button" aria-label="Edit school info">
+            <%= image_tag "icons/social/S/edit.svg", alt: "" %>
+          </button>
+        </div>
+        <dl class="school-profile-details__list">
+          <div class="school-profile-details__row">
+            <dt>Phone:</dt>
+            <dd>
+              <% if @school&.phone.present? %>
+                <span class="details-value details-value--filled"><%= @school.phone %></span>
+              <% else %>
+                <span class="details-value details-value--empty">—</span>
+              <% end %>
+            </dd>
+          </div>
+          <div class="school-profile-details__row">
+            <dt>Email:</dt>
+            <dd>
+              <% if @school&.email.present? %>
+                <span class="details-value details-value--filled"><%= @school.email %></span>
+              <% else %>
+                <span class="details-value details-value--empty">—</span>
+              <% end %>
+            </dd>
+          </div>
+          <div class="school-profile-details__row">
+            <dt>Headmaster:</dt>
+            <dd>
+              <% if @headmaster.present? %>
+                <span class="details-value details-value--filled">
+                  <%= [@headmaster.first_name, @headmaster.last_name].compact.join(' ') %>
+                </span>
+              <% else %>
+                <span class="details-value details-value--empty">—</span>
+              <% end %>
+            </dd>
+          </div>
+          <div class="school-profile-details__row">
+            <dt>Deputy headmaster:</dt>
+            <dd>
+              <% if @deputy_headmaster.present? %>
+                <span class="details-value details-value--filled">
+                  <%= [@deputy_headmaster.first_name, @deputy_headmaster.last_name].compact.join(' ') %>
+                </span>
+              <% else %>
+                <span class="details-value details-value--empty">—</span>
+              <% end %>
+            </dd>
+          </div>
+        </dl>
+      </article>
+    </div>
+  </section>
+</div>
+
+<!-- MODAL -->
+<div class="schools-modal" id="edit-school-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="edit-school-modal-title">
+    <header class="schools-modal__header">
+      <h3 id="edit-school-modal-title">Edit school profile info</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "" %>
+      </button>
+    </header>
+    <form class="schools-modal__form" id="edit-school-form" novalidate>
+      <div class="school-edit-upload">
+        <% if @school&.logo.present? %>
+          <%= image_tag @school.logo.url,
+            class: "school-edit-upload__preview",
+            alt: "Current school logo",
+            id: "school-logo-preview",
+            data: { default_src: @school.logo.url } %>
+        <% else %>
+          <%= image_tag "icons/logo/school-emblem.png",
+            class: "school-edit-upload__preview",
+            alt: "Current school logo",
+            id: "school-logo-preview",
+            data: { default_src: asset_path("icons/logo/school-emblem.png") } %>
+        <% end %>
+        <input class="school-edit-upload__input" id="school-logo-upload" type="file" accept="image/*" hidden>
+        <button class="school-edit-upload__button" type="button">
+          <%= image_tag "icons/social/S/upload.svg", alt: "", aria: { hidden: true } %>
+          <span>Upload</span>
+        </button>
+      </div>
+      <label>
+        <span>School name</span>
+        <input id="school-name-input" type="text" name="school_name" value="<%= @school&.name || '' %>" required>
+        <span class="form-field-error" data-error-for="school-name-input"></span>
+      </label>
+      <label>
+        <span>School address</span>
+        <input id="school-address-input" type="text" name="school_address" value="<%= @school&.address || '' %>" required>
+        <span class="form-field-error" data-error-for="school-address-input"></span>
+      </label>
+      <div class="school-edit-form__row">
+        <label>
+          <span>Phone</span>
+          <input id="school-phone-input" type="tel" name="phone" value="<%= @school&.phone || '' %>" required>
+          <span class="form-field-error" data-error-for="school-phone-input"></span>
+        </label>
+        <label>
+          <span>Email</span>
+          <input id="school-email-input" type="email" name="email" value="<%= @school&.email || '' %>" required>
+          <span class="form-field-error" data-error-for="school-email-input"></span>
+        </label>
+      </div>
+      <label>
+        <span>Headmaster</span>
+        <input id="school-headmaster-input" type="text" name="headmaster" value="<%= @headmaster ? [@headmaster.first_name, @headmaster.last_name].compact.join(' ') : '' %>" required>
+        <span class="form-field-error" data-error-for="school-headmaster-input"></span>
+      </label>
+      <label>
+        <span>Deputy headmaster</span>
+        <input id="school-deputy-input" type="text" name="deputy_headmaster" value="<%= @deputy_headmaster ? [@deputy_headmaster.first_name, @deputy_headmaster.last_name].compact.join(' ') : '' %>">
+        <span class="form-field-error" data-error-for="school-deputy-input"></span>
+      </label>
+      <div class="schools-modal__actions">
+        <button type="submit" class="schools-modal__primary is-disabled" disabled>Save</button>
+        <button type="button" class="schools-modal__secondary">CANCEL</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // QR Code URL
+  const qrCodeUrl = '<%= register_teacher_url(school_slug: @school&.slug) %>';
+  const schoolSlug = '<%= @school&.slug %>';
+
+  // Load QR code based on theme
+  function loadQRCode() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+                   (document.documentElement.getAttribute('data-theme') === 'auto' &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    const qrImage = document.getElementById('qr-code-image');
+    if (qrImage) {
+      // Generate QR code URL
+      const qrSvgUrl = '<%= management_qr_code_svg_path %>' + '?theme=' + (isDark ? 'dark' : 'light');
+      qrImage.src = qrSvgUrl;
+      qrImage.style.display = 'block';
+    }
+  }
+
+  // Download QR code
+  document.getElementById('download-qr-btn')?.addEventListener('click', function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+                   (document.documentElement.getAttribute('data-theme') === 'auto' &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const qrPngUrl = '<%= management_qr_code_png_path %>' + '?theme=' + (isDark ? 'dark' : 'light');
+    const link = document.createElement('a');
+    link.href = qrPngUrl;
+    link.download = 'qr-code-<%= @school&.slug %>.png';
+    link.click();
+  });
+
+  // Copy code
+  document.getElementById('copy-code-btn')?.addEventListener('click', function() {
+    navigator.clipboard.writeText(qrCodeUrl).then(() => {
+      const btn = this;
+      const originalText = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => {
+        btn.textContent = originalText;
+      }, 2000);
+    });
+  });
+
+  // Load QR code on page load
+  loadQRCode();
+
+  // Reload QR code on theme change
+  const themeObserver = new MutationObserver(() => {
+    loadQRCode();
+  });
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+  });
+</script>
+

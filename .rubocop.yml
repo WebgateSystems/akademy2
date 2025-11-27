@@ -54,14 +54,21 @@ Metrics/ClassLength:
     - "app/controllers/admin/resources_controller.rb"
 
 Metrics/CyclomaticComplexity:
+  Max: 8
   Exclude:
     - "app/interactors/api/v1/events/list_events.rb"
 
 Metrics/MethodLength:
+  Max: 15
   Exclude:
     - "db/**/*.rb"
     - "app/interactors/api/v1/events/list_events.rb"
+    - 'app/interactors/api/v1/management/approve_teacher.rb'
     - 'app/controllers/api/v1/users/registrations_controller.rb'
+    - 'app/controllers/api/v1/management/notifications_controller.rb'
+    - 'app/controllers/management/notifications_controller.rb'
+    - 'app/controllers/management/dashboard_controller.rb'
+    - 'app/services/notification_service.rb'
 
 Naming/MethodName:
   Exclude:
@@ -92,6 +99,9 @@ RSpec/MultipleExpectations:
 
 RSpec/MultipleMemoizedHelpers:
   Max: 10
+
+RSpec/NestedGroups:
+  Max: 4
 
 RSpec/RepeatedExampleGroupDescription:
   Exclude:

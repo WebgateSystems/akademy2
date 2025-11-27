@@ -7,9 +7,15 @@ class ApiClient {
 
   getAuthToken() {
     // Try to get token from meta tag (set by Rails)
-    const tokenMeta = document.querySelector('meta[name="admin-token"]');
-    if (tokenMeta) {
-      return tokenMeta.getAttribute('content');
+    // Check for admin-token first (for admin dashboard)
+    const adminTokenMeta = document.querySelector('meta[name="admin-token"]');
+    if (adminTokenMeta) {
+      return adminTokenMeta.getAttribute('content');
+    }
+    // Check for management-token (for management dashboard)
+    const managementTokenMeta = document.querySelector('meta[name="management-token"]');
+    if (managementTokenMeta) {
+      return managementTokenMeta.getAttribute('content');
     }
     return null;
   }

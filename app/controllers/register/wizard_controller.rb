@@ -89,6 +89,22 @@ module Register
       @flow.finish!
     end
 
+    # === TEACHER REGISTRATION ===
+
+    def teacher
+      @school_slug = params[:school_slug]
+      @school = School.find_by(slug: @school_slug) if @school_slug.present?
+
+      if @school.nil?
+        redirect_to root_path, alert: 'Nieprawidłowy link rejestracji'
+        return
+      end
+
+      # Initialize flow with school info
+      @flow.update(:school, { 'school_id' => @school.id, 'school_slug' => @school.slug })
+      @form = ProfileForm.new(@flow['profile'] || {})
+    end
+
     private
 
     def build_flow

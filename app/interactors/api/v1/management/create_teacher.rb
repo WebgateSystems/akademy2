@@ -2,7 +2,7 @@
 
 module Api
   module V1
-    module Teachers
+    module Management
       class CreateTeacher < BaseInteractor
         def call
           authorize!
@@ -13,7 +13,7 @@ module Api
         private
 
         def authorize!
-          policy = AdminPolicy.new(current_user, :admin)
+          policy = SchoolManagementPolicy.new(current_user, :school_management)
           return if policy.access?
 
           context.message = ['Brak uprawnień']
@@ -24,10 +24,27 @@ module Api
           context.current_user
         end
 
+        def school
+          @school ||= begin
+            user_school = current_user.school
+            return user_school if user_school
+
+            user_role = current_user.user_roles
+                                    .joins(:role)
+                                    .where(roles: { key: %w[principal school_manager] })
+                                    .first
+            user_role&.school
+          end
+        end
+
         def build_teacher
+          return context.fail!(message: ['Brak przypisanej szkoły']) unless school
+
           params_hash = teacher_params.to_h
           handle_metadata(params_hash)
           generate_password_if_needed(params_hash)
+          # Force school_id to current user's school
+          params_hash[:school_id] = school.id
           context.teacher = User.new(params_hash)
         end
 
@@ -48,14 +65,15 @@ module Api
         end
 
         def teacher_params
-          context.params.require(:teacher).permit(:first_name, :last_name, :email, :school_id, :password,
+          context.params.require(:teacher).permit(:first_name, :last_name, :email, :password,
                                                   :password_confirmation, metadata: {})
         end
 
         def save_teacher
           if context.teacher.save
-            # Assign teacher role immediately after save
             assign_teacher_role
+            # Create notification for awaiting approval
+            NotificationService.create_teacher_awaiting_approval(teacher: context.teacher, school: school)
             context.form = context.teacher
             context.status = :created
             context.serializer = TeacherSerializer

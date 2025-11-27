@@ -105,6 +105,23 @@
 		flex-direction: column;
 		gap: 10px;
 		box-shadow: inset 0 0 0 1px var(--border-muted);
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+		&--link {
+			display: block;
+			text-decoration: none;
+			color: inherit;
+			cursor: pointer;
+
+			&:hover {
+				transform: translateY(-2px);
+				box-shadow: inset 0 0 0 1px var(--border-muted), 0 8px 24px rgba(0, 0, 0, 0.1);
+			}
+
+			&:active {
+				transform: translateY(0);
+			}
+		}
 	}
 
 	&__stat-label {

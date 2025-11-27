@@ -37,6 +37,10 @@ module Api
           update_params = student_params.to_h
           merge_metadata(update_params)
 
+          # Skip Devise confirmation email when updating email (admin action)
+          email_changed = update_params[:email].present? && context.student.email != update_params[:email]
+          context.student.skip_reconfirmation! if email_changed
+
           if context.student.update(update_params)
             context.form = context.student
             context.status = :ok

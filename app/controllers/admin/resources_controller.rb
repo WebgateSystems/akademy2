@@ -25,7 +25,6 @@ class Admin::ResourcesController < Admin::BaseController
   before_action :set_resource_class
   before_action :set_record, only: %i[show edit update destroy]
 
-  # rubocop:disable Metrics/MethodLength
   def index
     case params[:resource]
     when 'schools'
@@ -42,7 +41,6 @@ class Admin::ResourcesController < Admin::BaseController
       load_default_records
     end
   end
-  # rubocop:enable Metrics/MethodLength
 
   def show; end
 
