@@ -55,6 +55,12 @@ Rails.application.routes.draw do
           post :lock
         end
       end
+      resources :students, only: %i[index show create update destroy] do
+        member do
+          post :resend_invite
+          post :lock
+        end
+      end
       resources :events, only: [:index]
     end
   end

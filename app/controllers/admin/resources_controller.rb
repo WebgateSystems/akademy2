@@ -2,6 +2,7 @@ class Admin::ResourcesController < Admin::BaseController
   RESOURCES = {
     'users' => User,
     'teachers' => User,
+    'students' => User,
     'roles' => Role,
     'user_roles' => UserRole,
     'schools' => School,
@@ -33,6 +34,8 @@ class Admin::ResourcesController < Admin::BaseController
       load_headmasters
     when 'teachers'
       load_teachers
+    when 'students'
+      load_students
     when 'events'
       load_events
     else
@@ -118,6 +121,12 @@ class Admin::ResourcesController < Admin::BaseController
     # Don't load records server-side, let JavaScript load them via API
     @records = []
     render 'admin/resources/teachers'
+  end
+
+  def load_students
+    # Don't load records server-side, let JavaScript load them via API
+    @records = []
+    render 'admin/resources/students'
   end
 
   def load_events

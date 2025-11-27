@@ -1,0 +1,151 @@
+.students-panel {
+	background: transparent;
+	padding: 0;
+	overflow-x: auto;
+	width: 100%;
+	min-width: 0;
+	-webkit-overflow-scrolling: touch;
+}
+
+.students-table {
+	width: 100%;
+	min-width: 750px;
+	border-collapse: separate;
+	border-spacing: 0 16px;
+	font-size: 14px;
+	font-weight: 400;
+	color: var(--content-primary);
+
+	&__head {
+		text-transform: uppercase;
+	}
+
+	&__heading {
+		text-align: left;
+		padding: 0 16px 8px;
+		font-size: 13px;
+		font-weight: 600;
+		color: var(--content-secondary);
+
+		&--actions {
+			text-align: right;
+			padding-right: 24px;
+		}
+	}
+
+	&__row {
+		td:first-child {
+			border-radius: 4px 0 0 4px;
+		}
+
+		td:last-child {
+			border-radius: 0 4px 4px 0;
+		}
+	}
+
+	&__cell {
+		background: var(--surface-primary);
+		padding: 8px 20px;
+		font-weight: 500;
+		letter-spacing: 0.01em;
+		cursor: pointer;
+
+		&--actions {
+			text-align: right;
+		}
+	}
+}
+
+.students-actions {
+	display: inline-flex;
+	gap: 12px;
+	justify-content: flex-end;
+}
+
+.student-action {
+	width: 34px;
+	height: 34px;
+	border-radius: 4px;
+	border: none;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: box-shadow 0.2s ease, transform 0.2s ease;
+	background: transparent;
+	box-shadow: none;
+
+	img {
+		width: 18px;
+		height: 18px;
+	}
+
+	&--approve {
+		background: #E8F5E9;
+		color: var(--content-secondary);
+	}
+
+	&--reject {
+		background: #FBE9E7;
+		color: var(--content-error);
+	}
+
+	&--neutral {
+		background: transparent;
+		color: var(--content-secondary);
+		box-shadow: none;
+
+		&:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+		}
+
+		&:active {
+			transform: translateY(-1px);
+		}
+
+		&:focus-visible {
+			outline: 2px solid rgba(59,130,246,0.18);
+			outline-offset: 2px;
+		}
+	}
+}
+
+.students-table .schools-page__actions {
+	gap: 12px;
+
+	button {
+		width: 36px;
+		height: 36px;
+		border-radius: 10px;
+		box-shadow: 0 6px 16px var(--shadow-neutral);
+
+		&.student-action--approve {
+			background: var(--state-success);
+			color: var(--content-on-accent-primary);
+		}
+
+		&.student-action--reject {
+			background: var(--state-error);
+			color: var(--content-on-accent-primary);
+		}
+
+		img {
+			width: 16px;
+			height: 16px;
+		}
+	}
+}
+
+.students-table .headmasters-actions {
+	display: inline-flex;
+	gap: 12px;
+	justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+	.students-table {
+		min-width: 640px;
+	}
+}
+
