@@ -47,6 +47,6 @@ config/environments/*.local.yml
 
 uploads/
 .yarn/
-.yarnrc.yml
+node_modules/
 
 coverage
