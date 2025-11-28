@@ -62,6 +62,7 @@ Rails.application.routes.draw do
         end
       end
       resources :events, only: [:index]
+      resources :subjects
     end
   end
 

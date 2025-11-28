@@ -3,6 +3,9 @@ class School < ApplicationRecord
 
   before_validation :generate_slug, if: -> { slug.blank? && name.present? }
 
+  has_many :subjects, dependent: :destroy
+  has_many :school_classes, dependent: :destroy
+
   validates :name, presence: true
   validates :slug, presence: true, uniqueness: true
   validates :city, presence: true
