@@ -88,7 +88,7 @@ RSpec.describe Api::V1::Management::ListStudents do
         expect(student_ids).to include(student_current.id)
       end
 
-      it 'includes students without class assignment' do
+      it 'includes only students with class assignment for current academic year' do
         student_with_class = create(:user, school: school)
         UserRole.create!(user: student_with_class, role: student_role, school: school)
         StudentClassEnrollment.create!(student: student_with_class, school_class: school_class)
@@ -97,7 +97,10 @@ RSpec.describe Api::V1::Management::ListStudents do
         UserRole.create!(user: student_without_class, role: student_role, school: school)
 
         result = described_class.call(context)
-        expect(result.form.count).to eq(2)
+        # Only students enrolled in classes for current academic year should be included
+        expect(result.form.count).to eq(1)
+        expect(result.form.map(&:id)).to include(student_with_class.id)
+        expect(result.form.map(&:id)).not_to include(student_without_class.id)
       end
     end
 

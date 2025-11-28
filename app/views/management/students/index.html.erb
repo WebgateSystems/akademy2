@@ -399,22 +399,23 @@
         if (searchTerm && searchTerm.length >= SEARCH_MIN_LENGTH) {
           url += `&search=${encodeURIComponent(searchTerm)}`;
         }
-        console.log('Loading students from:', url);
         const result = await api.get(url);
-        console.log('API response:', result);
         
         if (result.success && result.data) {
           const responseData = result.data;
           let students = [];
           
-          if (responseData.data && Array.isArray(responseData.data)) {
+          // JSON:API format: result.data.data.data (nested structure)
+          // HandleStatusCode wraps: { success: true, data: { data: [...], pagination: {...} } }
+          if (responseData.data?.data && Array.isArray(responseData.data.data)) {
+            students = responseData.data.data;
+          } else if (responseData.data && Array.isArray(responseData.data)) {
             students = responseData.data;
           } else if (Array.isArray(responseData)) {
             students = responseData;
           }
           
-          console.log('Parsed students:', students.length);
-          const pagination = responseData.pagination || {};
+          const pagination = responseData.data?.pagination || responseData.pagination || {};
 
           if (page === 1) {
             allStudents = [];

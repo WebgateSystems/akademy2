@@ -58,3 +58,48 @@ pl:
         many: "prawie %{count} lat"
         other: "prawie %{count} lat"
 
+  common:
+    cancel: "Anuluj"
+
+  activerecord:
+    errors:
+      models:
+        academic_year:
+          attributes:
+            year:
+              taken: "jest już zajęty"
+              blank: "nie może być pusty"
+              invalid: "ma nieprawidłowy format (oczekiwany format: YYYY/YYYY)"
+            school_id:
+              blank: "nie może być pusty"
+      messages:
+        taken: "jest już zajęty"
+        blank: "nie może być pusty"
+        invalid: "ma nieprawidłowy format"
+        record_invalid: "jest nieprawidłowy"
+
+  management:
+    years:
+      processing: "Przetwarzanie..."
+      actions:
+        set_as_current: "Ustaw jako bieżący"
+        delete: "Usuń"
+      confirm:
+        delete: "Czy na pewno chcesz usunąć rok akademicki"
+        delete_warning: "Ta operacja jest nieodwracalna."
+        set_current: "Czy na pewno chcesz ustawić"
+        as_current: "jako bieżący rok akademicki?"
+        current_will_be_archived: "Bieżący rok zostanie zarchiwizowany."
+      success:
+        created: "Rok akademicki został utworzony"
+        updated: "Rok akademicki został zaktualizowany"
+        set_current: "Rok akademicki został ustawiony jako bieżący"
+        deleted: "Rok akademicki został usunięty"
+      errors:
+        create_failed: "Nie udało się utworzyć roku akademickiego"
+        update_failed: "Nie udało się zaktualizować roku akademickiego"
+        set_current_failed: "Nie udało się ustawić roku jako bieżącego"
+        delete_failed: "Nie udało się usunąć roku akademickiego"
+        unknown_error: "Wystąpił nieoczekiwany błąd"
+
+

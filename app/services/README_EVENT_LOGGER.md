@@ -128,3 +128,4 @@ end
 - Wrażliwe dane (hasła, tokeny) są automatycznie usuwane z parametrów przed logowaniem
 - Eventy są zapisywane asynchronicznie i nie powinny spowalniać głównego flow aplikacji
 
+

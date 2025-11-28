@@ -1,4 +1,5 @@
-require File.expand_path('../config/environment', __dir__)
+# NOTE: config/environment is loaded in rails_helper.rb AFTER SimpleCov is started
+# This ensures SimpleCov can track all application code coverage
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

@@ -1,0 +1,615 @@
+<% content_for :page_title, "Years" %>
+
+<section aria-label="Academic years management">
+  <header class="schools-page__header">
+    <div class="schools-page__title-group">
+      <h1>Years</h1>
+    </div>
+    <div class="schools-page__actions">
+      <span class="classes-count"><%= @academic_years.count %></span>
+    </div>
+  </header>
+
+  <div class="classes-panel">
+    <% if @academic_years.any? %>
+      <div class="classes-grid">
+        <% @academic_years.each do |academic_year| %>
+          <div class="class-card <%= 'class-card--current' if academic_year.is_current %>">
+            <div class="class-card__header">
+              <h3 class="class-card__name"><%= academic_year.year %></h3>
+              <div class="class-card__actions">
+                <button type="button" class="class-card__edit" data-action="edit-year" 
+                        data-year-id="<%= academic_year.id %>" 
+                        data-year-value="<%= academic_year.year %>">
+                  <i class="bi bi-pencil" aria-hidden="true"></i>
+                  <span class="visually-hidden">Edit year</span>
+                </button>
+              </div>
+            </div>
+            <div class="class-card__content">
+              <div class="class-card__teacher">
+                <span class="class-card__label">Status:</span>
+                <% if academic_year.is_current %>
+                  <span class="class-card__value" style="color: var(--state-success); font-weight: 600;">Current</span>
+                <% else %>
+                  <span class="class-card__value" style="color: var(--content-secondary);">Archived</span>
+                <% end %>
+              </div>
+              <% classes_count = SchoolClass.where(school: @school, year: academic_year.year).count %>
+              <div class="class-card__students">
+                <span class="class-card__label">Classes:</span>
+                <span class="class-card__value"><%= classes_count %></span>
+              </div>
+              <% if academic_year.started_at %>
+                <div class="class-card__teacher">
+                  <span class="class-card__label">Started:</span>
+                  <span class="class-card__value"><%= academic_year.started_at.strftime('%d.%m.%Y') %></span>
+                </div>
+              <% end %>
+              <% if academic_year.ended_at %>
+                <div class="class-card__teacher">
+                  <span class="class-card__label">Ended:</span>
+                  <span class="class-card__value"><%= academic_year.ended_at.strftime('%d.%m.%Y') %></span>
+                </div>
+              <% end %>
+            </div>
+            <div class="class-card__footer" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+              <% unless academic_year.is_current %>
+                <button type="button" class="btn btn--primary btn--small" data-action="set-current-year" data-year-id="<%= academic_year.id %>">
+                  <%= I18n.t("management.years.actions.set_as_current") %>
+                </button>
+              <% end %>
+              <% if classes_count == 0 %>
+                <button type="button" class="class-card__delete" data-action="delete-year" data-year-id="<%= academic_year.id %>" data-year-value="<%= academic_year.year %>" title="<%= I18n.t("management.years.actions.delete") %>">
+                  <i class="bi bi-trash" aria-hidden="true"></i>
+                  <span class="visually-hidden"><%= I18n.t("management.years.actions.delete") %></span>
+                </button>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        <div class="class-card class-card--add">
+          <button type="button" class="class-card__add-button" data-open-modal="add-year-modal">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
+            <span>Add year</span>
+          </button>
+        </div>
+      </div>
+    <% else %>
+      <div class="classes-empty">
+        <p>No academic years yet</p>
+        <button type="button" class="schools-page__add" data-open-modal="add-year-modal">Add first year</button>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<!-- Add Year Modal -->
+<div class="schools-modal" id="add-year-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="add-year-title">
+    <header class="schools-modal__header">
+      <h3 id="add-year-title">Add academic year</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="add-year-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <form class="schools-modal__form" id="add-year-form">
+      <input type="hidden" name="academic_year[school_id]" value="<%= @school&.id %>">
+      <label>
+        <span>Year<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="academic_year[year]" id="add-year-year" placeholder="2025/2026" required pattern="\d{4}/\d{4}">
+        <small style="color: var(--content-secondary); font-size: 12px;">Format: YYYY/YYYY (np. 2025/2026) - drugi rok musi być o 1 większy od pierwszego</small>
+      </label>
+      <label style="display: flex; flex-direction: row; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="checkbox" name="academic_year[is_current]" id="add-year-is-current" value="1" style="width: auto; height: auto; padding: 0; margin: 0; cursor: pointer;">
+        <span style="margin: 0; padding: 0;">Set as current year</span>
+      </label>
+      <div class="schools-modal__actions">
+        <button type="submit" class="schools-modal__primary">Add</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="add-year-modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Set Current Year Confirmation Modal -->
+<div class="schools-modal" id="set-current-year-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="set-current-year-title">
+    <header class="schools-modal__header">
+      <h3 id="set-current-year-title"><%= I18n.t("management.years.actions.set_as_current") %></h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="set-current-year-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <div class="schools-modal__body">
+      <p id="set-current-year-message"><%= I18n.t("management.years.confirm.set_current") %> <strong data-year-name></strong> <%= I18n.t("management.years.confirm.as_current") %> <%= I18n.t("management.years.confirm.current_will_be_archived") %></p>
+    </div>
+    <div class="schools-modal__actions">
+      <button type="button" id="set-current-year-confirm-btn" class="schools-modal__primary"><%= I18n.t("management.years.actions.set_as_current") %></button>
+      <button type="button" class="schools-modal__secondary" data-close-modal="set-current-year-modal"><%= I18n.t("common.cancel") %></button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Year Confirmation Modal -->
+<div class="schools-modal" id="delete-year-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="delete-year-title">
+    <header class="schools-modal__header">
+      <h3 id="delete-year-title"><%= I18n.t("management.years.actions.delete") %></h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="delete-year-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <div class="schools-modal__body">
+      <p id="delete-year-message"><%= I18n.t("management.years.confirm.delete") %> <strong data-year-name></strong>? <%= I18n.t("management.years.confirm.delete_warning") %></p>
+    </div>
+    <div class="schools-modal__actions">
+      <button type="button" id="delete-year-confirm-btn" class="schools-modal__primary schools-modal__primary--danger"><%= I18n.t("management.years.actions.delete") %></button>
+      <button type="button" class="schools-modal__secondary" data-close-modal="delete-year-modal"><%= I18n.t("common.cancel") %></button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Year Modal -->
+<div class="schools-modal" id="edit-year-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="edit-year-title">
+    <header class="schools-modal__header">
+      <h3 id="edit-year-title">Edit academic year</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="edit-year-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <form class="schools-modal__form" id="edit-year-form">
+      <input type="hidden" id="edit-year-id" value="">
+      <input type="hidden" name="academic_year[school_id]" value="<%= @school&.id %>">
+      <label>
+        <span>Year<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="academic_year[year]" id="edit-year-year" placeholder="2025/2026" required pattern="\d{4}/\d{4}">
+        <small style="color: var(--content-secondary); font-size: 12px;">Format: YYYY/YYYY (np. 2025/2026) - drugi rok musi być o 1 większy od pierwszego</small>
+      </label>
+      <label style="display: flex; flex-direction: row; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="checkbox" name="academic_year[is_current]" id="edit-year-is-current" value="1" style="width: auto; height: auto; padding: 0; margin: 0; cursor: pointer;">
+        <span style="margin: 0; padding: 0;">Set as current year</span>
+      </label>
+      <div class="schools-modal__actions">
+        <button type="submit" class="schools-modal__primary">Save</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="edit-year-modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const API_BASE = '/management/academic_years';
+    const api = typeof window.ApiClient !== 'undefined' ? new window.ApiClient() : null;
+
+    if (!api) {
+      console.error('ApiClient not available');
+      return;
+    }
+
+    // Function to show error messages
+    function showErrorMessage(message) {
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger';
+      alertDiv.textContent = message;
+      alertDiv.style.position = 'fixed';
+      alertDiv.style.top = '80px';
+      alertDiv.style.right = '20px';
+      alertDiv.style.zIndex = '10000';
+      alertDiv.style.padding = '16px 24px';
+      alertDiv.style.borderRadius = '8px';
+      alertDiv.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      alertDiv.style.maxWidth = '400px';
+      
+      document.body.appendChild(alertDiv);
+      
+      setTimeout(() => {
+        alertDiv.style.opacity = '0';
+        alertDiv.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => {
+          alertDiv.remove();
+        }, 300);
+      }, 5000);
+    }
+
+    // Function to show success messages
+    function showSuccessMessage(message) {
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-success';
+      alertDiv.textContent = message;
+      alertDiv.style.position = 'fixed';
+      alertDiv.style.top = '80px';
+      alertDiv.style.right = '20px';
+      alertDiv.style.zIndex = '10000';
+      alertDiv.style.padding = '16px 24px';
+      alertDiv.style.borderRadius = '8px';
+      alertDiv.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      alertDiv.style.maxWidth = '400px';
+      
+      document.body.appendChild(alertDiv);
+      
+      setTimeout(() => {
+        alertDiv.style.opacity = '0';
+        alertDiv.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => {
+          alertDiv.remove();
+        }, 300);
+      }, 3000);
+    }
+
+    // Modal handlers
+    document.querySelectorAll('[data-open-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-open-modal');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('is-open');
+        }
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const modalId = this.getAttribute('data-close-modal');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          if (document.activeElement === this) {
+            this.blur();
+          }
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+      overlay.addEventListener('click', function() {
+        const modal = this.closest('.schools-modal');
+        if (modal) {
+          const focusedElement = modal.querySelector(':focus');
+          if (focusedElement) {
+            focusedElement.blur();
+          }
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    // Edit year handler
+    document.querySelectorAll('[data-action="edit-year"]').forEach(btn => {
+      btn.addEventListener('click', async function(e) {
+        e.stopPropagation();
+        const yearId = this.getAttribute('data-year-id');
+        const yearValue = this.getAttribute('data-year-value');
+        
+        document.getElementById('edit-year-id').value = yearId;
+        document.getElementById('edit-year-year').value = yearValue;
+        
+        const editModal = document.getElementById('edit-year-modal');
+        if (editModal) {
+          editModal.setAttribute('aria-hidden', 'false');
+          editModal.classList.add('is-open');
+        }
+        
+        try {
+          const result = await api.get(`${API_BASE}/${yearId}`);
+          if (result.success && result.data) {
+            let attributes = result.data.data?.data?.attributes;
+            if (!attributes && result.data.data?.data) {
+              attributes = result.data.data.data;
+            }
+            if (!attributes) {
+              return;
+            }
+            
+            document.getElementById('edit-year-year').value = attributes.year || yearValue;
+            document.getElementById('edit-year-is-current').checked = attributes.is_current || false;
+          }
+        } catch (error) {
+          console.error('Error loading year data:', error);
+        }
+      });
+    });
+
+    // Set current year handler
+    let setCurrentYearId = null;
+    document.querySelectorAll('[data-action="set-current-year"]').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        setCurrentYearId = this.getAttribute('data-year-id');
+        const yearValue = this.closest('.class-card').querySelector('.class-card__name').textContent;
+        
+        const yearNameEl = document.querySelector('[data-year-name]');
+        if (yearNameEl) {
+          yearNameEl.textContent = yearValue;
+        }
+        
+        const modal = document.getElementById('set-current-year-modal');
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('is-open');
+        }
+      });
+    });
+
+    // Confirm set current year
+    const setCurrentYearConfirmBtn = document.getElementById('set-current-year-confirm-btn');
+    if (setCurrentYearConfirmBtn) {
+      setCurrentYearConfirmBtn.addEventListener('click', async function() {
+        if (!setCurrentYearId) return;
+        
+        this.disabled = true;
+        const originalText = this.textContent;
+        this.textContent = '<%= I18n.t("management.years.processing") %>';
+        
+        try {
+          const result = await api.patch(`${API_BASE}/${setCurrentYearId}`, {
+            academic_year: {
+              is_current: true
+            }
+          });
+          if (result.success) {
+            const modal = document.getElementById('set-current-year-modal');
+            if (modal) {
+              const focusedElement = modal.querySelector(':focus');
+              if (focusedElement) focusedElement.blur();
+              modal.setAttribute('aria-hidden', 'true');
+              modal.classList.remove('is-open');
+            }
+            showSuccessMessage('<%= I18n.t("management.years.success.set_current") %>');
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            let errorMsg = result.error || result.errors || '<%= I18n.t("management.years.errors.set_current_failed") %>';
+            if (Array.isArray(errorMsg)) {
+              errorMsg = errorMsg.map(msg => {
+                // Clean up ActiveRecord error messages
+                return msg.replace(/Year\s+/, 'Rok ').replace(/School\s+/, 'Szkoła ');
+              }).join(', ');
+            } else if (typeof errorMsg === 'string') {
+              errorMsg = errorMsg.replace(/Year\s+/, 'Rok ').replace(/School\s+/, 'Szkoła ');
+            }
+            showErrorMessage(errorMsg);
+            this.disabled = false;
+            this.textContent = originalText;
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          let errorMsg = error.message || '<%= I18n.t("management.years.errors.unknown_error") %>';
+          errorMsg = errorMsg.replace(/Year\s+/, 'Rok ').replace(/School\s+/, 'Szkoła ');
+          showErrorMessage(errorMsg);
+          this.disabled = false;
+          this.textContent = originalText;
+        }
+      });
+    }
+
+    // Delete year handler
+    let deleteYearId = null;
+    document.querySelectorAll('[data-action="delete-year"]').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        deleteYearId = this.getAttribute('data-year-id');
+        const yearValue = this.getAttribute('data-year-value');
+        
+        const yearNameEl = document.querySelector('#delete-year-modal [data-year-name]');
+        if (yearNameEl) {
+          yearNameEl.textContent = yearValue;
+        }
+        
+        const modal = document.getElementById('delete-year-modal');
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('is-open');
+        }
+      });
+    });
+
+    // Confirm delete year
+    const deleteYearConfirmBtn = document.getElementById('delete-year-confirm-btn');
+    if (deleteYearConfirmBtn) {
+      deleteYearConfirmBtn.addEventListener('click', async function() {
+        if (!deleteYearId) return;
+        
+        this.disabled = true;
+        const originalText = this.textContent;
+        this.textContent = '<%= I18n.t("management.years.processing") %>';
+        
+        try {
+          const result = await api.delete(`${API_BASE}/${deleteYearId}`);
+          if (result.success) {
+            const modal = document.getElementById('delete-year-modal');
+            if (modal) {
+              const focusedElement = modal.querySelector(':focus');
+              if (focusedElement) focusedElement.blur();
+              modal.setAttribute('aria-hidden', 'true');
+              modal.classList.remove('is-open');
+            }
+            showSuccessMessage('<%= I18n.t("management.years.success.deleted") %>');
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            let errorMsg = result.error || result.errors || '<%= I18n.t("management.years.errors.delete_failed") %>';
+            if (Array.isArray(errorMsg)) {
+              errorMsg = errorMsg.map(msg => {
+                return msg.replace(/Year\s+/, 'Rok ').replace(/School\s+/, 'Szkoła ');
+              }).join(', ');
+            } else if (typeof errorMsg === 'string') {
+              errorMsg = errorMsg.replace(/Year\s+/, 'Rok ').replace(/School\s+/, 'Szkoła ');
+            }
+            showErrorMessage(errorMsg);
+            this.disabled = false;
+            this.textContent = originalText;
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          let errorMsg = error.message || '<%= I18n.t("management.years.errors.unknown_error") %>';
+          errorMsg = errorMsg.replace(/Year\s+/, 'Rok ').replace(/School\s+/, 'Szkoła ');
+          showErrorMessage(errorMsg);
+          this.disabled = false;
+          this.textContent = originalText;
+        }
+      });
+    }
+
+    // Validate year format
+    function validateYearFormat(yearValue) {
+      if (!yearValue) return { valid: false, message: 'Rok nie może być pusty' };
+      
+      const parts = yearValue.split('/');
+      if (parts.length !== 2) {
+        return { valid: false, message: 'Rok musi mieć format YYYY/YYYY (np. 2025/2026)' };
+      }
+      
+      const startYear = parseInt(parts[0], 10);
+      const endYear = parseInt(parts[1], 10);
+      
+      if (isNaN(startYear) || isNaN(endYear) || startYear === 0 || endYear === 0) {
+        return { valid: false, message: 'Rok musi składać się z liczb (np. 2025/2026)' };
+      }
+      
+      if (endYear !== startYear + 1) {
+        return { valid: false, message: 'Rok musi składać się z dwóch kolejnych lat (np. 2025/2026)' };
+      }
+      
+      return { valid: true };
+    }
+
+    // Add year form
+    const addForm = document.getElementById('add-year-form');
+    if (addForm) {
+      addForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(addForm);
+        const yearValue = formData.get('academic_year[year]');
+        
+        // Validate year format
+        const validation = validateYearFormat(yearValue);
+        if (!validation.valid) {
+          showErrorMessage(validation.message);
+          return;
+        }
+        
+        const yearParts = yearValue.split('/');
+        const startYear = yearParts[0];
+        const startedAt = `${startYear}-09-01`;
+        
+        const data = {
+          academic_year: {
+            school_id: formData.get('academic_year[school_id]'),
+            year: yearValue,
+            started_at: startedAt,
+            is_current: formData.get('academic_year[is_current]') === '1'
+          }
+        };
+
+        try {
+          const result = await api.post(API_BASE, data);
+          if (result.success) {
+            const modal = document.getElementById('add-year-modal');
+            if (modal) {
+              const focusedElement = modal.querySelector(':focus');
+              if (focusedElement) focusedElement.blur();
+              modal.setAttribute('aria-hidden', 'true');
+              modal.classList.remove('is-open');
+              addForm.reset();
+            }
+            showSuccessMessage('<%= I18n.t("management.years.success.created") %>');
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            let errorMsg = result.error || result.errors || '<%= I18n.t("management.years.errors.create_failed") %>';
+            if (Array.isArray(errorMsg)) {
+              errorMsg = errorMsg.map(msg => {
+                // Clean up ActiveRecord error messages
+                return msg.replace(/Year\s+/, 'Rok ').replace(/School\s+/, 'Szkoła ');
+              }).join(', ');
+            } else if (typeof errorMsg === 'string') {
+              errorMsg = errorMsg.replace(/Year\s+/, 'Rok ').replace(/School\s+/, 'Szkoła ');
+            }
+            showErrorMessage(errorMsg);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          showErrorMessage(error.message || '<%= I18n.t("management.years.errors.unknown_error") %>');
+        }
+      });
+    }
+
+    // Edit year form
+    const editForm = document.getElementById('edit-year-form');
+    if (editForm) {
+      editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const yearId = document.getElementById('edit-year-id').value;
+        const formData = new FormData(editForm);
+        const yearValue = formData.get('academic_year[year]');
+        
+        // Validate year format
+        const validation = validateYearFormat(yearValue);
+        if (!validation.valid) {
+          showErrorMessage(validation.message);
+          return;
+        }
+        
+        const yearParts = yearValue.split('/');
+        const startYear = yearParts[0];
+        const startedAt = `${startYear}-09-01`;
+        
+        const data = {
+          academic_year: {
+            school_id: formData.get('academic_year[school_id]'),
+            year: yearValue,
+            started_at: startedAt,
+            is_current: formData.get('academic_year[is_current]') === '1'
+          }
+        };
+
+        try {
+          const result = await api.patch(`${API_BASE}/${yearId}`, data);
+          if (result.success) {
+            const modal = document.getElementById('edit-year-modal');
+            if (modal) {
+              const focusedElement = modal.querySelector(':focus');
+              if (focusedElement) focusedElement.blur();
+              modal.setAttribute('aria-hidden', 'true');
+              modal.classList.remove('is-open');
+            }
+            showSuccessMessage('<%= I18n.t("management.years.success.updated") %>');
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            let errorMsg = result.error || result.errors || '<%= I18n.t("management.years.errors.update_failed") %>';
+            if (Array.isArray(errorMsg)) {
+              errorMsg = errorMsg.map(msg => {
+                // Clean up ActiveRecord error messages
+                return msg.replace(/Year\s+/, 'Rok ').replace(/School\s+/, 'Szkoła ');
+              }).join(', ');
+            } else if (typeof errorMsg === 'string') {
+              errorMsg = errorMsg.replace(/Year\s+/, 'Rok ').replace(/School\s+/, 'Szkoła ');
+            }
+            showErrorMessage(errorMsg);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          let errorMsg = error.message || '<%= I18n.t("management.years.errors.unknown_error") %>';
+          errorMsg = errorMsg.replace(/Year\s+/, 'Rok ').replace(/School\s+/, 'Szkoła ');
+          showErrorMessage(errorMsg);
+        }
+      });
+    }
+  });
+</script>

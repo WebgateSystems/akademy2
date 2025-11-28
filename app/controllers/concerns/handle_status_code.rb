@@ -37,7 +37,8 @@ module HandleStatusCode
   end
 
   def invalid_response(result)
-    render json: { errors: result.message }, status: :unprocessable_entity
+    status = result.status || :unprocessable_entity
+    render json: { success: false, errors: result.message }, status: status
   end
 
   def no_content_response
@@ -49,6 +50,6 @@ module HandleStatusCode
   end
 
   def not_found_response(result)
-    render json: { errors: result.message }, status: :not_found
+    render json: { success: false, errors: result.message }, status: :not_found
   end
 end

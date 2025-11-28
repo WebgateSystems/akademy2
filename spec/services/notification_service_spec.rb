@@ -184,7 +184,6 @@ RSpec.describe NotificationService, type: :service do
   describe '.create_notification' do
     let(:user) { create(:user, school: school) }
 
-    # rubocop:disable RSpec/MultipleExpectations
     it 'creates a generic notification' do
       expect do
         described_class.create_notification(
@@ -205,6 +204,5 @@ RSpec.describe NotificationService, type: :service do
       expect(notification.target_role).to eq('admin')
       expect(notification.metadata['custom_field']).to eq('value')
     end
-    # rubocop:enable RSpec/MultipleExpectations
   end
 end
