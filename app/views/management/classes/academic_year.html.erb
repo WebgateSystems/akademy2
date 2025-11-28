@@ -1,0 +1,561 @@
+<% content_for :page_title, "Academic year #{@academic_year}" %>
+
+<section aria-label="Academic year management">
+  <header class="schools-page__header">
+    <div class="schools-page__title-group">
+      <h1>Academic year <%= @academic_year %></h1>
+      <div class="academic-year-selector">
+        <select id="academic-year-selector" class="academic-year-select">
+          <% @academic_years.each do |year| %>
+            <option value="<%= year %>" <%= 'selected' if year == @academic_year %>><%= year %></option>
+          <% end %>
+        </select>
+      </div>
+    </div>
+    <div class="schools-page__actions">
+      <span class="classes-count"><%= @classes.count %></span>
+      <% if @academic_year == @current_academic_year %>
+        <button type="button" class="schools-page__add" data-open-modal="add-class-modal">
+          <i class="bi bi-plus-lg" aria-hidden="true"></i>
+          <span>Add class</span>
+        </button>
+      <% end %>
+    </div>
+  </header>
+
+  <div class="classes-panel">
+    <% if @classes.any? %>
+      <div class="classes-grid">
+        <% @classes.each do |school_class| %>
+          <div class="class-card">
+            <div class="class-card__header">
+              <h3 class="class-card__name"><%= school_class.name %></h3>
+              <% if @academic_year == @current_academic_year %>
+                <div class="class-card__actions">
+                  <button type="button" class="class-card__edit" data-action="edit-class" 
+                          data-class-id="<%= school_class.id %>" 
+                          data-class-name="<%= school_class.name %>">
+                    <i class="bi bi-pencil" aria-hidden="true"></i>
+                    <span class="visually-hidden">Edit class</span>
+                  </button>
+                </div>
+              <% end %>
+            </div>
+            <div class="class-card__content">
+              <% main_teacher = TeacherClassAssignment.joins(:teacher).where(school_class: school_class, role: 'main').first&.teacher %>
+              <% if main_teacher %>
+                <div class="class-card__teacher">
+                  <span class="class-card__label">Class teacher:</span>
+                  <span class="class-card__value"><%= [main_teacher.first_name, main_teacher.last_name].compact.join(' ') %></span>
+                </div>
+              <% else %>
+                <div class="class-card__teacher">
+                  <span class="class-card__label">Class teacher:</span>
+                  <span class="class-card__value class-card__value--empty">Not assigned</span>
+                </div>
+              <% end %>
+              <% students_count = StudentClassEnrollment.joins(:school_class).where(school_classes: { id: school_class.id, year: @academic_year }).count %>
+              <div class="class-card__students">
+                <span class="class-card__label">Students:</span>
+                <span class="class-card__value"><%= students_count %></span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        <% if @academic_year == @current_academic_year %>
+          <div class="class-card class-card--add">
+            <button type="button" class="class-card__add-button" data-open-modal="add-class-modal">
+              <i class="bi bi-plus-lg" aria-hidden="true"></i>
+              <span>Add class</span>
+            </button>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="classes-empty">
+        <p>No classes yet for <%= @academic_year %></p>
+        <% if @academic_year == @current_academic_year %>
+          <button type="button" class="schools-page__add" data-open-modal="add-class-modal">Add first class</button>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @academic_year == @current_academic_year %>
+    <div class="academic-year-actions">
+      <button type="button" class="btn btn--danger" data-open-modal="archive-year-modal">
+        Archive year
+      </button>
+    </div>
+  <% end %>
+</section>
+
+<!-- Add Class Modal -->
+<div class="schools-modal" id="add-class-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="add-class-title">
+    <header class="schools-modal__header">
+      <h3 id="add-class-title">Add class</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="add-class-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <form class="schools-modal__form" id="add-class-form">
+      <input type="hidden" name="school_class[school_id]" value="<%= @school&.id %>">
+      <input type="hidden" name="school_class[year]" value="<%= @academic_year %>">
+      <label>
+        <span>Class number<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="school_class[name]" id="add-class-name" placeholder="4A" required>
+      </label>
+      <label>
+        <span>Class teacher (optional)</span>
+        <div class="teacher-select-wrapper">
+          <input type="text" id="add-class-teacher-search" placeholder="Search the class teacher" autocomplete="off">
+          <div class="teacher-select-dropdown" id="add-class-teacher-dropdown" style="display: none;"></div>
+        </div>
+        <div class="selected-teachers" id="add-class-selected-teachers"></div>
+        <input type="hidden" name="school_class[teacher_id]" id="add-class-teacher-id">
+      </label>
+      <label>
+        <span>Teaching staff</span>
+        <div class="teacher-select-wrapper">
+          <input type="text" id="add-class-staff-search" placeholder="Search the teacher" autocomplete="off">
+          <div class="teacher-select-dropdown" id="add-class-staff-dropdown" style="display: none;"></div>
+        </div>
+        <div class="selected-teachers" id="add-class-selected-staff"></div>
+      </label>
+      <div class="schools-modal__actions">
+        <button type="submit" class="schools-modal__primary">Add</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="add-class-modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Class Modal -->
+<div class="schools-modal" id="edit-class-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="edit-class-title">
+    <header class="schools-modal__header">
+      <h3 id="edit-class-title">Edit class</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="edit-class-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <form class="schools-modal__form" id="edit-class-form">
+      <input type="hidden" id="edit-class-id" value="">
+      <input type="hidden" name="school_class[school_id]" value="<%= @school&.id %>">
+      <input type="hidden" name="school_class[year]" value="<%= @academic_year %>">
+      <label>
+        <span>Class number<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="school_class[name]" id="edit-class-name" placeholder="4A" required>
+      </label>
+      <label>
+        <span>Class teacher (optional)</span>
+        <div class="teacher-select-wrapper">
+          <input type="text" id="edit-class-teacher-search" placeholder="Search the class teacher" autocomplete="off">
+          <div class="teacher-select-dropdown" id="edit-class-teacher-dropdown" style="display: none;"></div>
+        </div>
+        <div class="selected-teachers" id="edit-class-selected-teachers"></div>
+        <input type="hidden" name="school_class[teacher_id]" id="edit-class-teacher-id">
+      </label>
+      <label>
+        <span>Teaching staff</span>
+        <div class="teacher-select-wrapper">
+          <input type="text" id="edit-class-staff-search" placeholder="Search the teacher" autocomplete="off">
+          <div class="teacher-select-dropdown" id="edit-class-staff-dropdown" style="display: none;"></div>
+        </div>
+        <div class="selected-teachers" id="edit-class-selected-staff"></div>
+      </label>
+      <div class="schools-modal__actions">
+        <button type="submit" class="schools-modal__primary">Save</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="edit-class-modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Archive Year Modal -->
+<div class="schools-modal" id="archive-year-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="archive-year-title">
+    <header class="schools-modal__header">
+      <h3 id="archive-year-title">Archive academic year</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="archive-year-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <div class="schools-modal__body">
+      <p>Are you sure you want to archive the <%= @academic_year %> academic year? This action cannot be undone.</p>
+    </div>
+    <div class="schools-modal__actions">
+      <button type="button" id="archive-year-confirm-btn" class="schools-modal__primary schools-modal__primary--danger">Archive</button>
+      <button type="button" class="schools-modal__secondary" data-close-modal="archive-year-modal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const CURRENT_YEAR = '<%= @current_academic_year %>';
+    const API_BASE = '/management/classes'; // ApiClient already adds /api/v1 prefix
+    const api = typeof window.ApiClient !== 'undefined' ? new window.ApiClient() : null;
+    const teachers = <%= @teachers.map { |t| { id: t.id.to_s, name: [t.first_name, t.last_name].compact.join(' ') } }.to_json.html_safe %>;
+
+    if (!api) {
+      console.error('ApiClient not available');
+      return;
+    }
+
+    // Academic year selector
+    const yearSelector = document.getElementById('academic-year-selector');
+    if (yearSelector) {
+      yearSelector.addEventListener('change', function() {
+        const selectedYear = this.value;
+        window.location.href = '<%= management_classes_academic_year_path %>?year=' + encodeURIComponent(selectedYear);
+      });
+    }
+
+    // Teacher search functionality
+    function setupTeacherSearch(searchInputId, dropdownId, selectedContainerId, hiddenInputId, isMultiSelect = false) {
+      const searchInput = document.getElementById(searchInputId);
+      const dropdown = document.getElementById(dropdownId);
+      const selectedContainer = document.getElementById(selectedContainerId);
+      const hiddenInput = hiddenInputId ? document.getElementById(hiddenInputId) : null;
+      let selectedTeachers = [];
+
+      if (!searchInput || !dropdown) {
+        return null;
+      }
+
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        if (searchTerm.length < 1) {
+          dropdown.style.display = 'none';
+          return;
+        }
+
+        const filtered = teachers.filter(t => 
+          t.name.toLowerCase().includes(searchTerm) &&
+          !selectedTeachers.some(st => String(st.id) === String(t.id))
+        );
+
+        if (filtered.length > 0) {
+          dropdown.innerHTML = filtered.map(t => `
+            <div class="teacher-option" data-teacher-id="${t.id}" data-teacher-name="${t.name}">
+              ${t.name}
+            </div>
+          `).join('');
+          dropdown.style.display = 'block';
+        } else {
+          dropdown.style.display = 'none';
+        }
+      });
+
+      dropdown.addEventListener('click', function(e) {
+        const option = e.target.closest('.teacher-option');
+        if (!option) return;
+
+        const teacherId = option.getAttribute('data-teacher-id');
+        const teacherName = option.getAttribute('data-teacher-name');
+        const teacher = { id: String(teacherId), name: teacherName };
+
+        if (isMultiSelect) {
+          // Check if teacher is already selected (compare as strings)
+          const alreadySelected = selectedTeachers.some(st => String(st.id) === String(teacherId));
+          if (!alreadySelected) {
+            selectedTeachers.push(teacher);
+            renderSelectedTeachers();
+            dropdown.style.display = 'none';
+            searchInput.value = '';
+          }
+        } else {
+          // Single select mode (main teacher)
+          selectedTeachers = [teacher];
+          if (hiddenInput) {
+            hiddenInput.value = teacherId;
+          }
+          renderSelectedTeachers();
+          dropdown.style.display = 'none';
+          searchInput.value = '';
+        }
+      });
+
+      function renderSelectedTeachers() {
+        // Re-fetch container in case modal was just opened
+        let container = selectedContainer;
+        if (!container) {
+          container = document.getElementById(selectedContainerId);
+        }
+        if (!container) {
+          // Try one more time after a short delay
+          setTimeout(() => {
+            container = document.getElementById(selectedContainerId);
+            if (container && selectedTeachers.length > 0) {
+              renderSelectedTeachers();
+            }
+          }, 50);
+          return;
+        }
+
+        if (isMultiSelect) {
+          container.innerHTML = selectedTeachers.map(t => `
+            <span class="selected-teacher" style="white-space: nowrap;">
+              ${t.name}<button type="button" class="remove-teacher" data-teacher-id="${t.id}" aria-label="Remove ${t.name}">×</button>
+            </span>
+          `).join('');
+        } else {
+          container.innerHTML = selectedTeachers.length > 0 ? `
+            <span class="selected-teacher" style="white-space: nowrap;">
+              ${selectedTeachers[0].name}<button type="button" class="remove-teacher" data-teacher-id="${selectedTeachers[0].id}" aria-label="Remove ${selectedTeachers[0].name}">×</button>
+            </span>
+          ` : '';
+          if (hiddenInput && selectedTeachers.length === 0) {
+            hiddenInput.value = '';
+          } else if (hiddenInput && selectedTeachers.length > 0) {
+            hiddenInput.value = selectedTeachers[0].id;
+          }
+        }
+      }
+
+      selectedContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-teacher')) {
+          const teacherId = e.target.getAttribute('data-teacher-id');
+          selectedTeachers = selectedTeachers.filter(t => String(t.id) !== String(teacherId));
+          if (hiddenInput && !isMultiSelect) {
+            hiddenInput.value = '';
+          }
+          renderSelectedTeachers();
+        }
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.style.display = 'none';
+        }
+      });
+
+      // Return function to get selected teachers
+      return {
+        getSelected: () => {
+          return [...selectedTeachers]; // Return a copy to prevent external mutation
+        },
+        setSelected: (teachers) => {
+          selectedTeachers = teachers ? [...teachers] : []; // Create a copy
+          // Use setTimeout to ensure modal is open and container exists
+          setTimeout(() => {
+            renderSelectedTeachers();
+          }, 0);
+        }
+      };
+    }
+
+    // Setup teacher search for add and edit modals
+    const addTeacherSearch = setupTeacherSearch('add-class-teacher-search', 'add-class-teacher-dropdown', 'add-class-selected-teachers', 'add-class-teacher-id', false);
+    const addStaffSearch = setupTeacherSearch('add-class-staff-search', 'add-class-staff-dropdown', 'add-class-selected-staff', null, true);
+    const editTeacherSearch = setupTeacherSearch('edit-class-teacher-search', 'edit-class-teacher-dropdown', 'edit-class-selected-teachers', 'edit-class-teacher-id', false);
+    const editStaffSearch = setupTeacherSearch('edit-class-staff-search', 'edit-class-staff-dropdown', 'edit-class-selected-staff', null, true);
+
+    // Modal handlers
+    document.querySelectorAll('[data-open-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-open-modal');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('is-open');
+        }
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent event bubbling
+        const modalId = this.getAttribute('data-close-modal');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          // Remove focus from button before hiding modal
+          if (document.activeElement === this) {
+            this.blur();
+          }
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+      overlay.addEventListener('click', function() {
+        const modal = this.closest('.schools-modal');
+        if (modal) {
+          // Remove focus from any focused element inside modal before hiding
+          const focusedElement = modal.querySelector(':focus');
+          if (focusedElement) {
+            focusedElement.blur();
+          }
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    // Edit class handler
+    document.querySelectorAll('[data-action="edit-class"]').forEach(btn => {
+      btn.addEventListener('click', async function(e) {
+        e.stopPropagation(); // Prevent event bubbling
+        const classId = this.getAttribute('data-class-id');
+        const className = this.getAttribute('data-class-name');
+        
+        document.getElementById('edit-class-id').value = classId;
+        document.getElementById('edit-class-name').value = className;
+        
+        // Open modal FIRST so containers exist in DOM
+        const editModal = document.getElementById('edit-class-modal');
+        if (editModal) {
+          editModal.setAttribute('aria-hidden', 'false');
+          editModal.classList.add('is-open');
+        }
+        
+        // Load class data AFTER modal is open
+        try {
+          const result = await api.get(`${API_BASE}/${classId}`);
+          if (result.success && result.data) {
+            // JSON:API format: result.data.data.data.attributes
+            let attributes = result.data.data?.data?.attributes;
+            if (!attributes && result.data.data?.data) {
+              attributes = result.data.data.data;
+            }
+            if (!attributes) {
+              return;
+            }
+            
+            // Wait a bit for modal to render
+            setTimeout(() => {
+              // Set main teacher
+              if (attributes.main_teacher) {
+                const mainTeacher = {
+                  id: attributes.main_teacher.id.toString(),
+                  name: attributes.main_teacher.name
+                };
+                if (editTeacherSearch) {
+                  editTeacherSearch.setSelected([mainTeacher]);
+                  const hiddenInput = document.getElementById('edit-class-teacher-id');
+                  if (hiddenInput) {
+                    hiddenInput.value = mainTeacher.id;
+                  }
+                }
+              } else {
+                if (editTeacherSearch) {
+                  editTeacherSearch.setSelected([]);
+                }
+              }
+              
+              // Set teaching staff
+              if (attributes.teaching_staff && attributes.teaching_staff.length > 0) {
+                const teachingStaff = attributes.teaching_staff.map(t => ({
+                  id: t.id.toString(),
+                  name: t.name
+                }));
+                if (editStaffSearch) {
+                  editStaffSearch.setSelected(teachingStaff);
+                }
+              } else {
+                if (editStaffSearch) {
+                  editStaffSearch.setSelected([]);
+                }
+              }
+            }, 200);
+          }
+        } catch (error) {
+          // Silently handle errors
+        }
+      });
+    });
+
+    // Form submissions
+    const addForm = document.getElementById('add-class-form');
+    if (addForm) {
+      addForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(addForm);
+        const selectedMainTeacher = addTeacherSearch ? addTeacherSearch.getSelected() : [];
+        const selectedStaff = addStaffSearch ? addStaffSearch.getSelected() : [];
+        
+        const data = {
+          school_class: {
+            school_id: formData.get('school_class[school_id]'),
+            name: formData.get('school_class[name]'),
+            year: formData.get('school_class[year]'),
+            teacher_id: selectedMainTeacher.length > 0 ? selectedMainTeacher[0].id : null,
+            teaching_staff_ids: selectedStaff.map(t => t.id)
+          }
+        };
+
+        try {
+          const result = await api.post(API_BASE, data);
+          if (result.success) {
+            window.location.reload();
+          } else {
+            alert('Error: ' + (result.error || 'Failed to create class'));
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error: ' + error.message);
+        }
+      });
+    }
+
+    const editForm = document.getElementById('edit-class-form');
+    if (editForm) {
+      editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const classId = document.getElementById('edit-class-id').value;
+        const formData = new FormData(editForm);
+        const selectedMainTeacher = editTeacherSearch ? editTeacherSearch.getSelected() : [];
+        const selectedStaff = editStaffSearch ? editStaffSearch.getSelected() : [];
+        
+        const data = {
+          school_class: {
+            school_id: formData.get('school_class[school_id]'),
+            name: formData.get('school_class[name]'),
+            year: formData.get('school_class[year]'),
+            teacher_id: selectedMainTeacher.length > 0 ? selectedMainTeacher[0].id : null,
+            teaching_staff_ids: selectedStaff.map(t => t.id)
+          }
+        };
+
+        try {
+          const result = await api.patch(`${API_BASE}/${classId}`, data);
+          if (result.success) {
+            window.location.reload();
+          } else {
+            alert('Error: ' + (result.error || 'Failed to update class'));
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error: ' + error.message);
+        }
+      });
+    }
+
+    // Archive year handler
+    const archiveBtn = document.getElementById('archive-year-confirm-btn');
+    if (archiveBtn) {
+      archiveBtn.addEventListener('click', async () => {
+        try {
+          const result = await api.post(`${API_BASE}/archive_year`, { year: '<%= @academic_year %>' });
+          if (result.success) {
+            window.location.href = '<%= management_classes_path %>';
+          } else {
+            alert('Error: ' + (result.error || 'Failed to archive year'));
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error: ' + error.message);
+        }
+      });
+    }
+  });
+</script>
+

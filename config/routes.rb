@@ -45,6 +45,8 @@ Rails.application.routes.draw do
     get 'teachers', to: 'teachers#index', as: :teachers
     get 'students', to: 'students#index', as: :students
     get 'notifications', to: 'notifications#index', as: :notifications
+    get 'classes', to: 'classes#index', as: :classes
+    get 'years', to: 'years#index', as: :years
   end
 
   namespace :api do
@@ -71,6 +73,12 @@ Rails.application.routes.draw do
             post :mark_as_read
           end
         end
+        resources :classes, only: %i[index show create update destroy] do
+          collection do
+            post :archive_year
+          end
+        end
+        resources :academic_years, only: %i[index show create update destroy]
       end
     end
   end

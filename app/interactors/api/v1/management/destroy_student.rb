@@ -4,8 +4,6 @@ module Api
   module V1
     module Management
       class DestroyStudent < BaseInteractor
-        CURRENT_ACADEMIC_YEAR = '2025/2026'
-
         def call
           authorize!
           find_student
@@ -54,11 +52,11 @@ module Api
         def build_student_query
           User.joins(:user_roles)
               .joins('INNER JOIN roles ON user_roles.role_id = roles.id')
-              .joins('LEFT JOIN student_class_enrollments ' \
+              .joins('INNER JOIN student_class_enrollments ' \
                      'ON student_class_enrollments.student_id = users.id')
-              .joins('LEFT JOIN school_classes ' \
-                     'ON school_classes.id = student_class_enrollments.school_class_id ' \
-                     "AND school_classes.year = '#{CURRENT_ACADEMIC_YEAR}'")
+              .joins('INNER JOIN school_classes ' \
+                     'ON school_classes.id = student_class_enrollments.school_class_id')
+              .where(school_classes: { year: school.current_academic_year_value, school_id: school.id })
               .where(id: context.params[:id],
                      user_roles: { school_id: school.id },
                      roles: { key: 'student' })

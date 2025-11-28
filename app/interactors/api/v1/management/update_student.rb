@@ -5,8 +5,6 @@ module Api
     module Management
       # rubocop:disable Metrics/ClassLength
       class UpdateStudent < BaseInteractor
-        CURRENT_ACADEMIC_YEAR = '2025/2026'
-
         def call
           authorize!
           find_student
@@ -57,11 +55,11 @@ module Api
           student_id = get_param_value(:id)
           User.joins(:user_roles)
               .joins('INNER JOIN roles ON user_roles.role_id = roles.id')
-              .joins('LEFT JOIN student_class_enrollments ' \
+              .joins('INNER JOIN student_class_enrollments ' \
                      'ON student_class_enrollments.student_id = users.id')
-              .joins('LEFT JOIN school_classes ' \
-                     'ON school_classes.id = student_class_enrollments.school_class_id ' \
-                     "AND school_classes.year = '#{CURRENT_ACADEMIC_YEAR}'")
+              .joins('INNER JOIN school_classes ' \
+                     'ON school_classes.id = student_class_enrollments.school_class_id')
+              .where(school_classes: { year: school.current_academic_year_value, school_id: school.id })
               .where(id: student_id,
                      user_roles: { school_id: school.id },
                      roles: { key: 'student' })
@@ -128,11 +126,12 @@ module Api
           # Remove old enrollments for current academic year
           context.student.student_class_enrollments
                  .joins(:school_class)
-                 .where(school_classes: { year: CURRENT_ACADEMIC_YEAR })
+                 .where(school_classes: { year: school.current_academic_year_value })
                  .destroy_all
 
           # Add new enrollment
-          school_class = SchoolClass.find_by(id: school_class_id, school: school, year: CURRENT_ACADEMIC_YEAR)
+          school_class = SchoolClass.find_by(id: school_class_id, school: school,
+                                             year: school.current_academic_year_value)
           return unless school_class
 
           StudentClassEnrollment.find_or_create_by!(

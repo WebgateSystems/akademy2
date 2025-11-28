@@ -238,6 +238,31 @@
 			background-size: 6px 6px, 6px 6px;
 			background-repeat: no-repeat;
 		}
+
+		input[type="checkbox"] {
+			width: auto !important;
+			height: auto !important;
+			padding: 0 !important;
+			margin: 0 !important;
+			cursor: pointer;
+			appearance: checkbox;
+			-webkit-appearance: checkbox;
+			-moz-appearance: checkbox;
+		}
+
+		label:has(input[type="checkbox"]) {
+			display: flex !important;
+			flex-direction: row !important;
+			align-items: center !important;
+			gap: 8px !important;
+			cursor: pointer;
+
+			span {
+				margin: 0 !important;
+				padding: 0 !important;
+				display: inline !important;
+			}
+		}
 	}
 
 	.schools-modal__actions {

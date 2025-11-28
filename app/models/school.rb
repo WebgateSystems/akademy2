@@ -8,6 +8,16 @@ class School < ApplicationRecord
   validates :city, presence: true
   validates :country, presence: true
 
+  has_many :academic_years, dependent: :destroy
+
+  def current_academic_year
+    academic_years.current.first
+  end
+
+  def current_academic_year_value
+    current_academic_year&.year || '2025/2026'
+  end
+
   private
 
   def generate_slug

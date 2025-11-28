@@ -4,8 +4,6 @@ module Api
   module V1
     module Management
       class ListStudents < BaseInteractor
-        CURRENT_ACADEMIC_YEAR = '2025/2026'
-
         def call
           authorize!
           load_students
@@ -50,7 +48,7 @@ module Api
 
           base_query = build_base_query
           base_query = apply_search_filter(base_query, search_term) if search_term.present?
-          base_query = base_query.includes(:school, student_class_enrollments: :school_class)
+          base_query = base_query.includes(:school)
                                  .order(created_at: :desc)
 
           total_count = base_query.count
@@ -63,14 +61,16 @@ module Api
         end
 
         def build_base_query
-          # Get students from current school
-          # Include students with or without class assignment for current academic year
+          # Get students from current school who are enrolled in classes for current academic year
+          # Only show students who are actively enrolled in the current academic year
+          current_year = school.current_academic_year_value
+
           User.joins(:user_roles)
               .joins('INNER JOIN roles ON user_roles.role_id = roles.id')
-              .joins('LEFT JOIN student_class_enrollments ON student_class_enrollments.student_id = users.id')
-              .joins('LEFT JOIN school_classes ON school_classes.id = student_class_enrollments.school_class_id ' \
-                     "AND school_classes.year = '#{CURRENT_ACADEMIC_YEAR}'")
+              .joins('INNER JOIN student_class_enrollments ON student_class_enrollments.student_id = users.id')
+              .joins('INNER JOIN school_classes ON school_classes.id = student_class_enrollments.school_class_id')
               .where(user_roles: { school_id: school.id }, roles: { key: 'student' })
+              .where(school_classes: { year: current_year, school_id: school.id })
               .distinct
         end
 

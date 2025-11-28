@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class StudentSerializer < ApplicationSerializer
-  CURRENT_ACADEMIC_YEAR = '2025/2026'
-
   attributes :id, :first_name, :last_name, :email, :school_id, :created_at, :updated_at, :locked_at, :confirmed_at
 
   attribute :name do |student|
@@ -30,9 +28,12 @@ class StudentSerializer < ApplicationSerializer
   end
 
   attribute :class_name do |student|
+    return nil unless student.school
+
+    current_year = student.school.current_academic_year_value
     current_class = student.student_class_enrollments
                            .joins(:school_class)
-                           .where(school_classes: { year: CURRENT_ACADEMIC_YEAR })
+                           .where(school_classes: { year: current_year })
                            .first
     current_class&.school_class&.name
   end

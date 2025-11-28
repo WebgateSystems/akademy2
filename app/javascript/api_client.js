@@ -73,16 +73,25 @@ class ApiClient {
           responseData: responseData
         });
         
-        const errorMessage = Array.isArray(responseData.errors) 
-          ? responseData.errors.join(', ') 
-          : (responseData.errors || responseData.error || `HTTP ${response.status}: ${response.statusText}`);
-        throw new Error(errorMessage);
+        // Extract error message from response
+        let errorMessage;
+        if (Array.isArray(responseData.errors)) {
+          errorMessage = responseData.errors;
+        } else if (responseData.errors) {
+          errorMessage = responseData.errors;
+        } else if (responseData.error) {
+          errorMessage = responseData.error;
+        } else {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        
+        return { success: false, error: errorMessage, errors: Array.isArray(errorMessage) ? errorMessage : [errorMessage] };
       }
 
       return { success: true, data: responseData };
     } catch (error) {
       console.error('API request failed:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: error.message, errors: [error.message] };
     }
   }
 

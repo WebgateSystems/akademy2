@@ -65,8 +65,14 @@ module Api
         end
 
         def teacher_params
-          context.params.require(:teacher).permit(:first_name, :last_name, :email, :password,
-                                                  :password_confirmation, metadata: {})
+          # Convert to ActionController::Parameters if it's a hash
+          params = if context.params.is_a?(ActionController::Parameters)
+                     context.params
+                   else
+                     ActionController::Parameters.new(context.params)
+                   end
+          params.require(:teacher).permit(:first_name, :last_name, :email, :password,
+                                          :password_confirmation, metadata: {})
         end
 
         def save_teacher

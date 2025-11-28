@@ -1,5 +1,8 @@
 ENV['RAILS_ENV'] ||= 'test'
+
+# SimpleCov MUST be required and started BEFORE any application code is loaded
 require 'simplecov_helper'
+
 require 'spec_helper'
 require 'json_matchers/rspec'
 require 'shoulda/matchers'

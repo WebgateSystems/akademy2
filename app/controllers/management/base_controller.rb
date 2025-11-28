@@ -6,6 +6,7 @@ module Management
     helper_method :notifications_count
     helper_method :teachers_notifications_count
     helper_method :students_notifications_count
+    helper_method :current_academic_year
 
     before_action :authenticate_user!
     before_action :require_school_management_access!
@@ -78,6 +79,13 @@ module Management
                   .unread
                   .unresolved
                   .count
+    end
+
+    def current_academic_year
+      school = current_school_manager&.school
+      return '2025/2026' unless school
+
+      school.current_academic_year_value
     end
   end
 end

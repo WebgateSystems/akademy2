@@ -10,10 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_27_130000) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_28_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
+
+  create_table "academic_years", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "ended_at"
+    t.boolean "is_current", default: false, null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.uuid "school_id", null: false
+    t.date "started_at"
+    t.datetime "updated_at", null: false
+    t.string "year", null: false
+    t.index ["school_id", "is_current"], name: "index_academic_years_on_school_and_current"
+    t.index ["school_id", "year"], name: "index_academic_years_on_school_and_year", unique: true
+    t.index ["school_id"], name: "index_academic_years_on_school_id"
+  end
 
   create_table "certificates", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "certificate_number", null: false
@@ -227,7 +241,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_130000) do
     t.uuid "teacher_id", null: false
     t.datetime "updated_at", null: false
     t.index ["school_class_id"], name: "index_teacher_class_assignments_on_school_class_id"
-    t.index ["teacher_id", "school_class_id"], name: "index_teacher_assignments_unique", unique: true
+    t.index ["teacher_id", "school_class_id", "role"], name: "index_teacher_assignments_unique_with_role", unique: true
   end
 
   create_table "units", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -288,6 +302,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_130000) do
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
+  add_foreign_key "academic_years", "schools"
   add_foreign_key "certificates", "quiz_results", on_delete: :cascade
   add_foreign_key "contents", "learning_modules"
   add_foreign_key "events", "schools"

@@ -4,8 +4,6 @@ module Api
   module V1
     module Management
       class CreateStudent < BaseInteractor
-        CURRENT_ACADEMIC_YEAR = '2025/2026'
-
         def call
           authorize!
           build_student
@@ -120,7 +118,8 @@ module Api
           school_class_id = get_param_value(:student, :school_class_id)
           return unless school_class_id
 
-          school_class = SchoolClass.find_by(id: school_class_id, school: school, year: CURRENT_ACADEMIC_YEAR)
+          school_class = SchoolClass.find_by(id: school_class_id, school: school,
+                                             year: school.current_academic_year_value)
           return unless school_class
 
           StudentClassEnrollment.find_or_create_by!(

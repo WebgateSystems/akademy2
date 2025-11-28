@@ -49,9 +49,13 @@
               <span class="notification-counter" aria-hidden="true"><%= @students_notifications_count %></span>
             <% end %>
           <% end %>
-          <%= link_to '#', class: "dashboard-nav__button #{'is-active' if request.path.include?('/classes')}" do %>
+          <%= link_to management_classes_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/classes') && !request.path.include?('/years')}" do %>
             <i class="bi bi-people-fill" aria-hidden="true"></i>
             <span class="dashboard-nav__label">Classes</span>
+          <% end %>
+          <%= link_to management_years_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/years')}" do %>
+            <i class="bi bi-calendar3" aria-hidden="true"></i>
+            <span class="dashboard-nav__label">Years</span>
           <% end %>
           <% if current_user&.roles&.pluck(:key)&.include?('teacher') %>
             <%= link_to authenticated_root_path, class: "dashboard-nav__button" do %>

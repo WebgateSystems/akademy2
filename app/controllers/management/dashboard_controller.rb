@@ -27,16 +27,28 @@ module Management
                                .distinct
                                .count
 
-      # Count students for this school
+      # Count students for this school enrolled in current academic year
+      current_year = @school.current_academic_year_value
+      enrollment_join = 'INNER JOIN student_class_enrollments ' \
+                         'ON student_class_enrollments.student_id = users.id'
+      class_join = 'INNER JOIN school_classes ' \
+                   'ON school_classes.id = student_class_enrollments.school_class_id'
+
       @students_count = User.joins(:user_roles)
                             .joins('INNER JOIN roles ON user_roles.role_id = roles.id')
+                            .joins(enrollment_join)
+                            .joins(class_join)
                             .where(user_roles: { school_id: @school.id }, roles: { key: 'student' })
+                            .where(school_classes: { year: current_year, school_id: @school.id })
                             .distinct
                             .count
 
       @students_awaiting = User.joins(:user_roles)
                                .joins('INNER JOIN roles ON user_roles.role_id = roles.id')
+                               .joins(enrollment_join)
+                               .joins(class_join)
                                .where(user_roles: { school_id: @school.id }, roles: { key: 'student' })
+                               .where(school_classes: { year: current_year, school_id: @school.id })
                                .where(confirmed_at: nil)
                                .distinct
                                .count
