@@ -5,7 +5,8 @@ module Api
     module Events
       class ListEvents < BaseInteractor
         def call
-          authorize!
+          return access_denied unless authorize!
+
           load_events
         end
 
@@ -13,10 +14,7 @@ module Api
 
         def authorize!
           policy = AdminPolicy.new(current_user, :admin)
-          return if policy.access?
-
-          context.message = ['Brak uprawnień']
-          context.fail!
+          policy.access?
         end
 
         def current_user
