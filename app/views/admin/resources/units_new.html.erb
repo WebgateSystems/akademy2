@@ -1,0 +1,57 @@
+<% content_for :page_title, "Units" %>
+
+<section aria-label="New unit">
+  <header class="schools-page__header">
+    <h2 style="margin: 0; font-size: 24px; font-weight: 600;">
+      New Unit
+    </h2>
+    <div style="display: flex; gap: 12px;">
+      <%= link_to admin_resource_collection_path(resource: 'units'), class: "schools-page__add", style: "text-decoration: none; background: var(--surface-secondary); color: var(--content-primary);" do %>
+        Cancel
+      <% end %>
+    </div>
+  </header>
+
+  <div class="schools-card" style="margin-top: 24px;">
+    <%= form_with model: @record, url: admin_create_resource_path(resource: 'units'), method: :post, local: true do |f| %>
+      <% if @record.errors.any? %>
+        <div style="padding: 16px; margin: 24px; background: var(--surface-error); border-radius: 8px; color: var(--content-error);">
+          <strong>Errors:</strong>
+          <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+            <% @record.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <table class="schools-page__table">
+        <tbody>
+          <tr>
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Title:
+            </td>
+            <td class="left">
+              <%= f.text_field :title, required: true, style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Subject:
+            </td>
+            <td class="left">
+              <%= f.collection_select :subject_id, Subject.order(:order_index), :id, :title, { prompt: 'Select subject', required: true }, { style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" } %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="padding: 24px; display: flex; gap: 12px; border-top: 1px solid var(--border-primary);">
+        <%= f.submit "Create", class: "schools-page__add", style: "cursor: pointer; border: none;" %>
+        <%= link_to "Cancel", admin_resource_collection_path(resource: 'units'), class: "schools-page__add", style: "text-decoration: none; background: var(--surface-secondary); color: var(--content-primary); text-align: center;" %>
+      </div>
+    <% end %>
+  </div>
+</section>
+

@@ -1,0 +1,370 @@
+<% content_for :page_title, "Learning Modules" %>
+
+<section aria-label="Edit learning module">
+  <header class="schools-page__header">
+    <h2 style="margin: 0; font-size: 24px; font-weight: 600;">
+      Edit: <%= @record.title %>
+    </h2>
+    <div style="display: flex; gap: 12px;">
+      <button type="submit" form="learning-module-form" class="schools-page__add" style="cursor: pointer; border: none;">
+        Update
+      </button>
+      <%= link_to admin_resource_path(resource: 'learning_modules', id: @record.id), class: "schools-page__add", style: "text-decoration: none; background: var(--surface-secondary); color: var(--content-primary);" do %>
+        Cancel
+      <% end %>
+    </div>
+  </header>
+
+  <div class="schools-card" style="margin-top: 24px;">
+    <%= form_with model: @record, url: admin_update_resource_path(resource: 'learning_modules', id: @record.id), method: :patch, local: true, id: 'learning-module-form' do |f| %>
+      <% if @record.errors.any? %>
+        <div style="padding: 16px; margin: 24px; background: var(--surface-error); border-radius: 8px; color: var(--content-error);">
+          <strong>Errors:</strong>
+          <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+            <% @record.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <table class="schools-page__table">
+        <tbody>
+          <tr>
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Title:
+            </td>
+            <td class="left">
+              <%= f.text_field :title, style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Unit:
+            </td>
+            <td class="left">
+              <%= f.collection_select :unit_id, Unit.includes(:subject).order('subjects.order_index ASC, units.order_index ASC'), :id, :title_with_subject, { prompt: 'Select unit' }, { style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" } %>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Published:
+            </td>
+            <td class="left">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--content-primary); cursor: pointer;">
+                <%= f.check_box :published %>
+                <span>Published</span>
+              </label>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Single Flow:
+            </td>
+            <td class="left">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--content-primary); cursor: pointer;">
+                <%= f.check_box :single_flow %>
+                <span>Single Flow</span>
+              </label>
+              <small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;">
+                ✓ Checked (true): Fixed sequence - user must go through all materials in order (Video → Infographic → Quiz), cannot skip or change order<br>
+                ✗ Unchecked (false): Flexible choice - user can select individual materials in any order (e.g., only video, only infographic, quiz before infographic, etc.)
+              </small>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    <% end %>
+  </div>
+
+  <!-- Contents Management Section (only for non-single-flow modules) -->
+  <div class="schools-card" style="margin-top: 24px;" id="contents-management-section" data-single-flow="<%= @record.single_flow? %>">
+    <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: var(--content-primary);">
+      Manage Contents
+      <% if @record.single_flow? %>
+        <small style="font-size: 14px; font-weight: normal; color: var(--content-secondary); display: block; margin-top: 4px;">
+          (Single Flow mode: Contents order is fixed and cannot be changed here)
+        </small>
+      <% else %>
+        <small style="font-size: 14px; font-weight: normal; color: var(--content-secondary); display: block; margin-top: 4px;">
+          Drag and drop to reorder contents. Contents can be selected in any order by users.
+        </small>
+      <% end %>
+    </h3>
+
+    <% if @record.contents.any? %>
+      <table class="schools-page__table">
+        <thead>
+          <tr>
+            <th scope="col" class="left">Order</th>
+            <th scope="col" class="left">Title</th>
+            <th scope="col" class="left">Type</th>
+            <th scope="col" class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="learning-module-contents-tbody" data-learning-module-id="<%= @record.id %>">
+          <% @record.contents.order(:order_index).each do |content| %>
+            <tr data-content-id="<%= content.id %>" class="<%= 'sortable-row' unless @record.single_flow? %>" <%= 'draggable="true"' unless @record.single_flow? %>>
+              <td class="<%= 'sortable-handle' unless @record.single_flow? %>" style="<%= 'cursor: move; user-select: none;' unless @record.single_flow? %>">
+                <span class="order-index"><%= content.order_index %></span>
+              </td>
+              <td class="left">
+                <strong><%= content.title %></strong>
+              </td>
+              <td class="left">
+                <span style="display: inline-block; padding: 4px 8px; background: var(--surface-secondary); border-radius: 4px; font-size: 12px; color: var(--content-primary);">
+                  <%= content.content_type %>
+                </span>
+              </td>
+              <td class="schools-page__actions">
+                <%= link_to admin_resource_path(resource: 'contents', id: content.id), "aria-label": "View content" do %>
+                  <%= image_tag "icons/social/S/search.svg", alt: "" %>
+                <% end %>
+                <%= link_to admin_edit_resource_path(resource: 'contents', id: content.id), "aria-label": "Edit content" do %>
+                  <%= image_tag "icons/social/S/edit.svg", alt: "" %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p style="padding: 24px; color: var(--content-secondary); text-align: center;">
+        No contents yet. <%= link_to "Add content", admin_new_resource_path(resource: 'contents'), style: "color: var(--button-primary); text-decoration: underline;" %>
+      </p>
+    <% end %>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const contentsSection = document.getElementById('contents-management-section');
+    const isSingleFlow = contentsSection?.getAttribute('data-single-flow') === 'true';
+    const tbody = document.getElementById('learning-module-contents-tbody');
+    
+    if (!isSingleFlow && tbody) {
+      // Drag and drop functionality for reordering contents
+      let draggedRow = null;
+      let dropIndicator = null;
+
+      function createDropIndicator() {
+        if (!dropIndicator) {
+          dropIndicator = document.createElement('div');
+          dropIndicator.className = 'drop-indicator';
+          dropIndicator.style.display = 'none';
+          const cardContainer = tbody.closest('.schools-card');
+          if (cardContainer) {
+            cardContainer.appendChild(dropIndicator);
+          } else {
+            tbody.parentElement.appendChild(dropIndicator);
+          }
+        }
+        return dropIndicator;
+      }
+
+      function showDropIndicator(element, position) {
+        const indicator = createDropIndicator();
+        const rect = element.getBoundingClientRect();
+        const cardContainer = tbody.closest('.schools-card') || tbody.parentElement;
+        const cardRect = cardContainer.getBoundingClientRect();
+        
+        if (position === 'top') {
+          indicator.style.top = (rect.top - cardRect.top + cardContainer.scrollTop) + 'px';
+        } else {
+          indicator.style.top = (rect.bottom - cardRect.top + cardContainer.scrollTop) + 'px';
+        }
+        indicator.style.left = (rect.left - cardRect.left) + 'px';
+        indicator.style.width = rect.width + 'px';
+        indicator.style.display = 'block';
+      }
+
+      function hideDropIndicator() {
+        if (dropIndicator) {
+          dropIndicator.style.display = 'none';
+        }
+      }
+
+      const rows = tbody.querySelectorAll('tr[data-content-id]');
+      rows.forEach((row) => {
+        row.draggable = true;
+        
+        row.addEventListener('dragstart', function(e) {
+          draggedRow = this;
+          this.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/html', this.innerHTML);
+          this.style.opacity = '0.5';
+        });
+
+        row.addEventListener('dragend', function() {
+          this.classList.remove('dragging');
+          this.style.opacity = '';
+          rows.forEach(r => {
+            r.classList.remove('drag-over-top', 'drag-over-bottom');
+          });
+          hideDropIndicator();
+        });
+
+        row.addEventListener('dragover', function(e) {
+          if (e.preventDefault) {
+            e.preventDefault();
+          }
+          e.dataTransfer.dropEffect = 'move';
+          
+          if (draggedRow === this) {
+            hideDropIndicator();
+            return false;
+          }
+
+          const rect = this.getBoundingClientRect();
+          const mouseY = e.clientY;
+          const rowMiddle = rect.top + rect.height / 2;
+          
+          if (mouseY < rowMiddle) {
+            this.classList.remove('drag-over-bottom');
+            this.classList.add('drag-over-top');
+            showDropIndicator(this, 'top');
+          } else {
+            this.classList.remove('drag-over-top');
+            this.classList.add('drag-over-bottom');
+            showDropIndicator(this, 'bottom');
+          }
+          
+          return false;
+        });
+
+        row.addEventListener('dragleave', function(e) {
+          this.classList.remove('drag-over-top', 'drag-over-bottom');
+          const rect = this.getBoundingClientRect();
+          if (e.clientY < rect.top || e.clientY > rect.bottom) {
+            hideDropIndicator();
+          }
+        });
+
+        row.addEventListener('drop', function(e) {
+          if (e.stopPropagation) {
+            e.stopPropagation();
+          }
+
+          if (draggedRow !== this) {
+            const allRows = Array.from(tbody.querySelectorAll('tr[data-content-id]'));
+            const draggedIndex = allRows.indexOf(draggedRow);
+            const targetIndex = allRows.indexOf(this);
+            
+            const rect = this.getBoundingClientRect();
+            const mouseY = e.clientY;
+            const rowMiddle = rect.top + rect.height / 2;
+            const insertBefore = mouseY < rowMiddle;
+
+            if (draggedIndex < targetIndex) {
+              if (insertBefore) {
+                tbody.insertBefore(draggedRow, this);
+              } else {
+                tbody.insertBefore(draggedRow, this.nextSibling);
+              }
+            } else {
+              if (insertBefore) {
+                tbody.insertBefore(draggedRow, this);
+              } else {
+                tbody.insertBefore(draggedRow, this.nextSibling);
+              }
+            }
+
+            updateOrderIndices();
+            saveOrder();
+          }
+
+          this.classList.remove('drag-over-top', 'drag-over-bottom');
+          hideDropIndicator();
+          return false;
+        });
+      });
+
+      function updateOrderIndices() {
+        const rows = tbody.querySelectorAll('tr[data-content-id]');
+        rows.forEach((row, index) => {
+          const orderCell = row.querySelector('.order-index');
+          if (orderCell) {
+            orderCell.textContent = index + 1;
+          }
+        });
+      }
+
+      async function saveOrder() {
+        const rows = tbody.querySelectorAll('tr[data-content-id]');
+        const contentIds = Array.from(rows).map(row => row.getAttribute('data-content-id'));
+        const learningModuleId = tbody.getAttribute('data-learning-module-id');
+
+        try {
+          const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+          const response = await fetch(`/admin/learning_modules/${learningModuleId}/reorder_contents`, {
+            method: 'POST',
+            headers: {
+              'X-CSRF-Token': csrfToken,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ content_ids: contentIds })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to save order');
+          }
+        } catch (error) {
+          console.error('Error saving order:', error);
+          alert('Nie udało się zapisać kolejności. Odśwież stronę.');
+          window.location.reload();
+        }
+      }
+    }
+  });
+</script>
+
+<style>
+  .sortable-row {
+    transition: background-color 0.2s ease;
+    position: relative;
+  }
+
+  .sortable-row.dragging {
+    opacity: 0.3;
+    background-color: var(--surface-hover, #f5f5f5);
+  }
+
+  .sortable-row.drag-over-top {
+    border-top: 2px solid transparent;
+  }
+
+  .sortable-row.drag-over-bottom {
+    border-bottom: 2px solid transparent;
+  }
+
+  .sortable-handle {
+    cursor: move;
+    user-select: none;
+  }
+
+  .sortable-handle:hover {
+    color: var(--content-primary, #000);
+  }
+
+  .drop-indicator {
+    position: absolute;
+    height: 3px;
+    background: var(--button-primary, #0066cc);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 0 4px rgba(0, 102, 204, 0.5);
+    transition: opacity 0.1s ease;
+  }
+
+  .schools-card {
+    position: relative;
+  }
+</style>
+

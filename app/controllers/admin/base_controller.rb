@@ -1,8 +1,10 @@
 class Admin::BaseController < ApplicationController
   helper_method :current_admin
+  helper_method :notifications_count
 
   before_action :authenticate_admin!
   before_action :require_admin!
+  before_action :set_notifications_count
 
   layout 'admin'
 
@@ -17,18 +19,33 @@ class Admin::BaseController < ApplicationController
   end
 
   def decode_jwt(token)
-    session = ::Jwt::TokenService.decode(token)
-    ::User.find_by(id: session['user_id'])
+    return nil unless token
+
+    decoded = ::Jwt::TokenService.decode(token)
+    return nil unless decoded.is_a?(Hash)
+
+    ::User.find_by(id: decoded['user_id'])
   rescue StandardError
-    logout
+    nil
   end
 
   def logout
     session.delete(:admin_id)
-    redirect_to admin_login_path, notice: 'Logged out'
+    redirect_to new_admin_session_path, notice: 'Logged out'
   end
 
   def require_admin!
     redirect_to new_admin_session_path unless current_admin&.admin?
+  end
+
+  def set_notifications_count
+    @notifications_count = notifications_count
+  end
+
+  def notifications_count
+    Notification.for_role('admin')
+                .unread
+                .unresolved
+                .count
   end
 end

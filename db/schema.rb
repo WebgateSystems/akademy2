@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_28_000000) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_29_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -52,6 +52,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_000000) do
     t.string "subtitles"
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.string "youtube_url"
     t.index ["content_type"], name: "index_contents_on_content_type"
     t.index ["learning_module_id", "order_index"], name: "index_contents_on_module_and_order"
     t.index ["learning_module_id"], name: "index_contents_on_learning_module_id"
@@ -87,10 +88,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_000000) do
   create_table "learning_modules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "order_index", default: 0, null: false
+    t.boolean "published", default: false, null: false
     t.boolean "single_flow", default: false, null: false
     t.string "title", null: false
     t.uuid "unit_id", null: false
     t.datetime "updated_at", null: false
+    t.index ["published"], name: "index_learning_modules_on_published"
     t.index ["unit_id"], name: "index_learning_modules_on_unit_id"
   end
 
@@ -210,7 +213,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_000000) do
   end
 
   create_table "subjects", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "color_dark"
+    t.string "color_light"
     t.datetime "created_at", null: false
+    t.string "icon"
     t.integer "order_index", default: 0, null: false
     t.uuid "school_id"
     t.string "slug", null: false

@@ -1,0 +1,405 @@
+<% content_for :page_title, "Contents" %>
+
+<section aria-label="Edit content">
+  <header class="schools-page__header">
+    <h2 style="margin: 0; font-size: 24px; font-weight: 600;">
+      Edit: <%= @record.title %>
+    </h2>
+    <div style="display: flex; gap: 12px;">
+      <button type="submit" form="content-form" class="schools-page__add" style="cursor: pointer; border: none;">
+        Update
+      </button>
+      <%= link_to admin_resource_path(resource: 'contents', id: @record.id), class: "schools-page__add", style: "text-decoration: none; background: var(--surface-secondary); color: var(--content-primary);" do %>
+        Cancel
+      <% end %>
+    </div>
+  </header>
+
+  <div class="schools-card" style="margin-top: 24px;">
+    <%= form_with model: @record, url: admin_update_resource_path(resource: 'contents', id: @record.id), method: :patch, local: true, multipart: true, id: 'content-form' do |f| %>
+      <% if @record.errors.any? %>
+        <div style="padding: 16px; margin: 24px; background: var(--surface-error); border-radius: 8px; color: var(--content-error);">
+          <strong>Errors:</strong>
+          <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+            <% @record.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <table class="schools-page__table">
+        <tbody>
+          <tr>
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Content Type:
+            </td>
+            <td class="left">
+              <%= f.select :content_type, options_for_select([
+                ['Video', 'video'],
+                ['Infographic', 'infographic'],
+                ['Quiz', 'quiz'],
+                ['PDF', 'pdf'],
+                ['Webinar', 'webinar'],
+                ['Asset', 'asset']
+              ], @record.content_type), {}, { id: 'content-type-select', style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" } %>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Title:
+            </td>
+            <td class="left">
+              <%= f.text_field :title, style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Learning Module:
+            </td>
+            <td class="left">
+              <%= f.collection_select :learning_module_id, LearningModule.includes(unit: :subject).order('subjects.order_index ASC, units.order_index ASC, learning_modules.order_index ASC'), :id, :title_with_unit_and_subject, { prompt: 'Select learning module' }, { style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" } %>
+            </td>
+          </tr>
+
+          <!-- Video-specific fields -->
+          <tr class="content-type-fields" data-content-type="video">
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              YouTube URL:
+            </td>
+            <td class="left">
+              <%= f.text_field :youtube_url, placeholder: "https://youtube.com/watch?v=...", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+            </td>
+          </tr>
+
+          <tr class="content-type-fields" data-content-type="video">
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Duration (seconds):
+            </td>
+            <td class="left">
+              <%= f.number_field :duration_sec, min: 0, style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+            </td>
+          </tr>
+
+          <tr class="content-type-fields" data-content-type="video">
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Video File:
+            </td>
+            <td class="left">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <% if @record.file.present? && @record.file.url.present? %>
+                  <div style="margin-bottom: 8px;">
+                    <a href="<%= @record.file.url %>" target="_blank" rel="noopener noreferrer" style="color: var(--button-primary); text-decoration: underline;">
+                      Current file: <%= @record.file.url.split('/').last %>
+                    </a>
+                  </div>
+                <% end %>
+                <%= f.file_field :file, accept: "video/*", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+                <small style="color: var(--content-secondary); font-size: 12px;">Upload video file (alternative to YouTube URL)</small>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="content-type-fields" data-content-type="video">
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Poster:
+            </td>
+            <td class="left">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <% if @record.poster.present? && @record.poster.url.present? %>
+                  <div style="margin-bottom: 8px;">
+                    <img src="<%= @record.poster.url %>" alt="Poster preview" style="max-width: 200px; max-height: 200px; border-radius: 4px;">
+                  </div>
+                <% end %>
+                <%= f.file_field :poster, accept: "image/*", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+                <small style="color: var(--content-secondary); font-size: 12px;">Upload poster image</small>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="content-type-fields" data-content-type="video">
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Subtitles:
+            </td>
+            <td class="left">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <% if @record.subtitles.present? && @record.subtitles.url.present? %>
+                  <div style="margin-bottom: 8px;">
+                    <a href="<%= @record.subtitles.url %>" target="_blank" rel="noopener noreferrer" style="color: var(--button-primary); text-decoration: underline;">
+                      Current subtitles: <%= @record.subtitles.url.split('/').last %>
+                    </a>
+                  </div>
+                <% end %>
+                <%= f.file_field :subtitles, accept: ".srt,.vtt", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+                <small style="color: var(--content-secondary); font-size: 12px;">Upload subtitles file (.srt or .vtt)</small>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="content-type-fields" data-content-type="video">
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Subtitles Language:
+            </td>
+            <td class="left">
+              <%= f.text_field :payload_subtitles_lang, value: @record.payload&.dig('subtitles_lang') || 'pl', placeholder: "pl", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+              <small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;">Language code (e.g., 'pl', 'en')</small>
+            </td>
+          </tr>
+
+          <!-- Infographic-specific fields -->
+          <tr class="content-type-fields" data-content-type="infographic">
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Infographic File:
+            </td>
+            <td class="left">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <% if @record.file.present? && @record.file.url.present? %>
+                  <div style="margin-bottom: 8px;">
+                    <img src="<%= @record.file.url %>" alt="Infographic preview" style="max-width: 200px; max-height: 200px; border-radius: 4px;">
+                    <br>
+                    <a href="<%= @record.file.url %>" target="_blank" rel="noopener noreferrer" style="color: var(--button-primary); text-decoration: underline; font-size: 12px;">
+                      <%= @record.file.url.split('/').last %>
+                    </a>
+                  </div>
+                <% end %>
+                <%= f.file_field :file, accept: "image/*,.svg,.pdf", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+                <small style="color: var(--content-secondary); font-size: 12px;">Upload infographic (SVG, PNG, PDF)</small>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Quiz-specific fields -->
+          <tr class="content-type-fields" data-content-type="quiz">
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Quiz Payload (JSON):
+            </td>
+            <td class="left">
+              <%= f.text_area :payload_json, value: @record.payload.present? ? JSON.pretty_generate(@record.payload) : '', rows: 15, style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 13px; width: 100%; max-width: 800px; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace; line-height: 1.5; white-space: pre; overflow-wrap: normal; overflow-x: auto;" %>
+              <small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;">
+                JSON structure: <code style="font-size: 11px;">{"questions": [{"id": "q1", "type": "single", "text": "...", "options": [...], "correct": [...], "points": 1}], "pass_threshold": 80}</code>
+              </small>
+            </td>
+          </tr>
+
+          <!-- PDF-specific fields -->
+          <tr class="content-type-fields" data-content-type="pdf">
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              PDF File:
+            </td>
+            <td class="left">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <% if @record.file.present? && @record.file.url.present? %>
+                  <div style="margin-bottom: 8px;">
+                    <a href="<%= @record.file.url %>" target="_blank" rel="noopener noreferrer" style="color: var(--button-primary); text-decoration: underline;">
+                      Current file: <%= @record.file.url.split('/').last %>
+                    </a>
+                  </div>
+                <% end %>
+                <%= f.file_field :file, accept: ".pdf", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+                <small style="color: var(--content-secondary); font-size: 12px;">Upload PDF file</small>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Webinar-specific fields (similar to video) -->
+          <tr class="content-type-fields" data-content-type="webinar">
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Webinar URL:
+            </td>
+            <td class="left">
+              <%= f.text_field :youtube_url, placeholder: "https://...", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+            </td>
+          </tr>
+
+          <tr class="content-type-fields" data-content-type="webinar">
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Duration (seconds):
+            </td>
+            <td class="left">
+              <%= f.number_field :duration_sec, min: 0, style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+            </td>
+          </tr>
+
+          <!-- Asset-specific fields -->
+          <tr class="content-type-fields" data-content-type="asset">
+            <td class="left" style="font-weight: 500; color: var(--content-secondary);">
+              Asset File:
+            </td>
+            <td class="left">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <% if @record.file.present? && @record.file.url.present? %>
+                  <div style="margin-bottom: 8px;">
+                    <a href="<%= @record.file.url %>" target="_blank" rel="noopener noreferrer" style="color: var(--button-primary); text-decoration: underline;">
+                      Current file: <%= @record.file.url.split('/').last %>
+                    </a>
+                  </div>
+                <% end %>
+                <%= f.file_field :file, accept: "*/*", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" %>
+                <small style="color: var(--content-secondary); font-size: 12px;">Upload any file type</small>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    <% end %>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const contentTypeSelect = document.getElementById('content-type-select');
+    const contentForm = document.getElementById('content-form');
+    const contentTypeFields = document.querySelectorAll('.content-type-fields');
+    const currentContentType = '<%= @record.content_type %>';
+
+    function toggleFieldsForContentType(contentType) {
+      contentTypeFields.forEach(row => {
+        const rowContentType = row.getAttribute('data-content-type');
+        if (rowContentType === contentType) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    // Initial state - show fields for current content type
+    if (currentContentType) {
+      toggleFieldsForContentType(currentContentType);
+    } else {
+      toggleFieldsForContentType('');
+    }
+
+    // Listen for content type changes
+    if (contentTypeSelect) {
+      contentTypeSelect.addEventListener('change', function() {
+        toggleFieldsForContentType(this.value);
+      });
+    }
+
+    // Auto-format JSON on blur for quiz payload
+    const payloadJsonField = document.querySelector('textarea[name="content[payload_json]"]');
+    if (payloadJsonField) {
+      payloadJsonField.addEventListener('blur', function() {
+        const value = this.value.trim();
+        if (value) {
+          try {
+            const parsed = JSON.parse(value);
+            // Format JSON with pretty printing
+            this.value = JSON.stringify(parsed, null, 2);
+          } catch (e) {
+            // Invalid JSON - don't format, let validation catch it
+          }
+        }
+      });
+    }
+
+    // Function to show error messages
+    function showErrorMessage(message) {
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger';
+      alertDiv.style.position = 'fixed';
+      alertDiv.style.top = '80px';
+      alertDiv.style.right = '20px';
+      alertDiv.style.zIndex = '10000';
+      alertDiv.style.padding = '16px 24px';
+      alertDiv.style.borderRadius = '8px';
+      alertDiv.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      alertDiv.style.maxWidth = '500px';
+      alertDiv.style.wordWrap = 'break-word';
+      alertDiv.style.backgroundColor = 'var(--surface-error, #f8d7da)';
+      alertDiv.style.color = 'var(--content-error, #721c24)';
+      alertDiv.style.border = '1px solid var(--border-error, #f5c6cb)';
+      alertDiv.innerHTML = '<strong style="display: block; margin-bottom: 8px;">Błąd walidacji JSON:</strong>' + message;
+      
+      document.body.appendChild(alertDiv);
+      
+      // Focus on the JSON field
+      const payloadJsonField = document.querySelector('textarea[name="content[payload_json]"]');
+      if (payloadJsonField) {
+        payloadJsonField.focus();
+        payloadJsonField.style.borderColor = 'var(--content-error, #dc3545)';
+        payloadJsonField.style.borderWidth = '2px';
+        
+        // Reset border after user starts typing
+        payloadJsonField.addEventListener('input', function() {
+          this.style.borderColor = '';
+          this.style.borderWidth = '';
+        }, { once: true });
+      }
+      
+      setTimeout(() => {
+        alertDiv.style.opacity = '0';
+        alertDiv.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => {
+          alertDiv.remove();
+        }, 300);
+      }, 8000); // Show for 8 seconds (longer for JSON errors)
+    }
+
+    // Handle form submission - convert payload_json to payload
+    if (contentForm) {
+      contentForm.addEventListener('submit', function(e) {
+        const contentType = contentTypeSelect?.value;
+        const payloadJsonField = document.querySelector('textarea[name="content[payload_json]"]');
+        
+        if (contentType === 'quiz' && payloadJsonField) {
+          try {
+            const jsonValue = payloadJsonField.value.trim();
+            if (jsonValue) {
+              const parsed = JSON.parse(jsonValue);
+              // Create hidden input for payload
+              let payloadInput = document.querySelector('input[name="content[payload]"]');
+              if (!payloadInput) {
+                payloadInput = document.createElement('input');
+                payloadInput.type = 'hidden';
+                payloadInput.name = 'content[payload]';
+                contentForm.appendChild(payloadInput);
+              }
+              payloadInput.value = JSON.stringify(parsed);
+            }
+          } catch (error) {
+            e.preventDefault();
+            // Extract a more user-friendly error message
+            let errorMessage = error.message;
+            if (errorMessage.includes('position')) {
+              // Parse position info for better UX
+              const positionMatch = errorMessage.match(/position (\d+)/);
+              if (positionMatch) {
+                const position = parseInt(positionMatch[1]);
+                const lines = payloadJsonField.value.split('\n');
+                let currentPos = 0;
+                let lineNum = 1;
+                for (let i = 0; i < lines.length; i++) {
+                  if (currentPos + lines[i].length >= position) {
+                    lineNum = i + 1;
+                    break;
+                  }
+                  currentPos += lines[i].length + 1; // +1 for newline
+                }
+                errorMessage = `Błąd w linii ${lineNum}: ${errorMessage.replace(/Expected.*?in JSON at position \d+.*?/, '').trim() || 'Nieprawidłowa składnia JSON'}`;
+              }
+            }
+            showErrorMessage(errorMessage);
+            return false;
+          }
+        } else if (contentType === 'video') {
+          // Handle video payload (subtitles_lang)
+          const subtitlesLangField = document.querySelector('input[name="content[payload_subtitles_lang]"]');
+          if (subtitlesLangField && subtitlesLangField.value) {
+            let payloadInput = document.querySelector('input[name="content[payload]"]');
+            if (!payloadInput) {
+              payloadInput = document.createElement('input');
+              payloadInput.type = 'hidden';
+              payloadInput.name = 'content[payload]';
+              contentForm.appendChild(payloadInput);
+            }
+            payloadInput.value = JSON.stringify({ subtitles_lang: subtitlesLangField.value });
+          }
+        }
+      });
+    }
+  });
+</script>

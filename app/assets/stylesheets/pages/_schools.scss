@@ -16,10 +16,13 @@
 	cursor: pointer;
 	height: 48px;
 	align-self: flex-start;
+	text-decoration: none;
+	display: inline-block;
 
 	&:hover,
 	&:focus-visible {
 		background: var(--button-primary-hover);
+		text-decoration: none;
 	}
 }
 
