@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 set :stage, :staging
-set :branch, ENV.fetch('BRANCH', 'dev')
+set :branch, ENV.fetch('BRANCH', 'staging')
 set :deploy_user, 'akatest'
 
 set :full_app_name, 'test.akademy.edu.pl'

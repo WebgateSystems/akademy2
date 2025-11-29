@@ -61,6 +61,7 @@ group :development do
   gem 'cape'
   gem 'capistrano3-puma', github: 'seuros/capistrano-puma'
   gem 'capistrano-hook', require: false
+  gem 'capistrano-nvm', require: false
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
 
