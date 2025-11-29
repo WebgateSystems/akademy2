@@ -55,6 +55,23 @@
             <i class="bi bi-clock-history" aria-hidden="true"></i>
             <span class="dashboard-nav__label">Activity log</span>
           <% end %>
+          <div class="dashboard-nav__divider"></div>
+          <%= link_to admin_resource_collection_path(resource: 'subjects'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/subjects')}" do %>
+            <i class="bi bi-book" aria-hidden="true"></i>
+            <span class="dashboard-nav__label">Subjects</span>
+          <% end %>
+          <%= link_to admin_resource_collection_path(resource: 'units'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/units')}" do %>
+            <i class="bi bi-layers" aria-hidden="true"></i>
+            <span class="dashboard-nav__label">Units</span>
+          <% end %>
+          <%= link_to admin_resource_collection_path(resource: 'learning_modules'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/learning_modules')}" do %>
+            <i class="bi bi-stack" aria-hidden="true"></i>
+            <span class="dashboard-nav__label">Learning Modules</span>
+          <% end %>
+          <%= link_to admin_resource_collection_path(resource: 'contents'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/contents')}" do %>
+            <i class="bi bi-file-earmark" aria-hidden="true"></i>
+            <span class="dashboard-nav__label">Contents</span>
+          <% end %>
         </nav>
       </aside>
       <div class="dashboard-sidebar-overlay" data-sidebar-overlay aria-hidden="true"></div>
@@ -65,10 +82,14 @@
           </button>
           <h1><%= content_for(:page_title) || "Dashboard" %></h1>
           <div class="dashboard-top-actions">
-            <a class="icon-pill" href="#" aria-label="Notifications">
-              <span class="notification-counter" aria-hidden="true">0</span>
+            <%= link_to admin_notifications_path, class: "icon-pill", "aria-label": "Notifications" do %>
+              <% if @notifications_count && @notifications_count > 0 %>
+                <span class="notification-counter" aria-hidden="true"><%= @notifications_count %></span>
+              <% else %>
+                <span class="notification-counter" aria-hidden="true" style="display: none;">0</span>
+              <% end %>
               <%= image_tag "icons/social/M/notifications.svg", alt: "", "data-theme-icon": true %>
-            </a>
+            <% end %>
             <div class="settings-control">
               <button class="icon-pill" type="button" aria-label="Settings" data-theme-toggle-trigger aria-expanded="false">
                 <%= image_tag "icons/social/M/settings.svg", alt: "", "data-theme-icon": true %>

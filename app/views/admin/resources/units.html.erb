@@ -1,0 +1,270 @@
+<% content_for :page_title, "Units" %>
+
+<section aria-label="Units list">
+  <header class="schools-page__header">
+    <label class="schools-search schools-search--half">
+      <span class="visually-hidden">Search units</span>
+      <input type="search" placeholder="Search" id="units-search-input">
+      <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true" %>
+    </label>
+    <%= link_to admin_new_resource_path(resource: 'units'), class: "schools-page__add", style: "text-decoration: none;" do %>
+      Add unit
+    <% end %>
+  </header>
+  <div class="schools-page__controls"></div>
+  <div class="schools-card">
+    <table class="schools-page__table">
+      <thead>
+        <tr>
+          <th scope="col" class="left">Id</th>
+          <th scope="col" class="left">Title</th>
+          <th scope="col" class="left">Subject</th>
+          <th scope="col" class="right">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="units-tbody">
+        <% @records.each do |unit| %>
+          <tr data-unit-id="<%= unit.id %>" draggable="true" class="sortable-row">
+            <td class="sortable-handle" style="cursor: move; user-select: none;">
+              <span class="order-index"><%= unit.order_index %></span>
+            </td>
+            <td>
+              <strong><%= unit.title %></strong>
+            </td>
+            <td>
+              <%= unit.subject&.title || '—' %>
+            </td>
+            <td class="schools-page__actions">
+              <%= link_to admin_resource_path(resource: 'units', id: unit.id), "aria-label": "View unit" do %>
+                <%= image_tag "icons/social/S/search.svg", alt: "" %>
+              <% end %>
+              <%= link_to admin_edit_resource_path(resource: 'units', id: unit.id), "aria-label": "Edit unit" do %>
+                <%= image_tag "icons/social/S/edit.svg", alt: "" %>
+              <% end %>
+              <button type="button" aria-label="Delete unit" data-action="delete-unit" data-unit-id="<%= unit.id %>" data-unit-title="<%= h(unit.title&.to_s || '') %>">
+                <%= image_tag "icons/social/S/delete.svg", alt: "" %>
+              </button>
+            </td>
+          </tr>
+        <% end %>
+        <% if @records.empty? %>
+          <tr>
+            <td colspan="4" class="text-center" style="padding: 40px; color: var(--content-secondary);">No units yet</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="schools-modal" id="delete-unit-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="delete-unit-modal-title">
+    <header class="schools-modal__header">
+      <h3 id="delete-unit-modal-title">Delete unit</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="delete-unit-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <div class="schools-modal__body">
+      <p>Are you sure you want to delete <strong data-unit-delete-title>this unit</strong>? This action cannot be undone.</p>
+    </div>
+    <div class="schools-modal__actions">
+      <button type="button" id="delete-unit-confirm-btn" class="schools-modal__primary schools-modal__primary--danger">Delete</button>
+      <button type="button" class="schools-modal__secondary" data-close-modal="delete-unit-modal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Search functionality and delete handler
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('units-search-input');
+    const unitsTable = document.getElementById('units-tbody');
+    
+    if (searchInput && unitsTable) {
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        const rows = unitsTable.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+          // Skip empty row message
+          if (row.querySelector('td[colspan]')) {
+            row.style.display = '';
+            return;
+          }
+          
+          // Get text content from relevant cells
+          const cells = row.querySelectorAll('td');
+          if (cells.length < 4) return;
+          
+          const titleCell = cells[1];
+          const subjectCell = cells[2];
+          
+          // Get text content
+          const titleText = titleCell.textContent.toLowerCase();
+          const subjectText = subjectCell.textContent.toLowerCase();
+          
+          // Check if search term matches
+          const matches = titleText.includes(searchTerm) || subjectText.includes(searchTerm);
+          
+          // Show/hide row based on match
+          row.style.display = matches ? '' : 'none';
+        });
+        
+        // Show/hide empty message based on visible rows
+        const visibleRows = Array.from(rows).filter(row => {
+          return row.style.display !== 'none' && !row.querySelector('td[colspan]');
+        });
+        
+        const emptyRow = unitsTable.querySelector('tr td[colspan]');
+        if (emptyRow) {
+          const emptyRowElement = emptyRow.closest('tr');
+          if (emptyRowElement) {
+            emptyRowElement.style.display = visibleRows.length === 0 ? '' : 'none';
+          }
+        }
+      });
+    }
+
+    // Delete unit handler
+    let deleteUnitId = null;
+
+    document.querySelectorAll('[data-action="delete-unit"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        deleteUnitId = btn.getAttribute('data-unit-id');
+        const title = btn.getAttribute('data-unit-title') || '';
+        const deleteTitleEl = document.querySelector('[data-unit-delete-title]');
+        if (deleteTitleEl) {
+          deleteTitleEl.textContent = title;
+        }
+        
+        const deleteModal = document.getElementById('delete-unit-modal');
+        if (deleteModal) {
+          deleteModal.setAttribute('aria-hidden', 'false');
+          deleteModal.classList.add('is-open');
+        }
+      });
+    });
+
+    // Close modal handlers
+    document.querySelectorAll('[data-close-modal="delete-unit-modal"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById('delete-unit-modal');
+        if (modal) {
+          const focusedElement = modal.querySelector(':focus');
+          if (focusedElement) focusedElement.blur();
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    // Close on overlay click
+    const overlay = document.querySelector('#delete-unit-modal .schools-modal__overlay');
+    if (overlay) {
+      overlay.addEventListener('click', function() {
+        const modal = document.getElementById('delete-unit-modal');
+        if (modal) {
+          const focusedElement = modal.querySelector(':focus');
+          if (focusedElement) focusedElement.blur();
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    }
+
+    // Delete unit confirm button
+    const deleteBtn = document.getElementById('delete-unit-confirm-btn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async () => {
+        if (!deleteUnitId) return;
+        
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = 'Deleting...';
+
+        try {
+          // Get CSRF token from meta tag
+          const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+          if (!csrfToken) {
+            throw new Error('CSRF token not found');
+          }
+
+          const url = `/admin/units/${deleteUnitId}`;
+          
+          // Rails expects CSRF token in both header and body for DELETE requests
+          const formData = new URLSearchParams();
+          formData.append('_method', 'delete');
+          formData.append('authenticity_token', csrfToken);
+          
+          // Use fetch with proper CSRF token in both header and body
+          const response = await fetch(url, {
+            method: 'POST', // Use POST because Rails uses _method override for DELETE
+            headers: {
+              'X-CSRF-Token': csrfToken,
+              'Accept': 'text/html',
+              'X-Requested-With': 'XMLHttpRequest',
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString(),
+            credentials: 'same-origin'
+          });
+
+          // Close modal first
+          const modal = document.getElementById('delete-unit-modal');
+          if (modal) {
+            const focusedElement = modal.querySelector(':focus');
+            if (focusedElement) focusedElement.blur();
+            modal.setAttribute('aria-hidden', 'true');
+            modal.classList.remove('is-open');
+          }
+
+          // Rails redirects on destroy (302/303) - follow redirect
+          if (response.status === 303 || response.status === 302) {
+            const redirectUrl = response.headers.get('Location') || '/admin/units';
+            window.location.href = redirectUrl;
+          } else if (response.ok) {
+            // Success - reload
+            window.location.reload();
+          } else {
+            // Error - try to get message from response
+            let errorMessage = 'Nie można usunąć jednostki';
+            try {
+              const text = await response.text();
+              if (text) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const alertElement = doc.querySelector('.alert-danger');
+                if (alertElement) {
+                  errorMessage = alertElement.textContent.trim();
+                }
+              }
+            } catch (e) {
+              console.error('Error parsing response:', e);
+            }
+            
+            alert(errorMessage);
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = 'Delete';
+          }
+        } catch (error) {
+          console.error('Delete error:', error);
+          
+          // Close modal even on error
+          const modal = document.getElementById('delete-unit-modal');
+          if (modal) {
+            const focusedElement = modal.querySelector(':focus');
+            if (focusedElement) focusedElement.blur();
+            modal.setAttribute('aria-hidden', 'true');
+            modal.classList.remove('is-open');
+          }
+          
+          alert('Error: ' + String(error.message || 'Unknown error'));
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = 'Delete';
+        }
+      });
+    }
+  });
+</script>
+

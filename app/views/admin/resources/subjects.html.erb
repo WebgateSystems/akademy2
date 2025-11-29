@@ -1,0 +1,517 @@
+<% content_for :page_title, "Subjects" %>
+
+<section aria-label="Subjects list">
+  <header class="schools-page__header">
+    <label class="schools-search schools-search--half">
+      <span class="visually-hidden">Search subjects</span>
+      <input type="search" placeholder="Search" id="subjects-search-input">
+      <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true" %>
+    </label>
+    <%= link_to admin_new_resource_path(resource: 'subjects'), class: "schools-page__add", style: "text-decoration: none;" do %>
+      Add subject
+    <% end %>
+  </header>
+  <div class="schools-page__controls"></div>
+  <div class="schools-card">
+    <table class="schools-page__table">
+      <thead>
+        <tr>
+          <th scope="col" class="left">Id</th>
+          <th scope="col" class="left">Icon</th>
+          <th scope="col" class="left">Title</th>
+          <th scope="col" class="left">Slug</th>
+          <th scope="col" class="left">Colors</th>
+          <th scope="col" class="right">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="subjects-tbody">
+        <% @records.each do |subject| %>
+          <tr data-subject-id="<%= subject.id %>" draggable="true" class="sortable-row">
+            <td class="sortable-handle" style="cursor: move; user-select: none;">
+              <span class="order-index"><%= subject.order_index %></span>
+            </td>
+            <td>
+              <% if subject.icon.present? && subject.icon.url.present? %>
+                <img src="<%= subject.icon.url %>" alt="<%= subject.title %> icon" style="max-width: 32px; max-height: 32px; vertical-align: middle; background: transparent;">
+              <% else %>
+                <span style="color: var(--content-secondary);">—</span>
+              <% end %>
+            </td>
+            <td>
+              <strong><%= subject.title %></strong>
+            </td>
+            <td>
+              <code style="font-size: 12px; color: #666;"><%= subject.slug %></code>
+            </td>
+            <td>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <span style="display: inline-block; width: 24px; height: 24px; border-radius: 4px; background-color: <%= subject.color_light || '#ccc' %>; border: 1px solid #ddd;" title="Light color"></span>
+                <span style="display: inline-block; width: 24px; height: 24px; border-radius: 4px; background-color: <%= subject.color_dark || '#333' %>; border: 1px solid #ddd;" title="Dark color"></span>
+              </div>
+            </td>
+            <td class="schools-page__actions">
+              <%= link_to admin_resource_path(resource: 'subjects', id: subject.id), "aria-label": "View subject" do %>
+                <%= image_tag "icons/social/S/search.svg", alt: "" %>
+              <% end %>
+              <%= link_to admin_edit_resource_path(resource: 'subjects', id: subject.id), "aria-label": "Edit subject" do %>
+                <%= image_tag "icons/social/S/edit.svg", alt: "" %>
+              <% end %>
+              <button type="button" aria-label="Delete subject" data-action="delete-subject" data-subject-id="<%= subject.id %>" data-subject-title="<%= h(subject.title&.to_s || '') %>">
+                <%= image_tag "icons/social/S/delete.svg", alt: "" %>
+              </button>
+            </td>
+          </tr>
+        <% end %>
+        <% if @records.empty? %>
+          <tr>
+            <td colspan="6" class="text-center" style="padding: 40px; color: var(--content-secondary);">No subjects yet</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="schools-modal" id="delete-subject-modal" aria-hidden="true">
+  <div class="schools-modal__overlay"></div>
+  <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="delete-subject-modal-title">
+    <header class="schools-modal__header">
+      <h3 id="delete-subject-modal-title">Delete subject</h3>
+      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="delete-subject-modal">
+        <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
+      </button>
+    </header>
+    <div class="schools-modal__body">
+      <p>Are you sure you want to delete <strong data-subject-delete-title>this subject</strong>? This action cannot be undone.</p>
+    </div>
+    <div class="schools-modal__actions">
+      <button type="button" id="delete-subject-confirm-btn" class="schools-modal__primary schools-modal__primary--danger">Delete</button>
+      <button type="button" class="schools-modal__secondary" data-close-modal="delete-subject-modal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Search functionality, drag and drop, and delete handler
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('subjects-search-input');
+    const subjectsTable = document.getElementById('subjects-tbody');
+    const tbody = subjectsTable;
+    
+    if (searchInput && subjectsTable) {
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        const rows = subjectsTable.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+          // Skip empty row message
+          if (row.querySelector('td[colspan]')) {
+            row.style.display = '';
+            return;
+          }
+          
+          // Get text content from relevant cells
+          const cells = row.querySelectorAll('td');
+          if (cells.length < 6) return;
+          
+          const titleCell = cells[2];
+          const slugCell = cells[3];
+          
+          // Get text content
+          const titleText = titleCell.textContent.toLowerCase();
+          const slugText = slugCell.textContent.toLowerCase();
+          
+          // Check if search term matches
+          const matches = titleText.includes(searchTerm) || slugText.includes(searchTerm);
+          
+          // Show/hide row based on match
+          row.style.display = matches ? '' : 'none';
+        });
+        
+        // Show/hide empty message based on visible rows
+        const visibleRows = Array.from(rows).filter(row => {
+          return row.style.display !== 'none' && !row.querySelector('td[colspan]');
+        });
+        
+        const emptyRow = subjectsTable.querySelector('tr td[colspan]');
+        if (emptyRow) {
+          const emptyRowElement = emptyRow.closest('tr');
+          if (emptyRowElement) {
+            emptyRowElement.style.display = visibleRows.length === 0 ? '' : 'none';
+          }
+        }
+      });
+    }
+
+    // Delete subject handler
+    let deleteSubjectId = null;
+
+    document.querySelectorAll('[data-action="delete-subject"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        deleteSubjectId = btn.getAttribute('data-subject-id');
+        const title = btn.getAttribute('data-subject-title') || '';
+        const deleteTitleEl = document.querySelector('[data-subject-delete-title]');
+        if (deleteTitleEl) {
+          deleteTitleEl.textContent = title;
+        }
+        
+        const deleteModal = document.getElementById('delete-subject-modal');
+        if (deleteModal) {
+          deleteModal.setAttribute('aria-hidden', 'false');
+          deleteModal.classList.add('is-open');
+        }
+      });
+    });
+
+    // Close modal handlers
+    document.querySelectorAll('[data-close-modal="delete-subject-modal"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById('delete-subject-modal');
+        if (modal) {
+          const focusedElement = modal.querySelector(':focus');
+          if (focusedElement) focusedElement.blur();
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    // Close on overlay click
+    const overlay = document.querySelector('#delete-subject-modal .schools-modal__overlay');
+    if (overlay) {
+      overlay.addEventListener('click', function() {
+        const modal = document.getElementById('delete-subject-modal');
+        if (modal) {
+          const focusedElement = modal.querySelector(':focus');
+          if (focusedElement) focusedElement.blur();
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    }
+
+    // Delete subject confirm button
+    const deleteBtn = document.getElementById('delete-subject-confirm-btn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async () => {
+        if (!deleteSubjectId) return;
+        
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = 'Deleting...';
+
+        try {
+          // Get CSRF token from meta tag
+          const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+          if (!csrfToken) {
+            throw new Error('CSRF token not found');
+          }
+
+          const url = `/admin/subjects/${deleteSubjectId}`;
+          
+          // Rails expects CSRF token in both header and body for DELETE requests
+          const formData = new URLSearchParams();
+          formData.append('_method', 'delete');
+          formData.append('authenticity_token', csrfToken);
+          
+          // Use fetch with proper CSRF token in both header and body
+          const response = await fetch(url, {
+            method: 'POST', // Use POST because Rails uses _method override for DELETE
+            headers: {
+              'X-CSRF-Token': csrfToken,
+              'Accept': 'text/html',
+              'X-Requested-With': 'XMLHttpRequest',
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString(),
+            credentials: 'same-origin'
+          });
+
+          // Close modal first
+          const modal = document.getElementById('delete-subject-modal');
+          if (modal) {
+            const focusedElement = modal.querySelector(':focus');
+            if (focusedElement) focusedElement.blur();
+            modal.setAttribute('aria-hidden', 'true');
+            modal.classList.remove('is-open');
+          }
+
+          // Rails redirects on destroy (302/303) - follow redirect
+          if (response.status === 303 || response.status === 302) {
+            const redirectUrl = response.headers.get('Location') || '/admin/subjects';
+            window.location.href = redirectUrl;
+          } else if (response.ok) {
+            // Success - reload
+            window.location.reload();
+          } else {
+            // Error - try to get message from response
+            let errorMessage = 'Nie można usunąć przedmiotu';
+            try {
+              const text = await response.text();
+              if (text) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const alertElement = doc.querySelector('.alert-danger');
+                if (alertElement) {
+                  errorMessage = alertElement.textContent.trim();
+                }
+              }
+            } catch (e) {
+              console.error('Error parsing response:', e);
+            }
+            
+            alert(errorMessage);
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = 'Delete';
+          }
+        } catch (error) {
+          console.error('Delete error:', error);
+          
+          // Close modal even on error
+          const modal = document.getElementById('delete-subject-modal');
+          if (modal) {
+            const focusedElement = modal.querySelector(':focus');
+            if (focusedElement) focusedElement.blur();
+            modal.setAttribute('aria-hidden', 'true');
+            modal.classList.remove('is-open');
+          }
+          
+          alert('Error: ' + String(error.message || 'Unknown error'));
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = 'Delete';
+        }
+      });
+    }
+
+    // Drag and drop functionality
+    if (tbody) {
+      let draggedRow = null;
+      let dropIndicator = null;
+
+      // Create drop indicator line
+      function createDropIndicator() {
+        if (!dropIndicator) {
+          dropIndicator = document.createElement('div');
+          dropIndicator.className = 'drop-indicator';
+          dropIndicator.style.display = 'none';
+          // Find the schools-card container
+          const cardContainer = tbody.closest('.schools-card');
+          if (cardContainer) {
+            cardContainer.appendChild(dropIndicator);
+          } else {
+            tbody.parentElement.appendChild(dropIndicator);
+          }
+        }
+        return dropIndicator;
+      }
+
+      function showDropIndicator(element, position) {
+        const indicator = createDropIndicator();
+        const rect = element.getBoundingClientRect();
+        const cardContainer = tbody.closest('.schools-card') || tbody.parentElement;
+        const cardRect = cardContainer.getBoundingClientRect();
+        
+        if (position === 'top') {
+          indicator.style.top = (rect.top - cardRect.top + cardContainer.scrollTop) + 'px';
+        } else {
+          indicator.style.top = (rect.bottom - cardRect.top + cardContainer.scrollTop) + 'px';
+        }
+        indicator.style.left = (rect.left - cardRect.left) + 'px';
+        indicator.style.width = rect.width + 'px';
+        indicator.style.display = 'block';
+      }
+
+      function hideDropIndicator() {
+        if (dropIndicator) {
+          dropIndicator.style.display = 'none';
+        }
+      }
+
+      // Make rows draggable
+      const rows = tbody.querySelectorAll('tr[data-subject-id]');
+      rows.forEach((row) => {
+        row.draggable = true;
+        
+        row.addEventListener('dragstart', function(e) {
+          draggedRow = this;
+          this.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/html', this.innerHTML);
+          // Hide the row visually but keep space
+          this.style.opacity = '0.5';
+        });
+
+        row.addEventListener('dragend', function() {
+          this.classList.remove('dragging');
+          this.style.opacity = '';
+          rows.forEach(r => {
+            r.classList.remove('drag-over-top', 'drag-over-bottom');
+          });
+          hideDropIndicator();
+        });
+
+        row.addEventListener('dragover', function(e) {
+          if (e.preventDefault) {
+            e.preventDefault();
+          }
+          e.dataTransfer.dropEffect = 'move';
+          
+          if (draggedRow === this) {
+            hideDropIndicator();
+            return false;
+          }
+
+          const rect = this.getBoundingClientRect();
+          const mouseY = e.clientY;
+          const rowMiddle = rect.top + rect.height / 2;
+          
+          // Determine if we're dropping above or below the row
+          if (mouseY < rowMiddle) {
+            this.classList.remove('drag-over-bottom');
+            this.classList.add('drag-over-top');
+            showDropIndicator(this, 'top');
+          } else {
+            this.classList.remove('drag-over-top');
+            this.classList.add('drag-over-bottom');
+            showDropIndicator(this, 'bottom');
+          }
+          
+          return false;
+        });
+
+        row.addEventListener('dragleave', function(e) {
+          this.classList.remove('drag-over-top', 'drag-over-bottom');
+          // Only hide indicator if we're leaving the row completely
+          const rect = this.getBoundingClientRect();
+          if (e.clientY < rect.top || e.clientY > rect.bottom) {
+            hideDropIndicator();
+          }
+        });
+
+        row.addEventListener('drop', function(e) {
+          if (e.stopPropagation) {
+            e.stopPropagation();
+          }
+
+          if (draggedRow !== this) {
+            const allRows = Array.from(tbody.querySelectorAll('tr[data-subject-id]'));
+            const draggedIndex = allRows.indexOf(draggedRow);
+            const targetIndex = allRows.indexOf(this);
+            
+            const rect = this.getBoundingClientRect();
+            const mouseY = e.clientY;
+            const rowMiddle = rect.top + rect.height / 2;
+            const insertBefore = mouseY < rowMiddle;
+
+            if (draggedIndex < targetIndex) {
+              // Moving down
+              if (insertBefore) {
+                tbody.insertBefore(draggedRow, this);
+              } else {
+                tbody.insertBefore(draggedRow, this.nextSibling);
+              }
+            } else {
+              // Moving up
+              if (insertBefore) {
+                tbody.insertBefore(draggedRow, this);
+              } else {
+                tbody.insertBefore(draggedRow, this.nextSibling);
+              }
+            }
+
+            // Update order indices visually
+            updateOrderIndices();
+
+            // Save new order to server
+            saveOrder();
+          }
+
+          this.classList.remove('drag-over-top', 'drag-over-bottom');
+          hideDropIndicator();
+          return false;
+        });
+      });
+
+      function updateOrderIndices() {
+        const rows = tbody.querySelectorAll('tr[data-subject-id]');
+        rows.forEach((row, index) => {
+          const orderCell = row.querySelector('.order-index');
+          if (orderCell) {
+            orderCell.textContent = index + 1;
+          }
+        });
+      }
+
+      async function saveOrder() {
+        const rows = tbody.querySelectorAll('tr[data-subject-id]');
+        const subjectIds = Array.from(rows).map(row => row.getAttribute('data-subject-id'));
+
+        try {
+          const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+          const response = await fetch('/admin/subjects/reorder', {
+            method: 'POST',
+            headers: {
+              'X-CSRF-Token': csrfToken,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ subject_ids: subjectIds })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to save order');
+          }
+        } catch (error) {
+          console.error('Error saving order:', error);
+          alert('Nie udało się zapisać kolejności. Odśwież stronę.');
+          window.location.reload();
+        }
+      }
+    }
+  });
+</script>
+
+<style>
+  .sortable-row {
+    transition: background-color 0.2s ease;
+    position: relative;
+  }
+
+  .sortable-row.dragging {
+    opacity: 0.3;
+    background-color: var(--surface-hover, #f5f5f5);
+  }
+
+  .sortable-row.drag-over-top {
+    border-top: 2px solid transparent;
+  }
+
+  .sortable-row.drag-over-bottom {
+    border-bottom: 2px solid transparent;
+  }
+
+  .sortable-handle {
+    cursor: move;
+    user-select: none;
+  }
+
+  .sortable-handle:hover {
+    color: var(--content-primary, #000);
+  }
+
+  .drop-indicator {
+    position: absolute;
+    height: 3px;
+    background: var(--button-primary, #0066cc);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 0 4px rgba(0, 102, 204, 0.5);
+    transition: opacity 0.1s ease;
+  }
+
+  .schools-card {
+    position: relative;
+  }
+</style>
+

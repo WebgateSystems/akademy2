@@ -14,6 +14,7 @@ I18n/GetText/DecorateString:
   Exclude:
     - db/**/**/*.rb
     - 'lib/tasks/*.rake'
+    - 'app/controllers/admin/resources_controller.rb'
 
 I18n/RailsI18n/DecorateString:
   Enabled: false
@@ -44,6 +45,10 @@ Lint/DuplicateHashKey:
   Exclude:
     - 'db/seeds/**/*.rb'
 
+Lint/UnreachableCode:
+  Exclude:
+    - 'db/seeds/development/070_subjects_units_modules_contents.rb'
+
 Lint/UnusedMethodArgument:
   Exclude:
     - "app/uploaders/*.rb"
@@ -61,6 +66,7 @@ Metrics/BlockLength:
     - "config/**/*.rb"
     - "db/**/*.rb"
     - "lib/tasks/*.rake"
+    - "app/serializers/subject_complete_serializer.rb"
 
 Metrics/ClassLength:
   Exclude:
@@ -72,6 +78,7 @@ Metrics/CyclomaticComplexity:
   Max: 8
   Exclude:
     - "app/interactors/api/v1/events/list_events.rb"
+    - "app/controllers/admin/resources_controller.rb"
 
 Metrics/MethodLength:
   Max: 15
@@ -87,6 +94,20 @@ Metrics/MethodLength:
     - 'app/controllers/management/notifications_controller.rb'
     - 'app/controllers/management/dashboard_controller.rb'
     - 'app/services/notification_service.rb'
+    - 'app/controllers/admin/resources_controller.rb'
+    - 'app/interactors/api/v1/contents/show_content.rb'
+    - 'app/interactors/api/v1/learning_modules/show_learning_module.rb'
+    - 'app/controllers/admin/notifications_controller.rb'
+
+Metrics/PerceivedComplexity:
+  Max: 8
+  Exclude:
+    - "app/controllers/admin/resources_controller.rb"
+
+Metrics/BlockNesting:
+  Max: 3
+  Exclude:
+    - "app/controllers/admin/resources_controller.rb"
 
 Naming/MethodName:
   Exclude:
@@ -118,11 +139,16 @@ RSpec/MultipleExpectations:
 
 RSpec/MultipleMemoizedHelpers:
   Max: 10
+  Exclude:
+    - 'spec/requests/api/v1/contents_spec.rb'
 
 RSpec/ScatteredSetup:
   Exclude:
     - 'spec/requests/api/v1/management/students_spec.rb'
     - 'spec/requests/api/v1/management/academic_years_spec.rb'
+    - 'spec/requests/api/v1/subjects_spec.rb'
+    - 'spec/requests/api/v1/units_spec.rb'
+    - 'spec/requests/api/v1/contents_spec.rb'
 
 RSpec/NestedGroups:
   Max: 4

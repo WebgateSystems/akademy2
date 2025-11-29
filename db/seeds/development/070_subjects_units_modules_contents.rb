@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-return if Subject.exists? # usuń ten guard, jeśli chcesz uruchamiać wielokrotnie z nadpisaniem treści
+# DEPRECATED: Ten seed został zastąpiony przez 071_seven_learning_modules.rb
+# Usuwamy stare seedy dla "Bezpieczeństwo cyfrowe i e-obywatel" i "Ewakuacja"
+# które były specyficzne dla szkoły, a teraz mamy 7 globalnych modułów
 
-log('Create Subjects / Units / Modules / Contents...') if defined?(log)
+return # Skip this seed file - use 071_seven_learning_modules.rb instead
 
 # === Źródła plików (jeśli nie istnieją, tworzymy minimalne placeholdery) ===
 MEDIA_DIR = Rails.root.join('db/files/media')

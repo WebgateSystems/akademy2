@@ -9,6 +9,11 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root to: 'dashboard#index'
+    get 'notifications', to: 'notifications#index', as: :notifications
+    post 'notifications/mark_as_read', to: 'notifications#mark_as_read', as: :mark_notification_as_read
+    post 'subjects/reorder', to: 'resources#reorder_subjects', as: :reorder_subjects
+    post 'learning_modules/:id/reorder_contents', to: 'resources#reorder_learning_module_contents',
+                                                  as: :reorder_learning_module_contents
     get ':resource', to: 'resources#index', as: :resource_collection
     get ':resource/new', to: 'resources#new', as: :new_resource
     post ':resource', to: 'resources#create', as: :create_resource
@@ -110,6 +115,14 @@ Rails.application.routes.draw do
         end
       end
       resources :events, only: [:index]
+      resources :subjects, only: %i[index show] do
+        collection do
+          get :with_contents
+        end
+      end
+      resources :units, only: %i[index show]
+      resources :learning_modules, only: %i[index show]
+      resources :contents, only: %i[index show]
     end
   end
 

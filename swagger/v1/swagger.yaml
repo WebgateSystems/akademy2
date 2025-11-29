@@ -82,6 +82,157 @@ paths:
               required:
               - email
               - password
+  "/api/v1/contents":
+    get:
+      summary: List contents
+      tags:
+      - Contents
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: learning_module_id
+        in: query
+        format: uuid
+        required: false
+        description: Filter by learning module ID
+        schema:
+          type: string
+      responses:
+        '200':
+          description: contents filtered by learning_module_id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                        attributes:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            title:
+                              type: string
+                            content_type:
+                              type: string
+                            order_index:
+                              type: integer
+                            learning_module_id:
+                              type: string
+                              format: uuid
+                            learning_module_title:
+                              type: string
+                            duration_sec:
+                              type: integer
+                              nullable: true
+                            youtube_url:
+                              type: string
+                              nullable: true
+                            payload:
+                              type: object
+                              nullable: true
+                            file_url:
+                              type: string
+                              nullable: true
+                            poster_url:
+                              type: string
+                              nullable: true
+                            subtitles_url:
+                              type: string
+                              nullable: true
+                            created_at:
+                              type: string
+                            updated_at:
+                              type: string
+        '401':
+          description: unauthorized
+  "/api/v1/contents/{id}":
+    parameters:
+    - name: id
+      in: path
+      format: uuid
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Show content
+      tags:
+      - Contents
+      security:
+      - bearerAuth: []
+      description: Returns content details. Only contents from published learning
+        modules are accessible (unless admin)
+      responses:
+        '200':
+          description: content found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          title:
+                            type: string
+                          content_type:
+                            type: string
+                          order_index:
+                            type: integer
+                          learning_module_id:
+                            type: string
+                            format: uuid
+                          learning_module_title:
+                            type: string
+                          duration_sec:
+                            type: integer
+                            nullable: true
+                          youtube_url:
+                            type: string
+                            nullable: true
+                          payload:
+                            type: object
+                            nullable: true
+                          file_url:
+                            type: string
+                            nullable: true
+                          poster_url:
+                            type: string
+                            nullable: true
+                          subtitles_url:
+                            type: string
+                            nullable: true
+                          created_at:
+                            type: string
+                          updated_at:
+                            type: string
+        '404':
+          description: content not found
+        '403':
+          description: forbidden - content from unpublished module
+        '401':
+          description: unauthorized
   "/api/v1/headmasters":
     get:
       summary: List headmasters
@@ -301,6 +452,132 @@ paths:
           description: headmaster deleted
         '404':
           description: headmaster not found
+  "/api/v1/learning_modules":
+    get:
+      summary: List learning modules
+      tags:
+      - Learning Modules
+      security:
+      - bearerAuth: []
+      description: Returns only published learning modules
+      responses:
+        '200':
+          description: learning modules list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                        attributes:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            title:
+                              type: string
+                            order_index:
+                              type: integer
+                            unit_id:
+                              type: string
+                              format: uuid
+                            published:
+                              type: boolean
+                            single_flow:
+                              type: boolean
+                            unit_title:
+                              type: string
+                            subject_title:
+                              type: string
+                            subject_id:
+                              type: string
+                              format: uuid
+                            contents_count:
+                              type: integer
+                            created_at:
+                              type: string
+                            updated_at:
+                              type: string
+        '401':
+          description: unauthorized
+  "/api/v1/learning_modules/{id}":
+    parameters:
+    - name: id
+      in: path
+      format: uuid
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Show learning module
+      tags:
+      - Learning Modules
+      security:
+      - bearerAuth: []
+      description: Returns learning module details. Only published modules are accessible
+        (unless admin)
+      responses:
+        '200':
+          description: learning module found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          title:
+                            type: string
+                          order_index:
+                            type: integer
+                          unit_id:
+                            type: string
+                            format: uuid
+                          published:
+                            type: boolean
+                          single_flow:
+                            type: boolean
+                          unit_title:
+                            type: string
+                          subject_title:
+                            type: string
+                          subject_id:
+                            type: string
+                            format: uuid
+                          contents_count:
+                            type: integer
+                          created_at:
+                            type: string
+                          updated_at:
+                            type: string
+        '404':
+          description: learning module not found
+        '403':
+          description: forbidden - unpublished module
+        '401':
+          description: unauthorized
   "/api/v1/management/academic_years":
     get:
       summary: List academic years
@@ -1564,6 +1841,281 @@ paths:
           description: student unlocked
         '404':
           description: student not found
+  "/api/v1/subjects":
+    get:
+      summary: List subjects
+      tags:
+      - Subjects
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: subjects list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                        attributes:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            title:
+                              type: string
+                            slug:
+                              type: string
+                            order_index:
+                              type: integer
+                            icon_url:
+                              type: string
+                              nullable: true
+                            color_light:
+                              type: string
+                              nullable: true
+                            color_dark:
+                              type: string
+                              nullable: true
+                            created_at:
+                              type: string
+                            updated_at:
+                              type: string
+        '401':
+          description: unauthorized
+  "/api/v1/subjects/with_contents":
+    get:
+      summary: List subjects with contents
+      tags:
+      - Subjects
+      security:
+      - bearerAuth: []
+      description: Returns all subjects with full structure (unit → learning_module
+        → contents) for offline mode
+      responses:
+        '200':
+          description: subjects with contents
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                        attributes:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            title:
+                              type: string
+                            slug:
+                              type: string
+                            order_index:
+                              type: integer
+                            icon_url:
+                              type: string
+                              nullable: true
+                            color_light:
+                              type: string
+                              nullable: true
+                            color_dark:
+                              type: string
+                              nullable: true
+                            unit:
+                              type: object
+                              nullable: true
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                title:
+                                  type: string
+                                order_index:
+                                  type: integer
+                                learning_module:
+                                  type: object
+                                  nullable: true
+                                  properties:
+                                    id:
+                                      type: string
+                                      format: uuid
+                                    title:
+                                      type: string
+                                    order_index:
+                                      type: integer
+                                    published:
+                                      type: boolean
+                                    single_flow:
+                                      type: boolean
+                                    contents:
+                                      type: array
+                                      items:
+                                        type: object
+                                        properties:
+                                          id:
+                                            type: string
+                                            format: uuid
+                                          title:
+                                            type: string
+                                          content_type:
+                                            type: string
+                                          order_index:
+                                            type: integer
+                                          duration_sec:
+                                            type: integer
+                                            nullable: true
+                                          youtube_url:
+                                            type: string
+                                            nullable: true
+                                          payload:
+                                            type: object
+                                            nullable: true
+                                          file_url:
+                                            type: string
+                                            nullable: true
+                                          poster_url:
+                                            type: string
+                                            nullable: true
+                                          subtitles_url:
+                                            type: string
+                                            nullable: true
+        '401':
+          description: unauthorized
+  "/api/v1/subjects/{id}":
+    parameters:
+    - name: id
+      in: path
+      format: uuid
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Show subject
+      tags:
+      - Subjects
+      security:
+      - bearerAuth: []
+      description: Returns subject details with full structure (unit → learning_module
+        → contents)
+      responses:
+        '200':
+          description: subject found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          title:
+                            type: string
+                          slug:
+                            type: string
+                          order_index:
+                            type: integer
+                          icon_url:
+                            type: string
+                            nullable: true
+                          color_light:
+                            type: string
+                            nullable: true
+                          color_dark:
+                            type: string
+                            nullable: true
+                          unit:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              title:
+                                type: string
+                              order_index:
+                                type: integer
+                              learning_module:
+                                type: object
+                                nullable: true
+                                properties:
+                                  id:
+                                    type: string
+                                    format: uuid
+                                  title:
+                                    type: string
+                                  order_index:
+                                    type: integer
+                                  published:
+                                    type: boolean
+                                  single_flow:
+                                    type: boolean
+                                  contents:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        id:
+                                          type: string
+                                          format: uuid
+                                        title:
+                                          type: string
+                                        content_type:
+                                          type: string
+                                        order_index:
+                                          type: integer
+                                        duration_sec:
+                                          type: integer
+                                          nullable: true
+                                        youtube_url:
+                                          type: string
+                                          nullable: true
+                                        payload:
+                                          type: object
+                                          nullable: true
+                                        file_url:
+                                          type: string
+                                          nullable: true
+                                        poster_url:
+                                          type: string
+                                          nullable: true
+                                        subtitles_url:
+                                          type: string
+                                          nullable: true
+        '404':
+          description: subject not found
+        '401':
+          description: unauthorized
   "/api/v1/teachers":
     get:
       summary: List teachers
@@ -1896,3 +2448,110 @@ paths:
           description: teacher unlocked
         '404':
           description: teacher not found
+  "/api/v1/units":
+    get:
+      summary: List units
+      tags:
+      - Units
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: subject_id
+        in: query
+        format: uuid
+        required: false
+        description: Filter by subject ID
+        schema:
+          type: string
+      responses:
+        '200':
+          description: units filtered by subject_id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                        attributes:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            title:
+                              type: string
+                            order_index:
+                              type: integer
+                            subject_id:
+                              type: string
+                              format: uuid
+                            subject_title:
+                              type: string
+                            created_at:
+                              type: string
+                            updated_at:
+                              type: string
+        '401':
+          description: unauthorized
+  "/api/v1/units/{id}":
+    parameters:
+    - name: id
+      in: path
+      format: uuid
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Show unit
+      tags:
+      - Units
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: unit found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          title:
+                            type: string
+                          order_index:
+                            type: integer
+                          subject_id:
+                            type: string
+                            format: uuid
+                          subject_title:
+                            type: string
+                          created_at:
+                            type: string
+                          updated_at:
+                            type: string
+        '404':
+          description: unit not found
+        '401':
+          description: unauthorized
