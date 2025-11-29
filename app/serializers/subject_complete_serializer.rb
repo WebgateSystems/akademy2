@@ -4,7 +4,7 @@ class SubjectCompleteSerializer < ApplicationSerializer
   attributes :id, :title, :slug, :order_index, :color_light, :color_dark, :created_at, :updated_at
 
   attribute :icon_url do |subject|
-    subject.icon.url if subject.icon.present?
+    subject.icon.presence&.url
   end
 
   # Since each subject has one unit, and that unit has one learning_module
@@ -36,9 +36,9 @@ class SubjectCompleteSerializer < ApplicationSerializer
             duration_sec: content.duration_sec,
             youtube_url: content.youtube_url,
             payload: content.payload,
-            file_url: content.file.present? ? content.file.url : nil,
-            poster_url: content.poster.present? ? content.poster.url : nil,
-            subtitles_url: content.subtitles.present? ? content.subtitles.url : nil
+            file_url: content.file.presence&.url,
+            poster_url: content.poster.presence&.url,
+            subtitles_url: content.subtitles.presence&.url
           }
         end
       }

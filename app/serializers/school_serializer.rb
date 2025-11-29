@@ -3,6 +3,6 @@ class SchoolSerializer < ApplicationSerializer
              :updated_at
 
   attribute :logo_url do |school|
-    school.logo.url if school.logo.present?
+    school.logo.presence&.url
   end
 end

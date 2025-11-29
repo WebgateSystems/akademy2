@@ -9,14 +9,14 @@ class ContentSerializer < ApplicationSerializer
   end
 
   attribute :file_url do |content|
-    content.file.url if content.file.present?
+    content.file.presence&.url
   end
 
   attribute :poster_url do |content|
-    content.poster.url if content.poster.present?
+    content.poster.presence&.url
   end
 
   attribute :subtitles_url do |content|
-    content.subtitles.url if content.subtitles.present?
+    content.subtitles.presence&.url
   end
 end
