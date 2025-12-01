@@ -1,0 +1,158 @@
+<div class="dashboard-app" data-dashboard-app>
+  <%= render 'dashboard/sidebar', nav_path_helper: ->(school_class) { dashboard_quiz_results_path(@subject, class_id: school_class.id) } %>
+
+  <main class="dashboard-main">
+    <%= render 'dashboard/top_bar', title: @subject.title, back_path: dashboard_path(class_id: @current_class&.id) %>
+
+    <section class="classes-archive" aria-label="Quiz statistics">
+      <!-- Top row: 3 cards -->
+      <div class="classes-archive__grid">
+        <article class="school-profile-hero__stat-card" data-entity="completion">
+          <div class="school-profile-hero__stat-label">
+            <h3 class="stat-label text-body-2" style="margin: 0;">Completion rate</h3>
+          </div>
+          <div class="school-profile-hero__stat-value">
+            <span class="stat-value stat-value--filled"><%= @completion_rate %>%</span>
+          </div>
+        </article>
+
+        <article class="school-profile-hero__stat-card" data-entity="performance">
+          <div class="school-profile-hero__stat-label">
+            <h3 class="stat-label text-body-2" style="margin: 0;">Average performance</h3>
+          </div>
+          <div class="school-profile-hero__stat-value">
+            <span class="stat-value stat-value--filled"><%= @average_score %> pkt</span>
+          </div>
+        </article>
+
+        <article class="school-profile-hero__stat-card" data-entity="completion2">
+          <div class="school-profile-hero__stat-label">
+            <h3 class="stat-label text-body-2" style="margin: 0;">Completion rate</h3>
+          </div>
+          <div class="school-profile-hero__stat-value">
+            <span class="stat-value stat-value--filled"><%= @completion_rate %>%</span>
+          </div>
+        </article>
+      </div>
+
+      <!-- Bottom row: 4 distribution cards -->
+      <div class="classes-archive__grid classes-archive__grid--wide">
+        <article class="school-profile-hero__stat-card" data-entity="no-results">
+          <div class="school-profile-hero__stat-label">
+            <h3 class="stat-label text-body-2" style="margin: 0;">No results</h3>
+          </div>
+          <div class="school-profile-hero__stat-value">
+            <span class="stat-value stat-value--filled"><%= @distribution&.dig(:no_results) || 0 %>%</span>
+          </div>
+        </article>
+
+        <article class="school-profile-hero__stat-card" data-entity="bad-results">
+          <div class="school-profile-hero__stat-label">
+            <h3 class="stat-label text-body-2" style="margin: 0;">Bad results</h3>
+          </div>
+          <div class="school-profile-hero__stat-value">
+            <span class="stat-value stat-value--filled"><%= @distribution&.dig(:bad_results) || 0 %>%</span>
+          </div>
+        </article>
+
+        <article class="school-profile-hero__stat-card" data-entity="average-results">
+          <div class="school-profile-hero__stat-label">
+            <h3 class="stat-label text-body-2" style="margin: 0;">Average results</h3>
+          </div>
+          <div class="school-profile-hero__stat-value">
+            <span class="stat-value stat-value--filled"><%= @distribution&.dig(:average_results) || 0 %>%</span>
+          </div>
+        </article>
+
+        <article class="school-profile-hero__stat-card" data-entity="great-results">
+          <div class="school-profile-hero__stat-label">
+            <h3 class="stat-label text-body-2" style="margin: 0;">Great results</h3>
+          </div>
+          <div class="school-profile-hero__stat-value">
+            <span class="stat-value stat-value--filled"><%= @distribution&.dig(:great_results) || 0 %>%</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="quiz-results" aria-label="Pupil quiz results">
+      <table class="quiz-results-table">
+        <thead>
+          <tr>
+            <th scope="col" class="name">Pupil name</th>
+            <% (1..10).each do |num| %>
+              <th scope="col"><%= num %></th>
+            <% end %>
+            <th scope="col" class="score-col">Results</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @students.each do |student| %>
+            <tr>
+              <th scope="row"><%= student.last_name %> <%= student.first_name %></th>
+              <% (1..10).each do |question_num| %>
+                <% 
+                  # Get answer for this question from student's quiz results
+                  answer_data = get_student_answer(student.id, question_num)
+                  dot_class = answer_data[:status]
+                  question_text = answer_data[:question_text]
+                  answer_text = answer_data[:answer]
+                %>
+                <td>
+                  <span 
+                    class="quiz-result-dot <%= dot_class %> js-quiz-tooltip"
+                    data-question="Question <%= question_num %>"
+                    data-question-text="<%= question_text %>"
+                    data-answer="<%= answer_text %>"
+                  >
+                    <span class="visually-hidden"><%= dot_class == 'is-good' ? 'Correct' : (dot_class == 'is-bad' ? 'Incorrect' : 'No answer') %></span>
+                  </span>
+                </td>
+              <% end %>
+              <td>
+                <span class="quiz-results-score">
+                  <%= calculate_student_score(student.id) %> pkt
+                </span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<!-- Quiz tooltip (created dynamically by JS) -->
+<div class="quiz-tooltip" id="quiz-tooltip" style="display: none;">
+  <div class="quiz-tooltip__question"></div>
+  <div class="quiz-tooltip__text"></div>
+  <div class="quiz-tooltip__answer"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const tooltip = document.getElementById('quiz-tooltip');
+  const dots = document.querySelectorAll('.js-quiz-tooltip');
+  
+  dots.forEach(dot => {
+    dot.addEventListener('mouseenter', function(e) {
+      const question = this.dataset.question;
+      const questionText = this.dataset.questionText;
+      const answer = this.dataset.answer;
+      
+      tooltip.querySelector('.quiz-tooltip__question').textContent = question;
+      tooltip.querySelector('.quiz-tooltip__text').textContent = questionText || 'Brak pytania';
+      tooltip.querySelector('.quiz-tooltip__answer').textContent = answer ? 'Odpowiedź: ' + answer : 'Brak odpowiedzi';
+      
+      const rect = this.getBoundingClientRect();
+      tooltip.style.display = 'block';
+      tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
+      tooltip.style.top = (rect.top - tooltip.offsetHeight - 10 + window.scrollY) + 'px';
+    });
+    
+    dot.addEventListener('mouseleave', function() {
+      tooltip.style.display = 'none';
+    });
+  });
+});
+</script>
