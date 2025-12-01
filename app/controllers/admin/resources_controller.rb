@@ -443,11 +443,14 @@ class Admin::ResourcesController < Admin::BaseController
   def handle_content_payload(params_hash)
     return unless @resource_class == Content
 
+    payload_set = false
+
     # Handle payload_json (for quiz)
     if params[:content] && params[:content][:payload_json].present?
       begin
         parsed_payload = JSON.parse(params[:content][:payload_json])
         params_hash[:payload] = parsed_payload
+        payload_set = true
       rescue JSON::ParserError => e
         # Add error to record - Rails will handle validation failure
         if @record
@@ -459,8 +462,8 @@ class Admin::ResourcesController < Admin::BaseController
       end
     end
 
-    # Handle payload_subtitles_lang (for video)
-    if params[:content] && params[:content][:payload_subtitles_lang].present?
+    # Handle payload_subtitles_lang (for video) - only if payload_json wasn't set
+    if !payload_set && params[:content] && params[:content][:payload_subtitles_lang].present?
       params_hash[:payload] = { 'subtitles_lang' => params[:content][:payload_subtitles_lang] }
     end
 
