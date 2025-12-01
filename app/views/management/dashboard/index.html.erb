@@ -207,8 +207,9 @@
     
     const qrImage = document.getElementById('qr-code-image');
     if (qrImage) {
-      // Generate QR code URL
-      const qrSvgUrl = '<%= management_qr_code_svg_path %>' + '?theme=' + (isDark ? 'dark' : 'light');
+      // Generate QR code URL with theme and cache-busting timestamp
+      const theme = isDark ? 'dark' : 'light';
+      const qrSvgUrl = '<%= management_qr_code_svg_path %>' + '?theme=' + theme + '&t=' + Date.now();
       qrImage.src = qrSvgUrl;
       qrImage.style.display = 'block';
     }

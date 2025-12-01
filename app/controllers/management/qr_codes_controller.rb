@@ -8,11 +8,11 @@ module Management
 
       qr_url = register_teacher_url(school_slug: school.slug)
       theme = params[:theme] || 'light'
-      is_dark = theme == 'dark'
 
       qr = RQRCode::QRCode.new(qr_url)
+      qr_color = theme == 'dark' ? '#ffffff' : '#000000'
       svg = qr.as_svg(
-        color: is_dark ? 'ffffff' : '000000',
+        color: qr_color,
         shape_rendering: 'crispEdges',
         module_size: 6,
         standalone: true,
