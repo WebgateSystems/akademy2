@@ -144,6 +144,12 @@ paths:
                             file_url:
                               type: string
                               nullable: true
+                            file_hash:
+                              type: string
+                              nullable: true
+                            file_format:
+                              type: string
+                              nullable: true
                             poster_url:
                               type: string
                               nullable: true
@@ -215,6 +221,12 @@ paths:
                             type: object
                             nullable: true
                           file_url:
+                            type: string
+                            nullable: true
+                          file_hash:
+                            type: string
+                            nullable: true
+                          file_format:
                             type: string
                             nullable: true
                           poster_url:
@@ -3058,6 +3070,12 @@ paths:
                                           file_url:
                                             type: string
                                             nullable: true
+                                          file_hash:
+                                            type: string
+                                            nullable: true
+                                          file_format:
+                                            type: string
+                                            nullable: true
                                           poster_url:
                                             type: string
                                             nullable: true
@@ -3169,6 +3187,12 @@ paths:
                                           type: object
                                           nullable: true
                                         file_url:
+                                          type: string
+                                          nullable: true
+                                        file_hash:
+                                          type: string
+                                          nullable: true
+                                        file_format:
                                           type: string
                                           nullable: true
                                         poster_url:

@@ -139,6 +139,8 @@ RSpec.describe 'Subjects API', type: :request do
                                          youtube_url: { type: :string, nullable: true },
                                          payload: { type: :object, nullable: true },
                                          file_url: { type: :string, nullable: true },
+                                         file_hash: { type: :string, nullable: true },
+                                         file_format: { type: :string, nullable: true },
                                          poster_url: { type: :string, nullable: true },
                                          subtitles_url: { type: :string, nullable: true }
                                        }
@@ -162,6 +164,10 @@ RSpec.describe 'Subjects API', type: :request do
           expect(json['data'].first['attributes']['unit']).to be_present
           expect(json['data'].first['attributes']['unit']['learning_module']).to be_present
           expect(json['data'].first['attributes']['unit']['learning_module']['contents']).to be_an(Array)
+          # Verify file_hash and file_format keys are present
+          content = json['data'].first['attributes']['unit']['learning_module']['contents'].first
+          expect(content).to have_key('file_hash')
+          expect(content).to have_key('file_format')
         end
       end
 
@@ -243,6 +249,8 @@ RSpec.describe 'Subjects API', type: :request do
                                        youtube_url: { type: :string, nullable: true },
                                        payload: { type: :object, nullable: true },
                                        file_url: { type: :string, nullable: true },
+                                       file_hash: { type: :string, nullable: true },
+                                       file_format: { type: :string, nullable: true },
                                        poster_url: { type: :string, nullable: true },
                                        subtitles_url: { type: :string, nullable: true }
                                      }
@@ -265,6 +273,10 @@ RSpec.describe 'Subjects API', type: :request do
           expect(json['data']['attributes']['unit']).to be_present
           expect(json['data']['attributes']['unit']['learning_module']).to be_present
           expect(json['data']['attributes']['unit']['learning_module']['contents']).to be_an(Array)
+          # Verify file_hash and file_format keys are present
+          content = json['data']['attributes']['unit']['learning_module']['contents'].first
+          expect(content).to have_key('file_hash')
+          expect(content).to have_key('file_format')
         end
       end
 

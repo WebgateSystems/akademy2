@@ -37,6 +37,8 @@ class SubjectCompleteSerializer < ApplicationSerializer
             youtube_url: content.youtube_url,
             payload: content.payload,
             file_url: content.file.presence&.url,
+            file_hash: content.file_hash,
+            file_format: content.file_format,
             poster_url: content.poster.presence&.url,
             subtitles_url: content.subtitles.presence&.url
           }

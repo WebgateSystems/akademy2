@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_29_000003) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_01_121231) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -45,6 +45,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_29_000003) do
     t.datetime "created_at", null: false
     t.integer "duration_sec"
     t.string "file"
+    t.string "file_format"
+    t.string "file_hash"
     t.uuid "learning_module_id", null: false
     t.integer "order_index", default: 0, null: false
     t.jsonb "payload", default: {}, null: false
@@ -54,6 +56,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_29_000003) do
     t.datetime "updated_at", null: false
     t.string "youtube_url"
     t.index ["content_type"], name: "index_contents_on_content_type"
+    t.index ["file_hash"], name: "index_contents_on_file_hash"
     t.index ["learning_module_id", "order_index"], name: "index_contents_on_module_and_order"
     t.index ["learning_module_id"], name: "index_contents_on_learning_module_id"
   end

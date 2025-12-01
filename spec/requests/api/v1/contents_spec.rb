@@ -58,6 +58,8 @@ RSpec.describe 'Contents API', type: :request do
                            youtube_url: { type: :string, nullable: true },
                            payload: { type: :object, nullable: true },
                            file_url: { type: :string, nullable: true },
+                           file_hash: { type: :string, nullable: true },
+                           file_format: { type: :string, nullable: true },
                            poster_url: { type: :string, nullable: true },
                            subtitles_url: { type: :string, nullable: true },
                            created_at: { type: :string },
@@ -160,6 +162,8 @@ RSpec.describe 'Contents API', type: :request do
                          youtube_url: { type: :string, nullable: true },
                          payload: { type: :object, nullable: true },
                          file_url: { type: :string, nullable: true },
+                         file_hash: { type: :string, nullable: true },
+                         file_format: { type: :string, nullable: true },
                          poster_url: { type: :string, nullable: true },
                          subtitles_url: { type: :string, nullable: true },
                          created_at: { type: :string },
@@ -176,6 +180,9 @@ RSpec.describe 'Contents API', type: :request do
           expect(json['data']['attributes']['title']).to eq('Test Content')
           expect(json['data']['attributes']['content_type']).to eq('video')
           expect(json['data']['attributes']['youtube_url']).to eq('https://youtube.com/watch?v=test')
+          # file_hash and file_format are nil when no file uploaded
+          expect(json['data']['attributes']).to have_key('file_hash')
+          expect(json['data']['attributes']).to have_key('file_format')
         end
       end
 

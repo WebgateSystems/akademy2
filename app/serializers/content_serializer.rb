@@ -2,7 +2,7 @@
 
 class ContentSerializer < ApplicationSerializer
   attributes :id, :title, :content_type, :order_index, :learning_module_id, :duration_sec, :youtube_url, :payload,
-             :created_at, :updated_at
+             :file_hash, :file_format, :created_at, :updated_at
 
   attribute :learning_module_title do |content|
     content.learning_module&.title
