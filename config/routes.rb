@@ -108,10 +108,16 @@ Rails.application.routes.draw do
   authenticated :user do
     root 'dashboard#index', as: :authenticated_root
     get '/dashboard', to: 'dashboard#index', as: :dashboard
+    get '/dashboard/quiz_results/:subject_id', to: 'dashboard#quiz_results', as: :dashboard_quiz_results
   end
 
   namespace :api do
     namespace :v1 do
+      namespace :teacher do
+        get 'dashboard', to: 'dashboard#index'
+        get 'dashboard/class/:id', to: 'dashboard#show_class', as: :dashboard_class
+      end
+
       resource :session, only: :create
       resources :schools, only: %i[index show create update destroy]
       resources :headmasters, only: %i[index show create update destroy] do

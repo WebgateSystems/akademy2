@@ -12,3 +12,39 @@
 @import 'pages/classes-management';
 @import 'pages/auth';
 @import 'pages/notifications';
+
+// Theme toggle button (sun/moon)
+#theme-toggle-btn {
+  position: relative;
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: rotate(20deg);
+  }
+  
+  .theme-icon-light,
+  .theme-icon-dark {
+    font-size: 18px;
+    transition: opacity 0.2s ease;
+  }
+  
+  // Default (light theme): show sun, hide moon
+  .theme-icon-dark {
+    display: none;
+  }
+  
+  .theme-icon-light {
+    display: inline-block;
+  }
+}
+
+// Dark theme: show moon, hide sun
+.theme-dark #theme-toggle-btn {
+  .theme-icon-dark {
+    display: inline-block;
+  }
+  
+  .theme-icon-light {
+    display: none;
+  }
+}

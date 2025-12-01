@@ -12,6 +12,8 @@ class User < ApplicationRecord
   has_many :child_links, foreign_key: 'student_id', class_name: 'ParentStudentLink',
                          dependent: :destroy, inverse_of: :student
   has_many :parents, through: :child_links, source: :parent
+  has_many :teacher_class_assignments, foreign_key: 'teacher_id', dependent: :destroy, inverse_of: :teacher
+  has_many :assigned_classes, through: :teacher_class_assignments, source: :school_class
 
   devise :database_authenticatable,
          :registerable,
