@@ -18,10 +18,37 @@ module HandleStatusCode
   end
 
   def success_response_params(result)
+    # Build params hash for serializer, including school_id if present
+    serializer_params = {}
+
+    # Safely convert result to hash for serializer params
+    if result.respond_to?(:to_h)
+      begin
+        hash_result = result.to_h
+        serializer_params.merge!(hash_result)
+      rescue ActionController::UnfilteredParameters
+        # If to_h fails, try to_unsafe_h (safe here as we're only reading)
+        serializer_params.merge!(result.to_unsafe_h) if result.respond_to?(:to_unsafe_h)
+      end
+    end
+
+    # Ensure school_id is set if present in result (override any from to_h)
+    # Interactor context stores school_id directly
+    if result.respond_to?(:school_id) && result.school_id
+      serializer_params[:school_id] = result.school_id
+      Rails.logger.debug "HandleStatusCode: school_id from result.school_id: #{result.school_id}"
+    elsif serializer_params[:school_id]
+      Rails.logger.debug "HandleStatusCode: school_id from serializer_params: #{serializer_params[:school_id]}"
+    else
+      Rails.logger.debug 'HandleStatusCode: No school_id found!'
+    end
+
+    Rails.logger.debug "HandleStatusCode: Final serializer_params[:school_id]: #{serializer_params[:school_id].inspect}"
+
     data = if result.form.is_a?(Hash)
              result.form
            elsif result.serializer
-             result.serializer.new(result.form, params: result.to_h).serializable_hash
+             result.serializer.new(result.form, params: serializer_params).serializable_hash
            else
              result.form.serializable_hash
            end

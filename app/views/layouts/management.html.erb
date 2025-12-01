@@ -35,6 +35,10 @@
             <i class="bi bi-building" aria-hidden="true"></i>
             <span class="dashboard-nav__label">School profile</span>
           <% end %>
+          <%= link_to management_administration_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/administration')}" do %>
+            <i class="bi bi-shield-check" aria-hidden="true"></i>
+            <span class="dashboard-nav__label">Administration</span>
+          <% end %>
           <%= link_to management_teachers_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/teachers')}" do %>
             <i class="bi bi-person-workspace" aria-hidden="true"></i>
             <span class="dashboard-nav__label">Teachers</span>

@@ -15,6 +15,8 @@ I18n/GetText/DecorateString:
     - db/**/**/*.rb
     - 'lib/tasks/*.rake'
     - 'app/controllers/admin/resources_controller.rb'
+    - 'app/interactors/api/v1/management/show_administration.rb'
+    - 'app/interactors/api/v1/management/update_administration.rb'
 
 I18n/RailsI18n/DecorateString:
   Enabled: false
@@ -73,12 +75,14 @@ Metrics/ClassLength:
     - "app/controllers/admin/resources_controller.rb"
     - "app/interactors/api/v1/management/create_class.rb"
     - "app/interactors/api/v1/management/update_class.rb"
+    - "app/interactors/api/v1/management/update_administration.rb"
 
 Metrics/CyclomaticComplexity:
   Max: 8
   Exclude:
     - "app/interactors/api/v1/events/list_events.rb"
     - "app/controllers/admin/resources_controller.rb"
+    - "app/controllers/concerns/handle_status_code.rb"
 
 Metrics/MethodLength:
   Max: 15
@@ -98,11 +102,16 @@ Metrics/MethodLength:
     - 'app/interactors/api/v1/contents/show_content.rb'
     - 'app/interactors/api/v1/learning_modules/show_learning_module.rb'
     - 'app/controllers/admin/notifications_controller.rb'
+    - 'app/interactors/api/v1/management/list_administrations.rb'
+    - 'app/interactors/api/v1/management/show_administration.rb'
+    - 'app/interactors/api/v1/management/update_administration.rb'
+    - 'app/controllers/concerns/handle_status_code.rb'
 
 Metrics/PerceivedComplexity:
   Max: 8
   Exclude:
     - "app/controllers/admin/resources_controller.rb"
+    - "app/controllers/concerns/handle_status_code.rb"
 
 Metrics/BlockNesting:
   Max: 3
@@ -149,6 +158,7 @@ RSpec/ScatteredSetup:
     - 'spec/requests/api/v1/subjects_spec.rb'
     - 'spec/requests/api/v1/units_spec.rb'
     - 'spec/requests/api/v1/contents_spec.rb'
+    - 'spec/requests/api/v1/management/administrations_spec.rb'
 
 RSpec/NestedGroups:
   Max: 4

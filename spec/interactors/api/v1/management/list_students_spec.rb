@@ -151,6 +151,9 @@ RSpec.describe Api::V1::Management::ListStudents do
       let(:context) { { current_user: school_manager, params: { search: 'Jan' } } }
 
       before do
+        # Ensure principal and school_manager have names that don't match search term
+        principal&.update(first_name: 'Principal', last_name: 'User')
+        school_manager&.update(first_name: 'Manager', last_name: 'User')
         principal
         school_manager
         school_class

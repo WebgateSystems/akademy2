@@ -47,6 +47,7 @@ Rails.application.routes.draw do
     root to: 'dashboard#index'
     get 'qr_code.svg', to: 'qr_codes#svg', as: :qr_code_svg
     get 'qr_code.png', to: 'qr_codes#png', as: :qr_code_png
+    get 'administration', to: 'administrations#index', as: :administration
     get 'teachers', to: 'teachers#index', as: :teachers
     get 'students', to: 'students#index', as: :students
     get 'notifications', to: 'notifications#index', as: :notifications
@@ -57,6 +58,12 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       namespace :management do
+        resources :administrations, only: %i[index show create update destroy] do
+          member do
+            post :resend_invite
+            post :lock
+          end
+        end
         resources :teachers, only: %i[index show create update destroy] do
           member do
             post :resend_invite
