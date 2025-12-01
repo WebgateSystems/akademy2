@@ -34,6 +34,10 @@ module Api
         def handle_metadata(params_hash)
           if params_hash[:metadata].present?
             params_hash[:metadata] = params_hash[:metadata].symbolize_keys
+            # Extract birth_date from metadata and save to birthdate field
+            if params_hash[:metadata][:birth_date].present? && params_hash[:birthdate].blank?
+              params_hash[:birthdate] = params_hash[:metadata][:birth_date]
+            end
           elsif context.params.dig(:student, :metadata, :phone).present?
             params_hash[:metadata] = { phone: context.params.dig(:student, :metadata, :phone) }
           end
@@ -49,7 +53,7 @@ module Api
 
         def student_params
           context.params.require(:student).permit(:first_name, :last_name, :email, :school_id, :password,
-                                                  :password_confirmation, metadata: {})
+                                                  :password_confirmation, :birthdate, metadata: {})
         end
 
         def save_student

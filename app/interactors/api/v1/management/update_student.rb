@@ -110,13 +110,17 @@ module Api
           return unless update_params[:metadata].present? || get_param_value(:student, :metadata, :phone).present?
 
           current_metadata = context.student.metadata || {}
-          update_params[:metadata] = if update_params[:metadata].present?
-                                       current_metadata.deep_merge(update_params[:metadata].symbolize_keys)
-                                     else
-                                       current_metadata.merge(
-                                         phone: get_param_value(:student, :metadata, :phone)
-                                       )
-                                     end
+          if update_params[:metadata].present?
+            update_params[:metadata] = current_metadata.deep_merge(update_params[:metadata].symbolize_keys)
+            # Extract birth_date from metadata and save to birthdate field
+            if update_params[:metadata][:birth_date].present? && update_params[:birthdate].blank?
+              update_params[:birthdate] = update_params[:metadata][:birth_date]
+            end
+          else
+            update_params[:metadata] = current_metadata.merge(
+              phone: get_param_value(:student, :metadata, :phone)
+            )
+          end
         end
 
         def update_class_assignment
@@ -148,7 +152,7 @@ module Api
                      ActionController::Parameters.new(context.params)
                    end
           params.require(:student).permit(:first_name, :last_name, :email, :password,
-                                          :password_confirmation, :school_class_id, metadata: {})
+                                          :password_confirmation, :school_class_id, :birthdate, metadata: {})
         end
 
         def get_param_value(*keys)

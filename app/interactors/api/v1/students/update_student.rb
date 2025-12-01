@@ -55,6 +55,10 @@ module Api
           if update_params[:metadata].present?
             current_metadata = context.student.metadata || {}
             update_params[:metadata] = current_metadata.deep_merge(update_params[:metadata].symbolize_keys)
+            # Extract birth_date from metadata and save to birthdate field
+            if update_params[:metadata][:birth_date].present? && update_params[:birthdate].blank?
+              update_params[:birthdate] = update_params[:metadata][:birth_date]
+            end
           elsif context.params.dig(:student, :metadata, :phone).present?
             current_metadata = context.student.metadata || {}
             update_params[:metadata] = current_metadata.merge(
@@ -65,7 +69,7 @@ module Api
 
         def student_params
           context.params.require(:student).permit(:first_name, :last_name, :email, :school_id, :password,
-                                                  :password_confirmation, metadata: {})
+                                                  :password_confirmation, :birthdate, metadata: {})
         end
       end
     end

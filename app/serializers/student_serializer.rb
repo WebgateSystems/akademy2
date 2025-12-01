@@ -15,8 +15,17 @@ class StudentSerializer < ApplicationSerializer
     student.metadata&.dig('phone')
   end
 
+  # Read from birthdate field, but also check metadata for backwards compatibility
   attribute :birth_date do |student|
-    student.metadata&.dig('birth_date')
+    if student.birthdate.present?
+      student.birthdate.strftime('%d.%m.%Y')
+    else
+      student.metadata&.dig('birth_date')
+    end
+  end
+
+  attribute :birthdate do |student|
+    student.birthdate&.strftime('%d.%m.%Y')
   end
 
   attribute :is_locked do |student|

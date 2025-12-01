@@ -25,5 +25,5 @@ SimpleCov.start 'rails' do
   add_group 'Policies', 'app/policies'
   add_group 'Forms', 'app/forms'
 
-  minimum_coverage(70)
+  minimum_coverage(75)
 end

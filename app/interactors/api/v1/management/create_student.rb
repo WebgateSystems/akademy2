@@ -53,6 +53,10 @@ module Api
         def handle_metadata(params_hash)
           if params_hash[:metadata].present?
             params_hash[:metadata] = params_hash[:metadata].symbolize_keys
+            # Extract birth_date from metadata and save to birthdate field
+            if params_hash[:metadata][:birth_date].present? && params_hash[:birthdate].blank?
+              params_hash[:birthdate] = params_hash[:metadata][:birth_date]
+            end
           elsif get_param_value(:student, :metadata, :phone).present?
             params_hash[:metadata] = { phone: get_param_value(:student, :metadata, :phone) }
           end
@@ -82,7 +86,7 @@ module Api
                      ActionController::Parameters.new(context.params)
                    end
           params.require(:student).permit(:first_name, :last_name, :email, :password,
-                                          :password_confirmation, :school_class_id, metadata: {})
+                                          :password_confirmation, :school_class_id, :birthdate, metadata: {})
         end
 
         def save_student

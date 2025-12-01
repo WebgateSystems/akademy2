@@ -47,6 +47,9 @@ module HandleStatusCode
 
     data = if result.form.is_a?(Hash)
              result.form
+           elsif result.form.is_a?(Array)
+             # Return array directly wrapped in data key
+             { data: result.form }
            elsif result.serializer
              result.serializer.new(result.form, params: serializer_params).serializable_hash
            else

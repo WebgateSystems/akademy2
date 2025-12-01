@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Api
   module V1
     module Schools
@@ -23,14 +25,8 @@ module Api
         end
 
         def build_school
-          context.school = School.new(school_params)
-          context.school.country = 'PL' if context.school.country.blank?
-          context.school.slug = context.school.name.parameterize if context.school.slug.blank?
-        end
-
-        def school_params
-          context.params.require(:school).permit(:name, :slug, :address, :city, :postcode, :country, :phone, :email,
-                                                 :homepage, :logo)
+          params_hash = school_params.to_h
+          context.school = School.new(params_hash)
         end
 
         def save_school
@@ -42,6 +38,14 @@ module Api
             context.message = context.school.errors.full_messages
             context.fail!
           end
+        end
+
+        def school_params
+          permitted = context.params.require(:school).permit(:name, :slug, :address, :city, :postcode, :country,
+                                                             :phone, :email, :homepage, :logo)
+          # Generate slug if blank and name present
+          permitted[:slug] = permitted[:name].parameterize if permitted[:slug].blank? && permitted[:name].present?
+          permitted
         end
       end
     end

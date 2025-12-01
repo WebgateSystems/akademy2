@@ -50,6 +50,7 @@ Rails.application.routes.draw do
     get 'administration', to: 'administrations#index', as: :administration
     get 'teachers', to: 'teachers#index', as: :teachers
     get 'students', to: 'students#index', as: :students
+    get 'parents', to: 'parents#index', as: :parents
     get 'notifications', to: 'notifications#index', as: :notifications
     get 'classes', to: 'classes#index', as: :classes
     get 'years', to: 'years#index', as: :years
@@ -78,6 +79,15 @@ Rails.application.routes.draw do
             post :lock
             post :approve
             delete :decline
+          end
+        end
+        resources :parents, only: %i[index show create update destroy] do
+          member do
+            post :resend_invite
+            post :lock
+          end
+          collection do
+            get :search_students
           end
         end
         resources :notifications, only: [] do

@@ -7,6 +7,11 @@ class User < ApplicationRecord
   has_many :roles, through: :user_roles
   has_many :student_class_enrollments, foreign_key: 'student_id', dependent: :destroy, inverse_of: :student
   has_many :school_classes, through: :student_class_enrollments
+  has_many :parent_student_links, foreign_key: 'parent_id', dependent: :destroy, inverse_of: :parent
+  has_many :students, through: :parent_student_links, source: :student
+  has_many :child_links, foreign_key: 'student_id', class_name: 'ParentStudentLink',
+                         dependent: :destroy, inverse_of: :student
+  has_many :parents, through: :child_links, source: :parent
 
   devise :database_authenticatable,
          :registerable,
@@ -33,6 +38,10 @@ class User < ApplicationRecord
 
   def student?
     roles.pluck(:key).include?('student')
+  end
+
+  def parent?
+    roles.pluck(:key).include?('parent')
   end
 
   private

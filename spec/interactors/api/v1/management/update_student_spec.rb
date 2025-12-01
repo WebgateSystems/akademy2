@@ -110,7 +110,6 @@ RSpec.describe Api::V1::Management::UpdateStudent do
       end
     end
 
-    # rubocop:disable RSpec/MultipleMemoizedHelpers
     context 'when user is not authorized' do
       let(:admin_role) { Role.find_or_create_by!(key: 'admin') { |r| r.name = 'Admin' } }
       let(:admin_user) do
@@ -143,7 +142,6 @@ RSpec.describe Api::V1::Management::UpdateStudent do
         expect(result).to be_failure
       end
     end
-    # rubocop:enable RSpec/MultipleMemoizedHelpers
 
     context 'with invalid params' do
       let(:context) do

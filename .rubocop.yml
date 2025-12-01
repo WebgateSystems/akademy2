@@ -69,6 +69,7 @@ Metrics/BlockLength:
     - "db/**/*.rb"
     - "lib/tasks/*.rake"
     - "app/serializers/subject_complete_serializer.rb"
+    - "app/serializers/parent_serializer.rb"
 
 Metrics/ClassLength:
   Exclude:
@@ -76,6 +77,9 @@ Metrics/ClassLength:
     - "app/interactors/api/v1/management/create_class.rb"
     - "app/interactors/api/v1/management/update_class.rb"
     - "app/interactors/api/v1/management/update_administration.rb"
+    - "app/interactors/api/v1/management/create_parent.rb"
+    - "app/interactors/api/v1/management/update_parent.rb"
+    - "app/interactors/api/v1/management/create_student.rb"
 
 Metrics/CyclomaticComplexity:
   Max: 8
@@ -83,6 +87,8 @@ Metrics/CyclomaticComplexity:
     - "app/interactors/api/v1/events/list_events.rb"
     - "app/controllers/admin/resources_controller.rb"
     - "app/controllers/concerns/handle_status_code.rb"
+    - "app/interactors/api/v1/management/create_parent.rb"
+    - "app/interactors/api/v1/management/update_parent.rb"
 
 Metrics/MethodLength:
   Max: 15
@@ -106,12 +112,17 @@ Metrics/MethodLength:
     - 'app/interactors/api/v1/management/show_administration.rb'
     - 'app/interactors/api/v1/management/update_administration.rb'
     - 'app/controllers/concerns/handle_status_code.rb'
+    - 'app/interactors/api/v1/management/create_parent.rb'
+    - 'app/interactors/api/v1/management/update_parent.rb'
+    - 'app/interactors/api/v1/management/list_parents.rb'
 
 Metrics/PerceivedComplexity:
   Max: 8
   Exclude:
     - "app/controllers/admin/resources_controller.rb"
     - "app/controllers/concerns/handle_status_code.rb"
+    - "app/interactors/api/v1/management/create_parent.rb"
+    - "app/interactors/api/v1/management/update_parent.rb"
 
 Metrics/BlockNesting:
   Max: 3
@@ -147,7 +158,7 @@ RSpec/MultipleExpectations:
   Max: 7 # Some tests legitimately need more expectations to verify complex behavior
 
 RSpec/MultipleMemoizedHelpers:
-  Max: 10
+  Max: 12
   Exclude:
     - 'spec/requests/api/v1/contents_spec.rb'
 
@@ -159,6 +170,7 @@ RSpec/ScatteredSetup:
     - 'spec/requests/api/v1/units_spec.rb'
     - 'spec/requests/api/v1/contents_spec.rb'
     - 'spec/requests/api/v1/management/administrations_spec.rb'
+    - 'spec/requests/api/v1/management/parents_spec.rb'
 
 RSpec/NestedGroups:
   Max: 4
