@@ -11,7 +11,11 @@ class Admin::BaseController < ApplicationController
   private
 
   def authenticate_admin!
-    redirect_to new_admin_session_path unless current_admin
+    return if current_admin
+
+    # Store the location user was trying to access
+    session[:return_to] = request.fullpath if request.get?
+    redirect_to new_admin_session_path
   end
 
   def current_admin

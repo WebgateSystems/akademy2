@@ -36,7 +36,7 @@ RSpec.describe 'Management controllers', type: :request do
       sign_in manager_without_school
       get management_root_path
 
-      expect(response).to redirect_to(authenticated_root_path)
+      expect(response).to redirect_to(management_root_path)
       expect(flash[:alert]).to include('Brak przypisanej szkoły')
     end
   end

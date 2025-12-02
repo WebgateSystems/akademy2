@@ -32,8 +32,20 @@ class Admin::SessionsController < ApplicationController
   end
 
   def handle_success(result)
+    # Clear redirect loop tracking on successful login
+    session.delete(:last_redirect_path) if session[:last_redirect_path]
+
     session[:admin_id] = result.access_token
-    redirect_to admin_root_path, notice: 'Welcome!'
+
+    # Check if user was trying to access a specific admin page
+    stored_location = session[:return_to] || session[:user_return_to]
+    if stored_location.present? && stored_location.start_with?('/admin')
+      session.delete(:return_to)
+      session.delete(:user_return_to)
+      redirect_to stored_location, notice: 'Welcome!'
+    else
+      redirect_to admin_root_path, notice: 'Welcome!'
+    end
   end
 
   def handle_failure(result)

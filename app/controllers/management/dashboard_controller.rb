@@ -4,7 +4,7 @@ module Management
   class DashboardController < Management::BaseController
     def index
       @school = current_school_manager.school
-      return redirect_to authenticated_root_path, alert: 'Brak przypisanej szkoły' unless @school
+      return redirect_to management_root_path, alert: 'Brak przypisanej szkoły' unless @school
 
       load_statistics
       load_school_info

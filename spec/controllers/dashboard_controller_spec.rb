@@ -33,10 +33,10 @@ RSpec.describe DashboardController, type: :request do
   end
 
   describe 'authentication' do
-    # Routes are inside `authenticated :user` block, so unauthenticated users get 404
-    it 'returns 404 for unauthenticated users' do
+    # Routes are accessible but require authentication (handled by controller)
+    it 'redirects unauthenticated users to login' do
       get dashboard_path
-      expect(response).to have_http_status(:not_found)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context 'when user is not a teacher' do
@@ -44,10 +44,11 @@ RSpec.describe DashboardController, type: :request do
 
       before { sign_in non_teacher }
 
-      it 'redirects to root with alert' do
+      it 'redirects to login page with alert to avoid redirect loop' do
         get dashboard_path
-        expect(response).to redirect_to(root_path)
+        expect(response).to redirect_to(new_user_session_path)
         expect(flash[:alert]).to include('nauczycieli')
+        expect(flash[:alert]).to include('Zaloguj się ponownie')
       end
     end
   end

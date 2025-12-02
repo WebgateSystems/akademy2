@@ -25,7 +25,14 @@ module Management
       policy = SchoolManagementPolicy.new(current_user, :school_management)
       return if policy.access?
 
-      redirect_to authenticated_root_path, alert: 'Brak uprawnień do zarządzania szkołą'
+      # Store the location user was trying to access (if not already stored)
+      session[:return_to] = request.fullpath if request.get? && session[:return_to].blank?
+
+      # Redirect to login instead of authenticated_root_path to avoid redirect loop
+      # authenticated_root_path points to dashboard which requires teacher role
+      # rubocop:disable I18n/GetText/DecorateString
+      redirect_to new_user_session_path, alert: 'Brak uprawnień do zarządzania szkołą. Zaloguj się ponownie.'
+      # rubocop:enable I18n/GetText/DecorateString
     end
 
     def set_management_token

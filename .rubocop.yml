@@ -87,6 +87,7 @@ Metrics/ClassLength:
     - "app/interactors/api/v1/management/create_student.rb"
     - "app/interactors/api/v1/management/approve_student.rb"
     - "app/services/notification_service.rb"
+    - "app/controllers/application_controller.rb"
 
 Metrics/CyclomaticComplexity:
   Max: 8
@@ -97,6 +98,7 @@ Metrics/CyclomaticComplexity:
     - "app/controllers/concerns/handle_status_code.rb"
     - "app/interactors/api/v1/management/create_parent.rb"
     - "app/interactors/api/v1/management/update_parent.rb"
+    - "app/controllers/application_controller.rb"
 
 Metrics/MethodLength:
   Max: 15
@@ -126,6 +128,7 @@ Metrics/MethodLength:
     - 'app/interactors/api/v1/management/update_parent.rb'
     - 'app/interactors/api/v1/management/list_parents.rb'
     - 'app/controllers/api/v1/teacher/dashboard_controller.rb'
+    - 'app/controllers/home_controller.rb'
 
 Metrics/PerceivedComplexity:
   Max: 8
@@ -137,6 +140,7 @@ Metrics/PerceivedComplexity:
     - "app/helpers/dashboard_helper.rb"
     - "app/interactors/api/v1/management/create_parent.rb"
     - "app/interactors/api/v1/management/update_parent.rb"
+    - "app/controllers/application_controller.rb"
 
 Metrics/BlockNesting:
   Max: 3
@@ -201,6 +205,8 @@ RSpec/VerifiedDoubles:
     - 'spec/interactors/base_interactor_spec.rb'
     - 'spec/interactors/api/v1/register/register_steps_spec.rb'
     - 'spec/policies/application_policy_spec.rb'
+    - 'spec/controllers/admin/sessions_controller_spec.rb'
+    - 'spec/requests/after_sign_in_redirect_spec.rb'
 
 RSpec/MessageSpies:
   Exclude:

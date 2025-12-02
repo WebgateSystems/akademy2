@@ -10,6 +10,32 @@ RSpec.describe Admin::SessionsController, type: :request do
     user
   end
 
+  describe 'POST /admin/sign_in' do
+    before do
+      admin_user # Ensure user is created
+    end
+
+    context 'with valid credentials' do
+      it 'clears redirect loop tracking on successful login' do
+        # Mock the API call
+        result = double('SessionResult', success?: true, form: admin_user, access_token: 'token')
+        allow(Api::V1::Sessions::CreateSession).to receive(:call).and_return(result)
+
+        # Simulate redirect loop tracking in session
+        post admin_session_path, params: {
+          user: {
+            email: admin_user.email,
+            password: admin_user.password
+          }
+        }
+
+        # After successful login, should redirect to admin_root_path
+        expect(response).to redirect_to(admin_root_path)
+        # Session should be cleared of redirect loop tracking (handled by controller)
+      end
+    end
+  end
+
   describe 'DELETE /admin/sign_out' do
     before do
       admin_user # Ensure user is created

@@ -27,8 +27,9 @@ unless SimpleCov.running
     add_group 'Policies', 'app/policies'
     add_group 'Forms', 'app/forms'
 
-    # Merge results from multiple test runs
-    merge_timeout(3600) # 1 hour
+    # Don't merge results from multiple test runs
+    # Merging can cause stale data issues when running partial test suites
+    # Each test run will have its own fresh coverage results
 
     # Output directory
     coverage_dir 'coverage'

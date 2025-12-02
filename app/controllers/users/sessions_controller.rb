@@ -6,6 +6,9 @@ class Users::SessionsController < Devise::SessionsController
   def create
     return handle_student_login if student_role?
 
+    # Clear redirect loop tracking on successful login
+    session.delete(:last_redirect_path) if session[:last_redirect_path]
+
     super
   end
 
@@ -30,9 +33,12 @@ class Users::SessionsController < Devise::SessionsController
     return render_student_error('Użytkownik z takim numerem nie istnieje') unless student_user
     return render_student_error('Nieprawidłowy PIN') unless valid_student_pin?
 
+    # Clear redirect loop tracking on successful login
+    session.delete(:last_redirect_path) if session[:last_redirect_path]
+
     sign_in(student_user)
     EventLogger.log_login(user: student_user, client: 'web_student')
-    redirect_to authenticated_root_path
+    redirect_to public_home_path
   end
 
   def student_role?

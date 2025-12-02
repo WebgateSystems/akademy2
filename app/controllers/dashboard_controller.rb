@@ -163,7 +163,13 @@ class DashboardController < ApplicationController
   def require_teacher!
     return if current_user.teacher?
 
-    redirect_to root_path, alert: 'Dostęp tylko dla nauczycieli'
+    # Store the location user was trying to access (if not already stored)
+    session[:return_to] = request.fullpath if request.get? && session[:return_to].blank?
+
+    # Redirect to login instead of root_path to avoid redirect loop
+    # rubocop:disable I18n/GetText/DecorateString
+    redirect_to new_user_session_path, alert: 'Dostęp tylko dla nauczycieli. Zaloguj się ponownie.'
+    # rubocop:enable I18n/GetText/DecorateString
   end
 
   def can_access_management?
