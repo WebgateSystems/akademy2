@@ -51,5 +51,18 @@ module DashboardHelper
     correct_count = answers.values.compact.count { |a| a[:correct] }
     correct_count * 10
   end
-end
 
+  # Get CSS class for score badge
+  def score_class(score)
+    case score
+    when 80..100
+      'score-great'
+    when 60...80
+      'score-good'
+    when 40...60
+      'score-average'
+    else
+      'score-poor'
+    end
+  end
+end

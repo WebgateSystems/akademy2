@@ -17,6 +17,11 @@ class ApiClient {
     if (managementTokenMeta) {
       return managementTokenMeta.getAttribute('content');
     }
+    // Check for dashboard-token (for teacher dashboard)
+    const dashboardTokenMeta = document.querySelector('meta[name="dashboard-token"]');
+    if (dashboardTokenMeta) {
+      return dashboardTokenMeta.getAttribute('content');
+    }
     return null;
   }
 

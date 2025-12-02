@@ -1,0 +1,340 @@
+.dashboard-app data-dashboard-app=""
+  = render 'dashboard/sidebar', nav_path_helper: ->(school_class) { dashboard_students_path(class_id: school_class.id) }
+
+  main.dashboard-main
+    = render 'dashboard/top_bar', title: "#{@student.first_name} #{@student.last_name}"
+
+    section.student-profile
+      .student-profile__header
+        .student-profile__left
+          .student-profile__avatar
+            - initials = "#{@student.first_name&.first}#{@student.last_name&.first}".upcase
+            span = initials
+          .student-profile__info
+            h2 = "#{@student.first_name} #{@student.last_name}"
+            p.student-profile__email = @student.email
+            - if @current_class
+              p.student-profile__class
+                i.bi.bi-mortarboard-fill aria-hidden="true"
+                = " Klasa: #{@current_class.name}"
+        = link_to dashboard_students_path(class_id: @current_class&.id), class: "schools-page__add" do
+          | BACK
+
+      .student-profile__details
+        .student-detail
+          span.student-detail__label Data urodzenia
+          span.student-detail__value = @student.birthdate&.strftime('%d.%m.%Y') || @student.metadata&.dig('birth_date') || '—'
+        .student-detail
+          span.student-detail__label Telefon
+          span.student-detail__value = @student.metadata&.dig('phone') || '—'
+        .student-detail
+          span.student-detail__label Email
+          span.student-detail__value = @student.email || '—'
+        .student-detail
+          span.student-detail__label Status konta
+          span.student-detail__value
+            - if @student.locked_at.present?
+              span.status-text.status-text--danger Zablokowany
+            - elsif @student.confirmed_at.present?
+              span.status-text.status-text--success Aktywny
+            - else
+              span.status-text.status-text--warning Oczekuje
+
+    section.student-results
+      h3 Wyniki z przedmiotów
+
+      .subject-results-grid
+        - @subjects.each do |subject|
+          - results = @subject_results[subject.id]
+          - next unless results
+
+          .subject-result-card
+            .subject-result-card__header
+              h4 = subject.title
+              .subject-result-card__stats
+                span.completion-badge
+                  = "#{results[:completion_rate]}%"
+                  |  ukończono
+
+            .subject-result-card__progress
+              .progress-bar
+                .progress-bar__fill style="width: #{results[:completion_rate]}%"
+              .progress-stats
+                span = "#{results[:completed]} / #{results[:total_modules]} modułów"
+                span.average-score
+                  | Średnia:
+                  strong = " #{results[:average_score]} pkt"
+
+            - if results[:quiz_results].any?
+              .subject-result-card__details
+                table.quiz-results-mini
+                  thead
+                    tr
+                      th Moduł
+                      th Wynik
+                      th Data
+                  tbody
+                    - results[:quiz_results].each do |qr|
+                      tr
+                        td = qr.learning_module&.title || '—'
+                        td
+                          span.score-badge class=score_class(qr.score)
+                            = "#{qr.score} pkt"
+                        td = qr.created_at.strftime('%d.%m.%Y')
+            - else
+              .subject-result-card__empty
+                p Brak wyników quizów
+
+    css:
+      .student-profile {
+        background: var(--surface-primary);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+      }
+
+      .student-profile__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 24px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border-muted);
+      }
+
+      .student-profile__left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .student-profile__avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        font-weight: 600;
+      }
+
+      .student-profile__info h2 {
+        margin: 0 0 4px 0;
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--content-primary);
+      }
+
+      .student-profile__email {
+        margin: 0 0 8px 0;
+        color: var(--content-secondary);
+        font-size: 14px;
+      }
+
+      .student-profile__class {
+        margin: 0;
+        color: var(--content-secondary);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .student-profile__details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+      }
+
+      .student-detail {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .student-detail__label {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--content-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .student-detail__value {
+        font-size: 14px;
+        color: var(--content-primary);
+        font-weight: 500;
+      }
+
+      .status-text--success { color: var(--state-success); }
+      .status-text--warning { color: var(--state-warning); }
+      .status-text--danger { color: var(--state-error); }
+
+      .student-results h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--content-primary);
+        margin: 0 0 16px 0;
+      }
+
+      .subject-results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+      }
+
+      .subject-result-card {
+        background: var(--surface-primary);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .subject-result-card__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      .subject-result-card__header h4 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--content-primary);
+      }
+
+      .completion-badge {
+        background: var(--surface-secondary);
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--content-secondary);
+      }
+
+      .subject-result-card__progress {
+        margin-bottom: 16px;
+      }
+
+      .progress-bar {
+        height: 8px;
+        background: var(--surface-secondary);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 8px;
+      }
+
+      .progress-bar__fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+
+      .progress-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        color: var(--content-secondary);
+      }
+
+      .average-score strong {
+        color: var(--content-primary);
+      }
+
+      .quiz-results-mini {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      .quiz-results-mini th {
+        text-align: left;
+        padding: 8px 12px;
+        font-weight: 500;
+        color: var(--content-secondary);
+        border-bottom: 1px solid var(--border-muted);
+      }
+
+      .quiz-results-mini td {
+        padding: 8px 12px;
+        color: var(--content-primary);
+        border-bottom: 1px solid var(--border-muted);
+      }
+
+      .quiz-results-mini tr:last-child td {
+        border-bottom: none;
+      }
+
+      .score-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 12px;
+      }
+
+      .score-badge.score-great {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .score-badge.score-good {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .score-badge.score-average {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .score-badge.score-poor {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .subject-result-card__empty {
+        text-align: center;
+        padding: 20px;
+        color: var(--content-secondary);
+        font-size: 14px;
+      }
+
+      .subject-result-card__details {
+        border-top: 1px solid var(--border-muted);
+        padding-top: 16px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      [data-theme="dark"] .student-profile,
+      [data-theme="dark"] .subject-result-card {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+
+      [data-theme="dark"] .score-badge.score-great {
+        background: rgba(16, 185, 129, 0.2);
+        color: #34d399;
+      }
+
+      [data-theme="dark"] .score-badge.score-good {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+      }
+
+      [data-theme="dark"] .score-badge.score-average {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fbbf24;
+      }
+
+      [data-theme="dark"] .score-badge.score-poor {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+      }
+

@@ -17,6 +17,7 @@ I18n/GetText/DecorateString:
     - 'app/controllers/admin/resources_controller.rb'
     - 'app/interactors/api/v1/management/show_administration.rb'
     - 'app/interactors/api/v1/management/update_administration.rb'
+    - 'app/services/notification_service.rb'
 
 I18n/RailsI18n/DecorateString:
   Enabled: false
@@ -70,22 +71,28 @@ Metrics/BlockLength:
     - "lib/tasks/*.rake"
     - "app/serializers/subject_complete_serializer.rb"
     - "app/serializers/parent_serializer.rb"
+    - "app/controllers/dashboard_controller.rb"
 
 Metrics/ClassLength:
   Exclude:
     - "app/controllers/admin/resources_controller.rb"
+    - "app/controllers/dashboard_controller.rb"
+    - "app/controllers/api/v1/teacher/dashboard_controller.rb"
     - "app/interactors/api/v1/management/create_class.rb"
     - "app/interactors/api/v1/management/update_class.rb"
     - "app/interactors/api/v1/management/update_administration.rb"
     - "app/interactors/api/v1/management/create_parent.rb"
     - "app/interactors/api/v1/management/update_parent.rb"
     - "app/interactors/api/v1/management/create_student.rb"
+    - "app/interactors/api/v1/management/approve_student.rb"
+    - "app/services/notification_service.rb"
 
 Metrics/CyclomaticComplexity:
   Max: 8
   Exclude:
     - "app/interactors/api/v1/events/list_events.rb"
     - "app/controllers/admin/resources_controller.rb"
+    - "app/controllers/dashboard_controller.rb"
     - "app/controllers/concerns/handle_status_code.rb"
     - "app/interactors/api/v1/management/create_parent.rb"
     - "app/interactors/api/v1/management/update_parent.rb"
@@ -96,6 +103,7 @@ Metrics/MethodLength:
     - "db/**/*.rb"
     - "app/interactors/api/v1/events/list_events.rb"
     - 'app/interactors/api/v1/management/approve_teacher.rb'
+    - 'app/interactors/api/v1/management/approve_student.rb'
     - 'app/interactors/api/v1/management/create_class.rb'
     - 'app/interactors/api/v1/management/update_class.rb'
     - 'app/interactors/api/v1/management/archive_year.rb'
@@ -103,6 +111,7 @@ Metrics/MethodLength:
     - 'app/controllers/api/v1/management/notifications_controller.rb'
     - 'app/controllers/management/notifications_controller.rb'
     - 'app/controllers/management/dashboard_controller.rb'
+    - 'app/controllers/dashboard_controller.rb'
     - 'app/services/notification_service.rb'
     - 'app/controllers/admin/resources_controller.rb'
     - 'app/interactors/api/v1/contents/show_content.rb'
@@ -115,12 +124,16 @@ Metrics/MethodLength:
     - 'app/interactors/api/v1/management/create_parent.rb'
     - 'app/interactors/api/v1/management/update_parent.rb'
     - 'app/interactors/api/v1/management/list_parents.rb'
+    - 'app/controllers/api/v1/teacher/dashboard_controller.rb'
 
 Metrics/PerceivedComplexity:
   Max: 8
   Exclude:
     - "app/controllers/admin/resources_controller.rb"
+    - "app/controllers/dashboard_controller.rb"
+    - "app/controllers/api/v1/teacher/dashboard_controller.rb"
     - "app/controllers/concerns/handle_status_code.rb"
+    - "app/helpers/dashboard_helper.rb"
     - "app/interactors/api/v1/management/create_parent.rb"
     - "app/interactors/api/v1/management/update_parent.rb"
 
@@ -147,6 +160,10 @@ Rails/SkipsModelValidations:
     - "db/seeds/**/*.rb"
     - "spec/**/*.rb" # update_column is intentionally used in tests to simulate edge cases
 
+Rails/HelperInstanceVariable:
+  Exclude:
+    - "app/helpers/dashboard_helper.rb"
+
 RSpec/EmptyExampleGroup:
   Exclude:
     - "spec/**/*.rb"
@@ -171,6 +188,10 @@ RSpec/ScatteredSetup:
     - 'spec/requests/api/v1/contents_spec.rb'
     - 'spec/requests/api/v1/management/administrations_spec.rb'
     - 'spec/requests/api/v1/management/parents_spec.rb'
+
+RSpec/LetSetup:
+  Exclude:
+    - 'spec/controllers/dashboard_controller_spec.rb'
 
 RSpec/NestedGroups:
   Max: 4

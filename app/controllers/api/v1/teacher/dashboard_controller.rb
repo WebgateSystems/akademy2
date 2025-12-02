@@ -29,7 +29,7 @@ module Api
         # GET /api/v1/teacher/dashboard/class/:id
         def show_class
           @school_class = current_user.assigned_classes.find(params[:id])
-          
+
           render json: {
             success: true,
             data: {
@@ -137,16 +137,16 @@ module Api
 
         def subjects_with_results(school_class)
           student_ids = school_class.students.pluck(:id)
-          
+
           Subject.where(school_id: [nil, current_user.school_id])
                  .includes(units: :learning_modules)
                  .order(:order_index)
                  .map do |subject|
             module_ids = subject.units.flat_map { |u| u.learning_modules.pluck(:id) }
-            
+
             total_possible = student_ids.count * module_ids.count
             completed = QuizResult.where(user_id: student_ids, learning_module_id: module_ids).count
-            
+
             avg_score = if total_possible.positive?
                           QuizResult.where(user_id: student_ids, learning_module_id: module_ids)
                                     .average(:score)&.round || 0
@@ -178,4 +178,3 @@ module Api
     end
   end
 end
-

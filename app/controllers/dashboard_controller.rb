@@ -1,8 +1,11 @@
 class DashboardController < ApplicationController
   before_action :authenticate_user!
   before_action :require_teacher!
+  before_action :set_notifications_count
+  before_action :set_dashboard_token
 
   helper_method :can_access_management?
+  helper_method :notifications_count
 
   def index
     @school = current_user.school
@@ -52,7 +55,110 @@ class DashboardController < ApplicationController
     load_quiz_results_data
   end
 
+  def students
+    @school = current_user.school
+    @classes = current_user.assigned_classes
+                           .where(school_id: @school&.id)
+                           .order(:name)
+
+    class_ids = @classes.pluck(:id)
+    @classes_awaiting_counts = StudentClassEnrollment.where(school_class_id: class_ids, status: 'pending')
+                                                     .group(:school_class_id)
+                                                     .count
+
+    @current_class = if params[:class_id].present?
+                       @classes.find_by(id: params[:class_id]) || @classes.first
+                     else
+                       @classes.first
+                     end
+
+    return unless @current_class
+
+    # Load enrollments first (used in view)
+    @enrollments = @current_class.student_class_enrollments.index_by(&:student_id)
+
+    # Load students without includes - we use @enrollments hash
+    @students = @current_class.students.order(:last_name, :first_name)
+  end
+
+  def notifications
+    @school = current_user.school
+    @classes = current_user.assigned_classes
+                           .where(school_id: @school&.id)
+                           .order(:name)
+
+    class_ids = @classes.pluck(:id)
+    @classes_awaiting_counts = StudentClassEnrollment.where(school_class_id: class_ids, status: 'pending')
+                                                     .group(:school_class_id)
+                                                     .count
+
+    @notifications_list = Notification.for_school(@school)
+                                      .for_role('teacher')
+                                      .unresolved
+                                      .order(created_at: :desc)
+                                      .limit(50)
+  end
+
+  def show_student
+    @school = current_user.school
+    @classes = current_user.assigned_classes
+                           .where(school_id: @school&.id)
+                           .order(:name)
+
+    class_ids = @classes.pluck(:id)
+    @classes_awaiting_counts = StudentClassEnrollment.where(school_class_id: class_ids, status: 'pending')
+                                                     .group(:school_class_id)
+                                                     .count
+
+    @student = User.find(params[:id])
+
+    # Verify teacher has access to this student
+    unless student_in_teacher_classes?(@student)
+      redirect_to dashboard_students_path, alert: 'Brak dostępu do tego ucznia'
+      return
+    end
+
+    @current_class = @student.student_class_enrollments
+                             .joins(:school_class)
+                             .where(school_class_id: class_ids)
+                             .first&.school_class
+
+    load_student_results
+  end
+
   private
+
+  def student_in_teacher_classes?(student)
+    teacher_class_ids = current_user.teacher_class_assignments.pluck(:school_class_id)
+    student.student_class_enrollments.exists?(school_class_id: teacher_class_ids)
+  end
+
+  def load_student_results
+    @subjects = Subject.where(school_id: [nil, @school&.id])
+                       .includes(units: :learning_modules)
+                       .order(:order_index)
+
+    @subject_results = {}
+
+    @subjects.each do |subject|
+      module_ids = subject.units.flat_map { |u| u.learning_modules.pluck(:id) }
+      next if module_ids.empty?
+
+      quiz_results = QuizResult.where(user_id: @student.id, learning_module_id: module_ids)
+
+      total_modules = module_ids.count
+      completed = quiz_results.count
+      average_score = quiz_results.average(:score)&.round || 0
+
+      @subject_results[subject.id] = {
+        total_modules: total_modules,
+        completed: completed,
+        completion_rate: total_modules.positive? ? ((completed.to_f / total_modules) * 100).round : 0,
+        average_score: average_score,
+        quiz_results: quiz_results.includes(:learning_module).order(created_at: :desc)
+      }
+    end
+  end
 
   def require_teacher!
     return if current_user.teacher?
@@ -65,6 +171,30 @@ class DashboardController < ApplicationController
 
     user_roles = current_user.roles.pluck(:key)
     user_roles.include?('principal') || user_roles.include?('school_manager')
+  end
+
+  def set_notifications_count
+    @notifications_count = notifications_count
+  end
+
+  def notifications_count
+    school = current_user&.school
+    return 0 unless school
+
+    # Count unread notifications for teacher role
+    # Including: student_awaiting_approval and quiz_completed
+    Notification.for_school(school)
+                .for_role('teacher')
+                .where(notification_type: %w[student_awaiting_approval quiz_completed])
+                .unread
+                .unresolved
+                .count
+  end
+
+  def set_dashboard_token
+    return unless current_user
+
+    @dashboard_token = Jwt::TokenService.encode({ user_id: current_user.id })
   end
 
   def load_class_statistics
@@ -179,20 +309,20 @@ class DashboardController < ApplicationController
           next unless result.details.is_a?(Hash) && result.details['answers'].is_a?(Hash)
 
           student_answer = result.details['answers'][question_data[:id]]
-          if student_answer
-            correct_ids = find_correct_ids_for_question(question_data[:id], quiz_contents)
-            is_correct = Array(student_answer).sort == correct_ids.sort
+          next unless student_answer
 
-            answer_text = find_answer_text(question_data[:id], student_answer, quiz_contents)
+          correct_ids = find_correct_ids_for_question(question_data[:id], quiz_contents)
+          is_correct = Array(student_answer).sort == correct_ids.sort
 
-            @student_answers[student_id][q_num] = {
-              correct: is_correct,
-              question_text: question_data[:text],
-              answer: answer_text
-            }
-            answer_found = true
-            break
-          end
+          answer_text = find_answer_text(question_data[:id], student_answer, quiz_contents)
+
+          @student_answers[student_id][q_num] = {
+            correct: is_correct,
+            question_text: question_data[:text],
+            answer: answer_text
+          }
+          answer_found = true
+          break
         end
 
         # No answer found for this question

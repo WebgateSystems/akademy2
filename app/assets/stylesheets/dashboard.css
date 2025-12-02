@@ -568,4 +568,190 @@
     border-top-color: var(--border-muted, #374151);
   }
 
+  /* Clickable stat cards */
+  .school-profile-hero__stat-card--clickable {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .school-profile-hero__stat-card--clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Students section - uses styles from _students.scss */
+
+  /* Notifications section */
+  .notifications-section {
+    padding: 16px 0;
+  }
+
+  .notifications-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .notifications-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--content-primary, #1f2937);
+  }
+
+  .notifications-panel {
+    background: var(--surface-primary, #ffffff);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .notifications-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-muted, #e5e7eb);
+    transition: background-color 0.2s ease;
+  }
+
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+
+  .notification-item--unread {
+    background: #eff6ff;
+  }
+
+  .notification-item__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface-secondary, #f3f4f6);
+    flex-shrink: 0;
+  }
+
+  .notification-item__icon i {
+    font-size: 18px;
+  }
+
+  .notification-item__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .notification-item__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--content-primary, #1f2937);
+    margin: 0 0 4px 0;
+  }
+
+  .notification-item__message {
+    font-size: 13px;
+    color: var(--content-secondary, #6b7280);
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+  }
+
+  .notification-item__time {
+    font-size: 12px;
+    color: var(--content-tertiary, #9ca3af);
+  }
+
+  .notification-item__actions {
+    flex-shrink: 0;
+  }
+
+  .notification-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--content-secondary, #6b7280);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .notification-action:hover {
+    background: var(--surface-secondary, #f3f4f6);
+    color: var(--state-success, #059669);
+  }
+
+  .notifications-empty {
+    padding: 64px 24px;
+    text-align: center;
+    color: var(--content-secondary, #6b7280);
+  }
+
+  .notifications-empty i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.4;
+  }
+
+  .notifications-empty p {
+    font-size: 16px;
+    margin: 0;
+  }
+
+  /* Dark mode for notifications */
+  [data-theme="dark"] .notifications-panel {
+    background: var(--surface-primary, #1f2937);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  [data-theme="dark"] .notification-item {
+    border-color: var(--border-muted, #374151);
+  }
+
+  [data-theme="dark"] .notification-item--unread {
+    background: rgba(59, 130, 246, 0.15);
+  }
+
+  [data-theme="dark"] .notification-item__icon {
+    background: var(--surface-secondary, #374151);
+  }
+
+  .btn-secondary {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid var(--border-muted, #d1d5db);
+    background: var(--surface-primary, #ffffff);
+    color: var(--content-primary, #1f2937);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-secondary:hover {
+    background: var(--surface-secondary, #f3f4f6);
+  }
+
+  [data-theme="dark"] .btn-secondary {
+    border-color: var(--border-muted, #4b5563);
+    background: var(--surface-secondary, #374151);
+    color: var(--content-primary, #f3f4f6);
+  }
+
+  [data-theme="dark"] .btn-secondary:hover {
+    background: var(--surface-tertiary, #4b5563);
+  }
+
   

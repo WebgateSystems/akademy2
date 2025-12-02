@@ -1,0 +1,118 @@
+.dashboard-app data-dashboard-app=""
+  = render 'dashboard/sidebar', nav_path_helper: ->(school_class) { dashboard_path(class_id: school_class.id) }
+
+  main.dashboard-main
+    = render 'dashboard/top_bar'
+
+    - if @classes.any?
+      .school-profile data-state="filled"
+        section.school-profile-hero aria-label="Invite students to your class"
+          .school-profile-hero__text
+            h2 Let's build your class together!
+            p Download the QR code or share the school code so your students can join your class.
+            .school-profile-hero__actions
+              button.school-profile-hero__button.school-profile-hero__button--primary type="button" id="download-qr-btn" Download
+              button.school-profile-hero__button type="button" id="copy-code-btn" Copy code
+
+          .school-profile-hero__visuals
+            #qr-code-container.school-profile-hero__qr
+              = image_tag "icons/social/L/QR-code.svg", width: 250, height: 250, alt: "", id: "qr-code-image", data: { theme_icon: true }
+
+            .school-profile-hero__stats aria-labelledby="teacher-stats-heading"
+              h3#teacher-stats-heading.visually-hidden Teacher and pupil counters
+
+              = link_to dashboard_students_path(class_id: @current_class&.id), class: "school-profile-hero__stat-card school-profile-hero__stat-card--clickable", data: { entity: "pupils" } do
+                .school-profile-hero__stat-label
+                  h4.stat-label Pupils
+                .school-profile-hero__stat-value
+                  span.stat-value.stat-value--empty 0
+                  span.stat-value.stat-value--filled = @students_count || 0
+                  - if @students_awaiting && @students_awaiting > 0
+                    span.stat-awaiting = "#{@students_awaiting} awaiting"
+
+              article.school-profile-hero__stat-card data-entity="videos"
+                .school-profile-hero__stat-label
+                  h4.stat-label Pupil videos
+                .school-profile-hero__stat-value
+                  span.stat-value.stat-value--empty 0
+                  span.stat-value.stat-value--filled = @videos_count || 0
+
+        section.class-results aria-label="Pupil results"
+          h2 Pupil results
+          .class-results__grid data-subjects-grid=""
+            - if @subjects.any?
+              - colors = %w[blue green yellow pink orange purple lime]
+              - @subjects.each_with_index do |subject, index|
+                - stats = @subject_stats&.dig(subject.id) || {}
+                - completion = stats[:completion_rate] || 0
+                = link_to dashboard_quiz_results_path(subject, class_id: @current_class&.id), class: "class-result class-result--#{colors[index % colors.length]}", data: { subject_id: subject.id } do
+                  span.class-result__progress data-subject-progress=subject.id = "#{completion}%"
+                  .class-result__icon aria-hidden="true"
+                    - icons = %w[🇵🇱 🌍 🔔 🏃‍♂️ ❤️‍🩹 💻 🛡️]
+                    = icons[index % icons.length]
+                  h3 = subject.title
+            - else
+              p.class-results__empty Brak dostępnych przedmiotów
+
+    - else
+      .dashboard-empty-state
+        .dashboard-empty-state__content
+          .dashboard-empty-state__icon
+            svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+              path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
+              circle cx="9" cy="7" r="4"
+              path d="M23 21v-2a4 4 0 0 0-3-3.87"
+              path d="M16 3.13a4 4 0 0 1 0 7.75"
+          h2 Brak przypisanych klas
+          p
+            | Nie masz jeszcze przypisanej żadnej klasy do prowadzenia.
+            br
+            | Poproś administrację szkoły o przypisanie Cię do klasy, aby móc korzystać z pełnych funkcji dashboardu.
+          - if can_access_management?
+            .dashboard-empty-state__actions
+              = link_to "Przejdź do panelu zarządzania", management_classes_path, class: "btn btn-primary"
+
+javascript:
+  const qrCodeUrl = '#{register_student_url(school_slug: @school&.slug) rescue "#"}';
+  const schoolSlug = '#{@school&.slug}';
+
+  function loadQRCode() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+                   (document.documentElement.getAttribute('data-theme') === 'auto' &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    const qrImage = document.getElementById('qr-code-image');
+    if (qrImage && schoolSlug) {
+      const theme = isDark ? 'dark' : 'light';
+      const qrSvgUrl = '#{management_qr_code_svg_path}' + '?theme=' + theme + '&t=' + Date.now();
+      qrImage.src = qrSvgUrl;
+      qrImage.style.display = 'block';
+    }
+  }
+
+  document.getElementById('download-qr-btn')?.addEventListener('click', function() {
+    if (!schoolSlug) return;
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+                   (document.documentElement.getAttribute('data-theme') === 'auto' &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const qrPngUrl = '#{management_qr_code_png_path}' + '?theme=' + (isDark ? 'dark' : 'light');
+    const link = document.createElement('a');
+    link.href = qrPngUrl;
+    link.download = 'qr-code-' + schoolSlug + '.png';
+    link.click();
+  });
+
+  document.getElementById('copy-code-btn')?.addEventListener('click', function() {
+    navigator.clipboard.writeText(qrCodeUrl).then(() => {
+      const btn = this;
+      const originalText = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = originalText; }, 2000);
+    });
+  });
+
+  loadQRCode();
+
+  const themeObserver = new MutationObserver(() => { loadQRCode(); });
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+
