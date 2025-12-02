@@ -1,0 +1,137 @@
+.dashboard-app data-dashboard-app=""
+  = render 'dashboard/sidebar', nav_path_helper: ->(school_class) { dashboard_path(class_id: school_class.id) }
+
+  main.dashboard-main
+    = render 'dashboard/top_bar', title: "Powiadomienia", back_path: dashboard_path
+
+    section.notifications-section aria-label="Notifications list"
+      header.notifications-header
+        h2 Powiadomienia
+        - if @notifications_list.any?
+          button.btn.btn-secondary#mark-all-read type="button" Oznacz wszystkie jako przeczytane
+
+      .notifications-panel
+        - if @notifications_list.any?
+          ul.notifications-list
+            - @notifications_list.each do |notification|
+              li.notification-item class=("notification-item--unread" unless notification.read?) data-notification-id=notification.id
+                .notification-item__icon
+                  - case notification.notification_type
+                  - when 'student_awaiting_approval'
+                    i.bi.bi-person-plus-fill.text-warning aria-hidden="true"
+                  - when 'quiz_completed'
+                    i.bi.bi-trophy-fill.text-success aria-hidden="true"
+                  - else
+                    i.bi.bi-bell-fill aria-hidden="true"
+                .notification-item__content
+                  h3.notification-item__title = notification.title
+                  p.notification-item__message = notification.message
+                  time.notification-item__time datetime=notification.created_at.iso8601
+                    = time_ago_in_words(notification.created_at)
+                    |  temu
+                .notification-item__actions
+                  - unless notification.read?
+                    button.notification-action.js-mark-read type="button" aria-label="Oznacz jako przeczytane" data-notification-id=notification.id
+                      i.bi.bi-check2 aria-hidden="true"
+        - else
+          .notifications-empty
+            i.bi.bi-bell-slash aria-hidden="true"
+            p Brak powiadomień
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    const API_BASE = '/api/v1/management/notifications';
+    
+    async function apiRequest(method, url, data = null) {
+      const options = {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
+      };
+      
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+      if (csrfToken) {
+        options.headers['X-CSRF-Token'] = csrfToken;
+      }
+      
+      if (data) {
+        options.body = JSON.stringify(data);
+      }
+      
+      const response = await fetch(url, options);
+      return response.json();
+    }
+
+    // Mark single notification as read
+    document.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.js-mark-read');
+      if (!btn) return;
+      
+      const notificationId = btn.getAttribute('data-notification-id');
+      if (!notificationId) return;
+      
+      try {
+        const result = await apiRequest('POST', `${API_BASE}/mark_as_read`, {
+          notification_ids: [notificationId]
+        });
+        
+        if (result.success) {
+          const item = btn.closest('.notification-item');
+          item.classList.remove('notification-item--unread');
+          btn.remove();
+          
+          // Update counter in header
+          updateNotificationCounter(-1);
+        }
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    });
+
+    // Mark all as read
+    document.getElementById('mark-all-read')?.addEventListener('click', async () => {
+      const unreadItems = document.querySelectorAll('.notification-item--unread');
+      const notificationIds = Array.from(unreadItems).map(item => 
+        item.getAttribute('data-notification-id')
+      );
+      
+      if (notificationIds.length === 0) return;
+      
+      try {
+        const result = await apiRequest('POST', `${API_BASE}/mark_as_read`, {
+          notification_ids: notificationIds
+        });
+        
+        if (result.success) {
+          unreadItems.forEach(item => {
+            item.classList.remove('notification-item--unread');
+            const btn = item.querySelector('.js-mark-read');
+            if (btn) btn.remove();
+          });
+          
+          // Update counter in header
+          updateNotificationCounter(-notificationIds.length);
+        }
+      } catch (error) {
+        console.error('Error marking notifications as read:', error);
+      }
+    });
+
+    function updateNotificationCounter(delta) {
+      const counter = document.querySelector('.notification-counter');
+      if (counter) {
+        const currentCount = parseInt(counter.textContent) || 0;
+        const newCount = Math.max(0, currentCount + delta);
+        if (newCount > 0) {
+          counter.textContent = newCount;
+          counter.style.display = '';
+        } else {
+          counter.style.display = 'none';
+        }
+      }
+    }
+  });
+

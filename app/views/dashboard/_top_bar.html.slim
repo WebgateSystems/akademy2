@@ -1,0 +1,23 @@
+header.dashboard-top-bar
+  button.dashboard-sidebar-toggle type="button" aria-label="Toggle navigation" data-sidebar-toggle=""
+    = image_tag "icons/social/M/burger.svg", alt: "", width: "24", height: "24", "data-theme-icon": true
+  h1 = local_assigns[:title] || (@current_class ? "#{@current_class.name} (#{@school&.current_academic_year_value || '2025/2026'})" : "Dashboard")
+  .dashboard-top-actions
+    - if local_assigns[:back_path]
+      = link_to back_path, class: "icon-pill", "aria-label": "Wróć" do
+        i.bi.bi-arrow-left aria-hidden="true"
+    - if can_access_management?
+      = link_to management_root_path, class: "icon-pill", "aria-label": "School management", title: "Panel zarządzania szkołą" do
+        i.bi.bi-clipboard-data aria-hidden="true"
+    = link_to dashboard_notifications_path, class: "icon-pill", "aria-label": "Notifications" do
+      - if @notifications_count && @notifications_count > 0
+        span.notification-counter aria-hidden="true" = @notifications_count
+      - else
+        span.notification-counter aria-hidden="true" style="display: none;" 0
+      = image_tag "icons/social/M/notifications.svg", alt: "", "data-theme-icon": true
+    = render 'shared/theme_toggle'
+    - if current_user
+      .settings-control
+        = button_to destroy_user_session_path, method: :delete, class: "icon-pill", "aria-label": "Logout", form: { class: "m-0 p-0" } do
+          = image_tag "icons/social/M/logout.svg", alt: "", "data-theme-icon": true
+

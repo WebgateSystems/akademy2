@@ -81,12 +81,13 @@ RSpec.describe Api::V1::Management::ListTeachers do
       end
 
       it 'supports search by name' do
-        teacher1 = create(:user, school: school, first_name: 'Jan', last_name: 'Kowalski')
+        # Use unique names to avoid conflicts with other tests
+        teacher1 = create(:user, school: school, first_name: 'Janusz', last_name: 'Kowalczyk')
         UserRole.create!(user: teacher1, role: teacher_role, school: school)
-        teacher2 = create(:user, school: school, first_name: 'Anna', last_name: 'Nowak')
+        teacher2 = create(:user, school: school, first_name: 'Anna', last_name: 'Nowakowska')
         UserRole.create!(user: teacher2, role: teacher_role, school: school)
 
-        context[:params] = { search: 'Jan' }
+        context[:params] = { search: 'Janusz' }
         result = described_class.call(context)
 
         expect(result).to be_success

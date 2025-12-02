@@ -1,0 +1,242 @@
+.dashboard-app data-dashboard-app=""
+  = render 'dashboard/sidebar', nav_path_helper: ->(school_class) { dashboard_students_path(class_id: school_class.id) }
+
+  main.dashboard-main
+    = render 'dashboard/top_bar', title: "Uczniowie #{@current_class&.name || ''}"
+
+    - if @current_class
+      section aria-label="Students list"
+        header.schools-page__header
+          label.schools-search.schools-search--half
+            span.visually-hidden Szukaj uczniów
+            input type="search" placeholder="Szukaj ucznia..." id="students-search-input"
+            = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true", "data-theme-icon": true
+          = link_to dashboard_path(class_id: @current_class.id), class: "schools-page__add" do
+            | Wróć
+
+        .schools-page__controls
+
+        .students-panel
+          table.students-table
+            thead.students-table__head
+              tr
+                th.students-table__heading scope="col" Imię i nazwisko
+                th.students-table__heading scope="col" Data urodzenia
+                th.students-table__heading scope="col" Email
+                th.students-table__heading scope="col" Status
+                th.students-table__heading.students-table__heading--actions scope="col" Akcje
+            tbody.students-table__body id="students-table-body"
+              - @students.each do |student|
+                - enrollment = @enrollments[student.id]
+                - is_pending = enrollment&.status == 'pending'
+                - is_locked = student.locked_at.present?
+                - birth_date = student.birthdate&.strftime('%d.%m.%Y') || student.metadata&.dig('birth_date') || '—'
+                - student_name = "#{student.first_name} #{student.last_name}"
+                tr.students-table__row data-student-id=student.id
+                  td.students-table__cell
+                    = link_to student_name, dashboard_student_path(student, class_id: @current_class&.id), class: "student-name-link"
+                  td.students-table__cell = birth_date
+                  td.students-table__cell = student.email || '—'
+                  td.students-table__cell
+                    - if is_pending
+                      span style="color: var(--content-secondary); font-weight: 500;" Oczekuje
+                    - elsif is_locked
+                      span style="color: var(--state-error); font-weight: 500;" Nieaktywny
+                    - else
+                      span style="color: var(--state-success); font-weight: 500;" Aktywny
+                  td.students-table__cell.students-table__cell--actions
+                    .students-actions
+                      - if is_pending
+                        button.student-action.student-action--approve.js-approve-student type="button" aria-label="Zatwierdź ucznia" data-student-id=student.id data-student-name=student_name
+                          = image_tag "icons/social/S/done.svg", alt: ""
+                        button.student-action.student-action--reject.js-decline-student type="button" aria-label="Odrzuć ucznia" data-student-id=student.id data-student-name=student_name
+                          = image_tag "icons/social/S/close_red.svg", alt: ""
+
+          - if @students.empty?
+            #students-empty-message.text-center style="padding: 40px; color: var(--content-secondary);"
+              | Brak uczniów w tej klasie
+
+      / Approve modal
+      .schools-modal id="approve-student-modal" aria-hidden="true"
+        .schools-modal__overlay
+        .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="approve-student-title"
+          header.schools-modal__header
+            h3#approve-student-title Zatwierdź ucznia
+            button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="approve-student-modal"
+              = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+          .schools-modal__body
+            p#approve-student-message Czy na pewno chcesz zatwierdzić tego ucznia?
+          .schools-modal__actions
+            button.schools-modal__primary#approve-student-confirm-btn type="button" Zatwierdź
+            button.schools-modal__secondary type="button" data-close-modal="approve-student-modal" Anuluj
+
+      / Decline modal
+      .schools-modal id="decline-student-modal" aria-hidden="true"
+        .schools-modal__overlay
+        .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="decline-student-title"
+          header.schools-modal__header
+            h3#decline-student-title Odrzuć ucznia
+            button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="decline-student-modal"
+              = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+          .schools-modal__body
+            p#decline-student-message Czy na pewno chcesz odrzucić tego ucznia? Tej operacji nie można cofnąć.
+          .schools-modal__actions
+            button.schools-modal__primary.schools-modal__primary--danger#decline-student-confirm-btn type="button" Odrzuć
+            button.schools-modal__secondary type="button" data-close-modal="decline-student-modal" Anuluj
+
+      javascript:
+        document.addEventListener('DOMContentLoaded', function() {
+          if (typeof window.ApiClient === 'undefined') {
+            console.error('ApiClient not available');
+            return;
+          }
+
+          const api = new window.ApiClient();
+          const API_BASE = '/management/students';
+          let approveStudentId = null;
+          let declineStudentId = null;
+
+          // Search functionality
+          const searchInput = document.getElementById('students-search-input');
+          const tbody = document.getElementById('students-table-body');
+          const rows = tbody ? Array.from(tbody.querySelectorAll('.students-table__row')) : [];
+          
+          if (searchInput) {
+            searchInput.addEventListener('input', function() {
+              const searchTerm = this.value.toLowerCase().trim();
+              
+              rows.forEach(row => {
+                const cells = row.querySelectorAll('.students-table__cell');
+                const name = cells[0]?.textContent?.toLowerCase() || '';
+                const birthDate = cells[1]?.textContent?.toLowerCase() || '';
+                const email = cells[2]?.textContent?.toLowerCase() || '';
+                const status = cells[3]?.textContent?.toLowerCase() || '';
+                
+                const matches = name.includes(searchTerm) || 
+                               email.includes(searchTerm) || 
+                               birthDate.includes(searchTerm) ||
+                               status.includes(searchTerm);
+                
+                row.style.display = matches ? '' : 'none';
+              });
+            });
+          }
+
+          // Modal handlers
+          document.querySelectorAll('[data-close-modal]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const modalId = btn.getAttribute('data-close-modal');
+              const modal = document.getElementById(modalId);
+              if (modal) {
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+              }
+            });
+          });
+
+          document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+            overlay.addEventListener('click', function() {
+              const modal = this.closest('.schools-modal');
+              if (modal) {
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+              }
+            });
+          });
+
+          // Approve student
+          document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.js-approve-student');
+            if (!btn) return;
+            
+            approveStudentId = btn.getAttribute('data-student-id');
+            const name = btn.getAttribute('data-student-name') || 'tego ucznia';
+            
+            document.getElementById('approve-student-message').textContent = 
+              `Czy na pewno chcesz zatwierdzić ${name}?`;
+            
+            const modal = document.getElementById('approve-student-modal');
+            modal.setAttribute('aria-hidden', 'false');
+            modal.classList.add('is-open');
+          });
+
+          document.getElementById('approve-student-confirm-btn')?.addEventListener('click', async () => {
+            if (!approveStudentId) return;
+            
+            const btn = document.getElementById('approve-student-confirm-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Zatwierdzanie...';
+
+            try {
+              const result = await api.post(`${API_BASE}/${approveStudentId}/approve`, {});
+              
+              if (result.success) {
+                const modal = document.getElementById('approve-student-modal');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+                
+                window.location.reload();
+              } else {
+                console.error('Error:', result.error);
+                btn.disabled = false;
+                btn.textContent = originalText;
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              btn.disabled = false;
+              btn.textContent = originalText;
+            }
+          });
+
+          // Decline student
+          document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.js-decline-student');
+            if (!btn) return;
+            
+            declineStudentId = btn.getAttribute('data-student-id');
+            const name = btn.getAttribute('data-student-name') || 'tego ucznia';
+            
+            document.getElementById('decline-student-message').textContent = 
+              `Czy na pewno chcesz odrzucić ${name}? Tej operacji nie można cofnąć.`;
+            
+            const modal = document.getElementById('decline-student-modal');
+            modal.setAttribute('aria-hidden', 'false');
+            modal.classList.add('is-open');
+          });
+
+          document.getElementById('decline-student-confirm-btn')?.addEventListener('click', async () => {
+            if (!declineStudentId) return;
+            
+            const btn = document.getElementById('decline-student-confirm-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Odrzucanie...';
+
+            try {
+              const result = await api.delete(`${API_BASE}/${declineStudentId}/decline`);
+              
+              if (result.success) {
+                const modal = document.getElementById('decline-student-modal');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+                
+                window.location.reload();
+              } else {
+                console.error('Error:', result.error);
+                btn.disabled = false;
+                btn.textContent = originalText;
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              btn.disabled = false;
+              btn.textContent = originalText;
+            }
+          });
+        });
+
+    - else
+      .dashboard-empty-state
+        .dashboard-empty-state__content
+          h2 Brak wybranej klasy
+          p Wybierz klasę z menu po lewej stronie

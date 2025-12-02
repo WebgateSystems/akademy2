@@ -108,6 +108,9 @@ Rails.application.routes.draw do
   authenticated :user do
     root 'dashboard#index', as: :authenticated_root
     get '/dashboard', to: 'dashboard#index', as: :dashboard
+    get '/dashboard/students', to: 'dashboard#students', as: :dashboard_students
+    get '/dashboard/students/:id', to: 'dashboard#show_student', as: :dashboard_student
+    get '/dashboard/notifications', to: 'dashboard#notifications', as: :dashboard_notifications
     get '/dashboard/quiz_results/:subject_id', to: 'dashboard#quiz_results', as: :dashboard_quiz_results
   end
 

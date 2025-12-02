@@ -1,0 +1,109 @@
+.dashboard-app data-dashboard-app=""
+  = render 'dashboard/sidebar', nav_path_helper: ->(school_class) { dashboard_quiz_results_path(@subject, class_id: school_class.id) }
+
+  main.dashboard-main
+    = render 'dashboard/top_bar', title: @subject.title, back_path: dashboard_path(class_id: @current_class&.id)
+
+    section.classes-archive aria-label="Quiz statistics"
+      / Top row: 3 cards
+      .classes-archive__grid
+        article.school-profile-hero__stat-card data-entity="completion"
+          .school-profile-hero__stat-label
+            h3.stat-label.text-body-2 style="margin: 0;" Completion rate
+          .school-profile-hero__stat-value
+            span.stat-value.stat-value--filled = "#{@completion_rate}%"
+
+        article.school-profile-hero__stat-card data-entity="performance"
+          .school-profile-hero__stat-label
+            h3.stat-label.text-body-2 style="margin: 0;" Average performance
+          .school-profile-hero__stat-value
+            span.stat-value.stat-value--filled = "#{@average_score} pkt"
+
+        article.school-profile-hero__stat-card data-entity="completion2"
+          .school-profile-hero__stat-label
+            h3.stat-label.text-body-2 style="margin: 0;" Completion rate
+          .school-profile-hero__stat-value
+            span.stat-value.stat-value--filled = "#{@completion_rate}%"
+
+      / Bottom row: 4 distribution cards
+      .classes-archive__grid.classes-archive__grid--wide
+        article.school-profile-hero__stat-card data-entity="no-results"
+          .school-profile-hero__stat-label
+            h3.stat-label.text-body-2 style="margin: 0;" No results
+          .school-profile-hero__stat-value
+            span.stat-value.stat-value--filled = "#{@distribution&.dig(:no_results) || 0}%"
+
+        article.school-profile-hero__stat-card data-entity="bad-results"
+          .school-profile-hero__stat-label
+            h3.stat-label.text-body-2 style="margin: 0;" Bad results
+          .school-profile-hero__stat-value
+            span.stat-value.stat-value--filled = "#{@distribution&.dig(:bad_results) || 0}%"
+
+        article.school-profile-hero__stat-card data-entity="average-results"
+          .school-profile-hero__stat-label
+            h3.stat-label.text-body-2 style="margin: 0;" Average results
+          .school-profile-hero__stat-value
+            span.stat-value.stat-value--filled = "#{@distribution&.dig(:average_results) || 0}%"
+
+        article.school-profile-hero__stat-card data-entity="great-results"
+          .school-profile-hero__stat-label
+            h3.stat-label.text-body-2 style="margin: 0;" Great results
+          .school-profile-hero__stat-value
+            span.stat-value.stat-value--filled = "#{@distribution&.dig(:great_results) || 0}%"
+
+    section.quiz-results aria-label="Pupil quiz results"
+      table.quiz-results-table
+        thead
+          tr
+            th.name scope="col" Pupil name
+            - (1..10).each do |num|
+              th scope="col" = num
+            th.score-col scope="col" Results
+        tbody
+          - @students.each do |student|
+            tr
+              th scope="row" = "#{student.last_name} #{student.first_name}"
+              - (1..10).each do |question_num|
+                - answer_data = get_student_answer(student.id, question_num)
+                - dot_class = answer_data[:status]
+                - question_text = answer_data[:question_text]
+                - answer_text = answer_data[:answer]
+                td
+                  span.quiz-result-dot.js-quiz-tooltip class=dot_class data-question="Question #{question_num}" data-question-text=question_text data-answer=answer_text
+                    span.visually-hidden = dot_class == 'is-good' ? 'Correct' : (dot_class == 'is-bad' ? 'Incorrect' : 'No answer')
+              td
+                span.quiz-results-score = "#{calculate_student_score(student.id)} pkt"
+
+/ Quiz tooltip
+#quiz-tooltip.quiz-tooltip style="display: none;"
+  .quiz-tooltip__question
+  .quiz-tooltip__text
+  .quiz-tooltip__answer
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    const tooltip = document.getElementById('quiz-tooltip');
+    const dots = document.querySelectorAll('.js-quiz-tooltip');
+    
+    dots.forEach(dot => {
+      dot.addEventListener('mouseenter', function(e) {
+        const question = this.dataset.question;
+        const questionText = this.dataset.questionText;
+        const answer = this.dataset.answer;
+        
+        tooltip.querySelector('.quiz-tooltip__question').textContent = question;
+        tooltip.querySelector('.quiz-tooltip__text').textContent = questionText || 'Brak pytania';
+        tooltip.querySelector('.quiz-tooltip__answer').textContent = answer ? 'Odpowiedź: ' + answer : 'Brak odpowiedzi';
+        
+        const rect = this.getBoundingClientRect();
+        tooltip.style.display = 'block';
+        tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
+        tooltip.style.top = (rect.top - tooltip.offsetHeight - 10 + window.scrollY) + 'px';
+      });
+      
+      dot.addEventListener('mouseleave', function() {
+        tooltip.style.display = 'none';
+      });
+    });
+  });
+

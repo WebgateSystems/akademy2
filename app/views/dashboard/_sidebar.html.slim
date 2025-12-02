@@ -1,0 +1,25 @@
+aside.dashboard-sidebar
+  .dashboard-logo
+    .dashboard-logo__brand
+      = image_tag "icons/logo/Akademy_logo.svg", class: "dashboard-logo__icon", alt: "", width: "32", height: "32", "aria-hidden": "true", "data-theme-icon": true
+      = image_tag "icons/logo/Akademy_logo_full.svg", class: "dashboard-logo__full", alt: "Academy 2.0", "aria-hidden": "false", "data-theme-icon": true
+    button.dashboard-collapse-toggle type="button" aria-label="Collapse sidebar" aria-expanded="true" data-sidebar-collapse-toggle=""
+      = image_tag "icons/social/M/close-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--collapse", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
+      = image_tag "icons/social/M/open-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
+
+  nav.dashboard-nav aria-label="Primary" data-classes-nav=""
+    - if @classes.any?
+      - @classes.each do |school_class|
+        - is_active = school_class.id == @current_class&.id
+        - class_link = defined?(nav_path_helper) && nav_path_helper ? nav_path_helper.call(school_class) : dashboard_path(class_id: school_class.id)
+        a.dashboard-nav__button class=(is_active ? 'is-active' : '') href=class_link data-class-id=school_class.id aria-current=(is_active ? 'page' : nil)
+          = image_tag "icons/social/M/people_outline.svg", alt: "", width: "20", height: "20", "aria-hidden": "true", "data-theme-icon": true
+          span.dashboard-nav__label = school_class.name
+          - awaiting = @classes_awaiting_counts[school_class.id] || 0
+          - if awaiting > 0
+            span.notification-counter aria-hidden="true" = awaiting
+    - else
+      p.dashboard-nav__empty Brak przypisanych klas
+
+.dashboard-sidebar-overlay data-sidebar-overlay="" aria-hidden="true"
+
