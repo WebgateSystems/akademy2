@@ -148,7 +148,7 @@ RSpec.describe Api::V1::Management::ListStudents do
     end
 
     context 'with search filter' do
-      let(:context) { { current_user: school_manager, params: { search: 'Jan' } } }
+      let(:context) { { current_user: school_manager, params: { search: 'Janusz' } } }
 
       before do
         # Ensure principal and school_manager have names that don't match search term
@@ -158,11 +158,11 @@ RSpec.describe Api::V1::Management::ListStudents do
         school_manager
         school_class
 
-        student1 = create(:user, first_name: 'Jan', last_name: 'Kowalski', school: school)
+        student1 = create(:user, first_name: 'Janusz', last_name: 'Kowalczyk', school: school)
         UserRole.create!(user: student1, role: student_role, school: school)
         StudentClassEnrollment.create!(student: student1, school_class: school_class)
 
-        student2 = create(:user, first_name: 'Anna', last_name: 'Nowak', school: school)
+        student2 = create(:user, first_name: 'Anna', last_name: 'Nowakowska', school: school)
         UserRole.create!(user: student2, role: student_role, school: school)
         StudentClassEnrollment.create!(student: student2, school_class: school_class)
       end
@@ -170,7 +170,7 @@ RSpec.describe Api::V1::Management::ListStudents do
       it 'filters by search term' do
         result = described_class.call(context)
         expect(result.form.count).to eq(1)
-        expect(result.form.first.first_name).to eq('Jan')
+        expect(result.form.first.first_name).to eq('Janusz')
       end
     end
   end

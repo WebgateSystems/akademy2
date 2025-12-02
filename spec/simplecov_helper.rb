@@ -36,6 +36,6 @@ unless SimpleCov.running
     # Command name for merging
     command_name 'RSpec'
 
-    minimum_coverage(75)
+    minimum_coverage(80)
   end
 end

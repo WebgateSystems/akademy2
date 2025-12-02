@@ -23,6 +23,7 @@ class BaseInteractor
   def bad_outcome
     context.errors = current_form.errors
     context.message = current_form.messages
+    context.status = :unprocessable_entity
     context.fail!
   end
 

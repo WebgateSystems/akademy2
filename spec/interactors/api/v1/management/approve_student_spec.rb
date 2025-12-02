@@ -124,5 +124,132 @@ RSpec.describe Api::V1::Management::ApproveStudent do
         expect(result).to be_failure
       end
     end
+
+    context 'when teacher tries to approve student in their class' do
+      let(:teacher_role) { Role.find_or_create_by!(key: 'teacher') { |r| r.name = 'Teacher' } }
+      let(:teacher) do
+        user = create(:user, school: school)
+        UserRole.create!(user: user, role: teacher_role, school: school)
+        TeacherClassAssignment.create!(teacher: user, school_class: school_class, role: 'teacher')
+        user.reload
+      end
+      let(:context) { { current_user: teacher, params: { id: student.id } } }
+
+      before do
+        teacher_role
+        school_class
+        NotificationService.create_student_awaiting_approval(student: student, school: school)
+      end
+
+      it 'succeeds' do
+        result = described_class.call(context)
+        expect(result).to be_success
+      end
+
+      it 'confirms student' do
+        described_class.call(context)
+        student.reload
+        expect(student.confirmed_at).to be_present
+      end
+    end
+
+    context 'when teacher tries to approve student not in their class' do
+      let(:teacher_role) { Role.find_or_create_by!(key: 'teacher') { |r| r.name = 'Teacher' } }
+      let(:other_class) do
+        SchoolClass.create!(
+          school: school,
+          name: '5B',
+          year: '2025/2026',
+          qr_token: SecureRandom.uuid,
+          metadata: {}
+        )
+      end
+      let(:teacher) do
+        user = create(:user, school: school)
+        UserRole.create!(user: user, role: teacher_role, school: school)
+        TeacherClassAssignment.create!(teacher: user, school_class: other_class, role: 'teacher')
+        user.reload
+      end
+      let(:context) { { current_user: teacher, params: { id: student.id } } }
+
+      before do
+        teacher_role
+        school_class
+        other_class
+        student
+      end
+
+      it 'fails with authorization error' do
+        result = described_class.call(context)
+        expect(result).to be_failure
+        expect(result.message).to include('Brak uprawnień')
+      end
+    end
+
+    context 'when student has no pending enrollment' do
+      let(:approved_student) do
+        user = create(:user, school: school, confirmed_at: nil)
+        UserRole.create!(user: user, role: student_role, school: school)
+        StudentClassEnrollment.create!(student: user, school_class: school_class, status: 'approved')
+        user
+      end
+      let(:context) { { current_user: school_manager, params: { id: approved_student.id } } }
+
+      before do
+        school_manager
+        school_class
+        approved_student
+      end
+
+      it 'fails with error message' do
+        result = described_class.call(context)
+        expect(result).to be_failure
+        expect(result.message.first).to include('oczekujących zapisów do klasy')
+      end
+    end
+
+    context 'when enrollment save fails' do
+      let(:context) { { current_user: school_manager, params: { id: student.id } } }
+
+      before do
+        school_manager
+        school_class
+        NotificationService.create_student_awaiting_approval(student: student, school: school)
+        # Mock enrollment save to return false
+        allow_any_instance_of(StudentClassEnrollment).to receive(:save).and_return(false)
+        allow_any_instance_of(StudentClassEnrollment).to receive(:errors).and_return(
+          double(full_messages: ['Cannot save enrollment'])
+        )
+      end
+
+      it 'fails with error messages' do
+        result = described_class.call(context)
+        expect(result).to be_failure
+        expect(result.message).to include('Cannot save enrollment')
+      end
+    end
+
+    context 'when user has no school' do
+      let(:user_without_school) do
+        user = build(:user, school: nil)
+        user.save(validate: false)
+        user.update_column(:school_id, nil) if user.school_id.present?
+        # Don't create any roles - simulate user with no school access
+        user.reload
+      end
+      let(:context) { { current_user: user_without_school, params: { id: student.id } } }
+
+      before do
+        school_class
+        student
+      end
+
+      it 'fails with school error' do
+        result = described_class.call(context)
+        expect(result).to be_failure
+        # When user has no school, authorize! fails first
+        expect(result.message).to include('Brak uprawnień')
+      end
+    end
   end
 end
