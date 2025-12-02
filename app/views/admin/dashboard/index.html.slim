@@ -1,0 +1,115 @@
+- content_for :page_title, "Dashboard"
+
+section.dashboard-stats aria-label="Key statistics"
+  = link_to admin_resource_collection_path(resource: 'schools'), class: 'stat-card stat-card--link' do
+    h3.stat-label.text-body-2 Schools
+    p.stat-value = @schools_count
+  = link_to admin_resource_collection_path(resource: 'users'), class: 'stat-card stat-card--link' do
+    h3.stat-label.text-body-2 Headmasters
+    p.stat-value = @headmasters_count
+  = link_to admin_resource_collection_path(resource: 'teachers'), class: 'stat-card stat-card--link' do
+    h3.stat-label.text-body-2 Teachers
+    p.stat-value = @teachers_count
+  = link_to admin_resource_collection_path(resource: 'students'), class: 'stat-card stat-card--link' do
+    h3.stat-label.text-body-2 Pupils
+    p.stat-value = number_with_delimiter(@pupils_count)
+
+section.panel.panel--chart aria-label="User growth chart"
+  .panel__header
+    div
+      p.stat-label.text-body-2 User growth
+  .chart.chart--line.js-line-chart data-chart-id="user-growth"
+    .chart__grid aria-hidden="true"
+    .chart__canvas role="img" aria-live="polite" aria-label="User growth through the year"
+      svg.chart__svg viewBox="0 0 960 240" preserveAspectRatio="none" role="presentation"
+    .chart__axis.chart__axis--y aria-hidden="true"
+    .chart__axis.chart__axis--x aria-hidden="true"
+
+section.content-grid aria-label="Top performing schools and platform metrics"
+  article.panel
+    .panel__header.panel__header--schools
+      h3.stat-label.text-body-2 Top performing schools
+      label.schools-search.schools-search--wide
+        span.visually-hidden Search schools
+        input type="search" name="top_schools_search" id="top-schools-search-input" placeholder="Search schools"
+        = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true"
+    table.schools-table id="top-schools-table"
+      thead
+        tr
+          th scope="col" Name
+          th.average scope="col" Average completion rate
+      tbody id="top-schools-table-body"
+        - @top_schools.each do |school|
+          tr data-school-name=school.name.downcase
+            td = school.name
+            td.rate —
+        - if @top_schools.empty?
+          tr id="top-schools-empty-message"
+            td.text-center.text-muted colspan="2" No schools yet
+
+  .content-aside
+    .mini-grid
+      article.mini-card
+        h3.stat-label.text-body-2 Completion rate
+        p.mini-card__value —
+      = link_to admin_resource_collection_path(resource: 'events'), class: 'mini-card mini-card--link' do
+        h3.stat-label.text-body-2 Logins
+        p.mini-card__value = number_with_delimiter(@logins_count)
+      article.mini-card
+        h3.stat-label.text-body-2 Videos viewed
+        p.mini-card__value = number_with_delimiter(@videos_viewed_count)
+      article.mini-card
+        h3.stat-label.text-body-2 Quizzes completed
+        p.mini-card__value = number_with_delimiter(@quizzes_completed_count)
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    // Top schools search functionality
+    const topSchoolsSearchInput = document.getElementById('top-schools-search-input');
+    const topSchoolsTableBody = document.getElementById('top-schools-table-body');
+    const topSchoolsEmptyMessage = document.getElementById('top-schools-empty-message');
+    
+    if (topSchoolsSearchInput && topSchoolsTableBody) {
+      topSchoolsSearchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        const rows = topSchoolsTableBody.querySelectorAll('tr');
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+          // Skip empty message row
+          if (row.id === 'top-schools-empty-message') {
+            return;
+          }
+          
+          const schoolName = row.getAttribute('data-school-name') || '';
+          const matches = schoolName.includes(searchTerm);
+          
+          // Show/hide row based on match
+          row.style.display = matches ? '' : 'none';
+          if (matches) {
+            visibleCount++;
+          }
+        });
+        
+        // Show/hide empty message based on visible rows
+        if (topSchoolsEmptyMessage) {
+          if (visibleCount === 0 && searchTerm !== '') {
+            topSchoolsEmptyMessage.style.display = '';
+            const emptyCell = topSchoolsEmptyMessage.querySelector('td');
+            if (emptyCell) {
+              emptyCell.textContent = 'No schools found';
+            }
+          } else if (visibleCount === 0 && searchTerm === '') {
+            topSchoolsEmptyMessage.style.display = '';
+            const emptyCell = topSchoolsEmptyMessage.querySelector('td');
+            if (emptyCell) {
+              emptyCell.textContent = 'No schools yet';
+            }
+          } else {
+            topSchoolsEmptyMessage.style.display = 'none';
+          }
+        }
+      });
+    }
+  });
+
