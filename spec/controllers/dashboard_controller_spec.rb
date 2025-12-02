@@ -70,6 +70,17 @@ RSpec.describe DashboardController, type: :request do
       expect(response).to have_http_status(:success)
     end
 
+    context 'when teacher has no assigned classes' do
+      before do
+        TeacherClassAssignment.where(teacher: teacher).delete_all
+      end
+
+      it 'still renders successfully' do
+        get dashboard_path
+        expect(response).to have_http_status(:success)
+      end
+    end
+
     context 'with multiple classes' do
       let!(:another_class) do
         klass = SchoolClass.create!(
@@ -116,6 +127,17 @@ RSpec.describe DashboardController, type: :request do
     it 'handles class_id parameter' do
       get dashboard_students_path(class_id: school_class.id)
       expect(response).to have_http_status(:success)
+    end
+
+    context 'when teacher has no class assigned' do
+      before do
+        TeacherClassAssignment.where(teacher: teacher).delete_all
+      end
+
+      it 'renders the page without crashing' do
+        get dashboard_students_path
+        expect(response).to have_http_status(:success)
+      end
     end
 
     context 'with students in class' do

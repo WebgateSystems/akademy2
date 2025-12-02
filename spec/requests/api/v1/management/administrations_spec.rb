@@ -267,6 +267,14 @@ RSpec.describe 'Management Administrations API', type: :request do
                  }
                }
 
+        before do
+          principal_role
+          school_manager_role
+          teacher_role
+          school
+          principal # Ensure principal exists before test runs
+        end
+
         run_test! do
           expect(response).to have_http_status(:created)
           json = JSON.parse(response.body)
