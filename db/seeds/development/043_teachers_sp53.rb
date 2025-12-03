@@ -94,6 +94,7 @@ teachers_data.each_with_index do |teacher_data, index|
     locale: 'pl',
     school: @school_a,
     confirmed_at: Time.current,
+    phone: "+48#{rand(500_000_000..999_999_999)}",
     metadata: {
       subjects: teacher_data[:subjects] || [],
       class: teacher_data[:class] || nil

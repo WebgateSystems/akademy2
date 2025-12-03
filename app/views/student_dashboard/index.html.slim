@@ -1,5 +1,5 @@
 .dashboard-app data-dashboard-app="" data-student-dashboard="true"
-  = render 'dashboard/sidebar', nav_path_helper: ->(school_class) { public_home_path(class_id: school_class.id) }
+  = render 'student_dashboard/sidebar'
 
   main.dashboard-main
     = render 'dashboard/top_bar'

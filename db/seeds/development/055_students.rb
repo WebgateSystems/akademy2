@@ -38,14 +38,11 @@ classes.each do |school_class|
     # Generate phone number for student (needed for PIN login)
     phone = "+48#{rand(500_000_000..999_999_999)}"
 
-    # Generate PIN (4 digits)
-    pin = format('%04d', rand(0..9999))
-
-    # Create user
+    # Create user with PIN password "0000"
     user = User.create!(
       email: email,
-      password: pin,
-      password_confirmation: pin,
+      password: '0000',
+      password_confirmation: '0000',
       first_name: first_name,
       last_name: last_name,
       locale: 'pl',
@@ -54,8 +51,7 @@ classes.each do |school_class|
       confirmed_at: Time.current,
       birthdate: Date.new(rand(2010..2015), rand(1..12), rand(1..28)),
       metadata: {
-        gender: is_female ? 'female' : 'male',
-        pin: pin
+        gender: is_female ? 'female' : 'male'
       }
     )
 

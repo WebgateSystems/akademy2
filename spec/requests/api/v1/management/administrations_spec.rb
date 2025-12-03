@@ -480,7 +480,7 @@ RSpec.describe 'Management Administrations API', type: :request do
 
       response '200', 'administration updated' do
         let(:admin_record) do
-          user = create(:user, first_name: 'Jan', last_name: 'Kowalski', school: school)
+          user = create(:user, first_name: 'Jan', last_name: 'Kowalski', school: school, phone: nil)
           UserRole.create!(user: user, role: principal_role, school: school)
           user
         end

@@ -11,7 +11,7 @@ pwd = 'devpass!'
   email: 'dyrektor.sp53@akademy.local', password: pwd, password_confirmation: pwd,
   first_name: 'Małgorzata', last_name: 'Onasch-Ptaszyńska', locale: 'pl',
   school: @school_a, confirmed_at: Time.current,
-  metadata: { phone: '+48 58 622 22 24' }
+  phone: '+48 58 622 22 24'
 )
 UserRole.create!(user: @principal_a, role: Role.find_by!(key: 'principal'), school: @school_a)
 
@@ -19,7 +19,8 @@ UserRole.create!(user: @principal_a, role: Role.find_by!(key: 'principal'), scho
 @manager_a = User.create!(
   email: 'manager.sp53@akademy.local', password: pwd, password_confirmation: pwd,
   first_name: 'Michał', last_name: 'Manager', locale: 'pl',
-  school: @school_a, confirmed_at: Time.current
+  school: @school_a, confirmed_at: Time.current,
+  phone: "+48#{rand(500_000_000..999_999_999)}"
 )
 UserRole.create!(user: @manager_a, role: Role.find_by!(key: 'school_manager'), school: @school_a)
 UserRole.create!(user: @manager_a, role: Role.find_by!(key: 'teacher'), school: @school_a)
@@ -29,7 +30,7 @@ UserRole.create!(user: @manager_a, role: Role.find_by!(key: 'teacher'), school: 
   email: 'sekretariat@sp18.edu.gdynia.pl', password: pwd, password_confirmation: pwd,
   first_name: 'Eliza', last_name: 'Zaborowska-Kempa', locale: 'pl',
   school: @school_b, confirmed_at: Time.current,
-  metadata: { phone: '+48 58 620 69 43' }
+  phone: '+48 58 620 69 43'
 )
 UserRole.create!(user: @principal_b, role: Role.find_by!(key: 'principal'), school: @school_b)
 
@@ -37,7 +38,8 @@ UserRole.create!(user: @principal_b, role: Role.find_by!(key: 'principal'), scho
 @vice_principal_b1 = User.create!(
   email: 'kszmidt@sp18.edu.gdynia.pl', password: pwd, password_confirmation: pwd,
   first_name: 'Krystyna', last_name: 'Szmidt', locale: 'pl',
-  school: @school_b, confirmed_at: Time.current
+  school: @school_b, confirmed_at: Time.current,
+  phone: "+48#{rand(500_000_000..999_999_999)}"
 )
 UserRole.create!(user: @vice_principal_b1, role: Role.find_by!(key: 'school_manager'), school: @school_b)
 
@@ -45,6 +47,7 @@ UserRole.create!(user: @vice_principal_b1, role: Role.find_by!(key: 'school_mana
 @vice_principal_b2 = User.create!(
   email: 'apiwowska@sp18.edu.gdynia.pl', password: pwd, password_confirmation: pwd,
   first_name: 'Anna', last_name: 'Piwowska', locale: 'pl',
-  school: @school_b, confirmed_at: Time.current
+  school: @school_b, confirmed_at: Time.current,
+  phone: "+48#{rand(500_000_000..999_999_999)}"
 )
 UserRole.create!(user: @vice_principal_b2, role: Role.find_by!(key: 'school_manager'), school: @school_b)

@@ -858,6 +858,10 @@ h5 {
     transition: transform 0.3s ease;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
     margin-right: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    z-index: 1000;
   }
   .dashboard-app--sidebar-open .dashboard-sidebar {
     transform: translateX(0);
@@ -878,10 +882,14 @@ h5 {
   }
   .dashboard-logo {
     margin-bottom: 24px;
+    flex-shrink: 0;
   }
   .dashboard-nav {
     flex-direction: column;
     gap: 8px;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
   }
   .dashboard-nav__button {
     flex: none;

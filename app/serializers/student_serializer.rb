@@ -11,9 +11,7 @@ class StudentSerializer < ApplicationSerializer
     student.school&.name
   end
 
-  attribute :phone do |student|
-    student.metadata&.dig('phone')
-  end
+  attribute :phone, &:display_phone
 
   # Read from birthdate field, but also check metadata for backwards compatibility
   attribute :birth_date do |student|

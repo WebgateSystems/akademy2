@@ -11,9 +11,7 @@ class TeacherSerializer < ApplicationSerializer
     teacher.school&.name
   end
 
-  attribute :phone do |teacher|
-    teacher.metadata&.dig('phone')
-  end
+  attribute :phone, &:display_phone
 
   attribute :birth_date do |teacher|
     teacher.metadata&.dig('birth_date')

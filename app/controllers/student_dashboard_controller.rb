@@ -26,8 +26,8 @@ class StudentDashboardController < ApplicationController
                        .includes(units: :learning_modules)
                        .order(:order_index)
 
-    # Load student's own results
-    load_student_results_for_current_user if @current_class
+    # Load student's own results (always load if student has approved classes)
+    load_student_results_for_current_user if @classes.any?
 
     render 'student_dashboard/index'
   end

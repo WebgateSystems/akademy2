@@ -1,0 +1,21 @@
+aside.dashboard-sidebar
+  .dashboard-logo
+    .dashboard-logo__brand
+      = image_tag "icons/logo/Akademy_logo.svg", class: "dashboard-logo__icon", alt: "", width: "32", height: "32", "aria-hidden": "true", "data-theme-icon": true
+      = image_tag "icons/logo/Akademy_logo_full.svg", class: "dashboard-logo__full", alt: "Academy 2.0", "aria-hidden": "false", "data-theme-icon": true
+    button.dashboard-collapse-toggle type="button" aria-label="Collapse sidebar" aria-expanded="true" data-sidebar-collapse-toggle=""
+      = image_tag "icons/social/M/close-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--collapse", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
+      = image_tag "icons/social/M/open-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
+
+  nav.dashboard-nav aria-label="Primary"
+    = link_to public_home_path, class: "dashboard-nav__button #{'is-active' if request.path == public_home_path}", "aria-current": (request.path == public_home_path ? "page" : nil) do
+      i.bi.bi-mortarboard aria-hidden="true"
+      span.dashboard-nav__label Courses
+    = link_to "#", class: "dashboard-nav__button", onclick: "return false;" do
+      i.bi.bi-collection-play aria-hidden="true"
+      span.dashboard-nav__label School videos
+    = link_to "#", class: "dashboard-nav__button", onclick: "return false;" do
+      i.bi.bi-person-fill aria-hidden="true"
+      span.dashboard-nav__label Account
+
+.dashboard-sidebar-overlay data-sidebar-overlay="" aria-hidden="true"

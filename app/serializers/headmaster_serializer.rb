@@ -9,9 +9,7 @@ class HeadmasterSerializer < ApplicationSerializer
     headmaster.school&.name
   end
 
-  attribute :phone do |headmaster|
-    headmaster.metadata&.dig('phone')
-  end
+  attribute :phone, &:display_phone
 
   attribute :locked_at, &:locked_at
 

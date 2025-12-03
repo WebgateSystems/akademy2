@@ -11,9 +11,7 @@ class AdministrationSerializer < ApplicationSerializer
     administration.school&.name
   end
 
-  attribute :phone do |administration|
-    administration.metadata&.dig('phone')
-  end
+  attribute :phone, &:display_phone
 
   attribute :birth_date do |administration|
     administration.metadata&.dig('birth_date')

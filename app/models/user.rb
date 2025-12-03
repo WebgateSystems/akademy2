@@ -46,6 +46,11 @@ class User < ApplicationRecord
     roles.pluck(:key).include?('parent')
   end
 
+  # Get phone with fallback: first check phone column, then metadata['phone']
+  def display_phone
+    phone.presence || metadata&.dig('phone')
+  end
+
   # Check if user account is active (not locked)
   def active?
     locked_at.blank?

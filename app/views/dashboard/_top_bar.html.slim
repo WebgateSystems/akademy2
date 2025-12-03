@@ -1,7 +1,17 @@
 header.dashboard-top-bar
   button.dashboard-sidebar-toggle type="button" aria-label="Toggle navigation" data-sidebar-toggle=""
     = image_tag "icons/social/M/burger.svg", alt: "", width: "24", height: "24", "data-theme-icon": true
-  h1 = local_assigns[:title] || (@current_class ? "#{@current_class.name} (#{@school&.current_academic_year_value || '2025/2026'})" : "Dashboard")
+  h1
+    - if local_assigns[:title]
+      = local_assigns[:title]
+    - elsif current_user&.student? && @current_class
+      - student_name = "#{current_user.first_name} #{current_user.last_name}".strip.presence || current_user.email
+      - class_info = "#{@current_class.name} (#{@current_class.school&.current_academic_year_value || '2025/2026'})"
+      = "#{student_name} #{class_info}"
+    - elsif current_user
+      = "#{current_user.first_name} #{current_user.last_name}".strip.presence || current_user.email
+    - else
+      | Dashboard
   .dashboard-top-actions
     - if local_assigns[:back_path]
       = link_to back_path, class: "icon-pill", "aria-label": "Wróć" do

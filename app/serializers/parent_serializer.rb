@@ -11,9 +11,7 @@ class ParentSerializer
     parent.school&.name
   end
 
-  attribute :phone do |parent|
-    parent.metadata&.dig('phone') || parent.phone
-  end
+  attribute :phone, &:display_phone
 
   attribute :is_locked do |parent|
     parent.locked_at.present?
