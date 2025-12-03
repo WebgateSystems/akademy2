@@ -31,8 +31,9 @@ RSpec.describe 'Register flow interactors' do
       result = described_class.call(flow:, phone: '+48123123123')
 
       expect(result).to be_success
-      expect(result.code).to eq('0000')
-      expect(flow.reload.phone_code).to eq('0000')
+      # Code is now random 4 digits, just check format
+      expect(result.code).to match(/\A\d{4}\z/)
+      expect(flow.reload.phone_code).to match(/\A\d{4}\z/)
       expect(flow.step).to eq('verify_phone')
       expect(flow.data['phone']['number']).to eq('+48123123123')
     end

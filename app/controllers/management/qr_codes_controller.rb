@@ -6,7 +6,8 @@ module Management
       school = current_school_manager.school
       return head :not_found unless school
 
-      qr_url = register_teacher_url(school_slug: school.slug)
+      # QR code for teachers to join this school
+      qr_url = join_school_url(token: school.join_token)
       theme = params[:theme] || 'light'
 
       qr = RQRCode::QRCode.new(qr_url)
@@ -27,7 +28,8 @@ module Management
       school = current_school_manager.school
       return head :not_found unless school
 
-      qr_url = register_teacher_url(school_slug: school.slug)
+      # QR code for teachers to join this school
+      qr_url = join_school_url(token: school.join_token)
       theme = params[:theme] || 'light'
       is_dark = theme == 'dark'
 
@@ -39,7 +41,7 @@ module Management
       )
 
       send_data png.to_s, type: 'image/png', disposition: 'attachment',
-                          filename: "qr-code-#{school.slug}.png"
+                          filename: "qr-school-#{school.slug}.png"
     end
   end
 end

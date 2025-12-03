@@ -60,12 +60,13 @@
       .schools-modal id="approve-student-modal" aria-hidden="true"
         .schools-modal__overlay
         .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="approve-student-title"
-          header.schools-modal__header
-            h3#approve-student-title Zatwierdź ucznia
-            button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="approve-student-modal"
-              = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+          button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="approve-student-modal" style="position: absolute; top: 16px; right: 16px;"
+            svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              line x1="18" y1="6" x2="6" y2="18"
+              line x1="6" y1="6" x2="18" y2="18"
           .schools-modal__body
-            p#approve-student-message Czy na pewno chcesz zatwierdzić tego ucznia?
+            h3#approve-student-title style="margin: 0 0 16px; font-size: 24px; font-weight: 500; text-align: center;" Zatwierdź ucznia
+            p#approve-student-message style="text-align: center; color: var(--content-secondary);" Czy na pewno chcesz zatwierdzić tego ucznia?
           .schools-modal__actions
             button.schools-modal__primary#approve-student-confirm-btn type="button" Zatwierdź
             button.schools-modal__secondary type="button" data-close-modal="approve-student-modal" Anuluj
@@ -74,12 +75,13 @@
       .schools-modal id="decline-student-modal" aria-hidden="true"
         .schools-modal__overlay
         .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="decline-student-title"
-          header.schools-modal__header
-            h3#decline-student-title Odrzuć ucznia
-            button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="decline-student-modal"
-              = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+          button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="decline-student-modal" style="position: absolute; top: 16px; right: 16px;"
+            svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              line x1="18" y1="6" x2="6" y2="18"
+              line x1="6" y1="6" x2="18" y2="18"
           .schools-modal__body
-            p#decline-student-message Czy na pewno chcesz odrzucić tego ucznia? Tej operacji nie można cofnąć.
+            h3#decline-student-title style="margin: 0 0 16px; font-size: 24px; font-weight: 500; text-align: center;" Odrzuć ucznia
+            p#decline-student-message style="text-align: center; color: var(--content-secondary);" Czy na pewno chcesz odrzucić tego ucznia? Tej operacji nie można cofnąć.
           .schools-modal__actions
             button.schools-modal__primary.schools-modal__primary--danger#decline-student-confirm-btn type="button" Odrzuć
             button.schools-modal__secondary type="button" data-close-modal="decline-student-modal" Anuluj

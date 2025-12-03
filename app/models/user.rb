@@ -46,6 +46,25 @@ class User < ApplicationRecord
     roles.pluck(:key).include?('parent')
   end
 
+  # Check if user account is active (not locked)
+  def active?
+    locked_at.blank?
+  end
+
+  def inactive?
+    locked_at.present?
+  end
+
+  # Override Devise method to prevent locked users from authenticating
+  def active_for_authentication?
+    super && active?
+  end
+
+  # Custom message for locked accounts
+  def inactive_message
+    locked_at.present? ? :locked : super
+  end
+
   private
 
   def sync_notifications_for_teacher

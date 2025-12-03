@@ -1,0 +1,27 @@
+doctype html
+html lang="pl"
+  head
+    meta charset="utf-8"
+    meta name="viewport" content="width=device-width, initial-scale=1"
+    title Akademy - Who you are?
+    = csrf_meta_tags
+    = csp_meta_tag
+    style
+      | /* Prevent flash of wrong theme - set default light theme */
+      | html:not(.theme-dark) {
+      |   --bg-primary: #F2F7FD !important;
+      |   --surface-primary: #FFFFFF !important;
+      |   --content-primary: #0F0F0F !important;
+      | }
+    link rel="preconnect" href="https://fonts.googleapis.com"
+    link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"
+    link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet"
+    = javascript_include_tag "enter", "data-turbo-track": "reload"
+    = stylesheet_link_tag "register", "data-turbo-track": "reload"
+    = stylesheet_link_tag :app
+    = stylesheet_link_tag "application", "data-turbo-track": "reload"
+    = stylesheet_link_tag "enter", "data-turbo-track": "reload"
+    = javascript_include_tag "application", "data-turbo-track": "reload", type: "module"
+
+  body.enter-body
+    = yield

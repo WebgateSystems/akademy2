@@ -155,6 +155,63 @@ class NotificationService
     end
   end
 
+  # Create notification for teachers when student requests to join their class
+  def self.create_student_enrollment_request(student:, school_class:)
+    school = school_class.school
+    return unless school
+
+    student_name = [student.first_name, student.last_name].compact.join(' ').presence || student.phone || 'Uczeń'
+
+    # Get teachers assigned to this class
+    teachers = User.joins(:teacher_class_assignments)
+                   .where(teacher_class_assignments: { school_class_id: school_class.id })
+                   .distinct
+
+    teachers.find_each do |_teacher|
+      # Check if notification already exists and is unresolved
+      existing = Notification.where(
+        notification_type: 'student_enrollment_request',
+        target_role: 'teacher',
+        school: school,
+        resolved_at: nil
+      ).where("metadata->>'student_id' = ? AND metadata->>'school_class_id' = ?",
+              student.id.to_s, school_class.id.to_s).first
+
+      next if existing
+
+      Notification.create!(
+        notification_type: 'student_enrollment_request',
+        title: 'Nowy wniosek o dołączenie',
+        message: "#{student_name} chce dołączyć do klasy #{school_class.name}.",
+        target_role: 'teacher',
+        school: school,
+        user: student,
+        metadata: {
+          student_id: student.id,
+          school_class_id: school_class.id,
+          enrollment_type: 'pending'
+        }
+      )
+    end
+  end
+
+  # Resolve student enrollment request notification
+  def self.resolve_student_enrollment_request(student:, school_class:)
+    school = school_class.school
+    return unless school
+
+    notifications = Notification.where(
+      notification_type: 'student_enrollment_request',
+      school: school,
+      resolved_at: nil
+    ).where("metadata->>'student_id' = ? AND metadata->>'school_class_id' = ?",
+            student.id.to_s, school_class.id.to_s)
+
+    notifications.find_each do |notification|
+      notification.update!(resolved_at: Time.current)
+    end
+  end
+
   # Generic method to create notifications
   # rubocop:disable Metrics/ParameterLists
   def self.create_notification(notification_type:, title:, message:, target_role:, user: nil, school: nil, metadata: {})

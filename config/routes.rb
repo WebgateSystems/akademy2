@@ -111,12 +111,20 @@ Rails.application.routes.draw do
   get '/dashboard/students/:id', to: 'dashboard#show_student', as: :dashboard_student
   get '/dashboard/notifications', to: 'dashboard#notifications', as: :dashboard_notifications
   get '/dashboard/quiz_results/:subject_id', to: 'dashboard#quiz_results', as: :dashboard_quiz_results
+  get '/dashboard/class_qr.svg', to: 'dashboard#class_qr_svg', as: :dashboard_class_qr_svg
+  get '/dashboard/class_qr.png', to: 'dashboard#class_qr_png', as: :dashboard_class_qr_png
 
   namespace :api do
     namespace :v1 do
       namespace :teacher do
         get 'dashboard', to: 'dashboard#index'
         get 'dashboard/class/:id', to: 'dashboard#show_class', as: :dashboard_class
+      end
+
+      namespace :student do
+        post 'enrollments/join', to: 'enrollments#join'
+        get 'enrollments/pending', to: 'enrollments#pending'
+        delete 'enrollments/:id/cancel', to: 'enrollments#cancel', as: :cancel_enrollment
       end
 
       resource :session, only: :create
@@ -160,6 +168,18 @@ Rails.application.routes.draw do
     end
   end
 
-  get '/home', to: 'home#index', as: :public_home
+  # Student dashboard - requires student login
+  get '/home', to: 'student_dashboard#index', as: :public_home
+
+  # Join class via token link (for students)
+  get '/join/class/:token', to: 'student_dashboard#join_class', as: :join_class
+
+  # Join school via token link (for teachers)
+  get '/join/school/:token', to: 'teacher_registration#join_school', as: :join_school
+
+  # Role selection page
+  get '/enter', to: 'enter#index', as: :enter
+
+  # Landing page
   root 'home#index'
 end

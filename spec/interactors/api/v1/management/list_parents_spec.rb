@@ -16,13 +16,15 @@ RSpec.describe Api::V1::Management::ListParents do
   end
 
   let(:parent_jan) do
-    user = create(:user, first_name: 'Jan', last_name: 'Kowalski', school: school)
+    user = create(:user, first_name: 'Janusz', last_name: 'Kowalewski', school: school,
+                         email: 'janusz.kowalewski@test.pl')
     UserRole.create!(user: user, role: parent_role, school: school)
     user
   end
 
   let(:parent_anna) do
-    user = create(:user, first_name: 'Anna', last_name: 'Nowak', school: school)
+    user = create(:user, first_name: 'Agnieszka', last_name: 'Nowakowska', school: school,
+                         email: 'agnieszka.nowakowska@test.pl')
     UserRole.create!(user: user, role: parent_role, school: school)
     user
   end
@@ -71,19 +73,19 @@ RSpec.describe Api::V1::Management::ListParents do
 
       context 'with search' do
         it 'filters by first name' do
-          context[:params][:search] = 'Jan'
+          context[:params][:search] = 'Janusz'
           result = described_class.call(context)
 
           expect(result.form.count).to eq(1)
-          expect(result.form.first.first_name).to eq('Jan')
+          expect(result.form.first.first_name).to eq('Janusz')
         end
 
         it 'filters by last name' do
-          context[:params][:search] = 'Nowak'
+          context[:params][:search] = 'Nowakowska'
           result = described_class.call(context)
 
           expect(result.form.count).to eq(1)
-          expect(result.form.first.last_name).to eq('Nowak')
+          expect(result.form.first.last_name).to eq('Nowakowska')
         end
 
         it 'filters by email' do

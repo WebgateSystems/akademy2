@@ -83,7 +83,6 @@ RSpec.describe EventLogger, type: :service do
   end
 
   describe '.log_api_request' do
-    # rubocop:disable RSpec/MultipleExpectations
     it 'creates an api_request event' do
       described_class.log_api_request(
         method: 'GET',
@@ -104,7 +103,6 @@ RSpec.describe EventLogger, type: :service do
       expect(event.data['params']).to eq({ 'page' => 1 })
       expect(event.data['response_time_ms']).to eq(45.5)
     end
-    # rubocop:enable RSpec/MultipleExpectations
 
     it 'sanitizes sensitive params' do
       described_class.log_api_request(

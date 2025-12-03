@@ -86,34 +86,54 @@ module Api
 
         def find_student_for_teacher
           # Teacher access was verified in authorize!, just load the student
-          User.joins(:user_roles)
-              .joins('INNER JOIN roles ON user_roles.role_id = roles.id')
+          # Find by enrollment in teacher's class - no need to check user_roles
+          User.joins('INNER JOIN student_class_enrollments ' \
+                     'ON student_class_enrollments.student_id = users.id')
+              .joins('INNER JOIN school_classes ' \
+                     'ON school_classes.id = student_class_enrollments.school_class_id')
               .where(id: context.params[:id],
-                     user_roles: { school_id: school.id },
-                     roles: { key: 'student' })
+                     school_classes: { school_id: school.id })
+              .distinct
               .first
         end
 
         def build_student_query
-          User.joins(:user_roles)
-              .joins('INNER JOIN roles ON user_roles.role_id = roles.id')
-              .joins('INNER JOIN student_class_enrollments ' \
+          # Find student by enrollment in school's class
+          # No need to check user_roles - if they have enrollment, they're a student
+          # Don't filter by academic year - student may be in any class of this school
+          User.joins('INNER JOIN student_class_enrollments ' \
                      'ON student_class_enrollments.student_id = users.id')
               .joins('INNER JOIN school_classes ' \
                      'ON school_classes.id = student_class_enrollments.school_class_id')
-              .where(school_classes: { year: school.current_academic_year_value, school_id: school.id })
-              .where(id: context.params[:id],
-                     user_roles: { school_id: school.id },
-                     roles: { key: 'student' })
+              .where(school_classes: { school_id: school.id })
+              .where(id: context.params[:id])
               .distinct
         end
 
         def destroy_student
+          # Resolve notifications before destroying
+          resolve_notifications
+
           if context.student.destroy
             context.status = :no_content
           else
             context.message = context.student.errors.full_messages
             context.fail!
+          end
+        end
+
+        def resolve_notifications
+          NotificationService.resolve_student_notification(
+            student: context.student,
+            school: school
+          )
+
+          # Also resolve enrollment request notifications
+          context.student.student_class_enrollments.each do |enrollment|
+            NotificationService.resolve_student_enrollment_request(
+              student: context.student,
+              school_class: enrollment.school_class
+            )
           end
         end
       end

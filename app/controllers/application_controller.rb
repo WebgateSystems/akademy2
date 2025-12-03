@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
   include Pundit::Authorization
 
+  before_action :check_user_active
   before_action :check_redirect_loop
 
   rescue_from Pundit::NotAuthorizedError do
@@ -49,6 +50,19 @@ class ApplicationController < ActionController::Base
 
   def management_role?(user_roles)
     user_roles.include?('principal') || user_roles.include?('school_manager')
+  end
+
+  # Check if logged in user is still active (not locked)
+  # If user was deactivated while logged in, sign them out
+  def check_user_active
+    return unless respond_to?(:user_signed_in?) && user_signed_in?
+    return unless respond_to?(:current_user) && current_user.present?
+    return if current_user.active?
+
+    sign_out current_user
+    # rubocop:disable I18n/GetText/DecorateString
+    redirect_to new_user_session_path, alert: 'Twoje konto zostało dezaktywowane. Skontaktuj się z administratorem.'
+    # rubocop:enable I18n/GetText/DecorateString
   end
 
   def check_redirect_loop

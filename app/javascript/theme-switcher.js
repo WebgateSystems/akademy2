@@ -1,4 +1,4 @@
-const THEME_STORAGE_KEY = 'ust-theme';
+const THEME_STORAGE_KEY = 'theme';
 const rootElement = document.documentElement;
 const mediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);

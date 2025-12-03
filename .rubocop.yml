@@ -88,6 +88,7 @@ Metrics/ClassLength:
     - "app/interactors/api/v1/management/approve_student.rb"
     - "app/services/notification_service.rb"
     - "app/controllers/application_controller.rb"
+    - "app/controllers/users/sessions_controller.rb"
 
 Metrics/CyclomaticComplexity:
   Max: 8
@@ -99,6 +100,7 @@ Metrics/CyclomaticComplexity:
     - "app/interactors/api/v1/management/create_parent.rb"
     - "app/interactors/api/v1/management/update_parent.rb"
     - "app/controllers/application_controller.rb"
+    - "app/controllers/users/sessions_controller.rb"
 
 Metrics/MethodLength:
   Max: 15
@@ -129,6 +131,9 @@ Metrics/MethodLength:
     - 'app/interactors/api/v1/management/list_parents.rb'
     - 'app/controllers/api/v1/teacher/dashboard_controller.rb'
     - 'app/controllers/home_controller.rb'
+    - 'app/controllers/users/sessions_controller.rb'
+    - 'app/controllers/student_dashboard_controller.rb'
+    - 'app/interactors/register/set_pin_confirm_submit.rb'
 
 Metrics/PerceivedComplexity:
   Max: 8
@@ -141,6 +146,7 @@ Metrics/PerceivedComplexity:
     - "app/interactors/api/v1/management/create_parent.rb"
     - "app/interactors/api/v1/management/update_parent.rb"
     - "app/controllers/application_controller.rb"
+    - "app/controllers/users/sessions_controller.rb"
 
 Metrics/BlockNesting:
   Max: 3
@@ -150,6 +156,12 @@ Metrics/BlockNesting:
 Naming/MethodName:
   Exclude:
     - "lib/**/*.rb"
+
+Rails/DynamicFindBy:
+  Exclude:
+    - "spec/models/school_join_token_spec.rb"
+    - "spec/models/school_class_join_token_spec.rb"
+    - "app/controllers/api/v1/student/enrollments_controller.rb"
 
 Rails/NotNullColumn:
   Exclude:
@@ -177,7 +189,7 @@ RSpec/ExampleLength:
   Enabled: false
 
 RSpec/MultipleExpectations:
-  Max: 7 # Some tests legitimately need more expectations to verify complex behavior
+  Max: 8 # Some tests legitimately need more expectations to verify complex behavior
 
 RSpec/MultipleMemoizedHelpers:
   Max: 12
@@ -238,6 +250,19 @@ RSpec/DescribeClass:
     - 'spec/interactors/api/v1/subjects/subjects_spec.rb'
     - 'spec/interactors/api/v1/teachers/teachers_spec.rb'
     - 'spec/interactors/api/v1/units/units_spec.rb'
+
+RSpec/DescribeMethod:
+  Exclude:
+    - 'spec/controllers/check_user_active_spec.rb'
+    - 'spec/models/school_class_join_token_spec.rb'
+    - 'spec/models/school_join_token_spec.rb'
+    - 'spec/models/user_active_status_spec.rb'
+    - 'spec/services/notification_service_enrollment_spec.rb'
+
+RSpec/SpecFilePathFormat:
+  Exclude:
+    - 'spec/controllers/check_user_active_spec.rb'
+    - 'spec/services/notification_service_enrollment_spec.rb'
 
 RSpec/VariableName:
   Exclude:

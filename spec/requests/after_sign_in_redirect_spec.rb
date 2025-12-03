@@ -44,16 +44,37 @@ RSpec.describe 'After sign in redirects', type: :request do
       expect(response).to redirect_to(dashboard_path)
     end
 
-    it 'redirects teacher to /management after login when trying to access /management' do
+    it 'rejects teacher trying to access /management (no permissions)' do
+      # Teacher doesn't have management permissions
       # Try to access management without login
       get management_root_path
       expect(response).to redirect_to(new_user_session_path)
 
-      # Login
+      # Login as teacher (who has no management access)
       post user_session_path, params: {
         user: {
           email: teacher.email,
           password: teacher.password
+        }
+      }
+
+      # Should be rejected with 422 (no permissions for this path)
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'redirects principal to /management after login when trying to access /management' do
+      principal = create(:user, school: school)
+      UserRole.create!(user: principal, role: principal_role, school: school)
+
+      # Try to access management without login
+      get management_root_path
+      expect(response).to redirect_to(new_user_session_path)
+
+      # Login as principal (who has management access)
+      post user_session_path, params: {
+        user: {
+          email: principal.email,
+          password: principal.password
         }
       }
 

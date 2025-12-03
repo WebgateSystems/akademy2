@@ -195,8 +195,8 @@
 </div>
 
 <script>
-  // QR Code URL
-  const qrCodeUrl = '<%= register_teacher_url(school_slug: @school&.slug) %>';
+  // QR Code URL for teachers to join this school
+  const joinSchoolUrl = '<%= join_school_url(token: @school&.join_token) %>';
   const schoolSlug = '<%= @school&.slug %>';
 
   // Load QR code based on theme
@@ -223,13 +223,13 @@
     const qrPngUrl = '<%= management_qr_code_png_path %>' + '?theme=' + (isDark ? 'dark' : 'light');
     const link = document.createElement('a');
     link.href = qrPngUrl;
-    link.download = 'qr-code-<%= @school&.slug %>.png';
+    link.download = 'qr-school-<%= @school&.slug %>.png';
     link.click();
   });
 
   // Copy code
   document.getElementById('copy-code-btn')?.addEventListener('click', function() {
-    navigator.clipboard.writeText(qrCodeUrl).then(() => {
+    navigator.clipboard.writeText(joinSchoolUrl).then(() => {
       const btn = this;
       const originalText = btn.textContent;
       btn.textContent = 'Copied!';

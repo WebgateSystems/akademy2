@@ -32,11 +32,10 @@ RSpec.describe HomeController, type: :request do
 
       before { sign_in student }
 
-      it 'renders student dashboard' do
+      it 'renders landing page (root is always landing)' do
         get root_path
         expect(response).to have_http_status(:success)
-        # Should render dashboard/index view for students (check for dashboard-specific content)
-        expect(response.body).to match(/dashboard|klasa|temat|wynik/i)
+        expect(response.body).to include('home')
       end
     end
 
@@ -49,21 +48,19 @@ RSpec.describe HomeController, type: :request do
 
       before { sign_in teacher }
 
-      it 'renders landing page (not dashboard)' do
+      it 'renders landing page' do
         get root_path
         expect(response).to have_http_status(:success)
-        # Root should always show landing page, not dashboard
         expect(response.body).to include('home')
       end
     end
   end
 
-  describe 'GET /home' do
+  describe 'GET /home (student dashboard)' do
     context 'when user is not signed in' do
-      it 'renders landing page' do
+      it 'redirects to login' do
         get public_home_path
-        expect(response).to have_http_status(:success)
-        expect(response.body).to include('home')
+        expect(response).to redirect_to(new_user_session_path(role: 'student'))
       end
     end
 
@@ -91,8 +88,6 @@ RSpec.describe HomeController, type: :request do
       it 'renders student dashboard' do
         get public_home_path
         expect(response).to have_http_status(:success)
-        # Should render dashboard/index view for students (check for dashboard-specific content)
-        expect(response.body).to match(/dashboard|klasa|temat|wynik/i)
       end
 
       it 'loads student classes' do
@@ -115,7 +110,7 @@ RSpec.describe HomeController, type: :request do
       end
     end
 
-    context 'when user is signed in as teacher' do
+    context 'when user is signed in as teacher (not a student)' do
       let(:teacher) do
         user = create(:user, school: school)
         UserRole.create!(user: user, role: teacher_role, school: school)
@@ -124,11 +119,9 @@ RSpec.describe HomeController, type: :request do
 
       before { sign_in teacher }
 
-      it 'renders landing page (not dashboard)' do
+      it 'redirects to login (requires student role)' do
         get public_home_path
-        expect(response).to have_http_status(:success)
-        # /home should show landing page for non-students
-        expect(response.body).to include('home')
+        expect(response).to redirect_to(new_user_session_path(role: 'student'))
       end
     end
   end

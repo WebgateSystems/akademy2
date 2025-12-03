@@ -19,6 +19,8 @@
                   - case notification.notification_type
                   - when 'student_awaiting_approval'
                     i.bi.bi-person-plus-fill.text-warning aria-hidden="true"
+                  - when 'student_enrollment_request'
+                    i.bi.bi-person-raised-hand.text-info aria-hidden="true"
                   - when 'quiz_completed'
                     i.bi.bi-trophy-fill.text-success aria-hidden="true"
                   - else

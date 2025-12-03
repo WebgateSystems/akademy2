@@ -73,8 +73,10 @@
               = link_to "Przejdź do panelu zarządzania", management_classes_path, class: "btn btn-primary"
 
 javascript:
-  const qrCodeUrl = '#{register_student_url(school_slug: @school&.slug) rescue "#"}';
-  const schoolSlug = '#{@school&.slug}';
+  // QR code for students to join THIS CLASS
+  const classToken = '#{@current_class&.join_token}';
+  const className = '#{@current_class&.name}';
+  const joinClassUrl = '#{join_class_url(token: "__TOKEN__")}'.replace('__TOKEN__', classToken);
 
   function loadQRCode() {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
@@ -82,28 +84,28 @@ javascript:
                     window.matchMedia('(prefers-color-scheme: dark)').matches);
     
     const qrImage = document.getElementById('qr-code-image');
-    if (qrImage && schoolSlug) {
+    if (qrImage && classToken) {
       const theme = isDark ? 'dark' : 'light';
-      const qrSvgUrl = '#{management_qr_code_svg_path}' + '?theme=' + theme + '&t=' + Date.now();
+      const qrSvgUrl = '/dashboard/class_qr.svg?class_id=#{@current_class&.id}&theme=' + theme + '&t=' + Date.now();
       qrImage.src = qrSvgUrl;
       qrImage.style.display = 'block';
     }
   }
 
   document.getElementById('download-qr-btn')?.addEventListener('click', function() {
-    if (!schoolSlug) return;
+    if (!classToken) return;
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
                    (document.documentElement.getAttribute('data-theme') === 'auto' &&
                     window.matchMedia('(prefers-color-scheme: dark)').matches);
-    const qrPngUrl = '#{management_qr_code_png_path}' + '?theme=' + (isDark ? 'dark' : 'light');
+    const qrPngUrl = '/dashboard/class_qr.png?class_id=#{@current_class&.id}&theme=' + (isDark ? 'dark' : 'light');
     const link = document.createElement('a');
     link.href = qrPngUrl;
-    link.download = 'qr-code-' + schoolSlug + '.png';
+    link.download = 'qr-class-' + className + '.png';
     link.click();
   });
 
   document.getElementById('copy-code-btn')?.addEventListener('click', function() {
-    navigator.clipboard.writeText(qrCodeUrl).then(() => {
+    navigator.clipboard.writeText(joinClassUrl).then(() => {
       const btn = this;
       const originalText = btn.textContent;
       btn.textContent = 'Copied!';

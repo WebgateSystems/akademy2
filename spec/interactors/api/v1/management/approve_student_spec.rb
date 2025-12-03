@@ -78,11 +78,12 @@ RSpec.describe Api::V1::Management::ApproveStudent do
       end
     end
 
-    context 'when student already confirmed' do
+    context 'when student already confirmed but enrollment is pending' do
+      # With new logic, confirmed_at on user doesn't matter - enrollment status does
       let(:confirmed_student) do
         user = create(:user, school: school, confirmed_at: Time.current)
         UserRole.create!(user: user, role: student_role, school: school)
-        StudentClassEnrollment.create!(student: user, school_class: school_class)
+        StudentClassEnrollment.create!(student: user, school_class: school_class, status: 'pending')
         user
       end
       let(:context) { { current_user: school_manager, params: { id: confirmed_student.id } } }
@@ -91,17 +92,19 @@ RSpec.describe Api::V1::Management::ApproveStudent do
         school_manager
         school_class
         confirmed_student
+        NotificationService.create_student_awaiting_approval(student: confirmed_student, school: school)
       end
 
-      it 'fails' do
+      it 'succeeds (approval is about enrollment, not email confirmation)' do
         result = described_class.call(context)
-        expect(result).to be_failure
+        expect(result).to be_success
       end
 
-      it 'sets error message' do
-        result = described_class.call(context)
-        expect(result.message).to be_present
-        expect(result.message.first).to include('już zatwierdzony')
+      it 'approves the enrollment' do
+        described_class.call(context)
+        enrollment = confirmed_student.student_class_enrollments.first
+        enrollment.reload
+        expect(enrollment.status).to eq('approved')
       end
     end
 
@@ -186,7 +189,7 @@ RSpec.describe Api::V1::Management::ApproveStudent do
       end
     end
 
-    context 'when student has no pending enrollment' do
+    context 'when enrollment is already approved (no pending enrollments)' do
       let(:approved_student) do
         user = create(:user, school: school, confirmed_at: nil)
         UserRole.create!(user: user, role: student_role, school: school)
@@ -201,10 +204,10 @@ RSpec.describe Api::V1::Management::ApproveStudent do
         approved_student
       end
 
-      it 'fails with error message' do
+      it 'fails with error message about no pending enrollments' do
         result = described_class.call(context)
         expect(result).to be_failure
-        expect(result.message.first).to include('oczekujących zapisów do klasy')
+        expect(result.message.first).to include('oczekujących zapisów')
       end
     end
 

@@ -12,7 +12,7 @@ module Register
         }
       )
 
-      Rails.logger.info "SMS code for #{context.phone}: #{context.code}"
+      log_verification_code
 
       # SmsGateway.send(context.phone, "Your code: #{context.code}")
     end
@@ -20,8 +20,22 @@ module Register
     private
 
     def generate_code
-      # return '%04d' % rand(0..9999)   # ← включить в проде
-      '0000' # ← DEBUG MODE
+      format('%04d', rand(0..9999))
+    end
+
+    def log_verification_code
+      # rubocop:disable Rails/Output
+      puts ''
+      puts '=' * 60
+      puts '📱 SMS VERIFICATION CODE'
+      puts '=' * 60
+      puts "   Phone: #{context.phone}"
+      puts "   Code:  #{context.code}"
+      puts '=' * 60
+      puts ''
+      # rubocop:enable Rails/Output
+
+      Rails.logger.info "[SMS] Verification code for #{context.phone}: #{context.code}"
     end
   end
 end

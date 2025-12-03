@@ -20,16 +20,54 @@ module Register
     def save_user
       user = build_user_from_flow
 
-      return unless user.save
+      unless user.save
+        # rubocop:disable Rails/Output
+        puts ''
+        puts '=' * 60
+        puts '❌ USER CREATION FAILED'
+        puts '=' * 60
+        puts "   Email: #{user.email}"
+        puts "   Errors: #{user.errors.full_messages.join(', ')}"
+        puts '=' * 60
+        puts ''
+        # rubocop:enable Rails/Output
+        Rails.logger.error "[REGISTER] User creation failed: #{user.errors.full_messages.join(', ')}"
+        return false
+      end
+
+      # Assign student role to the new user
+      assign_student_role(user)
 
       context.flow.update(:user, { 'user_id' => user.id })
       user.send_confirmation_instructions
       true
     end
 
+    def assign_student_role(user)
+      student_role = Role.find_by(key: 'student')
+      return unless student_role
+
+      # Student registers without school - they join school later via QR/link invitation
+      UserRole.create!(user: user, role: student_role, school: nil)
+
+      # rubocop:disable Rails/Output
+      puts ''
+      puts '=' * 60
+      puts '✅ STUDENT ROLE ASSIGNED'
+      puts '=' * 60
+      puts "   User: #{user.email}"
+      puts "   Phone: #{user.phone}"
+      puts '   School: (none - will join via invitation)'
+      puts '=' * 60
+      puts ''
+      # rubocop:enable Rails/Output
+    end
+
     def fail_user_creation
+      user = build_user_from_flow
+      user.valid? # trigger validation to populate errors
       context.redirect_path = redirect_to_profile
-      context.fail!(message: build_user_from_flow.errors.full_messages.to_sentence)
+      context.fail!(message: user.errors.full_messages.to_sentence)
     end
 
     def fail_pin_mismatch

@@ -46,12 +46,22 @@ module Api
         end
 
         def generate_code
-          # '%04d' % rand(0..9999)  # production
-          '0000' # debug
+          format('%04d', rand(0..9999))
         end
 
         def log_code
-          Rails.logger.info "API SMS code for #{context.phone}: #{context.code}"
+          # rubocop:disable Rails/Output
+          puts ''
+          puts '=' * 60
+          puts '📱 SMS VERIFICATION CODE (API)'
+          puts '=' * 60
+          puts "   Phone: #{context.phone}"
+          puts "   Code:  #{context.code}"
+          puts '=' * 60
+          puts ''
+          # rubocop:enable Rails/Output
+
+          Rails.logger.info "[SMS API] Verification code for #{context.phone}: #{context.code}"
         end
 
         def send_sms

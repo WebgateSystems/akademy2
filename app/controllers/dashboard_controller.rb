@@ -126,7 +126,55 @@ class DashboardController < ApplicationController
     load_student_results
   end
 
+  # GET /dashboard/class_qr.svg
+  def class_qr_svg
+    school_class = find_teacher_class(params[:class_id])
+    return head :not_found unless school_class
+
+    qr_url = join_class_url(token: school_class.join_token)
+    theme = params[:theme] || 'light'
+
+    qr = RQRCode::QRCode.new(qr_url)
+    qr_color = theme == 'dark' ? '#ffffff' : '#000000'
+    svg = qr.as_svg(
+      color: qr_color,
+      shape_rendering: 'crispEdges',
+      module_size: 6,
+      standalone: true,
+      use_path: true,
+      viewbox: true
+    )
+
+    render inline: svg, content_type: 'image/svg+xml'
+  end
+
+  # GET /dashboard/class_qr.png
+  def class_qr_png
+    school_class = find_teacher_class(params[:class_id])
+    return head :not_found unless school_class
+
+    qr_url = join_class_url(token: school_class.join_token)
+    theme = params[:theme] || 'light'
+    is_dark = theme == 'dark'
+
+    qr = RQRCode::QRCode.new(qr_url)
+    png = qr.as_png(
+      color: is_dark ? 'ffffff' : '000000',
+      fill: is_dark ? '000000' : 'ffffff',
+      size: 500
+    )
+
+    send_data png.to_s, type: 'image/png', disposition: 'attachment',
+                        filename: "qr-class-#{school_class.name.parameterize}.png"
+  end
+
   private
+
+  def find_teacher_class(class_id)
+    return nil if class_id.blank?
+
+    current_user.assigned_classes.find_by(id: class_id)
+  end
 
   def student_in_teacher_classes?(student)
     teacher_class_ids = current_user.teacher_class_assignments.pluck(:school_class_id)
@@ -188,10 +236,10 @@ class DashboardController < ApplicationController
     return 0 unless school
 
     # Count unread notifications for teacher role
-    # Including: student_awaiting_approval and quiz_completed
+    # Including: student_awaiting_approval, quiz_completed, and student_enrollment_request
     Notification.for_school(school)
                 .for_role('teacher')
-                .where(notification_type: %w[student_awaiting_approval quiz_completed])
+                .where(notification_type: %w[student_awaiting_approval quiz_completed student_enrollment_request])
                 .unread
                 .unresolved
                 .count

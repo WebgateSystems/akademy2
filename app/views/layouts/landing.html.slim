@@ -1,0 +1,258 @@
+doctype html
+html lang="pl"
+  head
+    meta charset="utf-8"
+    meta name="viewport" content="width=device-width, initial-scale=1"
+    title AKAdemy 2.0 – Ucz się nowocześnie. Offline. Z certyfikatem.
+    meta name="description" content="AKAdemy 2.0: szkolna platforma nauki z kafelkowym interfejsem, działaniem offline, quizami z certyfikatem PDF, panelem nauczyciela i eksportem CSV. Zgodna z WCAG 2.1 AA."
+    meta name="theme-color" content="#0f172a"
+    link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"
+    link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"
+    = javascript_include_tag "landing", "data-turbo-track": "reload"
+    = stylesheet_link_tag "landing", "data-turbo-track": "reload"
+    script type="application/ld+json"
+      | {
+      |   "@context":"https://schema.org",
+      |   "@type":"SoftwareApplication",
+      |   "name":"AKAdemy 2.0",
+      |   "applicationCategory":"EducationalApplication",
+      |   "operatingSystem":"Android, iOS, Web",
+      |   "featureList":[
+      |     "Kafelkowy interfejs dla uczniów",
+      |     "Działanie offline po pierwszym pobraniu",
+      |     "Quizy z certyfikatem PDF (≥ 80%)",
+      |     "Panel nauczyciela z eksportem CSV",
+      |     "Rejestracja przez QR / link",
+      |     "Zgodność z WCAG 2.1 AA",
+      |     "Materiały uczniów do akceptacji (Submissions)",
+      |     "Statystyki i raporty dla szkół"
+      |   ]
+      | }
+
+  body
+    header
+      .container.row role="navigation" aria-label="Główna nawigacja"
+        a.brand href="#home" aria-label="AKAdemy 2.0 – Strona główna"
+          svg.icon viewBox="0 0 64 64" aria-hidden="true"
+            defs
+              linearGradient#g x1="0" x2="1"
+                stop offset="0%" stop-color="var(--accent)"
+                stop offset="100%" stop-color="var(--accent-600)"
+            rect x="4" y="8" width="56" height="40" rx="10" fill="none" stroke="url(#g)" stroke-width="4"
+            path d="M10 40 L32 24 L54 40" fill="none" stroke="url(#g)" stroke-width="4" stroke-linecap="round"
+          span AKAdemy 2.0
+        nav
+          a.only-desktop href="#features" Funkcje
+          a.only-desktop href="#how" Jak to działa
+          a.only-desktop href="#pricing" Plany
+          a.only-desktop href="#faq" FAQ
+          span.switch aria-label="Przełącz motyw"
+            span ☾
+            button#themeToggle.toggle role="switch" aria-checked="false" aria-label="Theme toggle"
+            span ☀︎
+          a.btn href="/enter" Wypróbuj w szkole
+
+    main#home.hero.container
+      .cols
+        div
+          span.pill aria-hidden="true" Offline • WCAG 2.1 AA • Certyfikat PDF
+          h1
+            | Szkolna nauka, która działa 
+            u zawsze
+            |  — także 
+            span style="color:var(--accent)" offline
+            | .
+          p
+            | AKAdemy 2.0 to aplikacja dla klas 4–8 z kafelkowym interfejsem, filmami, infografikami i quizami.
+            | Uczniowie uczą się bez internetu, a po zaliczeniu zdobywają 
+            strong certyfikat PDF
+            | . Nauczyciele mają prosty panel z 
+            strong CSV
+            | , dyrekcja — klarowne statystyki.
+          .row style="gap:12px; flex-wrap:wrap"
+            a.btn href="#features" Zobacz funkcje
+            a.btn.outline href="#how" Jak to działa
+        .hero-illu aria-hidden="true"
+          svg width="88%" viewBox="0 0 640 360" role="img" aria-label="Ilustracja kafelków i certyfikatu"
+            rect x="0" y="0" width="640" height="360" rx="24" fill="none" stroke="var(--card-border)"
+            rect x="36" y="40" width="220" height="140" rx="16" fill="var(--surface)" stroke="var(--card-border)"
+            rect x="276" y="40" width="140" height="140" rx="16" fill="var(--surface)" stroke="var(--card-border)"
+            rect x="436" y="40" width="168" height="140" rx="16" fill="var(--surface)" stroke="var(--card-border)"
+            rect x="36" y="200" width="280" height="120" rx="16" fill="none" stroke="var(--accent)"
+            path d="M56 280 l40 -40 l24 24 l64 -64" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"
+
+    section#features.section.container
+      h2 style="font-size:clamp(28px,4vw,40px); margin:0 0 16px" Najważniejsze funkcje
+      p.small style="margin:0 0 24px" Projekt open-source (AGPLv3). Dla ucznia, nauczyciela i szkoły.
+      .grid.features
+        article.card
+          h3 Kafelkowy interfejs (Student)
+          p
+            | Przejrzyste 
+            strong Tiles
+            | : Tematy → Moduły → Wideo → Infografika → Quiz. Jeśli temat ma jeden moduł — od razu start wideo.
+        article.card
+          h3 Offline jak w Spotify
+          p
+            | Pobierz raz i ucz się bez sieci. Menedżer pobierania + ustawienie 
+            span.kbd Wi‑Fi only
+            | .
+        article.card
+          h3 Quiz + Certyfikat PDF
+          p
+            | Próg 
+            strong ≥ 80%
+            |  generuje certyfikat z QR i unikalnym numerem. Do pobrania i wydruku.
+        article.card
+          h3 Panel nauczyciela
+          p
+            | Wyniki uczniów, 
+            strong eksport CSV
+            | , zaproszenia przez link/QR, akceptacja rejestracji.
+        article.card
+          h3 Materiały uczniów (Submissions)
+          p Uczeń wysyła pracę do modułu, nauczyciel akceptuje/odrzuca, pełna historia wersji + komentarze.
+        article.card
+          h3 WCAG 2.1 AA
+          p Napisy do wideo, focusy, kontrast, obsługa klawiaturą. Przyjazne dla czytników.
+        article.card
+          h3 Statystyki dla dyrekcji
+          p Odwzorowanie realizacji treści, średnie wyniki, liczba certyfikatów, obszary wymagające wsparcia.
+        article.card
+          h3 Szybkie wdrożenie
+          p
+            | Rejestracja przez 
+            strong QR/link
+            | , gotowe instrukcje i checklisty dla szkół.
+
+    section#how.section.container
+      .cols
+        div
+          h2 style="font-size:clamp(28px,4vw,40px); margin:0 0 12px" Jak to działa
+          p.big Od szkoły i dyrektora do klas, nauczycieli i uczniów — w kilku krokach.
+          ul.list
+            li
+              svg.icon viewBox="0 0 24 24" aria-hidden="true"
+                path fill="currentColor" d="M12 3l9 4v6c0 5-4 8-9 9-5-1-9-4-9-9V7l9-4z"
+              div
+                strong Szkoła
+                |  – zakładasz profil i branding, wybierasz plan.
+            li
+              svg.icon viewBox="0 0 24 24" aria-hidden="true"
+                path fill="currentColor" d="M12 12a5 5 0 110-10 5 5 0 010 10zM3 22a9 9 0 1118 0H3z"
+              div
+                strong Nauczyciele
+                |  – zaproszeni przez 
+                span.kbd QR/link
+                | , akceptacja przez dyrektora.
+            li
+              svg.icon viewBox="0 0 24 24" aria-hidden="true"
+                path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"
+              div
+                strong Klasy
+                |  – nauczyciel tworzy klasy i udostępnia 
+                span.kbd QR/link
+                |  uczniom.
+            li
+              svg.icon viewBox="0 0 24 24" aria-hidden="true"
+                path fill="currentColor" d="M3 5h18v14H3z"
+              div
+                strong Nauka
+                |  – Tematy → Moduły → Wideo → Infografika → Quiz → 
+                strong Certyfikat
+                | .
+            li
+              svg.icon viewBox="0 0 24 24" aria-hidden="true"
+                path fill="currentColor" d="M5 4h14v6H5zM5 12h9v8H5z"
+              div
+                strong Submissions
+                |  – uczniowie dodają prace do modułów, nauczyciel akceptuje/odrzuca.
+        .card
+          h3 Co wyróżnia AKAdemy 2.0
+          ul.list
+            li
+              svg.icon viewBox="0 0 24 24" aria-hidden="true"
+                path fill="currentColor" d="M9 12l2 2 4-4"
+              |  Pełny tryb offline i szybkie pobieranie
+            li
+              svg.icon viewBox="0 0 24 24" aria-hidden="true"
+                path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20z"
+              |  Czytelny interfejs dla klas 4–8
+            li
+              svg.icon viewBox="0 0 24 24" aria-hidden="true"
+                path fill="currentColor" d="M4 4h16v12H4zM8 18h8v2H8z"
+              |  Nauczycielski CSV i raporty
+            li
+              svg.icon viewBox="0 0 24 24" aria-hidden="true"
+                path fill="currentColor" d="M12 17l-5 3 1.9-5.9L4 10h6l2-6 2 6h6l-4.9 4.1L17 20z"
+              |  Certyfikaty PDF z QR
+
+    section#pricing.section.container.pricing
+      h2 style="font-size:clamp(28px,4vw,40px); margin:0 0 16px" Plany
+      p.small style="margin:0 0 24px" Elastycznie dla szkół — od pilotażu po pełne wdrożenie.
+      .cols
+        .plan
+          h4 Free
+          .price 0 zł
+          p.small Dla testów i małych klas
+          ul.list
+            li Offline dla wybranych tematów
+            li Quiz + certyfikat PDF
+            li Podstawowy panel nauczyciela
+          a.btn.ghost href="#cta" Rozpocznij pilotaż
+        .plan style="border-color:var(--accent)"
+          h4 Basic
+          .price —
+          p.small Dla większości szkół
+          ul.list
+            li Pełny offline (tematy/moduły)
+            li Submissions (akceptacja nauczyciela)
+            li CSV + raporty klasy
+          a.btn href="#cta" Zapytaj o ofertę
+        .plan
+          h4 Premium
+          .price —
+          p.small Dla dużych szkół i sieci
+          ul.list
+            li Zaawansowane statystyki
+            li Telemetria i API
+            li Priorytetowe wsparcie
+          a.btn.ghost href="#cta" Porozmawiajmy
+
+    section#faq.section.container
+      h2 style="font-size:clamp(28px,4vw,40px); margin:0 0 16px" FAQ
+      .grid style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))"
+        details.card
+          summary
+            strong Jak wygląda wdrożenie?
+          p Dyrektor zaprasza nauczycieli (QR/link), nauczyciel tworzy klasy i udostępnia QR/link uczniom. Mamy gotowe instrukcje i checklisty.
+        details.card
+          summary
+            strong Czy działa bez internetu?
+          p Tak, wystarczy raz pobrać treści. Uczeń może uczyć się offline, a wyniki zsynchronizują się później.
+        details.card
+          summary
+            strong Czy macie WCAG 2.1 AA?
+          p Tak — napisy, focusy, kontrast, obsługa klawiaturą i skanerem dostępności.
+        details.card
+          summary
+            strong Jak działają certyfikaty?
+          p Po zaliczeniu quizu (≥ 80%) generujemy PDF z QR i numerem. Nauczyciel widzi wyniki w panelu.
+
+    section#cta.section.container
+      .card style="display:grid; gap:16px; text-align:center; padding:clamp(24px,4vw,40px)"
+        h2 style="font-size:clamp(28px,4vw,40px); margin:0" Zacznij pilotaż w swojej szkole
+        p.small Pomożemy w konfiguracji i szkoleniu nauczycieli. Przeprowadzimy test w 4 szkołach zgodnie z umową M2.
+        div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap"
+          a.btn href="mailto:hello@akademy.edu.pl" Napisz do nas
+          a.btn.outline href="#features" Poznaj funkcje
+
+    footer
+      .container.row style="gap:12px; flex-wrap:wrap"
+        span
+          | © 
+          span#currentYear
+          |  AKAdemy 2.0
+        a href="#" Polityka prywatności
+        a href="#" Informacja o dostępności
+        span.small Open Source • AGPLv3
