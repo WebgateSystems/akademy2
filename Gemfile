@@ -43,6 +43,9 @@ gem 'streamio-ffmpeg', '~> 3.0'
 gem 'thruster', require: false
 gem 'wicked_pdf', '~> 2.8'
 
+gem 'combine_pdf'
+gem 'prawn'
+
 group :development, :test do
   gem 'bullet'
   gem 'debug', platforms: %i[mri windows], require: 'debug/prelude'

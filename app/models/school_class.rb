@@ -38,4 +38,9 @@ class SchoolClass < ApplicationRecord
       break unless SchoolClass.exists?(join_token: join_token)
     end
   end
+
+  def main_teacher
+    teachers.joins(:teacher_class_assignments)
+            .find_by(teacher_class_assignments: { role: 'main' })
+  end
 end

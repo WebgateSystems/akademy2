@@ -230,6 +230,12 @@ Rails.application.routes.draw do
         post 'set_pin',        to: 'steps#set_pin'
         post 'confirm_pin',    to: 'steps#confirm_pin'
       end
+
+      resources :certificates, only: [:show], param: :id do
+        member do
+          get :download
+        end
+      end
     end
   end
 

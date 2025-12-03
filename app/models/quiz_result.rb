@@ -2,6 +2,8 @@ class QuizResult < ApplicationRecord
   belongs_to :user
   belongs_to :learning_module
 
+  has_one :certificate, dependent: :destroy
+
   after_create :log_quiz_completion
   after_create :notify_teachers_on_success
 

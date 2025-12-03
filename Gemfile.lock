@@ -151,6 +151,9 @@ GEM
       logger (~> 1.5)
     chunky_png (1.4.0)
     coderay (1.1.3)
+    combine_pdf (1.0.31)
+      matrix
+      ruby-rc4 (>= 0.1.5)
     concurrent-ruby (1.3.5)
     config (5.6.1)
       deep_merge (~> 1.2, >= 1.2.1)
@@ -304,6 +307,7 @@ GEM
       net-pop
       net-smtp
     marcel (1.0.4)
+    matrix (0.4.3)
     method_source (1.1.0)
     mini_magick (5.3.1)
       logger
@@ -361,6 +365,7 @@ GEM
     parser (3.3.10.0)
       ast (~> 2.4.1)
       racc
+    pdf-core (0.10.0)
     pg (1.6.2)
     pg (1.6.2-aarch64-linux)
     pg (1.6.2-aarch64-linux-musl)
@@ -370,6 +375,10 @@ GEM
     pg (1.6.2-x86_64-linux-musl)
     pp (0.6.3)
       prettyprint
+    prawn (2.5.0)
+      matrix (~> 0.4)
+      pdf-core (~> 0.10.0)
+      ttfunk (~> 1.8)
     prettyprint (0.2.0)
     prism (1.6.0)
     propshaft (1.3.1)
@@ -530,6 +539,7 @@ GEM
       rubocop (~> 1.72, >= 1.72.1)
       rubocop-rspec (~> 3.5)
     ruby-progressbar (1.13.0)
+    ruby-rc4 (0.1.5)
     ruby-vips (2.2.5)
       ffi (~> 1.12)
       logger
@@ -598,6 +608,8 @@ GEM
     tilt (2.6.1)
     timeout (0.4.4)
     tsort (0.2.0)
+    ttfunk (1.8.0)
+      bigdecimal (~> 3.1)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (3.2.0)
@@ -656,6 +668,7 @@ DEPENDENCIES
   capistrano-rvm
   capistrano3-puma!
   carrierwave (~> 3.0)
+  combine_pdf
   config
   cssbundling-rails (~> 1.4)
   database_cleaner-active_record
@@ -679,6 +692,7 @@ DEPENDENCIES
   mrml (~> 1.4)
   oj (~> 3.16)
   pg (~> 1.1)
+  prawn
   propshaft
   pry
   puma (>= 7.1)
