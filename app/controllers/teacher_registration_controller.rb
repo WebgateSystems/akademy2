@@ -1,6 +1,7 @@
 class TeacherRegistrationController < ApplicationController
   # GET /join/school/:token
   # Redirect to teacher registration with school context
+  # Token format: xxxx-xxxx-xxxxxxxxxxxx (last 3 segments of UUID)
   def join_school
     token = params[:token]
     school = School.find_by(join_token: token)

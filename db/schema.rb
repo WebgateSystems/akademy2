@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_01_121231) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_03_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -189,12 +189,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_01_121231) do
 
   create_table "school_classes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.string "join_token"
     t.jsonb "metadata", default: {}, null: false
     t.string "name", null: false
     t.uuid "qr_token", null: false
     t.uuid "school_id", null: false
     t.datetime "updated_at", null: false
     t.string "year", null: false
+    t.index ["join_token"], name: "index_school_classes_on_join_token", unique: true
     t.index ["qr_token"], name: "index_school_classes_on_qr_token", unique: true
     t.index ["school_id", "name", "year"], name: "index_classes_on_school_name_year", unique: true
     t.index ["school_id"], name: "index_school_classes_on_school_id"
@@ -207,12 +209,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_01_121231) do
     t.datetime "created_at", null: false
     t.string "email"
     t.string "homepage"
+    t.string "join_token"
     t.string "logo"
     t.string "name", null: false
     t.string "phone"
     t.string "postcode"
     t.string "slug", null: false
     t.datetime "updated_at", null: false
+    t.index ["join_token"], name: "index_schools_on_join_token", unique: true
     t.index ["slug"], name: "index_schools_on_slug", unique: true
   end
 

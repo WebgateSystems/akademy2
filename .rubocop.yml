@@ -175,6 +175,8 @@ Rails/SkipsModelValidations:
   Exclude:
     - "app/models/project.rb"
     - "db/seeds/**/*.rb"
+    - "db/migrate/*.rb" # update_column is intentionally used in migrations to avoid callbacks
+    - "lib/tasks/*.rake" # update_column is intentionally used in rake tasks to avoid callbacks
     - "spec/**/*.rb" # update_column is intentionally used in tests to simulate edge cases
 
 Rails/HelperInstanceVariable:
