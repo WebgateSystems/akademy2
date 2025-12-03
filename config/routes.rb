@@ -180,6 +180,9 @@ Rails.application.routes.draw do
   # Role selection page
   get '/enter', to: 'enter#index', as: :enter
 
+  get 'health', to: 'home#spinup_status'
+  get 'version', to: 'home#version'
+
   # Landing page
   root 'home#index'
 end

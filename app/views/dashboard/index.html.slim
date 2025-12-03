@@ -72,6 +72,8 @@
             .dashboard-empty-state__actions
               = link_to "Przejdź do panelu zarządzania", management_classes_path, class: "btn btn-primary"
 
+    = render 'shared/app_version'
+
 javascript:
   // QR code for students to join THIS CLASS
   const classToken = '#{@current_class&.join_token}';

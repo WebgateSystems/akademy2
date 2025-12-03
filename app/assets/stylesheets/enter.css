@@ -93,6 +93,12 @@
   color: var(--content-primary);
 }
 
+/* Light theme: Pupil and Teacher cards should have black text */
+[data-theme="light"] .enter-card--pupil,
+[data-theme="light"] .enter-card--teacher {
+  color: var(--content-primary);
+}
+
 /* Theme toggle */
 .enter-theme-toggle {
   position: absolute;
@@ -136,6 +142,7 @@
 .enter-theme-toggle__button[aria-checked="true"]::after {
   transform: translateX(22px);
 }
+
 
 /* Responsive */
 @media (max-width: 768px) {
