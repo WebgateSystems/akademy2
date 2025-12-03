@@ -4,7 +4,7 @@ Educational platform for Polish schools.
 
 ## Ruby version
 
-3.4.6
+##### 1. Install Gems
 
 ## System dependencies
 
