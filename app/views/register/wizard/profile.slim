@@ -34,10 +34,21 @@ section.auth-card aria-labelledby="auth-card-title"
     / ===============================
     label
       span Date of birth
-      = f.text_field :birthdate,
-          placeholder: "DD.MM.YYYY",
-          inputmode: "numeric",
-          class: (@form.errors[:birthdate].present? ? "error-input" : "")
+      .auth-date-picker class=(@form.errors[:birthdate].present? ? "auth-date-picker--error" : "")
+        = text_field_tag "register_profile_form[birthdate_display]",
+            nil,
+            placeholder: "DD.MM.YYYY",
+            class: "auth-date-picker__display",
+            inputmode: "numeric",
+            pattern: "[0-9.]*",
+            maxlength: "10",
+            id: "register_profile_form_birthdate_display"
+        = f.date_field :birthdate,
+            class: "auth-date-picker__native",
+            max: Date.today.strftime("%Y-%m-%d"),
+            tabindex: "-1",
+            "aria-hidden": "true",
+            id: "register_profile_form_birthdate"
       - if @form.errors[:birthdate].present?
         .field-error = @form.errors[:birthdate].first
 
@@ -75,4 +86,4 @@ section.auth-card aria-labelledby="auth-card-title"
     / ===============================
     / Submit button
     / ===============================
-    button.auth-submit type="submit" Create account
+    button.auth-submit.auth-submit--disabled type="submit" disabled=true Create account

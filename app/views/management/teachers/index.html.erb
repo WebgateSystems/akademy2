@@ -227,8 +227,10 @@
       row.className = 'teachers-table__row';
       
       const isLocked = attrs.is_locked || attrs.locked_at;
-      const isConfirmed = attrs.is_confirmed || attrs.confirmed_at;
-      const isAwaitingApproval = !isConfirmed;
+      const enrollmentStatus = attrs.enrollment_status || 'none';
+      const enrollmentId = attrs.enrollment_id;
+      // Teacher is awaiting approval if they have a pending enrollment
+      const isAwaitingApproval = enrollmentStatus === 'pending';
       
       // Create cells
       const cells = [
@@ -267,13 +269,16 @@
       teachersActionsDiv.className = 'teachers-actions';
       
       if (isAwaitingApproval) {
-        // Show approve/decline buttons for unconfirmed teachers
+        // Show approve/decline buttons for teachers with pending enrollment
         const approveBtn = document.createElement('button');
         approveBtn.className = 'teacher-action teacher-action--approve js-approve-teacher';
         approveBtn.type = 'button';
         approveBtn.setAttribute('aria-label', 'Approve teacher');
         approveBtn.setAttribute('data-teacher-id', teacherId);
         approveBtn.setAttribute('data-teacher-name', name);
+        if (enrollmentId) {
+          approveBtn.setAttribute('data-enrollment-id', enrollmentId);
+        }
         const approveImg = document.createElement('img');
         approveImg.src = (typeof window.TEACHERS_ASSET_PATHS !== 'undefined' && window.TEACHERS_ASSET_PATHS.approveIcon) || '/assets/icons/social/S/done.svg';
         approveImg.alt = '';
@@ -285,6 +290,9 @@
         declineBtn.setAttribute('aria-label', 'Decline teacher');
         declineBtn.setAttribute('data-teacher-id', teacherId);
         declineBtn.setAttribute('data-teacher-name', name);
+        if (enrollmentId) {
+          declineBtn.setAttribute('data-enrollment-id', enrollmentId);
+        }
         const declineImg = document.createElement('img');
         declineImg.src = (typeof window.TEACHERS_ASSET_PATHS !== 'undefined' && window.TEACHERS_ASSET_PATHS.declineIcon) || '/assets/icons/social/S/close_red.svg';
         declineImg.alt = '';

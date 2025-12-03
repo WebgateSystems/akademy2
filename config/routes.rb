@@ -119,6 +119,9 @@ Rails.application.routes.draw do
       namespace :teacher do
         get 'dashboard', to: 'dashboard#index'
         get 'dashboard/class/:id', to: 'dashboard#show_class', as: :dashboard_class
+        post 'school_enrollments/join', to: 'school_enrollments#join'
+        get 'school_enrollments/pending', to: 'school_enrollments#pending'
+        delete 'school_enrollments/:id/cancel', to: 'school_enrollments#cancel', as: :cancel_teacher_enrollment
       end
 
       namespace :student do

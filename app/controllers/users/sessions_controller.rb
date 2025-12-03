@@ -78,7 +78,7 @@ class Users::SessionsController < Devise::SessionsController
   # rubocop:enable I18n/GetText/DecorateString
 
   def student_role?
-    params.dig(:user, :role) == 'student'
+    params[:role] == 'student' || params.dig(:user, :role) == 'student'
   end
 
   def student_phone

@@ -12,9 +12,9 @@
                  url: session_path(resource_name),
                  html: { data: { login_form: true } }) do |f|
 
-        / Hidden role field, determined by intended path
+        / Hidden role field, determined by intended path (outside user params to avoid unpermitted parameter warning)
         - role = params[:role] || (session[:user_return_to].present? ? (session[:user_return_to].include?('/home') ? 'student' : (session[:user_return_to].include?('/management') ? 'administration' : 'teacher')) : 'teacher')
-        = hidden_field_tag "user[role]", role, id: "login-role"
+        = hidden_field_tag :role, role, id: "login-role"
 
         - if role == "student"
           / ======================================
@@ -29,13 +29,45 @@
                 placeholder: "+48 123 456 789"
 
             .mb-3
-              = label_tag :password, 'PIN (4 cyfry)', class: 'form-label'
+              = label_tag :pin_label, 'PIN (4 cyfry)', class: 'form-label'
+              / Hidden field that holds the combined PIN for form submission
               = password_field_tag :password, nil,
-                  maxlength: 4,
+                id: 'login-pin-hidden',
+                class: 'login-pin-hidden',
+                maxlength: 4,
+                inputmode: "numeric",
+                pattern: "[0-9]*",
+                autocomplete: "off"
+              / 4 separate PIN digit inputs
+              .login-pin-inputs role="group" aria-label="PIN code"
+                = password_field_tag :pin1, nil,
+                  maxlength: 1,
                   inputmode: "numeric",
-                  pattern: "[0-9]*",
-                  class: 'form-control login-input',
-                  placeholder: "0000"
+                  class: 'login-pin-digit',
+                  aria: { label: "PIN digit 1" },
+                  data: { pin_index: "0" },
+                  autocomplete: "off"
+                = password_field_tag :pin2, nil,
+                  maxlength: 1,
+                  inputmode: "numeric",
+                  class: 'login-pin-digit',
+                  aria: { label: "PIN digit 2" },
+                  data: { pin_index: "1" },
+                  autocomplete: "off"
+                = password_field_tag :pin3, nil,
+                  maxlength: 1,
+                  inputmode: "numeric",
+                  class: 'login-pin-digit',
+                  aria: { label: "PIN digit 3" },
+                  data: { pin_index: "2" },
+                  autocomplete: "off"
+                = password_field_tag :pin4, nil,
+                  maxlength: 1,
+                  inputmode: "numeric",
+                  class: 'login-pin-digit',
+                  aria: { label: "PIN digit 4" },
+                  data: { pin_index: "3" },
+                  autocomplete: "off"
         - else
           / ======================================
           /   TEACHER / ADMINISTRATION — Email + Password
@@ -50,20 +82,20 @@
                 placeholder: 'name@school.edu'
 
             .mb-3
-              .d-flex.justify-content-between.align-items-center
-                = f.label :password, 'Hasło', class: 'form-label'
-                - if devise_mapping.recoverable?
-                  = link_to 'Nie pamiętasz hasła?', new_password_path(resource_name), class: 'small'
-
+              = f.label :password, 'Hasło', class: 'form-label'
               = f.password_field :password,
                 autocomplete: 'current-password',
                 class: 'form-control login-input',
                 placeholder: '••••••••'
 
         - if devise_mapping.rememberable?
-          .mb-3.form-check
-            = f.check_box :remember_me, class: 'form-check-input', id: 'remember_me'
-            = f.label :remember_me, 'Zapamiętaj mnie', class: 'form-check-label'
+          - if role == "student"
+            / Students always have remember_me enabled
+            = f.hidden_field :remember_me, value: "1"
+          - else
+            .mb-3.form-check
+              = f.check_box :remember_me, class: 'form-check-input', id: 'remember_me'
+              = f.label :remember_me, 'Zapamiętaj mnie', class: 'form-check-label'
 
         .d-grid
           = f.submit 'Zaloguj się', class: 'btn login-btn'
@@ -72,4 +104,5 @@
         = render 'devise/shared/links'
 
     .login-footer
-      | © #{Time.current.year} Akademy
+      | © #{Time.current.year} 
+      a.copyright-link href="https://webgate.pro" target="_blank" Webgate Systems LTD

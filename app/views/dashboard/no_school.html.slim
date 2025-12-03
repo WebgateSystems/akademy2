@@ -1,0 +1,264 @@
+.dashboard-app data-dashboard-app=""
+  = render 'dashboard/sidebar'
+
+  main.dashboard-main
+    = render 'dashboard/top_bar'
+
+    / No school and no pending enrollments - show join form
+    .dashboard-empty-state#teacher-join-state
+      .dashboard-empty-state__content
+        .dashboard-empty-state__icon
+          svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+            path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
+            circle cx="9" cy="7" r="4"
+            path d="M23 21v-2a4 4 0 0 0-3-3.87"
+            path d="M16 3.13a4 4 0 0 1 0 7.75"
+        h2 Brak przypisanej szkoły
+        p
+          | Nie masz jeszcze przypisanej żadnej szkoły.
+          br
+          | Poproś administrację szkoły o kod QR lub link do dołączenia do szkoły,
+          br
+          | bądź wprowadź token otrzymany od administracji poniżej:
+
+        .join-school-form
+          .join-school-input-wrapper
+            input#join-token-input.form-control.join-token-input type="text" placeholder="Wklej link lub token (np. 4b69-9c48-1780fb0ccb87)" autocomplete="off" value="#{@join_token}" data-auto-submit="#{@join_token.present?}"
+              .join-token-status
+                span#join-status-icon
+                span#join-status-text
+
+          #join-error-message.join-error-message style="display: none"
+          #join-success-message.join-success-message style="display: none"
+
+    = render 'shared/app_version'
+
+css:
+  .join-school-form {
+    margin-top: 24px;
+    max-width: 500px;
+    margin-inline: auto;
+  }
+
+  .join-school-input-wrapper {
+    position: relative;
+  }
+
+  .join-token-input {
+    padding: 16px 20px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: 2px solid var(--border-muted);
+    background: var(--surface-primary);
+    color: var(--content-primary);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .join-token-input:focus {
+    border-color: var(--button-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    outline: none;
+  }
+
+  .join-token-input.is-valid {
+    border-color: var(--state-success);
+  }
+
+  .join-token-input.is-invalid {
+    border-color: var(--state-error);
+  }
+
+  .join-token-input.is-loading {
+    border-color: var(--button-primary);
+  }
+
+  .join-token-status {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--content-secondary);
+  }
+
+  #join-status-icon {
+    font-size: 18px;
+  }
+
+  .join-error-message {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 8px;
+    color: var(--state-error);
+    font-size: 14px;
+  }
+
+  .join-success-message {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: rgba(22, 163, 74, 0.1);
+    border: 1px solid rgba(22, 163, 74, 0.3);
+    border-radius: 8px;
+    color: var(--state-success);
+    font-size: 14px;
+  }
+
+javascript:
+  (function() {
+    // ==========================================
+    // Join school form handlers
+    // ==========================================
+    const tokenInput = document.getElementById('join-token-input');
+    const statusIcon = document.getElementById('join-status-icon');
+    const statusText = document.getElementById('join-status-text');
+    const errorMessage = document.getElementById('join-error-message');
+    const successMessage = document.getElementById('join-success-message');
+    const joinState = document.getElementById('teacher-join-state');
+
+    if (!tokenInput) return;
+
+    // Token format: xxxx-xxxx-xxxxxxxxxxxx (last 3 segments of UUID)
+    const TOKEN_REGEX = /^[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+    const URL_REGEX = /\/join\/school\/([a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i;
+
+    let debounceTimer = null;
+    let isSubmitting = false;
+    let lastSubmittedToken = null;
+
+    function extractToken(input) {
+      const trimmed = input.trim();
+
+      // Check if it's a URL
+      const urlMatch = trimmed.match(URL_REGEX);
+      if (urlMatch) {
+        return urlMatch[1].toLowerCase();
+      }
+
+      // Check if it's a direct token
+      if (TOKEN_REGEX.test(trimmed)) {
+        return trimmed.toLowerCase();
+      }
+
+      return null;
+    }
+
+    function setStatus(type, icon, text) {
+      tokenInput.classList.remove('is-valid', 'is-invalid', 'is-loading');
+      
+      if (type) {
+        tokenInput.classList.add(type);
+      }
+      
+      statusIcon.textContent = icon;
+      statusText.textContent = text;
+    }
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      successMessage.style.display = 'none';
+    }
+
+    function hideError() {
+      errorMessage.style.display = 'none';
+    }
+
+    function showSuccess(message) {
+      successMessage.textContent = message;
+      successMessage.style.display = 'block';
+      errorMessage.style.display = 'none';
+    }
+
+    async function joinSchool(token) {
+      if (isSubmitting || token === lastSubmittedToken) {
+        return;
+      }
+      
+      isSubmitting = true;
+      lastSubmittedToken = token;
+      setStatus('is-loading', '⏳', 'Wysyłanie...');
+      hideError();
+
+      try {
+        const response = await fetch('/api/v1/teacher/school_enrollments/join', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+          },
+          body: JSON.stringify({ token: token })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setStatus('is-valid', '✅', 'Wysłano!');
+          showSuccess(`Wniosek o dołączenie do szkoły "${data.school_name}" został wysłany. Oczekuj na akceptację administracji.`);
+          
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        } else {
+          setStatus('is-invalid', '❌', 'Błąd');
+          showError(data.error || 'Wystąpił błąd podczas wysyłania wniosku');
+          isSubmitting = false;
+        }
+      } catch (error) {
+        setStatus('is-invalid', '❌', 'Błąd');
+        showError('Wystąpił błąd połączenia. Spróbuj ponownie.');
+        isSubmitting = false;
+      }
+    }
+
+    tokenInput.addEventListener('input', function() {
+      const value = this.value;
+      
+      clearTimeout(debounceTimer);
+      hideError();
+
+      if (!value.trim()) {
+        setStatus(null, '', '');
+        return;
+      }
+
+      const token = extractToken(value);
+
+      if (token) {
+        setStatus('is-valid', '✓', 'Prawidłowy format');
+        
+        debounceTimer = setTimeout(() => {
+          joinSchool(token);
+        }, 500);
+      } else {
+        if (value.length > 5) {
+          setStatus('is-invalid', '✗', 'Nieprawidłowy format');
+        } else {
+          setStatus(null, '', '');
+        }
+      }
+    });
+
+    tokenInput.addEventListener('paste', function(e) {
+      setTimeout(() => {
+        const token = extractToken(this.value);
+        if (token) {
+          joinSchool(token);
+        }
+      }, 100);
+    });
+
+    if (tokenInput.dataset.autoSubmit === 'true' && tokenInput.value) {
+      const token = extractToken(tokenInput.value);
+      if (token) {
+        setTimeout(() => joinSchool(token), 500);
+      }
+    }
+  })();
+
+
+

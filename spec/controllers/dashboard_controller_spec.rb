@@ -23,6 +23,7 @@ RSpec.describe DashboardController, type: :request do
     user = create(:user, school: school)
     UserRole.create!(user: user, role: teacher_role, school: school)
     TeacherClassAssignment.create!(teacher: user, school_class: school_class, role: 'teacher')
+    TeacherSchoolEnrollment.create!(teacher: user, school: school, status: 'approved', joined_at: Time.current)
     user.reload
   end
 
@@ -46,9 +47,8 @@ RSpec.describe DashboardController, type: :request do
 
       it 'redirects to login page with alert to avoid redirect loop' do
         get dashboard_path
-        expect(response).to redirect_to(new_user_session_path)
-        expect(flash[:alert]).to include('nauczycieli')
-        expect(flash[:alert]).to include('Zaloguj się ponownie')
+        expect(response).to redirect_to(new_user_session_path(role: 'teacher'))
+        expect(flash[:alert]).to include('nauczyciel')
       end
     end
   end
@@ -398,6 +398,68 @@ RSpec.describe DashboardController, type: :request do
         get dashboard_path
         expect(response).to have_http_status(:success)
       end
+    end
+  end
+
+  describe 'teacher without school (pending enrollment)' do
+    let(:teacher_without_school) do
+      user = create(:user, school: nil)
+      UserRole.create!(user: user, role: teacher_role, school: nil)
+      user
+    end
+
+    before { sign_in teacher_without_school }
+
+    context 'when teacher has pending enrollment' do
+      let!(:enrollment) do
+        TeacherSchoolEnrollment.create!(
+          teacher: teacher_without_school,
+          school: school,
+          status: 'pending'
+        )
+      end
+
+      it 'renders pending_school_enrollment view' do
+        get dashboard_path
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('Oczekiwanie')
+      end
+    end
+
+    context 'when teacher has no enrollment' do
+      it 'renders no_school view' do
+        get dashboard_path
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('Brak przypisanej szkoły')
+      end
+    end
+  end
+
+  describe 'teacher after declined enrollment' do
+    let(:declined_teacher) do
+      user = create(:user, school: nil)
+      UserRole.create!(user: user, role: teacher_role, school: nil)
+      user
+    end
+
+    before { sign_in declined_teacher }
+
+    it 'can access dashboard without errors' do
+      get dashboard_path
+      expect(response).to have_http_status(:success)
+    end
+
+    it 'renders no_school view when no enrollment exists' do
+      get dashboard_path
+      expect(response.body).to include('Brak przypisanej szkoły')
+    end
+  end
+
+  describe 'redirect parameters for unauthenticated teacher' do
+    it 'redirects to login' do
+      get dashboard_path
+      # Unauthenticated users get redirected by Devise without role parameter
+      expect(response).to redirect_to(new_user_session_path)
     end
   end
 end

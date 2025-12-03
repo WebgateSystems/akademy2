@@ -7,6 +7,7 @@
       <select id="notification-type-filter">
         <option value="all" <%= 'selected' if @type_filter == 'all' %>>All types</option>
         <option value="teacher_awaiting_approval" <%= 'selected' if @type_filter == 'teacher_awaiting_approval' %>>Teacher invitations</option>
+        <option value="teacher_enrollment_request" <%= 'selected' if @type_filter == 'teacher_enrollment_request' %>>Teacher enrollment requests</option>
         <option value="student_awaiting_approval" <%= 'selected' if @type_filter == 'student_awaiting_approval' %>>Student invitations</option>
         <option value="report_ready" <%= 'selected' if @type_filter == 'report_ready' %>>Reports</option>
         <option value="reminder" <%= 'selected' if @type_filter == 'reminder' %>>Reminders</option>

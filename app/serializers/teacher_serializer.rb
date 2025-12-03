@@ -33,4 +33,22 @@ class TeacherSerializer < ApplicationSerializer
   attribute :is_confirmed do |teacher|
     teacher.confirmed_at.present?
   end
+
+  attribute :enrollment_status do |teacher, params|
+    # Check enrollment status for the school from params
+    if params && params[:school_id]
+      enrollment = TeacherSchoolEnrollment.find_by(teacher: teacher, school_id: params[:school_id])
+      enrollment&.status || 'none'
+    else
+      'none'
+    end
+  end
+
+  attribute :enrollment_id do |teacher, params|
+    # Return enrollment ID for approve/decline actions
+    if params && params[:school_id]
+      enrollment = TeacherSchoolEnrollment.find_by(teacher: teacher, school_id: params[:school_id])
+      enrollment&.id
+    end
+  end
 end

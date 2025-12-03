@@ -110,4 +110,96 @@ RSpec.describe Users::SessionsController, type: :request do
       expect(event.client).to eq('web')
     end
   end
+
+  describe 'GET /users/sign_in with role parameter' do
+    context 'with role=teacher' do
+      it 'renders the login form' do
+        get new_user_session_path(role: 'teacher')
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'shows sign up link to teacher registration' do
+        get new_user_session_path(role: 'teacher')
+        expect(response.body).to include('register/teacher')
+      end
+    end
+
+    context 'with role=student' do
+      it 'renders the login form with PIN fields' do
+        get new_user_session_path(role: 'student')
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('login-pin')
+      end
+
+      it 'shows sign up link to student registration' do
+        get new_user_session_path(role: 'student')
+        expect(response.body).to include('register/profile')
+      end
+    end
+
+    context 'with role=administration' do
+      it 'does not show sign up link' do
+        get new_user_session_path(role: 'administration')
+        expect(response).to have_http_status(:success)
+        expect(response.body).not_to include('Sign up')
+      end
+    end
+  end
+
+  describe 'POST /users/sign_in with role parameter' do
+    let(:teacher_role) { Role.find_or_create_by!(key: 'teacher') { |r| r.name = 'Teacher' } }
+    let(:school) { create(:school) }
+    let(:teacher_user) do
+      user = create(:user, school: school)
+      UserRole.create!(user: user, role: teacher_role, school: school)
+      user
+    end
+
+    before { teacher_role }
+
+    context 'with role as top-level parameter' do
+      it 'successfully logs in teacher' do
+        post user_session_path, params: {
+          role: 'teacher',
+          user: {
+            email: teacher_user.email,
+            password: teacher_user.password
+          }
+        }
+
+        expect(response).to have_http_status(:redirect)
+      end
+
+      it 'does not show unpermitted parameter warning' do
+        # Ensure no unpermitted parameter errors in logs
+        expect do
+          post user_session_path, params: {
+            role: 'teacher',
+            user: {
+              email: teacher_user.email,
+              password: teacher_user.password
+            }
+          }
+        end.not_to raise_error
+      end
+    end
+  end
+
+  describe 'student PIN login' do
+    let(:student_with_pin) do
+      user = create(:user, password: 'Password1', password_confirmation: 'Password1')
+      UserRole.create!(user: user, role: student_role, school: user.school)
+      user
+    end
+
+    it 'accepts password login' do
+      post user_session_path, params: {
+        role: 'student',
+        phone: student_with_pin.phone,
+        password: 'Password1'
+      }
+
+      expect(response).to have_http_status(:redirect)
+    end
+  end
 end

@@ -8,7 +8,35 @@ class DashboardController < ApplicationController
   helper_method :notifications_count
 
   def index
+    # Check if there's a token to auto-fill
+    @join_token = params[:token]
+
     @school = current_user.school
+
+    # Get pending enrollments for the empty state
+    @pending_enrollments = current_user.teacher_school_enrollments
+                                       .where(status: 'pending')
+                                       .includes(:school)
+
+    # Initialize empty arrays for sidebar (needed for all views)
+    @classes = []
+    @classes_awaiting_counts = {}
+
+    # If teacher has pending enrollment and no approved school, show waiting state
+    # Check if teacher has any approved enrollment
+    has_approved_enrollment = current_user.teacher_school_enrollments.where(status: 'approved').exists?
+
+    if @pending_enrollments.any? && !has_approved_enrollment
+      render 'dashboard/pending_school_enrollment'
+      return
+    end
+
+    # If teacher has no approved enrollment and no pending enrollments, show join form
+    if !has_approved_enrollment && @pending_enrollments.empty?
+      render 'dashboard/no_school'
+      return
+    end
+
     @classes = current_user.assigned_classes
                            .where(school_id: @school&.id)
                            .order(:name)
@@ -211,12 +239,17 @@ class DashboardController < ApplicationController
   def require_teacher!
     return if current_user.teacher?
 
-    # Store the location user was trying to access (if not already stored)
-    session[:return_to] = request.fullpath if request.get? && session[:return_to].blank?
+    # User is logged in but doesn't have teacher role - sign them out and redirect
+    sign_out(current_user)
 
-    # Redirect to login instead of root_path to avoid redirect loop
+    # Clear any stored return paths to prevent redirect loops
+    session.delete(:return_to)
+    session.delete(:user_return_to)
+
+    # Redirect to login with teacher role parameter
     # rubocop:disable I18n/GetText/DecorateString
-    redirect_to new_user_session_path, alert: 'Dostęp tylko dla nauczycieli. Zaloguj się ponownie.'
+    redirect_to new_user_session_path(role: 'teacher'),
+                alert: 'Brak uprawnień nauczyciela. Zaloguj się kontem nauczyciela.'
     # rubocop:enable I18n/GetText/DecorateString
   end
 

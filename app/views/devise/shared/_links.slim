@@ -4,12 +4,14 @@
   br
 
 - if devise_mapping.recoverable? && controller_name != 'passwords'
-  = link_to t('devise.shared.links.forgot_your_password', default: "Forgot your password?"), new_password_path(resource_name)
+  = link_to 'Nie pamiętasz hasła?', new_password_path(resource_name)
   br
 
-/ Only show sign up if route helper exists
-- if devise_mapping.registerable? && controller_name != 'registrations' && respond_to?(:new_user_registration_path)
-  = link_to t('devise.shared.links.sign_up', default: 'Sign up'), register_profile_path
+/ Only show sign up if route helper exists and user is not administration
+- role = params[:role] || (session[:user_return_to].present? ? (session[:user_return_to].include?('/home') ? 'student' : (session[:user_return_to].include?('/management') ? 'administration' : 'teacher')) : 'teacher')
+- if devise_mapping.registerable? && controller_name != 'registrations' && respond_to?(:new_user_registration_path) && role != 'administration'
+  - sign_up_path = role == 'teacher' ? register_teacher_path : register_profile_path
+  = link_to t('devise.shared.links.sign_up', default: 'Sign up'), sign_up_path
   br
 
 / - if devise_mapping.confirmable? && controller_name != 'confirmations'

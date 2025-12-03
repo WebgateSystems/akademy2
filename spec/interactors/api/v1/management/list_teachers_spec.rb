@@ -106,6 +106,48 @@ RSpec.describe Api::V1::Management::ListTeachers do
         expect(result).to be_success
         expect(result.form).to contain_exactly(teacher1)
       end
+
+      it 'includes teachers with pending enrollment' do
+        # Teacher with pending enrollment (new flow)
+        pending_teacher = create(:user, school: nil, first_name: 'Pending', last_name: 'Teacher')
+        UserRole.create!(user: pending_teacher, role: teacher_role, school: nil)
+        TeacherSchoolEnrollment.create!(teacher: pending_teacher, school: school, status: 'pending')
+
+        result = described_class.call(context)
+
+        expect(result).to be_success
+        expect(result.form).to include(pending_teacher)
+      end
+
+      it 'includes teachers with approved enrollment' do
+        # Teacher with approved enrollment (new flow)
+        approved_teacher = create(:user, school: school, first_name: 'Approved', last_name: 'Teacher')
+        UserRole.create!(user: approved_teacher, role: teacher_role, school: school)
+        TeacherSchoolEnrollment.create!(
+          teacher: approved_teacher,
+          school: school,
+          status: 'approved',
+          joined_at: Time.current
+        )
+
+        result = described_class.call(context)
+
+        expect(result).to be_success
+        expect(result.form).to include(approved_teacher)
+      end
+
+      it 'does not include teachers with no enrollment in this school' do
+        # Teacher enrolled in another school
+        other_school = create(:school)
+        other_teacher = create(:user, school: nil, first_name: 'Other', last_name: 'Teacher')
+        UserRole.create!(user: other_teacher, role: teacher_role, school: nil)
+        TeacherSchoolEnrollment.create!(teacher: other_teacher, school: other_school, status: 'pending')
+
+        result = described_class.call(context)
+
+        expect(result).to be_success
+        expect(result.form).not_to include(other_teacher)
+      end
     end
 
     context 'when user is not authorized' do

@@ -394,7 +394,9 @@ RSpec.describe 'Management Students API', type: :request do
 
         run_test! do
           expect(response).to have_http_status(:no_content)
-          expect(User.find_by(id: student_record.id)).to be_nil
+          # Student user account is kept, only enrollment is removed
+          expect(User.find_by(id: student_record.id)).to be_present
+          expect(StudentClassEnrollment.where(student_id: student_record.id)).to be_empty
         end
       end
     end
@@ -501,7 +503,9 @@ RSpec.describe 'Management Students API', type: :request do
 
         run_test! do
           expect(response).to have_http_status(:no_content)
-          expect(User.find_by(id: student_record.id)).to be_nil
+          # Student user account is kept, only enrollment is removed
+          expect(User.find_by(id: student_record.id)).to be_present
+          expect(StudentClassEnrollment.where(student_id: student_record.id)).to be_empty
         end
       end
     end

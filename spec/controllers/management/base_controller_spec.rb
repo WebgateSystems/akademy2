@@ -30,9 +30,8 @@ RSpec.describe Management::BaseController, type: :request do
       it 'redirects to login page with alert to avoid redirect loop' do
         get management_root_path
 
-        expect(response).to redirect_to(new_user_session_path)
+        expect(response).to redirect_to(new_user_session_path(role: 'administration'))
         expect(flash[:alert]).to include('Brak uprawnień do zarządzania szkołą')
-        expect(flash[:alert]).to include('Zaloguj się ponownie')
       end
     end
 

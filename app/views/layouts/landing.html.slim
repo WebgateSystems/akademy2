@@ -30,6 +30,17 @@ html lang="pl"
       | }
 
   body
+    - if flash[:notice].present?
+      .landing-flash.landing-flash--success role="alert"
+        = flash[:notice]
+        button.landing-flash__close type="button" aria-label="Zamknij" onclick="this.parentElement.remove()"
+          | ×
+    - if flash[:alert].present?
+      .landing-flash.landing-flash--error role="alert"
+        = flash[:alert]
+        button.landing-flash__close type="button" aria-label="Zamknij" onclick="this.parentElement.remove()"
+          | ×
+
     header
       .container.row role="navigation" aria-label="Główna nawigacja"
         a.brand href="#home" aria-label="AKAdemy 2.0 – Strona główna"
@@ -252,7 +263,8 @@ html lang="pl"
         span
           | © 
           span#currentYear
-          |  AKAdemy 2.0
+          |  
+          a.copyright-link href="https://webgate.pro" target="_blank" Webgate Systems LTD
         a href="#" Polityka prywatności
         a href="#" Informacja o dostępności
         span.small Open Source • AGPLv3

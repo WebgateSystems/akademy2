@@ -25,13 +25,15 @@ module Management
       policy = SchoolManagementPolicy.new(current_user, :school_management)
       return if policy.access?
 
-      # Store the location user was trying to access (if not already stored)
-      session[:return_to] = request.fullpath if request.get? && session[:return_to].blank?
+      # User is logged in but doesn't have management access - sign them out first
+      sign_out(current_user)
+      session.delete(:return_to)
+      session.delete(:user_return_to)
 
-      # Redirect to login instead of authenticated_root_path to avoid redirect loop
-      # authenticated_root_path points to dashboard which requires teacher role
+      # Redirect to login with administration role parameter
       # rubocop:disable I18n/GetText/DecorateString
-      redirect_to new_user_session_path, alert: 'Brak uprawnień do zarządzania szkołą. Zaloguj się ponownie.'
+      redirect_to new_user_session_path(role: 'administration'),
+                  alert: 'Brak uprawnień do zarządzania szkołą. Zaloguj się kontem z odpowiednimi uprawnieniami.'
       # rubocop:enable I18n/GetText/DecorateString
     end
 

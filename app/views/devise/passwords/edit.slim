@@ -1,0 +1,143 @@
+- role = params[:role]
+- is_student = role == 'student'
+
+.container.login-wrapper
+  .login-card
+    .login-content
+      .text-center.mb-4
+        a.text-decoration-none href="/"
+          span.logo-title Akademy
+
+      - if is_student
+        h1.h4.mb-3.text-center Ustaw nowy PIN
+      - else
+        h1.h4.mb-3.text-center Ustaw nowe hasło
+
+      = form_for(resource,
+                 as: resource_name,
+                 url: password_path(resource_name),
+                 html: { method: :put, id: 'password-edit-form' }) do |f|
+
+        = render 'devise/shared/error_messages', resource: resource
+
+        = f.hidden_field :reset_password_token
+
+        - if is_student
+          / ======================================
+          /   STUDENT — PIN (4 digits)
+          / ======================================
+          .mb-3
+            = label_tag :password_label, 'Nowy PIN (4 cyfry)', class: 'form-label'
+            / Hidden field that holds the combined PIN for form submission
+            = f.password_field :password,
+              id: 'reset-pin-hidden',
+              class: 'login-pin-hidden',
+              maxlength: 4,
+              inputmode: "numeric",
+              pattern: "[0-9]*",
+              autocomplete: "new-password"
+            / 4 separate PIN digit inputs
+            .login-pin-inputs role="group" aria-label="New PIN code"
+              = password_field_tag :pin1, nil,
+                maxlength: 1,
+                inputmode: "numeric",
+                class: 'login-pin-digit reset-pin-digit',
+                aria: { label: "PIN digit 1" },
+                data: { pin_index: "0", pin_group: "password" },
+                autocomplete: "off"
+              = password_field_tag :pin2, nil,
+                maxlength: 1,
+                inputmode: "numeric",
+                class: 'login-pin-digit reset-pin-digit',
+                aria: { label: "PIN digit 2" },
+                data: { pin_index: "1", pin_group: "password" },
+                autocomplete: "off"
+              = password_field_tag :pin3, nil,
+                maxlength: 1,
+                inputmode: "numeric",
+                class: 'login-pin-digit reset-pin-digit',
+                aria: { label: "PIN digit 3" },
+                data: { pin_index: "2", pin_group: "password" },
+                autocomplete: "off"
+              = password_field_tag :pin4, nil,
+                maxlength: 1,
+                inputmode: "numeric",
+                class: 'login-pin-digit reset-pin-digit',
+                aria: { label: "PIN digit 4" },
+                data: { pin_index: "3", pin_group: "password" },
+                autocomplete: "off"
+
+          .mb-3
+            = label_tag :password_confirmation_label, 'Potwierdź PIN', class: 'form-label'
+            / Hidden field that holds the combined PIN confirmation for form submission
+            = f.password_field :password_confirmation,
+              id: 'reset-pin-confirm-hidden',
+              class: 'login-pin-hidden',
+              maxlength: 4,
+              inputmode: "numeric",
+              pattern: "[0-9]*",
+              autocomplete: "new-password"
+            / 4 separate PIN confirmation digit inputs
+            .login-pin-inputs role="group" aria-label="Confirm PIN code"
+              = password_field_tag :pin_confirm1, nil,
+                maxlength: 1,
+                inputmode: "numeric",
+                class: 'login-pin-digit reset-pin-confirm-digit',
+                aria: { label: "Confirm PIN digit 1" },
+                data: { pin_index: "0", pin_group: "password_confirmation" },
+                autocomplete: "off"
+              = password_field_tag :pin_confirm2, nil,
+                maxlength: 1,
+                inputmode: "numeric",
+                class: 'login-pin-digit reset-pin-confirm-digit',
+                aria: { label: "Confirm PIN digit 2" },
+                data: { pin_index: "1", pin_group: "password_confirmation" },
+                autocomplete: "off"
+              = password_field_tag :pin_confirm3, nil,
+                maxlength: 1,
+                inputmode: "numeric",
+                class: 'login-pin-digit reset-pin-confirm-digit',
+                aria: { label: "Confirm PIN digit 3" },
+                data: { pin_index: "2", pin_group: "password_confirmation" },
+                autocomplete: "off"
+              = password_field_tag :pin_confirm4, nil,
+                maxlength: 1,
+                inputmode: "numeric",
+                class: 'login-pin-digit reset-pin-confirm-digit',
+                aria: { label: "Confirm PIN digit 4" },
+                data: { pin_index: "3", pin_group: "password_confirmation" },
+                autocomplete: "off"
+
+        - else
+          / ======================================
+          /   TEACHER / ADMIN — Password
+          / ======================================
+          .mb-3
+            = f.label :password, 'Nowe hasło', class: 'form-label'
+            = f.password_field :password,
+              autofocus: true,
+              autocomplete: 'new-password',
+              class: 'form-control login-input',
+              placeholder: '••••••••'
+            small.form-text.text-muted
+              | Minimum #{@minimum_password_length || 6} znaków
+
+          .mb-3
+            = f.label :password_confirmation, 'Potwierdź hasło', class: 'form-label'
+            = f.password_field :password_confirmation,
+              autocomplete: 'new-password',
+              class: 'form-control login-input',
+              placeholder: '••••••••'
+
+        .d-grid
+          - if is_student
+            = f.submit 'Zmień PIN', class: 'btn login-btn'
+          - else
+            = f.submit 'Zmień hasło', class: 'btn login-btn'
+
+      .mt-3.text-center
+        = link_to 'Powrót do logowania', new_session_path(resource_name)
+
+    .login-footer
+      | © #{Time.current.year} 
+      a.copyright-link href="https://webgate.pro" target="_blank" Webgate Systems LTD

@@ -62,15 +62,20 @@
     color: var(--content-on-accent-primary);
   }
   
-  /* ==========================================================================
-     TEXT
-     ========================================================================== */
-  
-  .logo-title {
-    color: var(--content-primary);
-    font-size: 28px;
-    font-weight: 700;
-  }
+/* ==========================================================================
+   TEXT
+   ========================================================================== */
+
+.logo-title {
+  color: var(--content-primary);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.login-card .text-muted {
+  color: var(--content-secondary) !important;
+  font-size: 14px;
+}
   
   /* ==========================================================================
      INPUTS
@@ -122,20 +127,113 @@
   }
   
   /* ==========================================================================
-     FOOTER
+     LINKS
      ========================================================================== */
   
-  .login-footer {
-    text-align: center;
-    margin-top: 16px;
-    color: var(--content-secondary);
+  .login-card a,
+  .login-content a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s ease, opacity 0.2s ease;
   }
   
-  /* ==========================================================================
-     UTILS
-     ========================================================================== */
-  
-  .hidden {
-    display: none !important;
+  .login-card a:hover,
+  .login-content a:hover {
+    color: var(--accent-600);
+    opacity: 0.8;
   }
+  
+  .login-card a:focus,
+  .login-content a:focus {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+
+.login-footer {
+  text-align: center;
+  margin-top: 16px;
+  color: var(--content-secondary);
+}
+
+/* Copyright link - looks like regular text, fades on hover like other links */
+.copyright-link {
+  color: inherit !important;
+  text-decoration: none !important;
+  transition: opacity 0.2s ease;
+  
+  &:hover {
+    opacity: 0.7;
+  }
+}
+  
+/* ==========================================================================
+   PIN INPUTS (4 separate digits for student login)
+   ========================================================================== */
+
+.login-pin-hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+}
+
+.login-pin-inputs {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  width: 100%;
+}
+
+.login-pin-digit {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  border: 1px solid var(--border-primary);
+  background: var(--surface-primary);
+  color: var(--content-primary);
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-text-security: disc;
+
+  &::placeholder {
+    color: var(--content-placeholder);
+  }
+
+  &:focus {
+    border-color: var(--border-focused);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+    outline: none;
+  }
+
+  &:disabled {
+    background: var(--surface-tertiary);
+    color: var(--content-disabled);
+    cursor: not-allowed;
+  }
+
+  /* Hide spin buttons for number inputs */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  -moz-appearance: textfield;
+}
+
+/* ==========================================================================
+   UTILS
+   ========================================================================== */
+
+.hidden {
+  display: none !important;
+}
   

@@ -13,11 +13,6 @@ RSpec.describe Api::V1::Management::DestroyTeacher do
     UserRole.create!(user: user, role: school_manager_role, school: school)
     user
   end
-  let(:teacher) do
-    user = create(:user, school: school)
-    UserRole.create!(user: user, role: teacher_role, school: school)
-    user
-  end
 
   before do
     principal_role
@@ -26,7 +21,19 @@ RSpec.describe Api::V1::Management::DestroyTeacher do
   end
 
   describe '#call' do
-    context 'when user is authorized' do
+    context 'when declining a pending enrollment' do
+      let(:teacher) do
+        user = create(:user, school: nil)
+        UserRole.create!(user: user, role: teacher_role, school: nil)
+        user
+      end
+      let!(:enrollment) do
+        TeacherSchoolEnrollment.create!(
+          teacher: teacher,
+          school: school,
+          status: 'pending'
+        )
+      end
       let(:context) do
         {
           current_user: school_manager,
@@ -34,32 +41,205 @@ RSpec.describe Api::V1::Management::DestroyTeacher do
         }
       end
 
-      it 'destroys the teacher' do
-        teacher_id = teacher.id
+      it 'succeeds' do
         result = described_class.call(context)
-
         expect(result).to be_success
-        expect(User.find_by(id: teacher_id)).to be_nil
         expect(result.status).to eq(:no_content)
       end
 
-      it 'fails when teacher does not exist' do
-        context[:params][:id] = SecureRandom.uuid
-        result = described_class.call(context)
+      it 'destroys the enrollment' do
+        expect do
+          described_class.call(context)
+        end.to change(TeacherSchoolEnrollment, :count).by(-1)
+      end
 
+      it 'does NOT destroy the user' do
+        teacher_id = teacher.id
+        described_class.call(context)
+        expect(User.find_by(id: teacher_id)).to be_present
+      end
+
+      it 'keeps the teacher role' do
+        described_class.call(context)
+        teacher.reload
+        expect(teacher.roles.pluck(:key)).to include('teacher')
+      end
+
+      it 'clears school_id from user_role if it was set' do
+        # Simulate old behavior where user_role had school_id
+        teacher.user_roles.find_by(role: teacher_role)&.update!(school: school)
+
+        described_class.call(context)
+        teacher.reload
+
+        teacher_user_role = teacher.user_roles.joins(:role).find_by(roles: { key: 'teacher' })
+        expect(teacher_user_role&.school_id).to be_nil
+      end
+    end
+
+    context 'when removing an approved teacher' do
+      let(:teacher) do
+        user = create(:user, school: school)
+        UserRole.create!(user: user, role: teacher_role, school: school)
+        user
+      end
+      let!(:enrollment) do
+        TeacherSchoolEnrollment.create!(
+          teacher: teacher,
+          school: school,
+          status: 'approved',
+          joined_at: Time.current
+        )
+      end
+      let(:context) do
+        {
+          current_user: school_manager,
+          params: { id: teacher.id }
+        }
+      end
+
+      it 'succeeds' do
+        result = described_class.call(context)
+        expect(result).to be_success
+        expect(result.status).to eq(:no_content)
+      end
+
+      it 'destroys the enrollment' do
+        expect do
+          described_class.call(context)
+        end.to change(TeacherSchoolEnrollment, :count).by(-1)
+      end
+
+      it 'does NOT destroy the user' do
+        teacher_id = teacher.id
+        described_class.call(context)
+        expect(User.find_by(id: teacher_id)).to be_present
+      end
+
+      it 'clears school_id from user' do
+        described_class.call(context)
+        teacher.reload
+        expect(teacher.school_id).to be_nil
+      end
+
+      it 'clears school_id from user_role' do
+        described_class.call(context)
+        teacher.reload
+        teacher_user_role = teacher.user_roles.joins(:role).find_by(roles: { key: 'teacher' })
+        expect(teacher_user_role&.school_id).to be_nil
+      end
+    end
+
+    context 'when teacher has enrollments in multiple schools' do
+      let(:other_school) { create(:school) }
+      let(:teacher) do
+        user = create(:user, school: school)
+        UserRole.create!(user: user, role: teacher_role, school: school)
+        user
+      end
+      let!(:current_school_enrollment) do
+        TeacherSchoolEnrollment.create!(
+          teacher: teacher,
+          school: school,
+          status: 'approved',
+          joined_at: Time.current
+        )
+      end
+      let!(:other_school_enrollment) do
+        TeacherSchoolEnrollment.create!(
+          teacher: teacher,
+          school: other_school,
+          status: 'approved',
+          joined_at: Time.current
+        )
+      end
+      let(:context) do
+        {
+          current_user: school_manager,
+          params: { id: teacher.id }
+        }
+      end
+
+      it 'only removes enrollment for current school' do
+        expect do
+          described_class.call(context)
+        end.to change(TeacherSchoolEnrollment, :count).by(-1)
+
+        expect(TeacherSchoolEnrollment.find_by(id: current_school_enrollment.id)).to be_nil
+        expect(TeacherSchoolEnrollment.find_by(id: other_school_enrollment.id)).to be_present
+      end
+
+      it 'keeps the user' do
+        teacher_id = teacher.id
+        described_class.call(context)
+        expect(User.find_by(id: teacher_id)).to be_present
+      end
+    end
+
+    context 'when teacher without enrollment (legacy)' do
+      let(:teacher) do
+        user = create(:user, school: school)
+        UserRole.create!(user: user, role: teacher_role, school: school)
+        user
+      end
+      let(:context) do
+        {
+          current_user: school_manager,
+          params: { id: teacher.id }
+        }
+      end
+
+      it 'succeeds' do
+        result = described_class.call(context)
+        expect(result).to be_success
+        expect(result.status).to eq(:no_content)
+      end
+
+      it 'clears school associations' do
+        described_class.call(context)
+        teacher.reload
+        expect(teacher.school_id).to be_nil
+      end
+
+      it 'does NOT destroy the user' do
+        teacher_id = teacher.id
+        described_class.call(context)
+        expect(User.find_by(id: teacher_id)).to be_present
+      end
+    end
+
+    context 'when teacher does not exist' do
+      let(:context) do
+        {
+          current_user: school_manager,
+          params: { id: SecureRandom.uuid }
+        }
+      end
+
+      it 'fails with not found' do
+        result = described_class.call(context)
         expect(result).to be_failure
         expect(result.message).to include('Nauczyciel nie został znaleziony')
         expect(result.status).to eq(:not_found)
       end
+    end
 
-      it 'fails when teacher belongs to another school' do
-        other_school = create(:school)
-        other_teacher = create(:user, school: other_school)
-        UserRole.create!(user: other_teacher, role: teacher_role, school: other_school)
+    context 'when teacher belongs to another school' do
+      let(:other_school) { create(:school) }
+      let(:other_teacher) do
+        user = create(:user, school: other_school)
+        UserRole.create!(user: user, role: teacher_role, school: other_school)
+        user
+      end
+      let(:context) do
+        {
+          current_user: school_manager,
+          params: { id: other_teacher.id }
+        }
+      end
 
-        context[:params][:id] = other_teacher.id
+      it 'fails with not found' do
         result = described_class.call(context)
-
         expect(result).to be_failure
         expect(result.message).to include('Nauczyciel nie został znaleziony')
       end
@@ -67,6 +247,11 @@ RSpec.describe Api::V1::Management::DestroyTeacher do
 
     context 'when user is not authorized' do
       let(:unauthorized_user) { create(:user, school: school) }
+      let(:teacher) do
+        user = create(:user, school: school)
+        UserRole.create!(user: user, role: teacher_role, school: school)
+        user
+      end
       let(:context) do
         {
           current_user: unauthorized_user,
@@ -76,35 +261,6 @@ RSpec.describe Api::V1::Management::DestroyTeacher do
 
       it 'fails with authorization error' do
         result = described_class.call(context)
-
-        expect(result).to be_failure
-        expect(result.message).to include('Brak uprawnień')
-      end
-    end
-
-    context 'when user has no school' do
-      let(:user_without_school) do
-        user = build(:user, school: nil)
-        user.save(validate: false)
-        user.update_column(:school_id, nil) if user.school_id.present?
-        # Create a user role for another school, then remove all roles to simulate no school access
-        other_school = create(:school)
-        UserRole.create!(user: user, role: school_manager_role, school: other_school)
-        user.user_roles.destroy_all
-        user.update_column(:school_id, nil)
-        user.reload
-        user
-      end
-      let(:context) do
-        {
-          current_user: user_without_school,
-          params: { id: teacher.id }
-        }
-      end
-
-      it 'fails with school error' do
-        result = described_class.call(context)
-
         expect(result).to be_failure
         expect(result.message).to include('Brak uprawnień')
       end

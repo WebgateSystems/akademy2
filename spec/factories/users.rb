@@ -9,5 +9,6 @@ FactoryBot.define do
     phone { FFaker::PhoneNumber.phone_number }
     birthdate { Date.new(2000, 1, 1) }
     school { create(:school) }
+    confirmed_at { Time.current }
   end
 end

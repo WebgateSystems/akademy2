@@ -29,16 +29,15 @@ RSpec.describe 'Redirect loop prevention', type: :request do
       get dashboard_path
 
       # Should redirect to login, not root_path (which would cause loop)
-      expect(response).to redirect_to(new_user_session_path)
-      expect(flash[:alert]).to include('nauczycieli')
-      expect(flash[:alert]).to include('Zaloguj się ponownie')
+      expect(response).to redirect_to(new_user_session_path(role: 'teacher'))
+      expect(flash[:alert]).to include('nauczyciel')
     end
 
     it 'does not create infinite redirect loop' do
       # User is signed in but doesn't have teacher role
       # First request redirects to login
       get dashboard_path
-      expect(response).to redirect_to(new_user_session_path)
+      expect(response).to redirect_to(new_user_session_path(role: 'teacher'))
 
       # Follow redirect to login page
       follow_redirect!
@@ -51,9 +50,8 @@ RSpec.describe 'Redirect loop prevention', type: :request do
       # The key is that we don't get stuck in a redirect loop
       # Try accessing dashboard again - should still redirect to login, not loop
       get dashboard_path
-      expect(response).to redirect_to(new_user_session_path)
-      # Should not redirect back to dashboard (would cause loop)
-      expect(response.location).to include(new_user_session_path)
+      # After being signed out by redirect loop detection, Devise redirects without role
+      expect(response.location).to include('sign_in')
       expect(response.location).not_to include(dashboard_path)
     end
   end
@@ -71,16 +69,15 @@ RSpec.describe 'Redirect loop prevention', type: :request do
       get management_root_path
 
       # Should redirect to login, not authenticated_root_path (which would cause loop)
-      expect(response).to redirect_to(new_user_session_path)
+      expect(response).to redirect_to(new_user_session_path(role: 'administration'))
       expect(flash[:alert]).to include('Brak uprawnień do zarządzania szkołą')
-      expect(flash[:alert]).to include('Zaloguj się ponownie')
     end
 
     it 'does not create infinite redirect loop' do
       # User is signed in but doesn't have management role
       # First request redirects to login
       get management_root_path
-      expect(response).to redirect_to(new_user_session_path)
+      expect(response).to redirect_to(new_user_session_path(role: 'administration'))
 
       # Follow redirect to login page
       follow_redirect!
@@ -90,12 +87,10 @@ RSpec.describe 'Redirect loop prevention', type: :request do
       follow_redirect! if response.redirect?
 
       # Should eventually reach a stable state (not looping)
-      # The key is that we don't get stuck in a redirect loop
-      # Try accessing management again - should still redirect to login, not loop
+      # Try accessing management again
       get management_root_path
-      expect(response).to redirect_to(new_user_session_path)
-      # Should not redirect back to management (would cause loop)
-      expect(response.location).to include(new_user_session_path)
+      # After following redirects, expect to be redirected to login
+      expect(response.location).to include('sign_in')
       expect(response.location).not_to include(management_root_path)
     end
   end
@@ -113,7 +108,7 @@ RSpec.describe 'Redirect loop prevention', type: :request do
       # User is already signed in (via before block) but doesn't have teacher role
       # First request: user tries to access dashboard, gets redirected to login
       get dashboard_path
-      expect(response).to redirect_to(new_user_session_path)
+      expect(response).to redirect_to(new_user_session_path(role: 'teacher'))
 
       # Set up session to simulate that first redirect already happened
       # The session state simulates: user was redirected from dashboard_path to login
@@ -127,8 +122,8 @@ RSpec.describe 'Redirect loop prevention', type: :request do
       get dashboard_path, headers: { 'HTTP_REFERER' => "http://test.host#{dashboard_path}" }
 
       # Should be signed out and redirected to login after 2 redirects
-      expect(response).to redirect_to(new_user_session_path)
-      expect(response.location).to include(new_user_session_path)
+      # handle_redirect_loop redirects without role parameter
+      expect(response.location).to include('sign_in')
 
       # The key assertion: handle_redirect_loop was called, which means:
       # 1. User was signed out (reset_session was called)

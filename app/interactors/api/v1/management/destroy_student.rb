@@ -111,13 +111,27 @@ module Api
         end
 
         def destroy_student
-          # Resolve notifications before destroying
+          # Resolve notifications before removing enrollment
           resolve_notifications
 
-          if context.student.destroy
+          # Get the enrollment(s) for this school
+          enrollments_in_school = context.student.student_class_enrollments
+                                         .joins(:school_class)
+                                         .where(school_classes: { school_id: school.id })
+
+          if enrollments_in_school.any?
+            # Remove enrollments from this school only, not the student
+            enrollments_in_school.destroy_all
+
+            # Clear school_id from user if it matches this school
+            context.student.update_column(:school_id, nil) if context.student.school_id == school.id
+
+            # Student keeps their account and role - they can join another class/school
             context.status = :no_content
           else
-            context.message = context.student.errors.full_messages
+            # No enrollments found - shouldn't happen, but handle gracefully
+            context.message = ['Uczeń nie ma zapisów w tej szkole']
+            context.status = :not_found
             context.fail!
           end
         end

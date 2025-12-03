@@ -57,12 +57,25 @@ module Api
           context.status = :ok
           context.serializer = TeacherSerializer
           context.pagination = build_pagination(page, per_page, total_count, offset)
+          # Pass school_id to serializer (HandleStatusCode will pick it up)
+          context.school_id = school.id
         end
 
         def build_base_query
+          # Include teachers with approved enrollments OR pending enrollments OR old user_roles
+          teacher_ids_with_enrollments = TeacherSchoolEnrollment.where(school: school,
+                                                                       status: %w[
+                                                                         approved pending
+                                                                       ]).pluck(:teacher_id)
+          teacher_ids_with_roles = User.joins(:user_roles)
+                                       .joins('INNER JOIN roles ON user_roles.role_id = roles.id')
+                                       .where(user_roles: { school_id: school.id }, roles: { key: 'teacher' })
+                                       .pluck(:id)
+
           User.joins(:user_roles)
               .joins('INNER JOIN roles ON user_roles.role_id = roles.id')
-              .where(user_roles: { school_id: school.id }, roles: { key: 'teacher' })
+              .where(id: (teacher_ids_with_enrollments + teacher_ids_with_roles).uniq)
+              .where(roles: { key: 'teacher' })
               .distinct
         end
 

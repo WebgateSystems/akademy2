@@ -35,12 +35,60 @@ module Register
         return false
       end
 
-      # Assign student role to the new user
-      assign_student_role(user)
+      # Assign role based on registration type
+      if teacher_registration?
+        assign_teacher_role(user)
+      else
+        assign_student_role(user)
+      end
 
       context.flow.update(:user, { 'user_id' => user.id })
       user.send_confirmation_instructions
       true
+    end
+
+    def teacher_registration?
+      school_data = context.flow['school']
+      school_data.present? && school_data['school_id'].present?
+    end
+
+    def assign_teacher_role(user)
+      teacher_role = Role.find_by(key: 'teacher')
+      return unless teacher_role
+
+      school_data = context.flow['school']
+      school = School.find_by(id: school_data['school_id']) if school_data
+
+      if school
+        # Create teacher role with school
+        UserRole.create!(user: user, role: teacher_role, school: school)
+
+        # Create enrollment request (pending approval)
+        TeacherSchoolEnrollment.create!(
+          teacher: user,
+          school: school,
+          status: 'pending'
+        )
+
+        # Create notification for school managers
+        NotificationService.create_teacher_enrollment_request(teacher: user, school: school)
+
+        # rubocop:disable Rails/Output
+        puts ''
+        puts '=' * 60
+        puts '✅ TEACHER ROLE ASSIGNED'
+        puts '=' * 60
+        puts "   User: #{user.email}"
+        puts "   Phone: #{user.phone}"
+        puts "   School: #{school.name}"
+        puts '   Enrollment: pending approval'
+        puts '=' * 60
+        puts ''
+        # rubocop:enable Rails/Output
+      else
+        # Fallback: create teacher role without school
+        UserRole.create!(user: user, role: teacher_role, school: nil)
+      end
     end
 
     def assign_student_role(user)

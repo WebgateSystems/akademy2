@@ -15,6 +15,7 @@ I18n/GetText/DecorateString:
     - db/**/**/*.rb
     - 'lib/tasks/*.rake'
     - 'app/controllers/admin/resources_controller.rb'
+    - 'app/controllers/register/wizard_controller.rb'
     - 'app/interactors/api/v1/management/show_administration.rb'
     - 'app/interactors/api/v1/management/update_administration.rb'
     - 'app/services/notification_service.rb'
@@ -79,6 +80,7 @@ Metrics/ClassLength:
     - "app/controllers/admin/resources_controller.rb"
     - "app/controllers/dashboard_controller.rb"
     - "app/controllers/api/v1/teacher/dashboard_controller.rb"
+    - "app/controllers/register/wizard_controller.rb"
     - "app/interactors/api/v1/management/create_class.rb"
     - "app/interactors/api/v1/management/update_class.rb"
     - "app/interactors/api/v1/management/update_administration.rb"
@@ -86,6 +88,9 @@ Metrics/ClassLength:
     - "app/interactors/api/v1/management/update_parent.rb"
     - "app/interactors/api/v1/management/create_student.rb"
     - "app/interactors/api/v1/management/approve_student.rb"
+    - "app/interactors/api/v1/management/approve_teacher.rb"
+    - "app/interactors/api/v1/management/destroy_student.rb"
+    - "app/interactors/register/set_pin_confirm_submit.rb"
     - "app/services/notification_service.rb"
     - "app/controllers/application_controller.rb"
     - "app/controllers/users/sessions_controller.rb"
@@ -93,6 +98,7 @@ Metrics/ClassLength:
 Metrics/CyclomaticComplexity:
   Max: 8
   Exclude:
+    - "db/migrate/*.rb" # Migrations can have complex logic for schema changes
     - "app/interactors/api/v1/events/list_events.rb"
     - "app/controllers/admin/resources_controller.rb"
     - "app/controllers/dashboard_controller.rb"
@@ -112,11 +118,14 @@ Metrics/MethodLength:
     - 'app/interactors/api/v1/management/create_class.rb'
     - 'app/interactors/api/v1/management/update_class.rb'
     - 'app/interactors/api/v1/management/archive_year.rb'
+    - 'app/interactors/api/v1/management/destroy_teacher.rb'
     - 'app/controllers/api/v1/users/registrations_controller.rb'
     - 'app/controllers/api/v1/management/notifications_controller.rb'
     - 'app/controllers/management/notifications_controller.rb'
     - 'app/controllers/management/dashboard_controller.rb'
     - 'app/controllers/dashboard_controller.rb'
+    - 'app/controllers/register/wizard_controller.rb'
+    - 'app/controllers/teacher_registration_controller.rb'
     - 'app/services/notification_service.rb'
     - 'app/controllers/admin/resources_controller.rb'
     - 'app/interactors/api/v1/contents/show_content.rb'
@@ -134,10 +143,13 @@ Metrics/MethodLength:
     - 'app/controllers/users/sessions_controller.rb'
     - 'app/controllers/student_dashboard_controller.rb'
     - 'app/interactors/register/set_pin_confirm_submit.rb'
+    - 'app/interactors/register/create_teacher_after_verify.rb'
+    - 'app/interactors/register/teacher_profile_submit.rb'
 
 Metrics/PerceivedComplexity:
   Max: 8
   Exclude:
+    - "db/migrate/*.rb" # Migrations can have complex logic for schema changes
     - "app/controllers/admin/resources_controller.rb"
     - "app/controllers/dashboard_controller.rb"
     - "app/controllers/api/v1/teacher/dashboard_controller.rb"
@@ -145,6 +157,8 @@ Metrics/PerceivedComplexity:
     - "app/helpers/dashboard_helper.rb"
     - "app/interactors/api/v1/management/create_parent.rb"
     - "app/interactors/api/v1/management/update_parent.rb"
+    - "app/interactors/api/v1/management/approve_teacher.rb"
+    - "app/interactors/register/create_teacher_after_verify.rb"
     - "app/controllers/application_controller.rb"
     - "app/controllers/users/sessions_controller.rb"
 
@@ -178,6 +192,8 @@ Rails/SkipsModelValidations:
     - "db/migrate/*.rb" # update_column is intentionally used in migrations to avoid callbacks
     - "lib/tasks/*.rake" # update_column is intentionally used in rake tasks to avoid callbacks
     - "spec/**/*.rb" # update_column is intentionally used in tests to simulate edge cases
+    - "app/interactors/api/v1/management/destroy_student.rb" # Intentional: clearing school_id without triggering callbacks
+    - "app/interactors/api/v1/management/destroy_teacher.rb" # Intentional: clearing school_id without triggering callbacks
 
 Rails/HelperInstanceVariable:
   Exclude:
@@ -212,6 +228,9 @@ RSpec/LetSetup:
   Exclude:
     - 'spec/controllers/dashboard_controller_spec.rb'
     - 'spec/requests/management/controllers_spec.rb'
+    - 'spec/interactors/api/v1/management/approve_teacher_spec.rb'
+    - 'spec/interactors/api/v1/management/destroy_teacher_spec.rb'
+    - 'spec/interactors/register/create_teacher_after_verify_spec.rb'
 
 RSpec/VerifiedDoubles:
   Exclude:

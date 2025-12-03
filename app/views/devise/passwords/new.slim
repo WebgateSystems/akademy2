@@ -1,0 +1,37 @@
+.container.login-wrapper
+  .login-card
+    .login-content
+      .text-center.mb-4
+        a.text-decoration-none href="/"
+          span.logo-title Akademy
+
+      h1.h4.mb-3.text-center Resetowanie hasła
+
+      p.text-center.mb-4.text-muted
+        | Wprowadź swój adres email, a wyślemy Ci instrukcje resetowania hasła.
+
+      = form_for(resource,
+                 as: resource_name,
+                 url: password_path(resource_name),
+                 html: { method: :post }) do |f|
+
+        = render 'devise/shared/error_messages', resource: resource
+
+        .mb-3
+          = f.label :email, 'Email', class: 'form-label'
+          = f.email_field :email,
+            autofocus: true,
+            autocomplete: 'email',
+            class: 'form-control login-input',
+            placeholder: 'name@school.edu'
+
+        .d-grid
+          = f.submit 'Wyślij instrukcje', class: 'btn login-btn'
+
+      .mt-3.text-center
+        = link_to 'Powrót do logowania', new_session_path(resource_name)
+
+    .login-footer
+      | © #{Time.current.year} 
+      a.copyright-link href="https://webgate.pro" target="_blank" Webgate Systems LTD
+

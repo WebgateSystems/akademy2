@@ -48,8 +48,12 @@ class StudentDashboardController < ApplicationController
   def require_student!
     return if user_signed_in? && current_user.student?
 
-    # Store intended destination for after login
-    store_location_for(:user, request.fullpath)
+    # If user is logged in but not a student, sign them out first
+    if user_signed_in?
+      sign_out(current_user)
+      session.delete(:return_to)
+      session.delete(:user_return_to)
+    end
 
     # Redirect to login with student role
     # rubocop:disable I18n/GetText/DecorateString

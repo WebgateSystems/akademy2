@@ -1,0 +1,177 @@
+.dashboard-app data-dashboard-app=""
+  = render 'dashboard/sidebar'
+
+  main.dashboard-main
+    = render 'dashboard/top_bar'
+
+    / Teacher has pending enrollment - waiting for approval
+    .dashboard-empty-state
+      .dashboard-empty-state__content
+        .dashboard-empty-state__icon
+          svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+            circle cx="12" cy="12" r="10"
+            polyline points="12 6 12 12 16 14"
+        h2 Oczekiwanie na akceptację
+        p
+          | Teraz zostało tylko poczekać na akceptację administracji szkoły, możesz przypomnieć im o tym jeżeli uważasz, że czekasz zbyt długo :)
+
+        .pending-enrollments-list
+          - @pending_enrollments.each do |enrollment|
+            .pending-enrollment-card data-enrollment-id=enrollment.id
+              .pending-enrollment-info
+                strong = enrollment.school.name
+                span.pending-enrollment-date = "Wysłano: #{enrollment.created_at.strftime('%d.%m.%Y %H:%M')}"
+              button.btn.btn-danger.btn-sm.cancel-enrollment-btn type="button" data-enrollment-id=enrollment.id data-school-name=enrollment.school.name
+                | Zrezygnować
+
+    = render 'shared/app_version'
+
+css:
+  .pending-enrollments-list {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .pending-enrollment-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: var(--surface-primary);
+    border: 1px solid var(--border-muted);
+    border-radius: 12px;
+    gap: 16px;
+  }
+
+  .pending-enrollment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .pending-enrollment-info strong {
+    font-size: 16px;
+    color: var(--content-primary);
+  }
+
+  .pending-enrollment-date {
+    font-size: 12px;
+    color: var(--content-tertiary);
+  }
+
+/ Cancel enrollment modal
+.schools-modal#cancel-enrollment-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="cancel-enrollment-title"
+    button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="cancel-enrollment-modal" style="position: absolute; top: 16px; right: 16px;"
+      svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        line x1="18" y1="6" x2="6" y2="18"
+        line x1="6" y1="6" x2="18" y2="18"
+    .schools-modal__body
+      h3#cancel-enrollment-title style="margin: 0 0 16px; font-size: 24px; font-weight: 500; text-align: center;" Potwierdzenie rezygnacji
+      p#cancel-enrollment-message style="text-align: center; color: var(--content-secondary);" Czy na pewno chcesz zrezygnować z wniosku o dołączenie do szkoły?
+      p style="margin-top: 8px; font-size: 14px; text-align: center; color: var(--content-tertiary);" Będziesz mógł ponownie wysłać wniosek w dowolnym momencie.
+    .schools-modal__actions
+      button.schools-modal__primary.schools-modal__primary--danger#confirm-cancel-btn type="button" Zrezygnuj
+      button.schools-modal__secondary type="button" data-close-modal="cancel-enrollment-modal" Anuluj
+
+javascript:
+  (function() {
+    // ==========================================
+    // Modal helpers
+    // ==========================================
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.setAttribute('aria-hidden', 'false');
+        modal.classList.add('is-open');
+      }
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.setAttribute('aria-hidden', 'true');
+        modal.classList.remove('is-open');
+      }
+    }
+
+    // Close modal on overlay click
+    document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+      overlay.addEventListener('click', function() {
+        const modal = this.closest('.schools-modal');
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    // Close modal on close button click
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-close-modal');
+        closeModal(modalId);
+      });
+    });
+
+    // ==========================================
+    // Cancel enrollment handlers
+    // ==========================================
+    let enrollmentToCancel = null;
+    const cancelModal = document.getElementById('cancel-enrollment-modal');
+    const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+    const cancelMessage = document.getElementById('cancel-enrollment-message');
+
+    document.querySelectorAll('.cancel-enrollment-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        enrollmentToCancel = this.dataset.enrollmentId;
+        const schoolName = this.dataset.schoolName || 'tej szkoły';
+        
+        if (cancelMessage) {
+          cancelMessage.innerHTML = `Czy na pewno chcesz zrezygnować z wniosku o dołączenie do szkoły <strong>${schoolName}</strong>?`;
+        }
+        
+        openModal('cancel-enrollment-modal');
+      });
+    });
+
+    if (confirmCancelBtn) {
+      confirmCancelBtn.addEventListener('click', async function() {
+        if (!enrollmentToCancel) return;
+
+        const originalText = this.textContent;
+        this.disabled = true;
+        this.textContent = 'Anulowanie...';
+
+        try {
+          const response = await fetch(`/api/v1/teacher/school_enrollments/${enrollmentToCancel}/cancel`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+            }
+          });
+
+          if (response.ok) {
+            closeModal('cancel-enrollment-modal');
+            window.location.reload();
+          } else {
+            const data = await response.json();
+            alert(data.error || 'Wystąpił błąd');
+            this.disabled = false;
+            this.textContent = originalText;
+          }
+        } catch (error) {
+          alert('Wystąpił błąd połączenia');
+          this.disabled = false;
+          this.textContent = originalText;
+        }
+      });
+    }
+  })();
+
+
+

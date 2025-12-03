@@ -16,12 +16,20 @@ module Register
     end
 
     def profile_submit
-      result = Register::ProfileSubmit.call(params:, flow: @flow)
-      @form = result.form
+      # Use different form for teacher registration
+      if @flow['registration_type'] == 'teacher'
+        result = Register::TeacherProfileSubmit.call(params:, flow: @flow)
+        @form = result.form
+        return redirect_to register_verify_phone_path if result.success?
 
-      return redirect_to register_verify_phone_path if result.success?
+        render :teacher, status: :unprocessable_entity
+      else
+        result = Register::ProfileSubmit.call(params:, flow: @flow)
+        @form = result.form
+        return redirect_to register_verify_phone_path if result.success?
 
-      render :profile, status: :unprocessable_entity
+        render :profile, status: :unprocessable_entity
+      end
     end
 
     # === STEP 2: VERIFY PHONE ===
@@ -44,10 +52,26 @@ module Register
       @form  = result.form
       @phone = result.phone
 
-      return redirect_to register_set_pin_path if result.success?
+      unless result.success?
+        flash.now[:alert] = result.error
+        return render :verify_phone, status: :unprocessable_entity
+      end
 
-      flash.now[:alert] = result.error
-      render :verify_phone, status: :unprocessable_entity
+      # For teacher registration, create user and redirect to dashboard
+      if @flow['registration_type'] == 'teacher'
+        teacher_result = Register::CreateTeacherAfterVerify.call(flow: @flow)
+        if teacher_result.success?
+          sign_in(teacher_result.user)
+          redirect_to dashboard_path,
+                      notice: 'Rejestracja zakończona pomyślnie. Oczekuj na akceptację administracji szkoły.'
+        else
+          flash.now[:alert] = teacher_result.message || 'Wystąpił błąd podczas tworzenia konta'
+          render :verify_phone, status: :unprocessable_entity
+        end
+      else
+        # For student registration, continue to PIN setup
+        redirect_to register_set_pin_path
+      end
     end
 
     # === STEP 3: SET PIN ===
@@ -92,17 +116,28 @@ module Register
     # === TEACHER REGISTRATION ===
 
     def teacher
-      @school_slug = params[:school_slug]
-      @school = School.find_by(slug: @school_slug) if @school_slug.present?
+      # Try to find school by join_token if provided (optional)
+      join_token = params[:join_token] || session[:join_school_token]
+      @school = School.find_by(join_token: join_token) if join_token.present?
 
-      if @school.nil?
-        redirect_to root_path, alert: 'Nieprawidłowy link rejestracji'
-        return
+      # Also check session for school_id
+      @school = School.find_by(id: session[:join_school_id]) if @school.nil? && session[:join_school_id].present?
+
+      # Store join_token in session if school found
+      if @school.present?
+        session[:join_school_token] = @school.join_token
+        # Initialize flow with school info
+        @flow.update(:school, { 'join_token' => @school.join_token })
       end
 
-      # Initialize flow with school info
-      @flow.update(:school, { 'school_id' => @school.id, 'school_slug' => @school.slug })
-      @form = ProfileForm.new(@flow['profile'] || {})
+      # Mark this as teacher registration
+      @flow.data['registration_type'] = 'teacher'
+
+      # Initialize form with only teacher-specific fields (exclude birthdate)
+      profile_data = @flow['profile'] || {}
+      teacher_profile_data = profile_data.slice('first_name', 'last_name', 'email', 'phone', 'password',
+                                                'password_confirmation')
+      @form = TeacherProfileForm.new(teacher_profile_data)
     end
 
     private

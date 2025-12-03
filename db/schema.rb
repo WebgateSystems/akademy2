@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_03_130000) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_04_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -269,6 +269,17 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_03_130000) do
     t.index ["teacher_id", "school_class_id", "role"], name: "index_teacher_assignments_unique_with_role", unique: true
   end
 
+  create_table "teacher_school_enrollments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "joined_at"
+    t.uuid "school_id", null: false
+    t.string "status", default: "pending", null: false
+    t.uuid "teacher_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["school_id"], name: "index_teacher_school_enrollments_on_school_id"
+    t.index ["teacher_id", "school_id"], name: "index_teacher_enrollments_unique", unique: true
+  end
+
   create_table "units", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "order_index", default: 0, null: false
@@ -327,32 +338,34 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_03_130000) do
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
-  add_foreign_key "academic_years", "schools"
+  add_foreign_key "academic_years", "schools", on_delete: :cascade
   add_foreign_key "certificates", "quiz_results", on_delete: :cascade
   add_foreign_key "contents", "learning_modules"
-  add_foreign_key "events", "schools"
-  add_foreign_key "events", "users"
+  add_foreign_key "events", "schools", on_delete: :cascade
+  add_foreign_key "events", "users", on_delete: :cascade
   add_foreign_key "jwt_refresh_tokens", "users"
   add_foreign_key "learning_modules", "units"
   add_foreign_key "notification_reads", "users"
-  add_foreign_key "notifications", "schools"
-  add_foreign_key "notifications", "users"
-  add_foreign_key "notifications", "users", column: "read_by_user_id"
+  add_foreign_key "notifications", "schools", on_delete: :cascade
+  add_foreign_key "notifications", "users", column: "read_by_user_id", on_delete: :cascade
+  add_foreign_key "notifications", "users", on_delete: :cascade
   add_foreign_key "parent_student_links", "users", column: "parent_id"
   add_foreign_key "parent_student_links", "users", column: "student_id"
   add_foreign_key "quiz_results", "learning_modules"
   add_foreign_key "quiz_results", "users"
-  add_foreign_key "school_classes", "schools"
-  add_foreign_key "student_class_enrollments", "school_classes"
+  add_foreign_key "school_classes", "schools", on_delete: :cascade
+  add_foreign_key "student_class_enrollments", "school_classes", on_delete: :cascade
   add_foreign_key "student_class_enrollments", "users", column: "student_id"
-  add_foreign_key "subjects", "schools"
+  add_foreign_key "subjects", "schools", on_delete: :cascade
   add_foreign_key "subscriptions", "plans"
-  add_foreign_key "subscriptions", "schools"
-  add_foreign_key "teacher_class_assignments", "school_classes"
+  add_foreign_key "subscriptions", "schools", on_delete: :cascade
+  add_foreign_key "teacher_class_assignments", "school_classes", on_delete: :cascade
   add_foreign_key "teacher_class_assignments", "users", column: "teacher_id"
+  add_foreign_key "teacher_school_enrollments", "schools", on_delete: :cascade
+  add_foreign_key "teacher_school_enrollments", "users", column: "teacher_id"
   add_foreign_key "units", "subjects"
   add_foreign_key "user_roles", "roles"
-  add_foreign_key "user_roles", "schools"
+  add_foreign_key "user_roles", "schools", on_delete: :cascade
   add_foreign_key "user_roles", "users"
-  add_foreign_key "users", "schools"
+  add_foreign_key "users", "schools", on_delete: :cascade
 end

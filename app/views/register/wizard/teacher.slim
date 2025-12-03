@@ -3,18 +3,15 @@ section.auth-card aria-labelledby="auth-card-title"
     h1#auth-card-title Rejestracja nauczyciela
     - if @school.present?
       p.auth-card__subtitle Szkoła: #{@school.name}
+    - else
+      p.auth-card__subtitle Po rejestracji możesz dołączyć do szkoły za pomocą linku od administracji
 
-  - if @school.nil?
-    .alert.alert-danger
-      | Nieprawidłowy link rejestracji
-  - else
-    = form_with model: @form,
-                url: register_profile_path,
-                method: :post,
-                html: { class: "auth-form" } do |f|
+  = form_with model: @form,
+              url: register_profile_path,
+              method: :post,
+              html: { class: "auth-form" } do |f|
 
-      = f.hidden_field :school_id, value: @school.id
-      = f.hidden_field :school_slug, value: @school.slug
+      / join_token is stored in flow/session, not needed in form
 
       / ===============================
       / First name
@@ -61,7 +58,29 @@ section.auth-card aria-labelledby="auth-card-title"
           .field-error = @form.errors[:phone].first
 
       / ===============================
+      / Password
+      / ===============================
+      label
+        span Password
+        = f.password_field :password,
+            placeholder: "Password",
+            class: (@form.errors[:password].present? ? "error-input" : "")
+        - if @form.errors[:password].present?
+          .field-error = @form.errors[:password].first
+
+      / ===============================
+      / Password confirmation
+      / ===============================
+      label
+        span Password confirmation
+        = f.password_field :password_confirmation,
+            placeholder: "Confirm password",
+            class: (@form.errors[:password_confirmation].present? ? "error-input" : "")
+        - if @form.errors[:password_confirmation].present?
+          .field-error = @form.errors[:password_confirmation].first
+
+      / ===============================
       / Submit button
       / ===============================
-      button.auth-submit type="submit" Create account
+      button.auth-submit.auth-submit--disabled type="submit" disabled=true Create account
 

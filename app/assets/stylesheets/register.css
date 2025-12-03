@@ -1323,6 +1323,15 @@ h5 {
   font-size: 24px;
   line-height: 1;
   cursor: pointer;
+  color: var(--content-primary);
+  transition: opacity 0.2s ease;
+}
+.schools-modal__close:hover {
+  opacity: 0.7;
+}
+.schools-modal__close:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .schools-modal__form {
@@ -3252,7 +3261,8 @@ h5 {
 }
 .auth-form input[type=text],
 .auth-form input[type=email],
-.auth-form input[type=tel] {
+.auth-form input[type=tel],
+.auth-form input[type=password] {
   height: 48px;
   border-radius: 4px;
   border: 1px solid var(--border-muted);
@@ -3262,10 +3272,82 @@ h5 {
   color: var(--content-primary);
   background: var(--surface-primary);
 }
+.auth-form input[type=text]:focus,
+.auth-form input[type=email]:focus,
+.auth-form input[type=tel]:focus,
+.auth-form input[type=password]:focus {
+  outline: none;
+  border-color: var(--border-focused);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
 .auth-form input[type=text]::placeholder,
 .auth-form input[type=email]::placeholder,
-.auth-form input[type=tel]::placeholder {
+.auth-form input[type=tel]::placeholder,
+.auth-form input[type=password]::placeholder {
   color: var(--content-placeholder);
+}
+.auth-date-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-primary);
+  border: 1px solid var(--border-muted);
+  border-radius: 4px;
+  padding: 0;
+  position: relative;
+  height: 48px;
+}
+.auth-date-picker--error {
+  border-color: var(--border-error);
+  box-shadow: 0 0 0 1px var(--border-error);
+}
+.auth-date-picker__display {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  color: var(--content-primary);
+  padding: 0 50px 0 14px;
+  height: 100%;
+  width: 100%;
+}
+.auth-date-picker__display::placeholder {
+  color: var(--content-placeholder);
+}
+.auth-date-picker__display:focus {
+  outline: none;
+}
+.auth-date-picker__native {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.auth-date-picker::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 0;
+}
+.auth-date-picker:focus-within {
+  border-color: var(--border-focused);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.auth-date-picker:focus-within::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
 }
 .auth-form--otp {
   gap: 32px;
