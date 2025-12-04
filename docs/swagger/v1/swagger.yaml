@@ -82,6 +82,69 @@ paths:
               required:
               - email
               - password
+  "/api/v1/certificates/{id}":
+    get:
+      summary: Fetch certificate info
+      tags:
+      - Certificates
+      parameters:
+      - name: id
+        in: path
+        description: Certificate ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: certificate found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          certificate_number:
+                            type: string
+                            format: uuid
+                          issued_at:
+                            type: string
+                            format: date-time
+                          pdf_url:
+                            type: string
+                        additionalProperties: false
+                    additionalProperties: false
+                additionalProperties: false
+        '404':
+          description: not found
+  "/api/v1/certificates/{id}/download":
+    get:
+      summary: Download certificate PDF
+      tags:
+      - Certificates
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: pdf returned
+        '404':
+          description: certificate not found
   "/api/v1/contents":
     get:
       summary: List contents
