@@ -9,10 +9,19 @@ db:
 
 # redis_url: <%= ENV['REDIS_URL'] || 'redis://localhost:6379/4' %>
 
-twilio:
-  account_sid: <%= ENV.fetch('TWILIO_ACCOUNT_SID') { '' } %>
-  auth_token: <%= ENV.fetch('TWILIO_AUTH_TOKEN') { '' } %>
-  phone_number: <%= ENV.fetch('TWILIO_PHONE_NUMBER') { '' } %>
-  whatsapp_number: <%= ENV.fetch('TWILIO_WHATSAPP_NUMBER') { '' } %>
-  whatsapp_from_number: <%= ENV.fetch('TWILIO_WHATSAPP_FROM_NUMBER') { '+14155238886' } %>
-  messaging_service_sid: <%= ENV.fetch('TWILIO_MESSAGING_SERVICE_SID') { '' } %>
+services:
+  twilio:
+    account_sid: <%= ENV.fetch('TWILIO_ACCOUNT_SID') { '' } %>
+    auth_token: <%= ENV.fetch('TWILIO_AUTH_TOKEN') { '' } %>
+    phone_number: <%= ENV.fetch('TWILIO_PHONE_NUMBER') { '' } %>
+    whatsapp_number: <%= ENV.fetch('TWILIO_WHATSAPP_NUMBER') { '' } %>
+    whatsapp_from_number: <%= ENV.fetch('TWILIO_WHATSAPP_FROM_NUMBER') { '+14155238886' } %>
+    messaging_service_sid: <%= ENV.fetch('TWILIO_MESSAGING_SERVICE_SID') { '' } %>
+  smtp:
+    tls: <%= ENV['SMTP_TLS'] || true %>
+    address: <%= ENV['SMTP_ADDRESS'] || 'mx.webgate.pro' %>
+    port: <%= ENV['SMTP_PORT'] || 587 %>
+    domain: <%= ENV['SMTP_DOMAIN'] || 'akademy.edu.pl' %>
+    user: <%= ENV['SMTP_USER'] || 'bot@akademy.edu.pl' %>
+    password: <%= ENV['SMTP_PASSWORD'] || 'hard_password' %>
+    authentication: <%= ENV['SMTP_AUTH'] || 'plain' %>
