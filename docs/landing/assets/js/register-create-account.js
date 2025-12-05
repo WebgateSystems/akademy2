@@ -50,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	const isFormValid = () =>
 		Object.values(validators).every(({ input, validate }) => {
 			if (!input) return false;
-			// pass both value and input for checkbox validation
 			return validate(input.value, input);
 		});
 

@@ -194,14 +194,14 @@ RSpec.describe 'After sign in redirects', type: :request do
     it 'shows landing page for unauthenticated users' do
       get root_path
       expect(response).to have_http_status(:success)
-      expect(response.body).to include('home')
+      expect(response.body).to include('AKAdemy')
     end
 
     it 'shows landing page for authenticated teachers' do
       sign_in teacher
       get root_path
       expect(response).to have_http_status(:success)
-      expect(response.body).to include('home')
+      expect(response.body).to include('AKAdemy')
     end
   end
 end

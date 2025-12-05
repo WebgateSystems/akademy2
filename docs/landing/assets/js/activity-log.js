@@ -129,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		}
 
-		// Initialize display with default value.
 		syncDisplay(entry);
 	});
 

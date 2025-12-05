@@ -322,6 +322,7 @@
 	margin-top: 40px;
 
 	h2 {
+		text-decoration: none;
 		margin: 0;
 		font-size: 24px;
 		font-family: var(--font-display);
@@ -416,8 +417,13 @@
 	&--lime {
 		background: var(--green-30);
 	}
+
 }
 
+a.class-result {
+  text-decoration: none;
+  color: inherit;
+}
 .quiz-results {
 	margin-top: 48px;
 	overflow-x: auto;

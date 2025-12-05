@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Academy 2.0 · Video Preview</title>
+    <meta name="description" content="Preview your course video before starting the quiz.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/main.css">
+  </head>
+  <body>
+    <div class="dashboard-app" data-dashboard-app>
+      <aside class="dashboard-sidebar">
+        <div class="dashboard-logo">
+          <div class="dashboard-logo__brand">
+            <img class="dashboard-logo__icon" src="/assets/icons/logo/Akademy_logo.svg" alt="" width="32" height="32" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-logo__full" src="/assets/icons/logo/Akademy_logo_full.svg" alt="Academy 2.0" aria-hidden="false" data-theme-icon>
+          </div>
+          <button class="dashboard-collapse-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true" data-sidebar-collapse-toggle>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--collapse" src="/assets/icons/social/M/close-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand" src="/assets/icons/social/M/open-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+          </button>
+        </div>
+        <nav class="dashboard-nav" aria-label="Primary">
+          <a class="dashboard-nav__button is-active" href="/pages/pupil/courses/">
+            <img src="/assets/icons/social/M/sidebar_courses.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Courses</span>
+          </a>
+          <a class="dashboard-nav__button" href="/pages/pupil/school-videos/">
+            <img src="/assets/icons/social/M/sidebar_videos.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">School videos</span>
+          </a>
+          <a class="dashboard-nav__button" href="/pages/pupil/account/">
+            <img src="/assets/icons/social/M/sidebar_account.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Account</span>
+          </a>
+        </nav>
+      </aside>
+      <div class="dashboard-sidebar-overlay" data-sidebar-overlay aria-hidden="true"></div>
+
+      <main class="dashboard-main">
+        <header class="dashboard-top-bar">
+          <button class="dashboard-sidebar-toggle" type="button" aria-label="Toggle navigation" data-sidebar-toggle>
+            <img src="/assets/icons/social/M/burger.svg" alt="" width="24" height="24" data-theme-icon>
+          </button>
+          <div class="dashboard-top-heading">
+            <a class="dashboard-back-link" href="/pages/pupil/courses/video.html" aria-label="Back to videos">
+              <img src="/assets/icons/social/M/back.svg" alt="" width="24" height="24" data-theme-icon>
+            </a>
+            <h1>Polska i świat</h1>
+          </div>
+          <div class="dashboard-top-actions">
+            <a class="icon-pill" href="/pages/admin/notifications.html" aria-label="Notifications">
+              <span class="notification-counter" aria-hidden="true">3</span>
+              <img src="/assets/icons/social/M/notifications.svg" alt="" data-theme-icon>
+            </a>
+            <div class="settings-control">
+              <button class="icon-pill" type="button" aria-label="Settings" data-theme-toggle-trigger aria-expanded="false">
+                <img src="/assets/icons/social/M/settings.svg" alt="" data-theme-icon>
+              </button>
+              <div class="theme-switcher" id="theme-switcher" hidden>
+                <div class="theme-switcher__row">
+                  <div>
+                    <p class="theme-switcher__label">Dark mode</p>
+                    <p class="theme-switcher__hint">Remembers your preference</p>
+                  </div>
+                  <label class="theme-switcher__toggle">
+                    <input type="checkbox" id="theme-toggle-input" aria-label="Toggle dark mode">
+                    <span class="theme-switcher__slider" aria-hidden="true"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="video-preview-section">
+          <img width="100%" src="/assets/icons/social/L/big_video.svg" alt="Video placeholder">
+          <a href="quiz.html" class="video-grid__next-btn">Next</a>
+        </section>
+
+      </main>
+    </div>
+    <script src="/assets/js/theme-switcher.js" defer></script>
+    <script src="/assets/js/dashboard-sidebar.js" defer></script>
+  </body>
+</html>

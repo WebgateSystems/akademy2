@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Academy 2.0 · Account</title>
+    <meta name="description" content="Manage your Academy 2.0 account information.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/main.css">
+  </head>
+  <body>
+    <div class="dashboard-app" data-dashboard-app>
+      <aside class="dashboard-sidebar">
+        <div class="dashboard-logo">
+          <div class="dashboard-logo__brand">
+            <img class="dashboard-logo__icon" src="/assets/icons/logo/Akademy_logo.svg" alt="" width="32" height="32" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-logo__full" src="/assets/icons/logo/Akademy_logo_full.svg" alt="Academy 2.0" aria-hidden="false" data-theme-icon>
+          </div>
+          <button class="dashboard-collapse-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true" data-sidebar-collapse-toggle>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--collapse" src="/assets/icons/social/M/close-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand" src="/assets/icons/social/M/open-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+          </button>
+        </div>
+        <nav class="dashboard-nav" aria-label="Primary">
+          <a class="dashboard-nav__button" href="/pages/pupil/courses/">
+            <img src="/assets/icons/social/M/sidebar_courses.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Courses</span>
+          </a>
+          <a class="dashboard-nav__button" href="/pages/pupil/school-videos/">
+            <img src="/assets/icons/social/M/sidebar_videos.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">School videos</span>
+          </a>
+          <a class="dashboard-nav__button is-active" href="/pages/pupil/account/">
+            <img src="/assets/icons/social/M/sidebar_account.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Account</span>
+          </a>
+        </nav>
+      </aside>
+      <div class="dashboard-sidebar-overlay" data-sidebar-overlay aria-hidden="true"></div>
+
+      <main class="dashboard-main">
+        <header class="dashboard-top-bar">
+          <button class="dashboard-sidebar-toggle" type="button" aria-label="Toggle navigation" data-sidebar-toggle>
+            <img src="/assets/icons/social/M/burger.svg" alt="" width="24" height="24" data-theme-icon>
+          </button>
+          <div class="dashboard-top-heading">
+            <a class="dashboard-back-link" href="/pages/pupil/courses/" aria-label="Back to courses">
+              <img src="/assets/icons/social/M/back.svg" alt="" width="24" height="24" data-theme-icon>
+            </a>
+            <h1>Account</h1>
+          </div>
+          <div class="dashboard-top-actions">
+            <a class="icon-pill" href="/pages/admin/notifications.html" aria-label="Notifications">
+              <span class="notification-counter" aria-hidden="true">3</span>
+              <img src="/assets/icons/social/M/notifications.svg" alt="" data-theme-icon>
+            </a>
+            <div class="settings-control">
+              <button class="icon-pill" type="button" aria-label="Settings" data-theme-toggle-trigger aria-expanded="false">
+                <img src="/assets/icons/social/M/settings.svg" alt="" data-theme-icon>
+              </button>
+              <div class="theme-switcher" id="theme-switcher" hidden>
+                <div class="theme-switcher__row">
+                  <div>
+                    <p class="theme-switcher__label">Dark mode</p>
+                    <p class="theme-switcher__hint">Remembers your preference</p>
+                  </div>
+                  <label class="theme-switcher__toggle">
+                    <input type="checkbox" id="theme-toggle-input" aria-label="Toggle dark mode">
+                    <span class="theme-switcher__slider" aria-hidden="true"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="account-section">
+          <form class="account-form">
+            <label class="account-form__label">
+              <span>Full name</span>
+              <input type="text" name="full_name" class="account-form__input" placeholder="Charlotte Right" value="Charlotte Right" required>
+            </label>
+            <label class="account-form__label">
+              <span>Date of birth</span>
+              <input type="text" name="date_of_birth" class="account-form__input" placeholder="DD.MM.YYYY" value="12.12.2015" inputmode="numeric" required>
+            </label>
+            <label class="account-form__label">
+              <span>Email</span>
+              <input type="email" name="email" class="account-form__input account-form__input--warning" placeholder="charlotte.right@gmail.com" value="charlotte.right@gmail.com" required>
+              <span class="account-form__error">Unverified email address.</span>
+            </label>
+            <label class="account-form__label">
+              <span>Phone</span>
+              <input type="tel" name="phone" class="account-form__input account-form__input--warning" placeholder="+48 XXX XXX XXX" value="+48 791 362 547" required>
+              <span class="account-form__error">Unverified phone number.</span>
+            </label>
+            <a class="account-form__settings" href="/pages/pupil/account/settings.html">SETTINGS</a>
+            <button class="account-form__logout" type="button" data-modal-trigger="logout-modal">LOGOUT</button>
+          </form>
+        </section>
+
+      </main>
+    </div>
+
+    <div class="schools-modal" id="logout-modal" aria-hidden="true">
+      <div class="schools-modal__overlay"></div>
+      <div class="schools-modal__dialog schools-modal__dialog--small" role="dialog" aria-modal="true" aria-labelledby="logout-modal-title">
+        <header class="schools-modal__header">
+          <h3 id="logout-modal-title">Logout</h3>
+        </header>
+        <div class="schools-modal__body">
+          <p>Do you want to logout from your account?</p>
+        </div>
+        <div class="schools-modal__actions">
+          <button type="button" class="schools-modal__secondary" data-modal-close>CANCEL</button>
+          <button type="button" class="schools-modal__primary" onclick="window.location.href='/';">LOGOUT</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/assets/js/modal.js" defer></script>
+    <script defer>
+      document.addEventListener('DOMContentLoaded', () => {
+        const logoutBtn = document.querySelector('[data-modal-trigger="logout-modal"]');
+        const logoutModal = document.getElementById('logout-modal');
+        const cancelBtn = logoutModal?.querySelector('[data-modal-close]');
+        const overlay = logoutModal?.querySelector('.schools-modal__overlay');
+
+        logoutBtn?.addEventListener('click', () => {
+          logoutModal.classList.add('is-open');
+          logoutModal.setAttribute('aria-hidden', 'false');
+          document.body.style.overflow = 'hidden';
+        });
+
+        const closeModal = () => {
+          logoutModal.classList.remove('is-open');
+          logoutModal.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+        };
+
+        cancelBtn?.addEventListener('click', closeModal);
+        overlay?.addEventListener('click', closeModal);
+        
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && logoutModal?.classList.contains('is-open')) {
+            closeModal();
+          }
+        });
+      });
+    </script>
+    <script src="/assets/js/theme-switcher.js" defer></script>
+    <script src="/assets/js/dashboard-sidebar.js" defer></script>
+  </body>
+</html>

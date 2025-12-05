@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Academy 2.0 · School Videos</title>
+    <meta name="description" content="View and manage your school video assignments.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/main.css">
+  </head>
+  <body>
+    <div class="dashboard-app" data-dashboard-app>
+      <aside class="dashboard-sidebar">
+        <div class="dashboard-logo">
+          <div class="dashboard-logo__brand">
+            <img class="dashboard-logo__icon" src="/assets/icons/logo/Akademy_logo.svg" alt="" width="32" height="32" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-logo__full" src="/assets/icons/logo/Akademy_logo_full.svg" alt="Academy 2.0" aria-hidden="false" data-theme-icon>
+          </div>
+          <button class="dashboard-collapse-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true" data-sidebar-collapse-toggle>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--collapse" src="/assets/icons/social/M/close-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+            <img class="dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand" src="/assets/icons/social/M/open-sidebar.svg" alt="" width="24" height="24" aria-hidden="true" data-theme-icon>
+          </button>
+        </div>
+        <nav class="dashboard-nav" aria-label="Primary">
+          <a class="dashboard-nav__button" href="/pages/pupil/courses/">
+            <img src="/assets/icons/social/M/sidebar_courses.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Courses</span>
+          </a>
+          <a class="dashboard-nav__button is-active" href="/pages/pupil/school-videos/">
+            <img src="/assets/icons/social/M/sidebar_videos.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">School videos</span>
+          </a>
+          <a class="dashboard-nav__button" href="/pages/pupil/account/">
+            <img src="/assets/icons/social/M/sidebar_account.svg" alt="" width="20" height="20" aria-hidden="true" data-theme-icon>
+            <span class="dashboard-nav__label">Account</span>
+          </a>
+        </nav>
+      </aside>
+      <div class="dashboard-sidebar-overlay" data-sidebar-overlay aria-hidden="true"></div>
+
+      <main class="dashboard-main">
+        <header class="dashboard-top-bar">
+          <button class="dashboard-sidebar-toggle" type="button" aria-label="Toggle navigation" data-sidebar-toggle>
+            <img src="/assets/icons/social/M/burger.svg" alt="" width="24" height="24" data-theme-icon>
+          </button>
+          <div class="dashboard-top-heading">
+            <a class="dashboard-back-link" href="/pages/pupil/courses/" aria-label="Back to classes">
+              <img src="/assets/icons/social/M/back.svg" alt="" width="24" height="24" data-theme-icon>
+            </a>
+            <h1>School videos</h1>
+          </div>
+          <div class="dashboard-top-actions">
+            <a class="icon-pill" href="/pages/admin/notifications.html" aria-label="Notifications">
+              <span class="notification-counter" aria-hidden="true">3</span>
+              <img src="/assets/icons/social/M/notifications.svg" alt="" data-theme-icon>
+            </a>
+            <div class="settings-control">
+              <button class="icon-pill" type="button" aria-label="Settings" data-theme-toggle-trigger aria-expanded="false">
+                <img src="/assets/icons/social/M/settings.svg" alt="" data-theme-icon>
+              </button>
+              <div class="theme-switcher" id="theme-switcher" hidden>
+                <div class="theme-switcher__row">
+                  <div>
+                    <p class="theme-switcher__label">Dark mode</p>
+                    <p class="theme-switcher__hint">Remembers your preference</p>
+                  </div>
+                  <label class="theme-switcher__toggle">
+                    <input type="checkbox" id="theme-toggle-input" aria-label="Toggle dark mode">
+                    <span class="theme-switcher__slider" aria-hidden="true"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="school-videos-section">
+          <div class="school-videos-filters">
+            <button class="filter-tag is-active" data-category="all">All</button>
+            <button class="filter-tag" data-category="polska">Polska i świat</button>
+            <button class="filter-tag" data-category="climate">Kryzys klimatyczny</button>
+            <button class="filter-tag" data-category="alarms">Reakcja na alarmy</button>
+            <button class="filter-tag" data-category="evacuation">Ewakuacja</button>
+            <button class="filter-tag" data-category="first-aid">Pierwsza pomoc</button>
+            <button class="filter-tag" data-category="cyber">Cyber-bezpieczeństwo</button>
+            <button class="filter-tag" data-category="safe-behavior">Bezpieczne zachowanie</button>
+          </div>
+
+          <header class="schools-page__header">
+            <label class="schools-search schools-search--half">
+              <span class="visually-hidden">Search schools</span>
+              <input type="search" placeholder="Search">
+              <img src="/assets/icons/social/S/search.svg" alt="" aria-hidden="true">
+            </label>
+            <div class="view-toggle">
+              <button class="view-toggle__button is-active" data-view="grid" type="button" aria-label="Grid view">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6.33333 2.5H4.5C3.39543 2.5 2.5 3.39543 2.5 4.5V6.33333C2.5 7.4379 3.39543 8.33333 4.5 8.33333H6.33333C7.4379 8.33333 8.33333 7.4379 8.33333 6.33333V4.5C8.33333 3.39543 7.4379 2.5 6.33333 2.5Z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M15.5 2.5H13.6667C12.5621 2.5 11.6667 3.39543 11.6667 4.5V6.33333C11.6667 7.4379 12.5621 8.33333 13.6667 8.33333H15.5C16.6046 8.33333 17.5 7.4379 17.5 6.33333V4.5C17.5 3.39543 16.6046 2.5 15.5 2.5Z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M15.5 11.6667H13.6667C12.5621 11.6667 11.6667 12.5621 11.6667 13.6667V15.5C11.6667 16.6046 12.5621 17.5 13.6667 17.5H15.5C16.6046 17.5 17.5 16.6046 17.5 15.5V13.6667C17.5 12.5621 16.6046 11.6667 15.5 11.6667Z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M6.33333 11.6667H4.5C3.39543 11.6667 2.5 12.5621 2.5 13.6667V15.5C2.5 16.6046 3.39543 17.5 4.5 17.5H6.33333C7.4379 17.5 8.33333 16.6046 8.33333 15.5V13.6667C8.33333 12.5621 7.4379 11.6667 6.33333 11.6667Z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button class="view-toggle__button" data-view="list" type="button" aria-label="List view">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6.66667 5.00072L17.5 5.00132M6.66667 10.0007L17.5 10.0014M6.66667 15.0007L17.5 15.0014M2.91667 5.00016H2.925M2.91667 10.0002H2.925M2.91667 15.0002H2.925M3.33333 5.00016C3.33333 5.23028 3.14678 5.41683 2.91667 5.41683C2.68655 5.41683 2.5 5.23028 2.5 5.00016C2.5 4.77005 2.68655 4.5835 2.91667 4.5835C3.14678 4.5835 3.33333 4.77005 3.33333 5.00016ZM3.33333 10.0002C3.33333 10.2302 3.14678 10.4168 2.91667 10.4168C2.68655 10.4168 2.5 10.2302 2.5 10.0002C2.5 9.77008 2.68655 9.5835 2.91667 9.5835C3.14678 9.5835 3.33333 9.77008 3.33333 10.0002ZM3.33333 15.0002C3.33333 15.2302 3.14678 15.4168 2.91667 15.4168C2.68655 15.4168 2.5 15.2302 2.5 15.0002C2.5 14.7701 2.68655 14.5835 2.91667 14.5835C3.14678 14.5835 3.33333 14.7701 3.33333 15.0002Z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </header>
+
+          <div class="category-section" data-category="polska">
+            <h2 class="category-title">🇵🇱 Polska i świat</h2>
+            <div class="school-videos-container">
+            <div class="school-videos-grid">
+              <article class="school-video-card">
+                <button class="school-video-card__thumbnail js-open-video"
+                  type="button"
+                  aria-label="Play video Header"
+                  data-video-url="https://www.youtube.com/watch?v=t6ORDd4ZpXg"
+                  data-video-title="Header"
+                >
+                  <img src="/assets/icons/social/L/big_video.svg" alt="">
+                </button>
+                <div class="school-video-card__info">
+                  <div class="school-video-card__text">
+                    <h3 class="school-video-card__title">Header</h3>
+                    <p class="school-video-card__description">Description</p>
+                  </div>
+                  <button class="school-video-card__delete js-delete-video" type="button" aria-label="Delete video">
+                    <img src="/assets/icons/social/S/close.svg" alt="">
+                  </button>
+                </div>
+              </article>
+              <article class="school-video-card">
+                <button class="school-video-card__thumbnail js-open-video"
+                  type="button"
+                  aria-label="Play video Header"
+                  data-video-url="https://www.youtube.com/watch?v=t6ORDd4ZpXg"
+                  data-video-title="Header"
+                >
+                  <img src="/assets/icons/social/L/big_video.svg" alt="">
+                </button>
+                <div class="school-video-card__info">
+                  <div class="school-video-card__text">
+                    <h3 class="school-video-card__title">Header</h3>
+                    <p class="school-video-card__description">Description</p>
+                  </div>
+                  <button class="school-video-card__likes is-liked" type="button" aria-label="Unlike video">
+                    <img src="/assets/icons/social/S/like.svg" alt="">
+                    <span>68</span>
+                  </button>
+                </div>
+              </article>
+              <article class="school-video-card">
+                <button class="school-video-card__thumbnail js-open-video"
+                  type="button"
+                  aria-label="Play video Header"
+                  data-video-url="https://www.youtube.com/watch?v=t6ORDd4ZpXg"
+                  data-video-title="Header"
+                >
+                  <img src="/assets/icons/social/L/big_video.svg" alt="">
+                </button>
+                <div class="school-video-card__info">
+                  <div class="school-video-card__text">
+                    <h3 class="school-video-card__title">Header</h3>
+                    <p class="school-video-card__description">Description</p>
+                  </div>
+                  <button class="school-video-card__likes" type="button" aria-label="Like video">
+                    <img src="/assets/icons/social/S/no-like.svg" alt="">
+                    <span>102</span>
+                  </button>
+                </div>
+              </article>
+              <article class="school-video-card">
+                <button class="school-video-card__thumbnail js-open-video"
+                  type="button"
+                  aria-label="Play video Header"
+                  data-video-url="https://www.youtube.com/watch?v=t6ORDd4ZpXg"
+                  data-video-title="Header"
+                >
+                  <img src="/assets/icons/social/L/big_video.svg" alt="">
+                </button>
+                <div class="school-video-card__info">
+                  <div class="school-video-card__text">
+                    <h3 class="school-video-card__title">Header</h3>
+                    <p class="school-video-card__description">Description</p>
+                  </div>
+                  <button class="school-video-card__likes" type="button" aria-label="Like video">
+                    <img src="/assets/icons/social/S/no-like.svg" alt="">
+                    <span>43</span>
+                  </button>
+                </div>
+              </article>
+              <article class="school-video-card">
+                <button class="school-video-card__thumbnail js-open-video"
+                  type="button"
+                  aria-label="Play video Header"
+                  data-video-url="https://www.youtube.com/watch?v=t6ORDd4ZpXg"
+                  data-video-title="Header"
+                >
+                  <img src="/assets/icons/social/L/big_video.svg" alt="">
+                </button>
+                <div class="school-video-card__info">
+                  <div class="school-video-card__text">
+                    <h3 class="school-video-card__title">Header</h3>
+                    <p class="school-video-card__description">Description</p>
+                  </div>
+                  <button class="school-video-card__likes" type="button" aria-label="Like video">
+                    <img src="/assets/icons/social/S/no-like.svg" alt="">
+                    <span>43</span>
+                  </button>
+                </div>
+              </article>
+            </div>
+            
+            <div class="teachers-panel" style="display: none;">
+              <table class="teachers-table">
+                <thead class="teachers-table__head">
+                  <tr>
+                    <th scope="col" class="teachers-table__heading">Video</th>
+                    <th scope="col" class="teachers-table__heading">Topic</th>
+                    <th scope="col" class="teachers-table__heading">Description</th>
+                    <th scope="col" class="teachers-table__heading teachers-table__heading--actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="teachers-table__body">
+                  <tr class="teachers-table__row">
+                    <td class="teachers-table__cell">
+                      <div class="pupil-video-cell">
+                        <button class="pupil-video-cell__thumb js-open-video"
+                          type="button"
+                          aria-label="Play video Header"
+                          data-video-url="https://www.youtube.com/watch?v=t6ORDd4ZpXg"
+                          data-video-title="Header"
+                        >
+                          <img src="/assets/icons/social/L/big_video.svg" alt="Video preview">
+                        </button>
+                        <div class="pupil-video-cell__details">
+                          <span class="pupil-video-cell__title">Header</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="teachers-table__cell">Polska i świat</td>
+                    <td class="teachers-table__cell">Description</td>
+                    <td class="teachers-table__cell teachers-table__cell--actions">
+                      <div class="teachers-actions">
+                        <button class="school-video-card__delete js-delete-video" type="button" aria-label="Delete video">
+                          <img src="/assets/icons/social/S/close.svg" alt="">
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="teachers-table__row">
+                    <td class="teachers-table__cell">
+                      <div class="pupil-video-cell">
+                        <button class="pupil-video-cell__thumb js-open-video"
+                          type="button"
+                          aria-label="Play video Header"
+                          data-video-url="https://www.youtube.com/watch?v=t6ORDd4ZpXg"
+                          data-video-title="Header"
+                        >
+                          <img src="/assets/icons/social/L/big_video.svg" alt="Video preview">
+                        </button>
+                        <div class="pupil-video-cell__details">
+                          <span class="pupil-video-cell__title">Header</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="teachers-table__cell">Polska i świat</td>
+                    <td class="teachers-table__cell">Description</td>
+                    <td class="teachers-table__cell teachers-table__cell--actions">
+                      <div class="teachers-actions">
+                        <button class="school-video-card__likes is-liked" type="button" aria-label="Unlike video">
+                          <img src="/assets/icons/social/S/like.svg" alt="">
+                          <span>68</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="teachers-table__row">
+                    <td class="teachers-table__cell">
+                      <div class="pupil-video-cell">
+                        <button class="pupil-video-cell__thumb js-open-video"
+                          type="button"
+                          aria-label="Play video Header"
+                          data-video-url="https://www.youtube.com/watch?v=t6ORDd4ZpXg"
+                          data-video-title="Header"
+                        >
+                          <img src="/assets/icons/social/L/big_video.svg" alt="Video preview">
+                        </button>
+                        <div class="pupil-video-cell__details">
+                          <span class="pupil-video-cell__title">Header</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="teachers-table__cell">Polska i świat</td>
+                    <td class="teachers-table__cell">Description</td>
+                    <td class="teachers-table__cell teachers-table__cell--actions">
+                      <div class="teachers-actions">
+                        <button class="school-video-card__likes" type="button" aria-label="Like video">
+                          <img src="/assets/icons/social/S/no-like.svg" alt="">
+                          <span>102</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="teachers-table__row">
+                    <td class="teachers-table__cell">
+                      <div class="pupil-video-cell">
+                        <button class="pupil-video-cell__thumb js-open-video"
+                          type="button"
+                          aria-label="Play video Header"
+                          data-video-url="https://www.youtube.com/watch?v=t6ORDd4ZpXg"
+                          data-video-title="Header"
+                        >
+                          <img src="/assets/icons/social/L/big_video.svg" alt="Video preview">
+                        </button>
+                        <div class="pupil-video-cell__details">
+                          <span class="pupil-video-cell__title">Header</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="teachers-table__cell">Polska i świat</td>
+                    <td class="teachers-table__cell">Description</td>
+                    <td class="teachers-table__cell teachers-table__cell--actions">
+                      <div class="teachers-actions">
+                        <button class="school-video-card__likes" type="button" aria-label="Like video">
+                          <img src="/assets/icons/social/S/no-like.svg" alt="">
+                          <span>43</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="teachers-table__row">
+                    <td class="teachers-table__cell">
+                      <div class="pupil-video-cell">
+                        <button class="pupil-video-cell__thumb js-open-video"
+                          type="button"
+                          aria-label="Play video Header"
+                          data-video-url="https://www.youtube.com/watch?v=t6ORDd4ZpXg"
+                          data-video-title="Header"
+                        >
+                          <img src="/assets/icons/social/L/big_video.svg" alt="Video preview">
+                        </button>
+                        <div class="pupil-video-cell__details">
+                          <span class="pupil-video-cell__title">Header</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="teachers-table__cell">Polska i świat</td>
+                    <td class="teachers-table__cell">Description</td>
+                    <td class="teachers-table__cell teachers-table__cell--actions">
+                      <div class="teachers-actions">
+                        <button class="school-video-card__likes" type="button" aria-label="Like video">
+                          <img src="/assets/icons/social/S/no-like.svg" alt="">
+                          <span>43</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            </div>
+          </div>
+
+          <button class="school-videos-fab" type="button" aria-label="Add video">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+        </section>
+
+        <div class="schools-modal video-player-modal" id="video-player-modal" aria-hidden="true">
+          <div class="schools-modal__overlay"></div>
+          <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="video-player-modal-title">
+            <header class="schools-modal__header">
+              <h3 id="video-player-modal-title">Watch video</h3>
+              <button class="schools-modal__close" type="button" aria-label="Close modal"><img src="/assets/icons/social/S/close.svg" alt=""></button>
+            </header>
+            <div class="video-player-modal__frame">
+              <iframe id="video-player-frame" src="" title="Pupil video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <p class="video-player-modal__meta">Now playing: <strong class="video-player-modal__title">Header</strong></p>
+          </div>
+        </div>
+
+        <div class="schools-modal" id="add-video-modal" aria-hidden="true">
+          <div class="schools-modal__overlay"></div>
+          <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="add-video-modal-title">
+            <header class="schools-modal__header">
+              <h3 id="add-video-modal-title">Add video</h3>
+              <button class="schools-modal__close" type="button" aria-label="Close modal"><img src="/assets/icons/social/S/close.svg" alt=""></button>
+            </header>
+            <form id="add-video-form" class="schools-modal__form">
+              <label class="video-upload-area" for="video-file-input">
+                <input type="file" id="video-file-input" accept="video/*" hidden>
+                <img src="/assets/icons/social/L/upload_video.svg" alt="Upload video">
+              </label>
+              
+              <label class="schools-modal__label">
+                <span>Topic</span>
+                <select class="schools-modal__select" name="topic" required>
+                  <option value="">Choose the topic</option>
+                  <option value="polska">Polska i świat</option>
+                  <option value="climate">Kryzys klimatyczny</option>
+                  <option value="alarms">Reakcja na alarmy</option>
+                  <option value="evacuation">Ewakuacja</option>
+                  <option value="first-aid">Pierwsza pomoc</option>
+                  <option value="cyber">Cyber-bezpieczeństwo</option>
+                  <option value="safe-behavior">Bezpieczne zachowanie</option>
+                </select>
+              </label>
+
+              <label class="schools-modal__label">
+                <span>Title</span>
+                <input type="text" class="schools-modal__input" name="title" placeholder="Title" required>
+              </label>
+
+              <label class="schools-modal__label">
+                <span>Description</span>
+                <input type="text" class="schools-modal__input" name="description" placeholder="Description" required>
+              </label>
+
+              <div class="schools-modal__actions">
+                <button type="submit" class="schools-modal__primary" disabled>ADD</button>
+                <button type="button" class="schools-modal__secondary">CANCEL</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="schools-modal" id="delete-video-modal" aria-hidden="true">
+          <div class="schools-modal__overlay"></div>
+          <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="delete-video-modal-title">
+            <header class="schools-modal__header">
+              <h3 id="delete-video-modal-title">Delete video</h3>
+              <button class="schools-modal__close" type="button" aria-label="Close modal"><img src="/assets/icons/social/S/close.svg" alt=""></button>
+            </header>
+            <div class="schools-modal__body">
+              <p>Do you want to delete `Title` video?</p>
+            </div>
+            <div class="schools-modal__actions">
+              <button type="button" class="schools-modal__primary schools-modal__primary--danger">DELETE</button>
+              <button type="button" class="schools-modal__secondary">CANCEL</button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+    <script src="/assets/js/modal.js" defer></script>
+    <script src="/assets/js/teacher-pupils-video.js" defer></script>
+    <script src="/assets/js/school-videos-likes.js" defer></script>
+    <script src="/assets/js/school-videos-modals.js" defer></script>
+    <script src="/assets/js/theme-switcher.js" defer></script>
+<script src="/assets/js/dashboard-sidebar.js" defer></script>
+  </body>
+</html>

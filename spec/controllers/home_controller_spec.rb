@@ -19,7 +19,7 @@ RSpec.describe HomeController, type: :request do
       it 'renders landing page' do
         get root_path
         expect(response).to have_http_status(:success)
-        expect(response.body).to include('home')
+        expect(response.body).to include('AKAdemy')
       end
     end
 
@@ -35,7 +35,7 @@ RSpec.describe HomeController, type: :request do
       it 'renders landing page (root is always landing)' do
         get root_path
         expect(response).to have_http_status(:success)
-        expect(response.body).to include('home')
+        expect(response.body).to include('AKAdemy')
       end
     end
 
@@ -51,7 +51,7 @@ RSpec.describe HomeController, type: :request do
       it 'renders landing page' do
         get root_path
         expect(response).to have_http_status(:success)
-        expect(response.body).to include('home')
+        expect(response.body).to include('AKAdemy')
       end
     end
   end

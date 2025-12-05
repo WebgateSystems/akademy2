@@ -13,9 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		actionButton.textContent = label;
 		actionButton.disabled = disabled;
 		actionButton.dataset.action = action;
-		// Keep visual parity with registration button styles:
-		// - disabled: `auth-submit--disabled`
-		// - enabled verify action: `auth-submit--primary`
 		actionButton.classList.toggle('auth-submit--disabled', disabled);
 		actionButton.classList.toggle('auth-submit--primary', !disabled && action === 'verify');
 	};

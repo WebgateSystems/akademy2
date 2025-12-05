@@ -25,7 +25,6 @@ const initArchiveYearModal = () => {
 
 	const confirmButton = document.querySelector('.archive-year-modal__confirm');
 	confirmButton?.addEventListener('click', () => {
-		// Placeholder for archive action
 		controller?.closeModal?.();
 	});
 };
@@ -80,7 +79,6 @@ const initTeachingStaffSelectors = () => {
 			return button;
 		};
 
-		// form-level controls
 		const submitBtn = form.querySelector('button[type="submit"]');
 		const classNumberInput = form.querySelector('[name="class_number"]');
 		const setErrorMessage = (element, message = '') => {
@@ -99,7 +97,6 @@ const initTeachingStaffSelectors = () => {
 			selectWrapper.classList.remove('has-error');
 		};
 
-		// make sure submit is disabled by default to avoid race conditions
 		if (submitBtn) {
 			submitBtn.disabled = true;
 			submitBtn.setAttribute('aria-disabled', 'true');
@@ -111,7 +108,6 @@ const initTeachingStaffSelectors = () => {
 			const hasTeachingStaff = selectedValues.size > 0;
 			if (submitBtn) {
 				submitBtn.disabled = !(hasClassNumber && hasTeachingStaff);
-				// keep an accessible hint
 				submitBtn.setAttribute('aria-disabled', submitBtn.disabled ? 'true' : 'false');
 				submitBtn.classList.toggle('is-disabled', submitBtn.disabled);
 			}
@@ -349,7 +345,6 @@ const initTeachingStaffSelectors = () => {
 		buildOptions();
 		hydrateChips();
 		updateSummary();
-		// initial form state based on prefilled values
 		updateFormState();
 
 		if (classNumberInput) {
@@ -387,7 +382,6 @@ const initTeachingStaffSelectors = () => {
 
 		form.resetTeachingStaffSelector = resetSelector;
 
-		// Ensure modal triggers reset/disable the submit button when opening
 		const addTriggers = document.querySelectorAll('.js-open-add-class');
 		if (isAddClassForm && addTriggers.length) {
 			addTriggers.forEach((t) => t.addEventListener('click', () => {

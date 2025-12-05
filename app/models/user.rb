@@ -71,6 +71,11 @@ class User < ApplicationRecord
     locked_at.present? ? :locked : super
   end
 
+  # Override Devise method to send emails via SendEmailJob
+  def send_devise_notification(notification, *args)
+    SendEmailJob.perform_later('CustomDeviseMailer', notification.to_s, self, *args)
+  end
+
   private
 
   def sync_notifications_for_teacher

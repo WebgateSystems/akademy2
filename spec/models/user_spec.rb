@@ -3,6 +3,39 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
+  describe '#send_devise_notification' do
+    let(:user) { create(:user) }
+    let(:token) { 'test_reset_token' }
+
+    it 'enqueues SendEmailJob with correct arguments' do
+      expect do
+        user.send_devise_notification(:reset_password_instructions, token, {})
+      end.to have_enqueued_job(SendEmailJob)
+        .with('CustomDeviseMailer', 'reset_password_instructions', user, token, {})
+    end
+
+    it 'enqueues job for confirmation_instructions' do
+      expect do
+        user.send_devise_notification(:confirmation_instructions, token, {})
+      end.to have_enqueued_job(SendEmailJob)
+        .with('CustomDeviseMailer', 'confirmation_instructions', user, token, {})
+    end
+
+    it 'enqueues job for unlock_instructions' do
+      expect do
+        user.send_devise_notification(:unlock_instructions, token, {})
+      end.to have_enqueued_job(SendEmailJob)
+        .with('CustomDeviseMailer', 'unlock_instructions', user, token, {})
+    end
+
+    it 'converts notification symbol to string' do
+      expect do
+        user.send_devise_notification(:email_changed, {})
+      end.to have_enqueued_job(SendEmailJob)
+        .with('CustomDeviseMailer', 'email_changed', user, {})
+    end
+  end
+
   describe '#display_phone' do
     context 'when phone is in phone column' do
       it 'returns phone from phone column' do
