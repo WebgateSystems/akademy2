@@ -78,10 +78,11 @@ RSpec.describe CustomDeviseMailer, type: :mailer do
         expect(mail.reply_to).to eq([Settings.services.smtp.reply_to])
       end
 
-      it 'includes embedded logo as data URI' do
+      it 'includes text logo in header' do
         mail = described_class.reset_password_instructions(user, token)
 
-        expect(mail.body.encoded).to include('data:image/svg+xml;base64,')
+        expect(mail.body.encoded).to include('AKA')
+        expect(mail.body.encoded).to include('demy')
       end
 
       it 'includes Webgate Systems LTD copyright' do
@@ -142,10 +143,11 @@ RSpec.describe CustomDeviseMailer, type: :mailer do
       expect(mail.body.encoded).to include('Tryb offline')
     end
 
-    it 'includes embedded logo' do
+    it 'includes text logo in header' do
       mail = described_class.confirmation_instructions(user, token)
 
-      expect(mail.body.encoded).to include('data:image/svg+xml;base64,')
+      expect(mail.body.encoded).to include('AKA')
+      expect(mail.body.encoded).to include('demy')
     end
   end
 
