@@ -16,6 +16,7 @@ I18n/GetText/DecorateString:
     - 'lib/tasks/*.rake'
     - 'app/controllers/admin/resources_controller.rb'
     - 'app/controllers/register/wizard_controller.rb'
+    - 'app/controllers/api/v1/student/**/*.rb'
     - 'app/interactors/api/v1/management/show_administration.rb'
     - 'app/interactors/api/v1/management/update_administration.rb'
     - 'app/services/notification_service.rb'
@@ -80,6 +81,7 @@ Metrics/ClassLength:
     - "app/controllers/admin/resources_controller.rb"
     - "app/controllers/dashboard_controller.rb"
     - "app/controllers/api/v1/teacher/dashboard_controller.rb"
+    - "app/controllers/api/v1/student/dashboard_controller.rb"
     - "app/controllers/register/wizard_controller.rb"
     - "app/interactors/api/v1/management/create_class.rb"
     - "app/interactors/api/v1/management/update_class.rb"
@@ -107,6 +109,8 @@ Metrics/CyclomaticComplexity:
     - "app/interactors/api/v1/management/update_parent.rb"
     - "app/controllers/application_controller.rb"
     - "app/controllers/users/sessions_controller.rb"
+    - "app/controllers/api/v1/student/events_controller.rb"
+    - "app/controllers/api/v1/student/quiz_results_controller.rb"
 
 Metrics/MethodLength:
   Max: 15
@@ -145,6 +149,9 @@ Metrics/MethodLength:
     - 'app/interactors/register/set_pin_confirm_submit.rb'
     - 'app/interactors/register/create_teacher_after_verify.rb'
     - 'app/interactors/register/teacher_profile_submit.rb'
+    - 'app/controllers/api/v1/student/dashboard_controller.rb'
+    - 'app/controllers/api/v1/student/events_controller.rb'
+    - 'app/controllers/api/v1/student/quiz_results_controller.rb'
 
 Metrics/PerceivedComplexity:
   Max: 8
@@ -161,6 +168,8 @@ Metrics/PerceivedComplexity:
     - "app/interactors/register/create_teacher_after_verify.rb"
     - "app/controllers/application_controller.rb"
     - "app/controllers/users/sessions_controller.rb"
+    - "app/controllers/api/v1/student/events_controller.rb"
+    - "app/controllers/api/v1/student/quiz_results_controller.rb"
 
 Metrics/BlockNesting:
   Max: 3
@@ -213,6 +222,7 @@ RSpec/MultipleMemoizedHelpers:
   Max: 12
   Exclude:
     - 'spec/requests/api/v1/contents_spec.rb'
+    - 'spec/requests/api/v1/student/**/*.rb'
 
 RSpec/ScatteredSetup:
   Exclude:
@@ -223,6 +233,7 @@ RSpec/ScatteredSetup:
     - 'spec/requests/api/v1/contents_spec.rb'
     - 'spec/requests/api/v1/management/administrations_spec.rb'
     - 'spec/requests/api/v1/management/parents_spec.rb'
+    - 'spec/requests/api/v1/student/**/*.rb'
 
 RSpec/LetSetup:
   Exclude:
@@ -231,6 +242,7 @@ RSpec/LetSetup:
     - 'spec/interactors/api/v1/management/approve_teacher_spec.rb'
     - 'spec/interactors/api/v1/management/destroy_teacher_spec.rb'
     - 'spec/interactors/register/create_teacher_after_verify_spec.rb'
+    - 'spec/requests/api/v1/student/**/*.rb'
 
 RSpec/VerifiedDoubles:
   Exclude:

@@ -2556,6 +2556,567 @@ paths:
           description: school deleted
         '404':
           description: school not found
+  "/api/v1/student/dashboard":
+    get:
+      summary: Get student dashboard
+      tags:
+      - Student
+      description: Returns student dashboard with subjects and progress
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: dashboard data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      student:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          first_name:
+                            type: string
+                          last_name:
+                            type: string
+                          email:
+                            type: string
+                            format: email
+                      school:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          logo_url:
+                            type: string
+                            nullable: true
+                      classes:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            year:
+                              type: string
+                      subjects:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            title:
+                              type: string
+                            slug:
+                              type: string
+                            icon_url:
+                              type: string
+                              nullable: true
+                            color_light:
+                              type: string
+                              nullable: true
+                            color_dark:
+                              type: string
+                              nullable: true
+                            total_modules:
+                              type: integer
+                            completed_modules:
+                              type: integer
+                            completion_rate:
+                              type: integer
+                            average_score:
+                              type: integer
+        '401':
+          description: unauthorized
+        '403':
+          description: student access required
+  "/api/v1/student/subjects/{id}":
+    parameters:
+    - name: id
+      in: path
+      format: uuid
+      description: Subject ID
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Get subject details
+      tags:
+      - Student
+      description: Returns subject with units, modules and progress
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: subject details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      subject:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          title:
+                            type: string
+                          slug:
+                            type: string
+                          icon_url:
+                            type: string
+                            nullable: true
+                          color_light:
+                            type: string
+                            nullable: true
+                          color_dark:
+                            type: string
+                            nullable: true
+                      units:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            title:
+                              type: string
+                            order_index:
+                              type: integer
+                            modules:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                    format: uuid
+                                  title:
+                                    type: string
+                                  order_index:
+                                    type: integer
+                                  contents_count:
+                                    type: integer
+                                  completed:
+                                    type: boolean
+                                  score:
+                                    type: integer
+                                    nullable: true
+                      progress:
+                        type: object
+                        properties:
+                          total_modules:
+                            type: integer
+                          completed_modules:
+                            type: integer
+                          average_score:
+                            type: integer
+        '401':
+          description: unauthorized
+        '404':
+          description: subject not found
+  "/api/v1/student/learning_modules/{id}":
+    parameters:
+    - name: id
+      in: path
+      format: uuid
+      description: Learning module ID
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Get learning module with contents
+      tags:
+      - Student
+      description: Returns module with video, infographic and quiz for learning flow
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: module details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      module:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          title:
+                            type: string
+                          unit_id:
+                            type: string
+                            format: uuid
+                          unit_title:
+                            type: string
+                          single_flow:
+                            type: boolean
+                      contents:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            title:
+                              type: string
+                            content_type:
+                              type: string
+                            order_index:
+                              type: integer
+                            file_url:
+                              type: string
+                              nullable: true
+                            poster_url:
+                              type: string
+                              nullable: true
+                            subtitles_url:
+                              type: string
+                              nullable: true
+                            youtube_url:
+                              type: string
+                              nullable: true
+                            duration_sec:
+                              type: integer
+                              nullable: true
+                            payload:
+                              type: object
+                              nullable: true
+                      quiz:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          title:
+                            type: string
+                          questions:
+                            type: array
+                          pass_threshold:
+                            type: integer
+                      previous_result:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          score:
+                            type: integer
+                          passed:
+                            type: boolean
+                          completed_at:
+                            type: string
+                            format: date-time
+                          details:
+                            type: object
+        '401':
+          description: unauthorized
+        '404':
+          description: module not found
+  "/api/v1/student/events":
+    post:
+      summary: Log student activity event
+      tags:
+      - Student
+      description: Log student activity events (video watched, quiz started, etc.)
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: event logged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: unauthorized
+        '422':
+          description: invalid event type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  error:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event_type:
+                  type: string
+                  enum:
+                  - video_started
+                  - video_completed
+                  - video_progress
+                  - infographic_viewed
+                  - quiz_started
+                  - content_viewed
+                  description: Type of event
+                content_id:
+                  type: string
+                  format: uuid
+                  description: Content ID (for video/infographic)
+                learning_module_id:
+                  type: string
+                  format: uuid
+                  description: Learning module ID
+                duration_sec:
+                  type: integer
+                  description: Video duration in seconds
+                progress_sec:
+                  type: integer
+                  description: Current progress in seconds
+                progress_percent:
+                  type: integer
+                  description: Progress percentage (0-100)
+                client:
+                  type: string
+                  enum:
+                  - web
+                  - mobile
+                  default: web
+              required:
+              - event_type
+  "/api/v1/student/events/batch":
+    post:
+      summary: Log multiple events (offline sync)
+      tags:
+      - Student
+      description: Log multiple events at once for mobile app offline sync
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: all events logged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  logged_count:
+                    type: integer
+                  total_count:
+                    type: integer
+        '207':
+          description: partial success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  logged_count:
+                    type: integer
+                  total_count:
+                    type: integer
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index:
+                          type: integer
+                        error:
+                          type: string
+        '401':
+          description: unauthorized
+        '422':
+          description: events must be an array
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                events:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      event_type:
+                        type: string
+                        enum:
+                        - video_started
+                        - video_completed
+                        - video_progress
+                        - infographic_viewed
+                        - quiz_started
+                        - content_viewed
+                      data:
+                        type: object
+                        description: Event-specific data
+                      client:
+                        type: string
+                        enum:
+                        - web
+                        - mobile
+                      occurred_at:
+                        type: string
+                        format: date-time
+                        description: When event occurred (for offline)
+                    required:
+                    - event_type
+              required:
+              - events
+  "/api/v1/student/quiz_results":
+    get:
+      summary: List quiz results
+      tags:
+      - Student
+      description: Returns all completed quiz results for the student
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: quiz results list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        score:
+                          type: integer
+                        passed:
+                          type: boolean
+                        completed_at:
+                          type: string
+                          format: date-time
+                        learning_module:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            title:
+                              type: string
+                        subject:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            title:
+                              type: string
+        '401':
+          description: unauthorized
+    post:
+      summary: Submit quiz result
+      tags:
+      - Student
+      description: Submit completed quiz result. Score >= 80% marks as passed.
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: quiz result created (failed)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      score:
+                        type: integer
+                      passed:
+                        type: boolean
+                      completed_at:
+                        type: string
+                        format: date-time
+                      message:
+                        type: string
+        '401':
+          description: unauthorized
+        '404':
+          description: learning module not found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                learning_module_id:
+                  type: string
+                  format: uuid
+                  description: Learning module ID
+                score:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                  description: Quiz score percentage
+                details:
+                  type: object
+                  description: Additional details (answers, time spent)
+              required:
+              - learning_module_id
+              - score
   "/api/v1/students":
     get:
       summary: List students

@@ -128,6 +128,17 @@ Rails.application.routes.draw do
         post 'enrollments/join', to: 'enrollments#join'
         get 'enrollments/pending', to: 'enrollments#pending'
         delete 'enrollments/:id/cancel', to: 'enrollments#cancel', as: :cancel_enrollment
+
+        # Student learning API
+        get 'dashboard', to: 'dashboard#index'
+        get 'subjects/:id', to: 'dashboard#show_subject', as: :subject
+        get 'learning_modules/:id', to: 'dashboard#show_module', as: :learning_module
+        resources :quiz_results, only: %i[index create]
+        resources :events, only: [:create] do
+          collection do
+            post :batch
+          end
+        end
       end
 
       resource :session, only: :create
