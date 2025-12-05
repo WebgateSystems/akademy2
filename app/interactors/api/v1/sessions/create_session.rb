@@ -38,6 +38,7 @@ module Api
         end
 
         def user_not_exist
+          context.status = :not_found
           context.fail!(message: ['User does not exist'])
         end
 

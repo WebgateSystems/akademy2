@@ -9,14 +9,29 @@ RSpec.describe 'Sessions', type: :request do
         consumes 'application/json'
 
         parameter name: :params, in: :body, schema: {
+          type: :object,
           properties: {
-            user: { type: :object,
-                    properties: {
-                      email: { type: :string },
-                      password: { type: :string }
-                    } }
-          },
-          required: %i[email password]
+            user: {
+              oneOf: [
+                {
+                  type: :object,
+                  properties: {
+                    email: { type: :string },
+                    password: { type: :string }
+                  },
+                  required: %i[email password]
+                },
+                {
+                  type: :object,
+                  properties: {
+                    phone: { type: :string },
+                    password: { type: :string }
+                  },
+                  required: %i[phone password]
+                }
+              ]
+            }
+          }
         }
 
         response '201', 'session create' do
