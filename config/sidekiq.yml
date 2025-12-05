@@ -1,0 +1,14 @@
+:concurrency: 5
+:pidfile: tmp/pids/sidekiq.pid
+:logfile: log/sidekiq.log
+:timeout: 45
+
+:queues:
+  - internal
+  - default
+
+staging:
+  :concurrency: 10
+
+production:
+  :concurrency: 20
