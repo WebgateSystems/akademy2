@@ -445,12 +445,14 @@ MODULES.each do |module_data|
   end
 
   # LearningModule - z zahardkodowanym UUID
+  # Nazwa modułu = nazwa przedmiotu (bo jest tylko jeden moduł per subject)
   learning_module = LearningModule.find_by(id: module_uuid)
   if learning_module.nil?
     learning_module = LearningModule.new(
       id: module_uuid,
       unit: unit,
-      title: 'Moduł 1',
+      title: module_data[:title],
+      slug: module_data[:slug],
       order_index: 1,
       single_flow: true,
       published: true
@@ -459,7 +461,8 @@ MODULES.each do |module_data|
   else
     learning_module.update!(
       unit: unit,
-      title: 'Moduł 1',
+      title: module_data[:title],
+      slug: module_data[:slug],
       order_index: 1,
       single_flow: true,
       published: true

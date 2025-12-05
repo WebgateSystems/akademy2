@@ -14,8 +14,17 @@
             - @subjects.each_with_index do |subject, index|
               - stats = @subject_results&.dig(subject.id) || {}
               - completion = stats[:completion_rate] || 0
-              .class-result class="class-result--#{colors[index % colors.length]}" data-subject-id=subject.id
-                span.class-result__progress data-subject-progress=subject.id = "#{completion}%"
+              - average_score = stats[:average_score] || 0
+              - is_completed = completion >= 80
+              - color_class = colors[index % colors.length]
+              - subject_color = subject.color_light.presence || '#6366f1'
+              - card_class = is_completed ? 'class-result--completed' : "class-result--#{color_class}"
+              = link_to student_subject_path(subject), class: "class-result #{card_class}", data: { subject_id: subject.id }
+                - if is_completed
+                  span.class-result__progress.class-result__progress--colored data-subject-progress=subject.id style="background: #{subject_color}; border-color: #{subject_color};"
+                    = "#{average_score}%"
+                - else
+                  span.class-result__progress data-subject-progress=subject.id = "#{completion}%"
                 .class-result__icon aria-hidden="true"
                   - icons = %w[🇵🇱 🌍 🔔 🏃‍♂️ ❤️‍🩹 💻 🛡️]
                   = icons[index % icons.length]

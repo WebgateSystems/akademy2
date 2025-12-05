@@ -1,0 +1,301 @@
+.dashboard-app data-dashboard-app="" data-student-dashboard="true"
+  = render 'student_dashboard/sidebar'
+
+  main.dashboard-main
+    header.dashboard-top-bar
+      button.dashboard-sidebar-toggle type="button" aria-label="Toggle navigation" data-sidebar-toggle=""
+        = image_tag 'icons/social/M/burger.svg', width: 24, height: 24, data: { theme_icon: true }
+      .dashboard-top-heading
+        = link_to student_module_path(@learning_module), class: 'dashboard-back-link', aria: { label: 'Powrót do materiałów' }
+          = image_tag 'icons/social/M/back.svg', width: 24, height: 24, data: { theme_icon: true }
+        h1 = @subject.title
+      .dashboard-top-actions
+        span.quiz-progress data-quiz-progress=""
+          span#current-question 1
+          | /
+          = @questions.count
+
+    - if @questions.any?
+      = form_tag submit_student_quiz_path(@learning_module), method: :post, id: 'quiz-form', class: 'quiz-section'
+        .quiz-container
+          - @questions.each_with_index do |question, index|
+            .quiz-question-slide data-question-index=index class=("is-active" if index == 0)
+              h2.quiz-question = question['text']
+              p.quiz-subtitle
+                - if question['type'] == 'multiple'
+                  | Wybierz wszystkie poprawne odpowiedzi
+                - else
+                  | Wybierz jedną odpowiedź
+
+              .quiz-options
+                - options = question['options'] || []
+                - options.each_with_index do |option, option_index|
+                  button.quiz-option type="button" data-answer=option_index data-question=index data-option-id=option['id']
+                    span.quiz-option__text = option['text']
+                    span.quiz-option__radio
+
+              = hidden_field_tag "answers[#{index}]", nil, id: "answer_#{index}"
+
+          .quiz-navigation
+            button.quiz-prev-btn type="button" data-prev="" disabled="" Wstecz
+            button.quiz-next-btn type="button" data-next="" disabled="" Dalej
+            button.quiz-submit-btn type="submit" style="display: none" Zakończ Quiz
+    - else
+      section.quiz-section
+        .quiz-container
+          p.quiz-empty Quiz nie zawiera pytań.
+          = link_to 'Powrót', student_module_path(@learning_module), class: 'quiz-back-link'
+
+    = render 'shared/app_version'
+
+css:
+  .quiz-section {
+    display: flex;
+    justify-content: center;
+    padding: 40px 24px;
+    min-height: calc(100vh - 80px);
+  }
+
+  .quiz-container {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .quiz-question-slide {
+    display: none;
+  }
+
+  .quiz-question-slide.is-active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .quiz-question {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--content-primary);
+    margin: 0 0 8px;
+    text-align: center;
+  }
+
+  .quiz-subtitle {
+    font-size: 14px;
+    color: var(--content-secondary);
+    margin: 0 0 32px;
+    text-align: center;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .quiz-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background: var(--surface-primary);
+    border: 2px solid var(--border-muted);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    text-align: left;
+    font-size: 16px;
+    color: var(--content-primary);
+  }
+
+  .quiz-option:hover {
+    border-color: var(--button-primary);
+  }
+
+  .quiz-option.is-active {
+    border-color: var(--button-primary);
+    background: rgba(99, 102, 241, 0.1);
+  }
+
+  .quiz-option__text {
+    flex: 1;
+  }
+
+  .quiz-option__radio {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border-muted);
+    border-radius: 50%;
+    position: relative;
+    flex-shrink: 0;
+    transition: border-color 0.2s ease;
+  }
+
+  .quiz-option.is-active .quiz-option__radio {
+    border-color: var(--button-primary);
+  }
+
+  .quiz-option.is-active .quiz-option__radio::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: var(--button-primary);
+    border-radius: 50%;
+  }
+
+  .quiz-navigation {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .quiz-prev-btn,
+  .quiz-next-btn,
+  .quiz-submit-btn {
+    padding: 14px 32px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease, opacity 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  .quiz-prev-btn {
+    background: var(--surface-secondary);
+    border: 1px solid var(--border-muted);
+    color: var(--content-primary);
+  }
+
+  .quiz-prev-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .quiz-next-btn,
+  .quiz-submit-btn {
+    background: var(--button-primary);
+    border: none;
+    color: white;
+  }
+
+  .quiz-next-btn:disabled,
+  .quiz-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .quiz-next-btn:not(:disabled):hover,
+  .quiz-submit-btn:not(:disabled):hover {
+    background: var(--button-primary-hover);
+  }
+
+  .quiz-progress {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--content-primary);
+    background: var(--surface-secondary);
+    padding: 8px 16px;
+    border-radius: 20px;
+  }
+
+  .quiz-empty {
+    text-align: center;
+    color: var(--content-secondary);
+    padding: 48px;
+  }
+
+  .quiz-back-link {
+    display: inline-block;
+    margin-top: 16px;
+    color: var(--button-primary);
+    text-decoration: none;
+  }
+
+javascript:
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('quiz-form');
+    if (!form) return;
+
+    const slides = form.querySelectorAll('.quiz-question-slide');
+    const prevBtn = form.querySelector('[data-prev]');
+    const nextBtn = form.querySelector('[data-next]');
+    const submitBtn = form.querySelector('.quiz-submit-btn');
+    const progressCurrent = document.getElementById('current-question');
+    const totalQuestions = slides.length;
+    let currentIndex = 0;
+    const answers = {};
+
+    function showSlide(index) {
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('is-active', i === index);
+      });
+
+      currentIndex = index;
+      progressCurrent.textContent = index + 1;
+
+      // Update navigation
+      prevBtn.disabled = index === 0;
+
+      if (index === totalQuestions - 1) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'block';
+        submitBtn.disabled = !answers[index];
+      } else {
+        nextBtn.style.display = 'block';
+        submitBtn.style.display = 'none';
+        nextBtn.disabled = !answers[index];
+      }
+    }
+
+    // Handle option selection
+    form.querySelectorAll('.quiz-option').forEach(option => {
+      option.addEventListener('click', () => {
+        const questionIndex = parseInt(option.dataset.question);
+        const answerIndex = parseInt(option.dataset.answer);
+
+        // Deselect others in same question
+        slides[questionIndex].querySelectorAll('.quiz-option').forEach(opt => {
+          opt.classList.remove('is-active');
+        });
+
+        // Select this option
+        option.classList.add('is-active');
+        answers[questionIndex] = answerIndex;
+
+        // Update hidden field
+        const hiddenField = document.getElementById(`answer_${questionIndex}`);
+        if (hiddenField) hiddenField.value = answerIndex;
+
+        // Enable next/submit button
+        if (questionIndex === totalQuestions - 1) {
+          submitBtn.disabled = false;
+        } else {
+          nextBtn.disabled = false;
+        }
+      });
+    });
+
+    // Navigation
+    prevBtn.addEventListener('click', () => {
+      if (currentIndex > 0) showSlide(currentIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex < totalQuestions - 1 && answers[currentIndex] !== undefined) {
+        showSlide(currentIndex + 1);
+      }
+    });
+
+    // Initialize
+    showSlide(0);
+  });
+

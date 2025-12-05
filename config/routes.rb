@@ -184,6 +184,11 @@ Rails.application.routes.draw do
 
   # Student dashboard - requires student login
   get '/home', to: 'student_dashboard#index', as: :public_home
+  get '/home/subjects/:id', to: 'student_dashboard#subject', as: :student_subject
+  get '/home/modules/:id', to: 'student_dashboard#learning_module', as: :student_module
+  get '/home/modules/:id/quiz', to: 'student_dashboard#quiz', as: :student_quiz
+  post '/home/modules/:id/quiz', to: 'student_dashboard#submit_quiz', as: :submit_student_quiz
+  get '/home/modules/:id/result', to: 'student_dashboard#result', as: :student_result
 
   # Join class via token link (for students)
   get '/join/class/:token', to: 'student_dashboard#join_class', as: :join_class

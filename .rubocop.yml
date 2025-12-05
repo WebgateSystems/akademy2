@@ -16,6 +16,7 @@ I18n/GetText/DecorateString:
     - 'lib/tasks/*.rake'
     - 'app/controllers/admin/resources_controller.rb'
     - 'app/controllers/register/wizard_controller.rb'
+    - 'app/controllers/student_dashboard_controller.rb'
     - 'app/controllers/api/v1/student/**/*.rb'
     - 'app/interactors/api/v1/management/show_administration.rb'
     - 'app/interactors/api/v1/management/update_administration.rb'
@@ -80,6 +81,7 @@ Metrics/ClassLength:
   Exclude:
     - "app/controllers/admin/resources_controller.rb"
     - "app/controllers/dashboard_controller.rb"
+    - "app/controllers/student_dashboard_controller.rb"
     - "app/controllers/api/v1/teacher/dashboard_controller.rb"
     - "app/controllers/api/v1/student/dashboard_controller.rb"
     - "app/controllers/register/wizard_controller.rb"
@@ -104,6 +106,7 @@ Metrics/CyclomaticComplexity:
     - "app/interactors/api/v1/events/list_events.rb"
     - "app/controllers/admin/resources_controller.rb"
     - "app/controllers/dashboard_controller.rb"
+    - "app/controllers/student_dashboard_controller.rb"
     - "app/controllers/concerns/handle_status_code.rb"
     - "app/interactors/api/v1/management/create_parent.rb"
     - "app/interactors/api/v1/management/update_parent.rb"
@@ -159,6 +162,7 @@ Metrics/PerceivedComplexity:
     - "db/migrate/*.rb" # Migrations can have complex logic for schema changes
     - "app/controllers/admin/resources_controller.rb"
     - "app/controllers/dashboard_controller.rb"
+    - "app/controllers/student_dashboard_controller.rb"
     - "app/controllers/api/v1/teacher/dashboard_controller.rb"
     - "app/controllers/concerns/handle_status_code.rb"
     - "app/helpers/dashboard_helper.rb"
@@ -223,6 +227,7 @@ RSpec/MultipleMemoizedHelpers:
   Exclude:
     - 'spec/requests/api/v1/contents_spec.rb'
     - 'spec/requests/api/v1/student/**/*.rb'
+    - 'spec/controllers/student_dashboard_controller_spec.rb'
 
 RSpec/ScatteredSetup:
   Exclude:
@@ -238,6 +243,7 @@ RSpec/ScatteredSetup:
 RSpec/LetSetup:
   Exclude:
     - 'spec/controllers/dashboard_controller_spec.rb'
+    - 'spec/controllers/student_dashboard_controller_spec.rb'
     - 'spec/requests/management/controllers_spec.rb'
     - 'spec/interactors/api/v1/management/approve_teacher_spec.rb'
     - 'spec/interactors/api/v1/management/destroy_teacher_spec.rb'

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_04_000000) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_05_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -93,10 +93,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_04_000000) do
     t.integer "order_index", default: 0, null: false
     t.boolean "published", default: false, null: false
     t.boolean "single_flow", default: false, null: false
+    t.string "slug"
     t.string "title", null: false
     t.uuid "unit_id", null: false
     t.datetime "updated_at", null: false
     t.index ["published"], name: "index_learning_modules_on_published"
+    t.index ["slug"], name: "index_learning_modules_on_slug", unique: true
     t.index ["unit_id"], name: "index_learning_modules_on_unit_id"
   end
 

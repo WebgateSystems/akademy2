@@ -1,0 +1,192 @@
+.dashboard-app data-dashboard-app="" data-student-dashboard="true"
+  = render 'student_dashboard/sidebar'
+
+  main.dashboard-main
+    header.dashboard-top-bar
+      button.dashboard-sidebar-toggle type="button" aria-label="Toggle navigation" data-sidebar-toggle=""
+        = image_tag 'icons/social/M/burger.svg', width: 24, height: 24, data: { theme_icon: true }
+      .dashboard-top-heading
+        h1 = @subject.title
+      .dashboard-top-actions
+        = render 'student_dashboard/top_actions'
+
+    section.quiz-result-section
+      .quiz-result-container
+        - if @current_passed
+          .quiz-result-icon 🎉
+          h2.quiz-result-title Gratulacje!
+          p.quiz-result-score
+            | Zdobyłeś 
+            strong = "#{@current_score} pkt"
+            |  w quizie!
+          p.quiz-result-message
+            | Świetna robota — możesz teraz pobrać swój certyfikat i pochwalić się swoim wynikiem! 🤘
+        - else
+          .quiz-result-icon 📚
+          h2.quiz-result-title Spróbuj ponownie
+          p.quiz-result-score
+            | Zdobyłeś 
+            strong = "#{@current_score} pkt"
+            |  w quizie.
+          p.quiz-result-message
+            | Potrzebujesz minimum 80 punktów, żeby zdać. Przejrzyj materiały i spróbuj ponownie!
+
+        .quiz-result-details
+          .quiz-result-stat
+            span.quiz-result-stat__label Poprawne odpowiedzi
+            span.quiz-result-stat__value
+              = @quiz_result.details&.dig('correct_count') || 0
+              | /
+              = @quiz_result.details&.dig('total') || 0
+          .quiz-result-stat
+            span.quiz-result-stat__label Wynik
+            span.quiz-result-stat__value class=(@current_passed ? 'text-success' : 'text-error')
+              = "#{@current_score}%"
+          - if @best_score != @current_score
+            .quiz-result-stat
+              span.quiz-result-stat__label Najlepszy wynik
+              span.quiz-result-stat__value.text-success
+                = "#{@best_score}%"
+
+        .quiz-result-actions
+          = link_to public_home_path, class: 'quiz-result-link'
+            | POMIŃ
+          - if @current_passed
+            / TODO: Certificate download
+            button.quiz-result-btn type="button" disabled=""
+              | POBIERZ CERTYFIKAT
+          - else
+            = link_to student_module_path(@learning_module), class: 'quiz-result-btn'
+              | POWTÓRZ MATERIAŁ
+
+    = render 'shared/app_version'
+
+css:
+  .quiz-result-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 24px;
+    min-height: calc(100vh - 80px);
+  }
+
+  .quiz-result-container {
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    padding: 48px 32px;
+    background: var(--surface-primary);
+    border: 1px solid var(--border-muted);
+    border-radius: 24px;
+  }
+
+  .quiz-result-icon {
+    font-size: 80px;
+    margin-bottom: 24px;
+    line-height: 1;
+  }
+
+  .quiz-result-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--content-primary);
+    margin: 0 0 16px;
+  }
+
+  .quiz-result-score {
+    font-size: 18px;
+    color: var(--content-secondary);
+    margin: 0 0 8px;
+  }
+
+  .quiz-result-score strong {
+    color: var(--button-primary);
+  }
+
+  .quiz-result-message {
+    font-size: 16px;
+    color: var(--content-tertiary);
+    margin: 0 0 32px;
+    line-height: 1.5;
+  }
+
+  .quiz-result-details {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 32px;
+    padding: 20px;
+    background: var(--surface-secondary);
+    border-radius: 12px;
+  }
+
+  .quiz-result-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .quiz-result-stat__label {
+    font-size: 12px;
+    color: var(--content-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .quiz-result-stat__value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--content-primary);
+  }
+
+  .quiz-result-stat__value.text-success {
+    color: var(--state-success);
+  }
+
+  .quiz-result-stat__value.text-error {
+    color: var(--state-error);
+  }
+
+  .quiz-result-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .quiz-result-link {
+    padding: 14px 32px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--content-secondary);
+    text-decoration: none;
+    border: 1px solid var(--border-muted);
+    border-radius: 8px;
+    transition: background 0.2s ease;
+  }
+
+  .quiz-result-link:hover {
+    background: var(--surface-secondary);
+  }
+
+  .quiz-result-btn {
+    padding: 14px 32px;
+    font-size: 14px;
+    font-weight: 600;
+    background: var(--button-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+
+  .quiz-result-btn:hover:not(:disabled) {
+    background: var(--button-primary-hover);
+  }
+
+  .quiz-result-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+

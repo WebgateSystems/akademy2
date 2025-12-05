@@ -78,6 +78,12 @@ pl:
         invalid: "ma nieprawidłowy format"
         record_invalid: "jest nieprawidłowy"
 
+  student_dashboard:
+    alerts:
+      subject_not_found: "Przedmiot nie został znaleziony."
+      module_not_found: "Moduł nie został znaleziony."
+      access_denied: "Nie masz dostępu do tego modułu."
+
   management:
     years:
       processing: "Przetwarzanie..."

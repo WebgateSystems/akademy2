@@ -1,0 +1,190 @@
+.dashboard-app data-dashboard-app="" data-student-dashboard="true"
+  = render 'student_dashboard/sidebar'
+
+  main.dashboard-main
+    header.dashboard-top-bar
+      button.dashboard-sidebar-toggle type="button" aria-label="Toggle navigation" data-sidebar-toggle=""
+        = image_tag 'icons/social/M/burger.svg', width: 24, height: 24, data: { theme_icon: true }
+      .dashboard-top-heading
+        = link_to student_subject_path(@subject), class: 'dashboard-back-link', aria: { label: 'Powrót do modułów' }
+          = image_tag 'icons/social/M/back.svg', width: 24, height: 24, data: { theme_icon: true }
+        h1 = @learning_module.title
+      .dashboard-top-actions
+        = render 'student_dashboard/top_actions'
+
+    section.module-content-section
+      - @contents.each do |content|
+        - case content.content_type
+        - when 'video'
+          .module-content-item.module-content-item--video data-content-id=content.id
+            h2.module-content-title = content.title
+            .video-player-container
+              - if content.youtube_url.present?
+                - youtube_id = content.youtube_url.match(/(?:v=|\/embed\/|youtu\.be\/)([a-zA-Z0-9_-]+)/i)&.[](1)
+                - if youtube_id
+                  iframe.video-player src="https://www.youtube.com/embed/#{youtube_id}" title=content.title allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""
+              - elsif content.file&.url.present?
+                video.video-player controls="" poster=(content.poster&.url)
+                  source src=content.file.url type="video/mp4"
+                  - if content.subtitles&.url.present?
+                    track kind="subtitles" src=content.subtitles.url srclang="pl" label="Polski"
+              - else
+                .video-placeholder
+                  = image_tag 'icons/social/L/video.svg', width: 120, height: 120
+                  p Wideo niedostępne
+
+        - when 'infographic'
+          .module-content-item.module-content-item--infographic data-content-id=content.id
+            h2.module-content-title = content.title
+            .infographic-container
+              - if content.file&.url.present?
+                = image_tag content.file.url, alt: content.title, class: 'infographic-image'
+              - else
+                .infographic-placeholder
+                  p Infografika niedostępna
+
+      .module-actions
+        = link_to student_quiz_path(@learning_module), class: 'quiz-start-btn'
+          | Rozpocznij Quiz
+          span.quiz-start-icon →
+
+    = render 'shared/app_version'
+
+css:
+  .module-content-section {
+    padding: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .module-content-item {
+    margin-bottom: 32px;
+  }
+
+  .module-content-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 16px;
+    color: var(--content-primary);
+  }
+
+  .video-player-container {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: var(--surface-secondary);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .video-player {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .video-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--content-tertiary);
+  }
+
+  .video-placeholder img {
+    opacity: 0.3;
+    margin-bottom: 16px;
+  }
+
+  .infographic-container {
+    background: var(--surface-secondary);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .infographic-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .infographic-placeholder {
+    padding: 48px;
+    color: var(--content-tertiary);
+  }
+
+  .module-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+  }
+
+  .quiz-start-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 32px;
+    background: var(--button-primary);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .quiz-start-btn:hover {
+    background: var(--button-primary-hover);
+    transform: translateY(-2px);
+  }
+
+  .quiz-start-icon {
+    font-size: 20px;
+  }
+
+javascript:
+  // Track video viewing
+  document.addEventListener('DOMContentLoaded', () => {
+    const videos = document.querySelectorAll('.video-player');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+    videos.forEach(video => {
+      const contentId = video.closest('[data-content-id]')?.dataset.contentId;
+
+      video.addEventListener('play', () => {
+        if (contentId && csrfToken) {
+          fetch('/api/v1/student/events', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': csrfToken
+            },
+            body: JSON.stringify({
+              event_type: 'video_started',
+              content_id: contentId,
+              learning_module_id: '#{@learning_module.id}'
+            })
+          });
+        }
+      });
+
+      video.addEventListener('ended', () => {
+        if (contentId && csrfToken) {
+          fetch('/api/v1/student/events', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': csrfToken
+            },
+            body: JSON.stringify({
+              event_type: 'video_completed',
+              content_id: contentId,
+              learning_module_id: '#{@learning_module.id}'
+            })
+          });
+        }
+      });
+    });
+  });
+

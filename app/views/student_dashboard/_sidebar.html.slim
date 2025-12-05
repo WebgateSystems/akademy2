@@ -8,14 +8,15 @@ aside.dashboard-sidebar
       = image_tag "icons/social/M/open-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
 
   nav.dashboard-nav aria-label="Primary"
-    = link_to public_home_path, class: "dashboard-nav__button #{'is-active' if request.path == public_home_path}", "aria-current": (request.path == public_home_path ? "page" : nil) do
-      i.bi.bi-mortarboard aria-hidden="true"
+    - courses_active = request.path.start_with?(public_home_path)
+    = link_to public_home_path, class: "dashboard-nav__button #{'is-active' if courses_active}", "aria-current": (courses_active ? "page" : nil) do
+      = image_tag "icons/social/M/sidebar_courses.svg", alt: "", width: 20, height: 20, "aria-hidden": true, "data-theme-icon": true
       span.dashboard-nav__label Courses
     = link_to "#", class: "dashboard-nav__button", onclick: "return false;" do
-      i.bi.bi-collection-play aria-hidden="true"
+      = image_tag "icons/social/M/sidebar_videos.svg", alt: "", width: 20, height: 20, "aria-hidden": true, "data-theme-icon": true
       span.dashboard-nav__label School videos
     = link_to "#", class: "dashboard-nav__button", onclick: "return false;" do
-      i.bi.bi-person-fill aria-hidden="true"
+      = image_tag "icons/social/M/sidebar_account.svg", alt: "", width: 20, height: 20, "aria-hidden": true, "data-theme-icon": true
       span.dashboard-nav__label Account
 
 .dashboard-sidebar-overlay data-sidebar-overlay="" aria-hidden="true"

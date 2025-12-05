@@ -2996,6 +2996,16 @@ h5 {
   background: var(--green-30);
 }
 
+/* Completed state - grey card with colored progress label */
+.class-result--completed {
+  background: var(--surface-tertiary, #e8e8e8);
+}
+
+/* Colored progress label for completed cards - uses inline style for background */
+.class-result__progress--colored {
+  color: white !important;
+}
+
 .quiz-results {
   margin-top: 48px;
   overflow-x: auto;

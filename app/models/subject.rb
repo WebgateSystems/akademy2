@@ -5,6 +5,11 @@ class Subject < ApplicationRecord
   # Icon jako plik (SVG, PNG, JPG) uploadowany przez CarrierWave
   mount_uploader :icon, BaseUuidUploader
 
+  # Use slug for URL
+  def to_param
+    slug
+  end
+
   # Eager loading for destroy to avoid N+1 queries
   def self.with_associations_for_destroy
     includes(units: { learning_modules: :contents })
