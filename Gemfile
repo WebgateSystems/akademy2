@@ -22,6 +22,8 @@ gem 'interactor', '~> 3.0'
 gem 'jsbundling-rails', '~> 1.3'
 gem 'jsonapi-serializer'
 gem 'jwt', '~> 3.1.2'
+gem 'mjml-rails', '~> 4.12'
+gem 'mrml', '~> 1.4' # Rust MJML parser - faster, no Node.js required
 gem 'oj', '~> 3.16'
 gem 'pry'
 gem 'pundit', '~> 2.5'

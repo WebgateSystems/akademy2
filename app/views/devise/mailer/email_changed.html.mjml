@@ -1,0 +1,64 @@
+<mjml>
+  <mj-head>
+    <mj-title>Email zmieniony – AKAdemy 2.0</mj-title>
+    <mj-preview>Twój adres email został zmieniony 📧</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" />
+      <mj-text font-size="16px" line-height="1.6" color="#334155" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f1f5f9">
+    <!-- Header -->
+    <mj-section background-color="#F0F0F0" padding="24px 20px">
+      <mj-column>
+        <mj-image src="<%= embedded_logo_data_uri %>" alt="AKAdemy 2.0" width="200px" />
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content -->
+    <mj-section background-color="#ffffff" padding="32px 24px" border-radius="0 0 16px 16px">
+      <mj-column>
+        <mj-text align="center" font-size="48px" padding-bottom="16px">
+          📧
+        </mj-text>
+
+        <mj-text align="center" font-size="24px" font-weight="700" color="#1e293b" padding-bottom="8px">
+          Email został zmieniony
+        </mj-text>
+
+        <mj-text align="center" padding-bottom="24px">
+          Hej, <%= @resource.first_name.presence || 'Uczniu' %>!<br/>
+          Informujemy, że adres email Twojego konta w AKAdemy został właśnie zmieniony.
+        </mj-text>
+
+        <mj-text align="center" font-size="15px" color="#334155" padding-bottom="8px">
+          <strong>Nowy adres email:</strong>
+        </mj-text>
+
+        <mj-text align="center" font-size="20px" font-weight="600" color="#4A90E2" padding="16px" background-color="#F2F7FD" border-radius="8px">
+          <%= @resource.unconfirmed_email || @resource.email %>
+        </mj-text>
+
+        <mj-divider border-color="#e2e8f0" border-width="1px" padding="24px 0" />
+
+        <mj-text font-size="14px" color="#dc2626" background-color="#fef2f2" padding="16px" border-radius="8px">
+          <strong>🚨 To nie Ty zmieniałeś email?</strong><br/>
+          Natychmiast skontaktuj się z nauczycielem lub napisz do nas na <a href="mailto:hello@akademy.edu.pl" style="color: #4A90E2;">hello@akademy.edu.pl</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section padding="24px 20px">
+      <mj-column>
+        <mj-text align="center" font-size="13px" color="#64748b">
+          Ten email został wysłany automatycznie z platformy AKAdemy 2.0.<br/>
+          Jeśli masz pytania, napisz do nas: <a href="mailto:hello@akademy.edu.pl" style="color: #4A90E2; text-decoration: none;">hello@akademy.edu.pl</a>
+        </mj-text>
+        <mj-text align="center" font-size="12px" color="#94a3b8" padding-top="8px">
+          © <%= Date.current.year %> <a href="https://webgate.pro" style="color: #94a3b8; text-decoration: none;">Webgate Systems LTD</a> · <a href="https://www.gnu.org/licenses/agpl-3.0.html" style="color: #94a3b8; text-decoration: none;">AGPLv3</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

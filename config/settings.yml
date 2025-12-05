@@ -25,3 +25,6 @@ services:
     user: <%= ENV['SMTP_USER'] || 'bot@akademy.edu.pl' %>
     password: <%= ENV['SMTP_PASSWORD'] || 'hard_password' %>
     authentication: <%= ENV['SMTP_AUTH'] || 'plain' %>
+    from: 'AKAdemy 2.0 <bot@akademy.edu.pl>'
+    reply_to: 'hello@akademy.edu.pl'
+  

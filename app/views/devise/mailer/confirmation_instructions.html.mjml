@@ -1,0 +1,78 @@
+<mjml>
+  <mj-head>
+    <mj-title>Potwierdź konto – AKAdemy 2.0</mj-title>
+    <mj-preview>Potwierdź swoje konto w AKAdemy 2.0 ✨</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" />
+      <mj-text font-size="16px" line-height="1.6" color="#334155" />
+      <mj-button background-color="#4A90E2" color="#ffffff" font-size="18px" font-weight="600" border-radius="12px" inner-padding="16px 32px" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f1f5f9">
+    <!-- Header -->
+    <mj-section background-color="#F0F0F0" padding="24px 20px">
+      <mj-column>
+        <mj-image src="<%= embedded_logo_data_uri %>" alt="AKAdemy 2.0" width="200px" />
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content -->
+    <mj-section background-color="#ffffff" padding="32px 24px" border-radius="0 0 16px 16px">
+      <mj-column>
+        <mj-text align="center" font-size="48px" padding-bottom="16px">
+          🎉
+        </mj-text>
+
+        <mj-text align="center" font-size="24px" font-weight="700" color="#1e293b" padding-bottom="8px">
+          Witaj w AKAdemy, <%= @resource.first_name.presence || 'Uczniu' %>!
+        </mj-text>
+
+        <mj-text align="center" padding-bottom="24px">
+          Super, że jesteś! 🚀<br/>
+          Jeszcze tylko jeden krok, żeby aktywować Twoje konto.
+        </mj-text>
+
+        <mj-button href="<%= confirmation_url(@resource, confirmation_token: @token) %>">
+          ✅ Aktywuj konto
+        </mj-button>
+
+        <mj-text align="center" padding-top="24px" font-size="14px" color="#64748b">
+          Kliknij przycisk powyżej, a potem możesz się zalogować!
+        </mj-text>
+
+        <mj-divider border-color="#e2e8f0" border-width="1px" padding="24px 0" />
+
+        <mj-text align="center" font-size="15px" font-weight="600" color="#334155">
+          Co Cię czeka w AKAdemy?
+        </mj-text>
+
+        <mj-text font-size="14px" color="#64748b" padding-top="12px">
+          📚 <strong>Tematy i moduły</strong> – ucz się w swoim tempie<br/><br/>
+          🎬 <strong>Filmy i infografiki</strong> – nauka przez zabawę<br/><br/>
+          🏆 <strong>Quizy z certyfikatem</strong> – zdobywaj nagrody za wiedzę<br/><br/>
+          📴 <strong>Tryb offline</strong> – ucz się nawet bez internetu!
+        </mj-text>
+
+        <mj-divider border-color="#e2e8f0" border-width="1px" padding="24px 0" />
+
+        <mj-text font-size="14px" color="#94a3b8">
+          <strong>🤔 Nie zakładałeś konta?</strong><br/>
+          Zignoruj ten email, a konto nie zostanie aktywowane.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section padding="24px 20px">
+      <mj-column>
+        <mj-text align="center" font-size="13px" color="#64748b">
+          Ten email został wysłany automatycznie z platformy AKAdemy 2.0.<br/>
+          Jeśli masz pytania, napisz do nas: <a href="mailto:hello@akademy.edu.pl" style="color: #4A90E2; text-decoration: none;">hello@akademy.edu.pl</a>
+        </mj-text>
+        <mj-text align="center" font-size="12px" color="#94a3b8" padding-top="8px">
+          © <%= Date.current.year %> <a href="https://webgate.pro" style="color: #94a3b8; text-decoration: none;">Webgate Systems LTD</a> · <a href="https://www.gnu.org/licenses/agpl-3.0.html" style="color: #94a3b8; text-decoration: none;">AGPLv3</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
