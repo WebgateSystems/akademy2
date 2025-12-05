@@ -55,6 +55,11 @@ group :development, :test do
   gem 'rspec-rails', '~> 8.0'
 end
 
+group :production do
+  gem 'bcrypt_pbkdf', '~> 1.0'
+  gem 'ed25519', '~> 1.2'
+end
+
 group :test do
   gem 'database_cleaner-active_record'
   gem 'json_matchers'

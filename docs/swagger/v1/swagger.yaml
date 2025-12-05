@@ -71,17 +71,28 @@ paths:
         content:
           application/json:
             schema:
+              type: object
               properties:
                 user:
-                  type: object
-                  properties:
-                    email:
-                      type: string
-                    password:
-                      type: string
-              required:
-              - email
-              - password
+                  oneOf:
+                  - type: object
+                    properties:
+                      email:
+                        type: string
+                      password:
+                        type: string
+                    required:
+                    - email
+                    - password
+                  - type: object
+                    properties:
+                      phone:
+                        type: string
+                      password:
+                        type: string
+                    required:
+                    - phone
+                    - password
   "/api/v1/certificates/{id}":
     get:
       summary: Fetch certificate info
