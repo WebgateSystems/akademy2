@@ -1,6 +1,92 @@
 RSpec.describe Content, type: :model do
   describe 'associations' do
     it { is_expected.to belong_to(:learning_module) }
+    it { is_expected.to have_many(:likes).class_name('ContentLike').dependent(:destroy) }
+    it { is_expected.to have_many(:liking_users).through(:likes).source(:user) }
+  end
+
+  describe '#likeable?' do
+    let(:subject_record) { create(:subject, school_id: nil) }
+    let(:unit) { create(:unit, subject: subject_record) }
+    let(:learning_module) { create(:learning_module, unit: unit) }
+
+    it 'returns true for video content' do
+      content = create(:content, learning_module: learning_module, content_type: 'video')
+      expect(content.likeable?).to be true
+    end
+
+    it 'returns true for infographic content' do
+      content = create(:content, learning_module: learning_module, content_type: 'infographic')
+      expect(content.likeable?).to be true
+    end
+
+    it 'returns false for quiz content' do
+      content = create(:content, learning_module: learning_module, content_type: 'quiz')
+      expect(content.likeable?).to be false
+    end
+  end
+
+  describe '#liked_by?' do
+    let(:user) { create(:user) }
+    let(:subject_record) { create(:subject, school_id: nil) }
+    let(:unit) { create(:unit, subject: subject_record) }
+    let(:learning_module) { create(:learning_module, unit: unit) }
+    let(:content) { create(:content, learning_module: learning_module, content_type: 'video') }
+
+    it 'returns false when user is nil' do
+      expect(content.liked_by?(nil)).to be false
+    end
+
+    it 'returns false when user has not liked' do
+      expect(content.liked_by?(user)).to be false
+    end
+
+    it 'returns true when user has liked' do
+      ContentLike.create!(content: content, user: user)
+      expect(content.liked_by?(user)).to be true
+    end
+  end
+
+  describe '#toggle_like!' do
+    let(:user) { create(:user) }
+    let(:subject_record) { create(:subject, school_id: nil) }
+    let(:unit) { create(:unit, subject: subject_record) }
+    let(:learning_module) { create(:learning_module, unit: unit) }
+
+    context 'when content is likeable' do
+      let(:content) { create(:content, learning_module: learning_module, content_type: 'video') }
+
+      it 'creates like when not already liked' do
+        expect { content.toggle_like!(user) }.to change(ContentLike, :count).by(1)
+        expect(content.toggle_like!(user)).to be false # Second call removes like
+      end
+
+      it 'removes like when already liked' do
+        ContentLike.create!(content: content, user: user)
+        expect { content.toggle_like!(user) }.to change(ContentLike, :count).by(-1)
+      end
+
+      it 'returns true when creating like' do
+        expect(content.toggle_like!(user)).to be true
+      end
+
+      it 'returns false when removing like' do
+        ContentLike.create!(content: content, user: user)
+        expect(content.toggle_like!(user)).to be false
+      end
+    end
+
+    context 'when content is not likeable' do
+      let(:content) { create(:content, learning_module: learning_module, content_type: 'quiz') }
+
+      it 'returns false' do
+        expect(content.toggle_like!(user)).to be false
+      end
+
+      it 'does not create like' do
+        expect { content.toggle_like!(user) }.not_to change(ContentLike, :count)
+      end
+    end
   end
 
   describe 'columns' do

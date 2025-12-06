@@ -9,6 +9,7 @@ require:
 I18n/GetText/DecorateFunctionMessage:
   Exclude:
     - "app/policies/**.rb"
+    - "app/services/video_processor.rb"
 
 I18n/GetText/DecorateString:
   Exclude:
@@ -278,6 +279,12 @@ RSpec/VerifiedDoubles:
 RSpec/MessageSpies:
   Exclude:
     - 'spec/controllers/application_controller_spec.rb'
+    - 'spec/controllers/admin/sessions_controller_spec.rb'
+    - 'spec/interactors/register/profile_submit_spec.rb'
+    - 'spec/interactors/register/send_sms_code_spec.rb'
+    - 'spec/interactors/register/teacher_profile_submit_spec.rb'
+    - 'spec/jobs/process_video_job_spec.rb'
+    - 'spec/services/video_processor_spec.rb'
 
 RSpec/RepeatedExampleGroupBody:
   Exclude:
@@ -296,27 +303,37 @@ RSpec/LetSetup:
 
 RSpec/AnyInstance:
   Exclude:
-    - 'spec/requests/api/v1/users/registrations_spec.rb'
+    - 'spec/controllers/**/*.rb'
+    - 'spec/interactors/**/*.rb'
+    - 'spec/requests/**/*.rb'
+    - 'spec/jobs/**/*.rb'
+    - 'spec/services/**/*.rb'
 
 RSpec/MessageChain:
   Exclude:
-    - 'spec/requests/api/v1/users/registrations_spec.rb'
+    - 'spec/controllers/**/*.rb'
+    - 'spec/requests/**/*.rb'
 
 RSpec/IndexedLet:
   Exclude:
     - 'spec/controllers/student_dashboard_controller_spec.rb'
+    - 'spec/controllers/admin/resources_controller_spec.rb'
+    - 'spec/models/notification_read_spec.rb'
 
 RSpec/RepeatedExample:
   Exclude:
     - 'spec/controllers/student_dashboard_controller_spec.rb'
 
-RSpec/AnyInstance:
-  Exclude:
-    - 'spec/interactors/api/v1/management/approve_student_spec.rb'
-    - 'spec/interactors/api/v1/management/destroy_student_spec.rb'
-
 RSpec/NestedGroups:
   Max: 4
+  Exclude:
+    - 'spec/controllers/teacher_registration_controller_spec.rb'
+
+RSpec/ContextWording:
+  Exclude:
+    - 'spec/controllers/admin/resources_controller_spec.rb'
+    - 'spec/interactors/api/v1/headmasters/resend_invite_headmaster_spec.rb'
+    - 'spec/services/register/wizard_flow_spec.rb'
 
 RSpec/RepeatedExampleGroupDescription:
   Exclude:

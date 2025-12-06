@@ -140,10 +140,22 @@ class DashboardController < ApplicationController
   # POST /dashboard/notifications/mark_as_read
   def mark_notifications_as_read
     notification_ids = params[:notification_ids]
+    notification_ids = JSON.parse(notification_ids) if notification_ids.is_a?(String)
 
-    Notification.where(id: notification_ids).update_all(read_at: Time.current) if notification_ids.present?
+    marked_count = 0
+    if notification_ids.present?
+      notification_ids = Array(notification_ids) unless notification_ids.is_a?(Array)
 
-    render json: { success: true, marked_count: notification_ids&.count || 0 }
+      # Use the same query logic as in notifications action to ensure
+      # teachers can only mark their own school's notifications
+      school = current_user.school
+      base_query = Notification.for_school(school).for_role('teacher')
+
+      # Only update notifications that match the query AND are in the provided IDs
+      marked_count = base_query.where(id: notification_ids).update_all(read_at: Time.current)
+    end
+
+    render json: { success: true, marked_count: marked_count }
   end
 
   # GET /dashboard/pupil_videos

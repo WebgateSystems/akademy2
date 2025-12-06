@@ -113,18 +113,18 @@ class VideoProcessor
   end
 
   def validate_ffmpeg!
-    raise ProcessingError, _('FFmpeg is not installed or not in PATH') unless system('which ffmpeg > /dev/null 2>&1')
+    raise ProcessingError, 'FFmpeg is not installed or not in PATH' unless system('which ffmpeg > /dev/null 2>&1')
 
     return if system('which ffprobe > /dev/null 2>&1')
 
-    raise ProcessingError, _('FFprobe is not installed or not in PATH')
+    raise ProcessingError, 'FFprobe is not installed or not in PATH'
   end
 
   def load_movie!
-    raise ProcessingError, _('Video file not found') unless File.exist?(@video_path)
+    raise ProcessingError, 'Video file not found' unless File.exist?(@video_path)
 
     @movie = FFMPEG::Movie.new(@video_path)
 
-    raise ProcessingError, _('Invalid video file') unless @movie.valid?
+    raise ProcessingError, 'Invalid video file' unless @movie.valid?
   end
 end

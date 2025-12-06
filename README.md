@@ -62,7 +62,7 @@ brew install ffmpeg
 
 **Ubuntu/Debian:**
 ```bash
-sudo apt-get install ffmpeg
+sudo apt-get install ffmpeg mediainfo
 ```
 
 **CentOS/RHEL:**

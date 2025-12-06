@@ -462,4 +462,117 @@ RSpec.describe DashboardController, type: :request do
       expect(response).to redirect_to(new_user_session_path)
     end
   end
+
+  describe 'POST #mark_notifications_as_read' do
+    before { sign_in teacher }
+
+    let!(:teacher_notification) do
+      Notification.create!(
+        school: school,
+        target_role: 'teacher',
+        notification_type: 'student_video_pending',
+        title: 'Teacher notification',
+        message: 'Test message'
+      )
+    end
+
+    context 'with valid notification IDs from own school' do
+      it 'marks notifications as read' do
+        post mark_dashboard_notifications_as_read_path,
+             params: { notification_ids: [teacher_notification.id] },
+             as: :json
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['success']).to be true
+        expect(json['marked_count']).to eq(1)
+        expect(teacher_notification.reload.read_at).to be_present
+      end
+    end
+
+    context 'with notification from another school (security test)' do
+      let(:other_school) { create(:school) }
+      let!(:other_school_notification) do
+        Notification.create!(
+          school: other_school,
+          target_role: 'teacher',
+          notification_type: 'student_video_pending',
+          title: 'Other school notification',
+          message: 'Should not be markable'
+        )
+      end
+
+      it 'does not mark notifications from other schools' do
+        post mark_dashboard_notifications_as_read_path,
+             params: { notification_ids: [other_school_notification.id] },
+             as: :json
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['marked_count']).to eq(0)
+        expect(other_school_notification.reload.read_at).to be_nil
+      end
+    end
+
+    context 'with notification for different role (security test)' do
+      let!(:student_notification) do
+        Notification.create!(
+          school: school,
+          target_role: 'student',
+          notification_type: 'quiz_completed',
+          title: 'Student notification',
+          message: 'Should not be markable by teacher'
+        )
+      end
+
+      it 'does not mark notifications for other roles' do
+        post mark_dashboard_notifications_as_read_path,
+             params: { notification_ids: [student_notification.id] },
+             as: :json
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['marked_count']).to eq(0)
+        expect(student_notification.reload.read_at).to be_nil
+      end
+    end
+
+    context 'with mixed valid and invalid notification IDs' do
+      let(:other_school) { create(:school) }
+      let!(:other_notification) do
+        Notification.create!(
+          school: other_school,
+          target_role: 'teacher',
+          notification_type: 'student_video_pending',
+          title: 'Other school notification',
+          message: 'Should not be markable'
+        )
+      end
+
+      it 'only marks valid notifications' do
+        post mark_dashboard_notifications_as_read_path,
+             params: { notification_ids: [teacher_notification.id, other_notification.id] },
+             as: :json
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['marked_count']).to eq(1)
+        expect(teacher_notification.reload.read_at).to be_present
+        expect(other_notification.reload.read_at).to be_nil
+      end
+    end
+
+    context 'with empty notification_ids' do
+      it 'returns success with zero count' do
+        post mark_dashboard_notifications_as_read_path,
+             params: { notification_ids: [] },
+             as: :json
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['success']).to be true
+        expect(json['marked_count']).to eq(0)
+      end
+    end
+  end
 end
