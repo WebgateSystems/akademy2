@@ -47,6 +47,7 @@ Layout/LineLength:
   Exclude:
     - "config/initializers/*.rb"
     - 'db/seeds/**/*.rb'
+    - 'spec/controllers/student_dashboard_controller_spec.rb'
 
 Lint/DuplicateHashKey:
   Exclude:
@@ -76,6 +77,7 @@ Metrics/BlockLength:
     - "app/serializers/subject_complete_serializer.rb"
     - "app/serializers/parent_serializer.rb"
     - "app/controllers/dashboard_controller.rb"
+    - "app/services/notification_service.rb"
 
 Metrics/ClassLength:
   Exclude:
@@ -84,6 +86,8 @@ Metrics/ClassLength:
     - "app/controllers/student_dashboard_controller.rb"
     - "app/controllers/api/v1/teacher/dashboard_controller.rb"
     - "app/controllers/api/v1/student/dashboard_controller.rb"
+    - "app/controllers/api/v1/student/videos_controller.rb"
+    - "app/controllers/api/v1/teacher/videos_controller.rb"
     - "app/controllers/register/wizard_controller.rb"
     - "app/interactors/api/v1/management/create_class.rb"
     - "app/interactors/api/v1/management/update_class.rb"
@@ -98,6 +102,7 @@ Metrics/ClassLength:
     - "app/services/notification_service.rb"
     - "app/controllers/application_controller.rb"
     - "app/controllers/users/sessions_controller.rb"
+    - "app/models/student_video.rb"
 
 Metrics/CyclomaticComplexity:
   Max: 8
@@ -114,6 +119,8 @@ Metrics/CyclomaticComplexity:
     - "app/controllers/users/sessions_controller.rb"
     - "app/controllers/api/v1/student/events_controller.rb"
     - "app/controllers/api/v1/student/quiz_results_controller.rb"
+    - "app/controllers/api/v1/student/videos_controller.rb"
+    - "app/jobs/process_video_job.rb"
 
 Metrics/MethodLength:
   Max: 15
@@ -155,6 +162,10 @@ Metrics/MethodLength:
     - 'app/controllers/api/v1/student/dashboard_controller.rb'
     - 'app/controllers/api/v1/student/events_controller.rb'
     - 'app/controllers/api/v1/student/quiz_results_controller.rb'
+    - 'app/controllers/api/v1/student/videos_controller.rb'
+    - 'app/controllers/api/v1/teacher/videos_controller.rb'
+    - 'app/jobs/process_video_job.rb'
+    - 'app/models/student_video.rb'
 
 Metrics/PerceivedComplexity:
   Max: 8
@@ -174,6 +185,8 @@ Metrics/PerceivedComplexity:
     - "app/controllers/users/sessions_controller.rb"
     - "app/controllers/api/v1/student/events_controller.rb"
     - "app/controllers/api/v1/student/quiz_results_controller.rb"
+    - "app/controllers/api/v1/student/videos_controller.rb"
+    - "app/jobs/process_video_job.rb"
 
 Metrics/BlockNesting:
   Max: 3
@@ -207,6 +220,9 @@ Rails/SkipsModelValidations:
     - "spec/**/*.rb" # update_column is intentionally used in tests to simulate edge cases
     - "app/interactors/api/v1/management/destroy_student.rb" # Intentional: clearing school_id without triggering callbacks
     - "app/interactors/api/v1/management/destroy_teacher.rb" # Intentional: clearing school_id without triggering callbacks
+    - "app/controllers/dashboard_controller.rb" # Intentional: bulk update for marking notifications as read
+    - "app/controllers/student_dashboard_controller.rb" # Intentional: bulk update for marking notifications as read
+    - "app/jobs/process_video_job.rb" # Intentional: updating duration without triggering callbacks
 
 Rails/HelperInstanceVariable:
   Exclude:
@@ -266,6 +282,33 @@ RSpec/MessageSpies:
 RSpec/RepeatedExampleGroupBody:
   Exclude:
     - 'spec/controllers/application_controller_spec.rb'
+
+RSpec/MultipleDescribes:
+  Exclude:
+    - 'spec/requests/api/v1/**/*.rb'
+
+RSpec/LetSetup:
+  Exclude:
+    - 'spec/controllers/**/*.rb'
+    - 'spec/interactors/**/*.rb'
+    - 'spec/requests/**/*.rb'
+    - 'spec/models/**/*.rb'
+
+RSpec/AnyInstance:
+  Exclude:
+    - 'spec/requests/api/v1/users/registrations_spec.rb'
+
+RSpec/MessageChain:
+  Exclude:
+    - 'spec/requests/api/v1/users/registrations_spec.rb'
+
+RSpec/IndexedLet:
+  Exclude:
+    - 'spec/controllers/student_dashboard_controller_spec.rb'
+
+RSpec/RepeatedExample:
+  Exclude:
+    - 'spec/controllers/student_dashboard_controller_spec.rb'
 
 RSpec/AnyInstance:
   Exclude:

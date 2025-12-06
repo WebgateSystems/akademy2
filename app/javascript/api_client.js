@@ -22,6 +22,11 @@ class ApiClient {
     if (dashboardTokenMeta) {
       return dashboardTokenMeta.getAttribute('content');
     }
+    // Check for student-token (for student dashboard)
+    const studentTokenMeta = document.querySelector('meta[name="student-token"]');
+    if (studentTokenMeta) {
+      return studentTokenMeta.getAttribute('content');
+    }
     return null;
   }
 
@@ -106,6 +111,10 @@ class ApiClient {
 
   async post(path, data) {
     return this.request('POST', path, data);
+  }
+
+  async put(path, data) {
+    return this.request('PUT', path, data);
   }
 
   async patch(path, data) {

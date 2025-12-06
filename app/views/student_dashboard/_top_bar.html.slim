@@ -11,6 +11,10 @@ header.dashboard-top-bar
     - else
       | Panel ucznia
   .dashboard-top-actions
+    = link_to student_notifications_path, class: "icon-pill", "aria-label": "Powiadomienia" do
+      - if @notifications_count && @notifications_count > 0
+        span.notification-counter aria-hidden="true" = @notifications_count
+      = image_tag "icons/social/M/notifications.svg", alt: "", "data-theme-icon": true
     = render 'shared/theme_toggle'
     - if current_user
       .settings-control

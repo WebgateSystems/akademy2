@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_05_140000) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_05_220000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -40,6 +40,16 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_05_140000) do
     t.index ["quiz_result_id"], name: "index_certificates_on_quiz_result_id", unique: true
   end
 
+  create_table "content_likes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "content_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["content_id"], name: "index_content_likes_on_content_id"
+    t.index ["user_id", "content_id"], name: "index_content_likes_on_user_id_and_content_id", unique: true
+    t.index ["user_id"], name: "index_content_likes_on_user_id"
+  end
+
   create_table "contents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "content_type", null: false
     t.datetime "created_at", null: false
@@ -48,6 +58,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_05_140000) do
     t.string "file_format"
     t.string "file_hash"
     t.uuid "learning_module_id", null: false
+    t.integer "likes_count", default: 0, null: false
     t.integer "order_index", default: 0, null: false
     t.jsonb "payload", default: {}, null: false
     t.string "poster"
@@ -233,6 +244,47 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_05_140000) do
     t.index ["student_id", "school_class_id"], name: "index_student_enrollments_unique", unique: true
   end
 
+  create_table "student_video_likes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.uuid "student_video_id", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["student_video_id", "user_id"], name: "index_student_video_likes_on_student_video_id_and_user_id", unique: true
+    t.index ["student_video_id"], name: "index_student_video_likes_on_student_video_id"
+    t.index ["user_id"], name: "index_student_video_likes_on_user_id"
+  end
+
+  create_table "student_videos", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.integer "duration_sec"
+    t.string "file", null: false
+    t.bigint "file_size_bytes"
+    t.integer "likes_count", default: 0, null: false
+    t.datetime "moderated_at"
+    t.uuid "moderated_by_id"
+    t.text "rejection_reason"
+    t.uuid "school_id"
+    t.string "status", default: "pending", null: false
+    t.uuid "subject_id", null: false
+    t.string "thumbnail"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.string "youtube_id"
+    t.datetime "youtube_uploaded_at"
+    t.string "youtube_url"
+    t.index ["created_at"], name: "index_student_videos_on_created_at"
+    t.index ["moderated_by_id"], name: "index_student_videos_on_moderated_by_id"
+    t.index ["school_id", "status"], name: "index_student_videos_on_school_id_and_status"
+    t.index ["school_id"], name: "index_student_videos_on_school_id"
+    t.index ["status"], name: "index_student_videos_on_status"
+    t.index ["subject_id", "status"], name: "index_student_videos_on_subject_id_and_status"
+    t.index ["subject_id"], name: "index_student_videos_on_subject_id"
+    t.index ["user_id", "status"], name: "index_student_videos_on_user_id_and_status"
+    t.index ["user_id"], name: "index_student_videos_on_user_id"
+  end
+
   create_table "subjects", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "color_dark"
     t.string "color_light"
@@ -342,6 +394,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_05_140000) do
 
   add_foreign_key "academic_years", "schools", on_delete: :cascade
   add_foreign_key "certificates", "quiz_results", on_delete: :cascade
+  add_foreign_key "content_likes", "contents"
+  add_foreign_key "content_likes", "users"
   add_foreign_key "contents", "learning_modules"
   add_foreign_key "events", "schools", on_delete: :cascade
   add_foreign_key "events", "users", on_delete: :cascade
@@ -358,6 +412,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_05_140000) do
   add_foreign_key "school_classes", "schools", on_delete: :cascade
   add_foreign_key "student_class_enrollments", "school_classes", on_delete: :cascade
   add_foreign_key "student_class_enrollments", "users", column: "student_id"
+  add_foreign_key "student_video_likes", "student_videos"
+  add_foreign_key "student_video_likes", "users"
+  add_foreign_key "student_videos", "schools"
+  add_foreign_key "student_videos", "subjects"
+  add_foreign_key "student_videos", "users"
+  add_foreign_key "student_videos", "users", column: "moderated_by_id"
   add_foreign_key "subjects", "schools", on_delete: :cascade
   add_foreign_key "subscriptions", "plans"
   add_foreign_key "subscriptions", "schools", on_delete: :cascade

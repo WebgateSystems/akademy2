@@ -179,7 +179,7 @@ RSpec.describe DashboardController, type: :request do
                     last_name: 'Kowalski',
                     email: 'jan.kowalski@example.com',
                     birthdate: Date.new(2010, 5, 15),
-                    metadata: { 'phone' => '+48 123 456 789' })
+                    phone: '+48 123 456 789')
       UserRole.create!(user: user, role: student_role, school: school)
       StudentClassEnrollment.create!(student: user, school_class: school_class, status: 'approved')
       user

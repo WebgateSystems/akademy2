@@ -217,6 +217,14 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
+    elastic-transport (8.4.1)
+      faraday (< 3)
+      multi_json
+    elasticsearch (8.19.2)
+      elastic-transport (~> 8.3)
+      elasticsearch-api (= 8.19.2)
+    elasticsearch-api (8.19.2)
+      multi_json
     erb (6.0.0)
     erubi (1.13.1)
     et-orbi (1.4.0)
@@ -226,6 +234,12 @@ GEM
     factory_bot_rails (6.5.1)
       factory_bot (~> 6.5)
       railties (>= 6.1.0)
+    faraday (2.14.0)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
+    faraday-net_http (3.4.2)
+      net-http (~> 0.5)
     fasterer (0.11.0)
       ruby_parser (>= 3.19.1)
     ffaker (2.25.0)
@@ -300,6 +314,9 @@ GEM
     mrml (1.8.1-x86_64-linux)
     mrml (1.8.1-x86_64-linux-musl)
     msgpack (1.8.0)
+    multi_json (1.18.0)
+    net-http (0.8.0)
+      uri (>= 0.11.1)
     net-imap (0.5.12)
       date
       net-protocol
@@ -392,6 +409,10 @@ GEM
       activesupport (= 8.1.1)
       bundler (>= 1.15.0)
       railties (= 8.1.1)
+    rails-controller-testing (1.0.5)
+      actionpack (>= 5.0.1.rc1)
+      actionview (>= 5.0.1.rc1)
+      activesupport (>= 5.0.1.rc1)
     rails-dom-testing (2.3.0)
       activesupport (>= 5.0.0)
       minitest
@@ -511,6 +532,8 @@ GEM
     ruby_parser (3.21.1)
       racc (~> 1.5)
       sexp_processor (~> 4.16)
+    searchkick (6.0.2)
+      activemodel (>= 7.2)
     securerandom (0.4.1)
     sexp_processor (4.17.4)
     shoulda-matchers (7.0.1)
@@ -558,6 +581,8 @@ GEM
       net-ssh (>= 2.8.0)
       ostruct
     ssrf_filter (1.3.0)
+    streamio-ffmpeg (3.0.2)
+      multi_json (~> 1.8)
     stringio (3.1.8)
     temple (0.10.4)
     thor (1.4.0)
@@ -633,6 +658,7 @@ DEPENDENCIES
   devise (~> 4.9)
   devise-jwt (~> 0.12.1)
   dry-validation
+  elasticsearch (~> 8.0)
   factory_bot_rails
   fasterer
   ffaker
@@ -654,6 +680,7 @@ DEPENDENCIES
   pundit (~> 2.5)
   rack-attack (~> 6.7)
   rails (~> 8.1.1, >= 8.1.1)
+  rails-controller-testing
   reek
   rqrcode (~> 3.1)
   rspec-rails (~> 8.0)
@@ -666,6 +693,7 @@ DEPENDENCIES
   rubocop-rails (~> 2.25)
   rubocop-rspec
   rubocop-rspec_rails
+  searchkick
   shoulda-matchers (~> 7.0)
   sidekiq (~> 8.0)
   simplecov
@@ -673,6 +701,7 @@ DEPENDENCIES
   solid_cable
   solid_cache
   solid_queue
+  streamio-ffmpeg (~> 3.0)
   thruster
   web-console
   webmock

@@ -268,6 +268,123 @@ class NotificationService
     end
   end
 
+  # Create notification for teachers when student uploads a video
+  def self.create_student_video_uploaded(video:)
+    student = video.user
+    school = student.school
+    return unless school
+
+    student_name = [student.first_name, student.last_name].compact.join(' ').presence || student.email
+    video_title = video.title.truncate(50)
+
+    # Get student's class(es) and notify their teachers
+    student_classes = student.student_class_enrollments.where(status: 'approved').includes(:school_class)
+    return if student_classes.empty?
+
+    student_classes.each do |enrollment|
+      school_class = enrollment.school_class
+      next unless school_class
+
+      teachers = User.joins(:teacher_class_assignments)
+                     .where(teacher_class_assignments: { school_class_id: school_class.id })
+                     .distinct
+
+      teachers.find_each do |_teacher|
+        # Check if notification already exists and is unresolved
+        existing = Notification.where(
+          notification_type: 'student_video_pending',
+          target_role: 'teacher',
+          school: school,
+          resolved_at: nil
+        ).where("metadata->>'video_id' = ?", video.id.to_s).first
+
+        next if existing
+
+        Notification.create!(
+          notification_type: 'student_video_pending',
+          title: 'Nowe video do akceptacji',
+          message: "#{student_name} wgrał/a video \"#{video_title}\" do tematu #{video.subject_title}.",
+          target_role: 'teacher',
+          school: school,
+          user: student,
+          metadata: {
+            video_id: video.id,
+            student_id: student.id,
+            school_class_id: school_class.id,
+            subject_id: video.subject_id
+          }
+        )
+      end
+    end
+  end
+
+  # Create notification for student when their video is approved
+  def self.create_student_video_approved(video:, moderator:)
+    student = video.user
+    school = student.school
+
+    video_title = video.title.truncate(50)
+    moderator_name = [moderator.first_name, moderator.last_name].compact.join(' ').presence || 'Nauczyciel'
+
+    Notification.create!(
+      notification_type: 'student_video_approved',
+      title: 'Twoje video zostało zaakceptowane! 🎉',
+      message: "#{moderator_name} zaakceptował/a Twoje video \"#{video_title}\". Jest teraz widoczne dla wszystkich!",
+      target_role: 'student',
+      school: school,
+      user: student,
+      metadata: {
+        video_id: video.id,
+        moderator_id: moderator.id,
+        subject_id: video.subject_id
+      }
+    )
+
+    # Resolve the pending notification
+    resolve_student_video_pending(video: video)
+  end
+
+  # Create notification for student when their video is rejected
+  def self.create_student_video_rejected(video:, moderator:, reason: nil)
+    student = video.user
+    school = student.school
+
+    video_title = video.title.truncate(50)
+    moderator_name = [moderator.first_name, moderator.last_name].compact.join(' ').presence || 'Nauczyciel'
+
+    message = "#{moderator_name} odrzucił/a Twoje video \"#{video_title}\"."
+    message += " Powód: #{reason}" if reason.present?
+
+    Notification.create!(
+      notification_type: 'student_video_rejected',
+      title: 'Twoje video zostało odrzucone',
+      message: message,
+      target_role: 'student',
+      school: school,
+      user: student,
+      metadata: {
+        video_id: video.id,
+        moderator_id: moderator.id,
+        reason: reason
+      }
+    )
+
+    # Resolve the pending notification
+    resolve_student_video_pending(video: video)
+  end
+
+  # Resolve student video pending notification when video is moderated
+  def self.resolve_student_video_pending(video:)
+    notifications = Notification.where(
+      notification_type: 'student_video_pending',
+      resolved_at: nil
+    ).where("metadata->>'video_id' = ?", video.id.to_s)
+
+    notifications.find_each do |notification|
+      notification.update!(resolved_at: Time.current)
+    end
+  end
+
   # Generic method to create notifications
   # rubocop:disable Metrics/ParameterLists
   def self.create_notification(notification_type:, title:, message:, target_role:, user: nil, school: nil, metadata: {})

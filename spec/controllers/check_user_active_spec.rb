@@ -40,7 +40,7 @@ RSpec.describe ApplicationController, 'check_user_active' do
 
     it 'shows alert message' do
       get :index
-      expect(flash[:alert]).to include('zablokowane')
+      expect(flash[:alert]).to include('locked')
     end
   end
 end

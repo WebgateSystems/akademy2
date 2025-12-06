@@ -1,6 +1,8 @@
 class StudentDashboardController < ApplicationController
   before_action :require_student!
   before_action :load_common_data
+  before_action :set_notifications_count
+  before_action :set_student_token
   before_action :load_learning_module, only: %i[learning_module quiz submit_quiz result]
 
   helper_method :can_access_management?
@@ -8,12 +10,6 @@ class StudentDashboardController < ApplicationController
   def index
     # Check if there's a token to auto-fill
     @join_token = params[:token]
-
-    @school = current_user.school
-    @classes = current_user.school_classes.where(
-      id: StudentClassEnrollment.where(student: current_user, status: 'approved').select(:school_class_id)
-    ).order(:name)
-    @current_class = @classes.first
 
     # Get pending enrollments for the empty state
     @pending_enrollments = current_user.student_class_enrollments
@@ -79,12 +75,26 @@ class StudentDashboardController < ApplicationController
   # GET /home/modules/:id
   # Show learning module with video/infographic content
   def learning_module
-    @contents = @learning_module.contents.order(:order_index)
-    @video_contents = @contents.where(content_type: 'video')
-    @infographic_contents = @contents.where(content_type: 'infographic')
+    # Get all non-quiz contents ordered
+    @all_contents = @learning_module.contents.where.not(content_type: 'quiz').order(:order_index)
+    @has_quiz = @learning_module.contents.exists?(content_type: 'quiz')
+
+    # Current step (1-based for user-friendliness in URL)
+    @current_step = (params[:step].to_i.positive? ? params[:step].to_i : 1)
+    @current_step = 1 if @current_step < 1
+    @current_step = @all_contents.count if @current_step > @all_contents.count && @all_contents.any?
+
+    # Get current content
+    @content = @all_contents.offset(@current_step - 1).first
+
+    # Navigation info
+    @total_steps = @all_contents.count
+    @is_last_content = @current_step >= @total_steps
+    @next_step = @current_step + 1
+    @prev_step = @current_step - 1
 
     # Log content access
-    EventLogger.log_content_access(content: @contents.first, user: current_user, action: 'view') if @contents.any?
+    EventLogger.log_content_access(content: @content, user: current_user, action: 'view') if @content
 
     render 'student_dashboard/learning_module'
   end
@@ -179,7 +189,218 @@ class StudentDashboardController < ApplicationController
     render 'student_dashboard/result'
   end
 
+  # GET /home/videos
+  # School videos list with filtering
+  def school_videos
+    # Find subject by slug or UUID
+    @current_subject = find_subject_by_slug_or_id(params[:subject]) if params[:subject].present?
+
+    # Build the query: approved from others OR any status from current user
+    if @current_subject.present?
+      others_videos = StudentVideo.approved.where.not(user_id: current_user.id).by_subject(@current_subject.id)
+      my_videos = StudentVideo.where(user_id: current_user.id).by_subject(@current_subject.id)
+    else
+      others_videos = StudentVideo.approved.where.not(user_id: current_user.id)
+      my_videos = StudentVideo.where(user_id: current_user.id)
+    end
+
+    # Search with JOINs to search by author name, school, subject, class
+    if params[:q].present?
+      query = "%#{params[:q]}%"
+      others_videos = apply_video_search(others_videos, query)
+      my_videos = apply_video_search(my_videos, query)
+    end
+
+    # Add includes for display
+    others_videos = others_videos.includes(:subject, :user, :school)
+    my_videos = my_videos.includes(:subject, :user, :school)
+
+    # Combine: my videos first, then others, all sorted by newest
+    @videos = (my_videos.newest_first.to_a + others_videos.newest_first.to_a)
+
+    @subjects = Subject.where(school_id: [nil, @school&.id]).order(:order_index)
+    @my_pending_count = current_user.student_videos.pending.count
+
+    render 'student_dashboard/school_videos'
+  end
+
+  # GET /home/videos/new
+  # GET /home/videos/new - redirect to videos page (form is now in modal)
+  def new_video
+    redirect_to student_videos_path
+  end
+
+  # POST /home/videos
+  # Create new video
+  def create_video
+    @video = StudentVideo.new(video_params)
+    @video.user = current_user
+    @video.school = @school
+    @video.status = :pending
+
+    # Temporarily disable Searchkick callbacks if index doesn't exist
+    begin
+      if @video.save
+        # Notify teachers about new video
+        NotificationService.create_student_video_uploaded(video: @video) if defined?(NotificationService)
+        EventLogger.log_student_video_upload(video: @video, user: current_user) if defined?(EventLogger)
+        redirect_to student_video_waiting_path
+      else
+        redirect_to student_videos_path, alert: @video.errors.full_messages.join(', ')
+      end
+    rescue Searchkick::ImportError => e
+      Rails.logger.error "[Searchkick] Import error: #{e.message}"
+      # Video was saved but indexing failed - that's OK for now
+      redirect_to student_video_waiting_path
+    end
+  end
+
+  # GET /home/notifications
+  # Student notifications page
+  def notifications
+    @status_filter = params[:status] || 'unread'
+
+    # Build query: notifications for current user OR for student role in same school
+    # Use direct SQL to avoid issues with .or() and multiple .where() calls
+    base_query = Notification.where(
+      '(user_id = :uid) OR (user_id IS NULL AND target_role = :role AND school_id = :sid)',
+      uid: current_user.id,
+      role: 'student',
+      sid: @school.id
+    ).where(notification_type: %w[student_video_approved student_video_rejected quiz_completed])
+
+    @notifications_list = if @status_filter == 'archived'
+                            base_query.read.order(created_at: :desc).limit(50)
+                          else
+                            base_query.unread.order(created_at: :desc).limit(50)
+                          end
+
+    @unread_count = base_query.unread.count
+  end
+
+  # POST /home/notifications/mark_as_read
+  def mark_notifications_as_read
+    # Rails automatically parses JSON body to params when Content-Type is application/json
+    notification_ids = params[:notification_ids]
+    notification_ids = JSON.parse(notification_ids) if notification_ids.is_a?(String)
+
+    marked_count = 0
+    if notification_ids.present?
+      # Ensure it's an array
+      notification_ids = Array(notification_ids) unless notification_ids.is_a?(Array)
+
+      # Use the same query logic as in notifications action
+      base_query = Notification.where(
+        '(user_id = :uid) OR (user_id IS NULL AND target_role = :role AND school_id = :sid)',
+        uid: current_user.id,
+        role: 'student',
+        sid: @school.id
+      ).where(notification_type: %w[student_video_approved student_video_rejected quiz_completed])
+
+      # Only update notifications that match the query AND are in the provided IDs
+      marked_count = base_query.where(id: notification_ids).update_all(read_at: Time.current)
+    end
+
+    render json: { success: true, marked_count: marked_count }
+  end
+
+  # GET /home/videos/waiting
+  # Waiting for approval page
+  def video_waiting
+    render 'student_dashboard/video_waiting'
+  end
+
+  # DELETE /home/videos/:id
+  # Delete own video (only pending or rejected)
+  def destroy_video
+    @video = StudentVideo.find_by(id: params[:id])
+
+    unless @video
+      return respond_to do |format|
+        format.html { redirect_to student_videos_path, alert: t('student_dashboard.videos.not_found') }
+        format.json { render json: { success: false, error: 'Video not found' }, status: :not_found }
+      end
+    end
+
+    unless @video.user_id == current_user.id
+      return respond_to do |format|
+        format.html { redirect_to student_videos_path, alert: t('student_dashboard.videos.not_authorized') }
+        format.json { render json: { success: false, error: 'Not authorized' }, status: :forbidden }
+      end
+    end
+
+    unless @video.pending? || @video.rejected?
+      return respond_to do |format|
+        format.html { redirect_to student_videos_path, alert: t('student_dashboard.videos.cannot_delete') }
+        format.json do
+          render json: { success: false, error: 'Can only delete pending or rejected videos' },
+                 status: :unprocessable_entity
+        end
+      end
+    end
+
+    @video.destroy
+    EventLogger.log_student_video_delete(video: @video, user: current_user) if defined?(EventLogger)
+
+    respond_to do |format|
+      format.html { redirect_to student_videos_path, notice: t('student_dashboard.videos.deleted') }
+      format.json { render json: { success: true } }
+    end
+  end
+
+  # POST /home/contents/:id/like
+  def toggle_content_like
+    @content = Content.find_by(id: params[:id])
+
+    return render json: { success: false, error: 'Content not found' }, status: :not_found unless @content
+
+    unless @content.likeable?
+      return render json: { success: false, error: 'This content cannot be liked' }, status: :unprocessable_entity
+    end
+
+    liked = @content.toggle_like!(current_user)
+    render json: {
+      success: true,
+      liked: liked,
+      likes_count: @content.likes_count
+    }
+  end
+
   private
+
+  def set_student_token
+    return unless current_user
+
+    @student_token = Jwt::TokenService.encode({ user_id: current_user.id })
+  end
+
+  def set_notifications_count
+    return unless current_user
+
+    # Count unread notifications for student
+    # Use the same query logic as in notifications action
+    base_query = Notification.where(
+      '(user_id = ? OR (user_id IS NULL AND target_role = ? AND school_id = ?)) AND notification_type IN (?)',
+      current_user.id,
+      'student',
+      @school.id,
+      %w[student_video_approved student_video_rejected quiz_completed]
+    )
+
+    @notifications_count = base_query.unread.count
+  end
+
+  def video_params
+    params.permit(:title, :description, :subject_id, :file)
+  end
+
+  def searchkick_available?
+    return false if Rails.env.test? && ENV['ELASTICSEARCH_TEST'] != 'true'
+
+    StudentVideo.searchkick_index.exists?
+  rescue StandardError
+    false
+  end
 
   def require_student!
     return if user_signed_in? && current_user.student?
@@ -191,7 +412,7 @@ class StudentDashboardController < ApplicationController
       session.delete(:user_return_to)
     end
 
-    # Redirect to login with student role
+    # Redirect to login with student role (consistent with other dashboards)
     # rubocop:disable I18n/GetText/DecorateString
     redirect_to new_user_session_path(role: 'student'),
                 alert: 'Zaloguj się jako uczeń, aby uzyskać dostęp do panelu ucznia.'
@@ -215,16 +436,20 @@ class StudentDashboardController < ApplicationController
     module_ids = subject.units.flat_map { |u| u.learning_modules.pluck(:id) }
     return nil if module_ids.empty?
 
+    # Get best quiz results for each module
     quiz_results = QuizResult.where(user_id: current_user.id, learning_module_id: module_ids)
-    total_modules = module_ids.count
-    completed = quiz_results.count
-    average_score = quiz_results.average(:score)&.round || 0
+    best_score = quiz_results.maximum(:score) || 0
+
+    # Get pass threshold from quiz content (default 80 if not set)
+    quiz_content = Content.joins(learning_module: { unit: :subject })
+                          .where(content_type: 'quiz', learning_modules: { id: module_ids })
+                          .first
+    pass_threshold = quiz_content&.payload&.dig('pass_threshold') || 80
 
     {
-      total_modules: total_modules,
-      completed: completed,
-      completion_rate: total_modules.positive? ? ((completed.to_f / total_modules) * 100).round : 0,
-      average_score: average_score,
+      best_score: best_score,
+      pass_threshold: pass_threshold,
+      passed: best_score >= pass_threshold,
       quiz_results: quiz_results.includes(:learning_module).order(created_at: :desc)
     }
   end
@@ -241,6 +466,7 @@ class StudentDashboardController < ApplicationController
     @classes = current_user.school_classes.where(
       id: StudentClassEnrollment.where(student: current_user, status: 'approved').select(:school_class_id)
     ).order(:name)
+    @current_class = @classes.first
   end
 
   def load_learning_module
@@ -259,5 +485,33 @@ class StudentDashboardController < ApplicationController
     return if @subject.school_id.nil? || @subject.school_id == current_user.school_id
 
     redirect_to public_home_path, alert: I18n.t('student_dashboard.alerts.access_denied')
+  end
+
+  def find_subject_by_slug_or_id(slug_or_id)
+    return nil if slug_or_id.blank?
+
+    Subject.find_by(slug: slug_or_id) || Subject.find_by(id: slug_or_id)
+  end
+
+  # Apply search across multiple fields with JOINs
+  def apply_video_search(scope, query)
+    scope
+      .joins(:user)
+      .joins('LEFT JOIN schools ON schools.id = student_videos.school_id')
+      .joins('LEFT JOIN subjects ON subjects.id = student_videos.subject_id')
+      .joins('LEFT JOIN student_class_enrollments ON student_class_enrollments.student_id = users.id')
+      .joins('LEFT JOIN school_classes ON school_classes.id = student_class_enrollments.school_class_id')
+      .where(
+        'student_videos.title ILIKE :q OR ' \
+        'student_videos.description ILIKE :q OR ' \
+        'users.first_name ILIKE :q OR ' \
+        'users.last_name ILIKE :q OR ' \
+        "CONCAT(users.first_name, ' ', users.last_name) ILIKE :q OR " \
+        'schools.name ILIKE :q OR ' \
+        'subjects.title ILIKE :q OR ' \
+        'school_classes.name ILIKE :q',
+        q: query
+      )
+      .distinct
   end
 end

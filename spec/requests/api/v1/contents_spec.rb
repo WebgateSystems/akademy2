@@ -1,5 +1,60 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
+
+RSpec.describe 'API V1 Contents', type: :request do
+  let(:user) { create(:user) }
+  let(:token) { Jwt::TokenService.encode({ user_id: user.id }) }
+  let(:headers) { { 'Authorization' => "Bearer #{token}" } }
+
+  def success_result(status: :ok, form: { items: [] })
+    double(
+      status: status,
+      success?: true,
+      form: form,
+      serializer: nil,
+      headers: {},
+      pagination: nil,
+      access_token: nil,
+      to_h: {}
+    )
+  end
+
+  describe 'GET /api/v1/contents' do
+    it 'returns 200' do
+      allow(Api::V1::Contents::ListContents).to receive(:call).and_return(success_result)
+      get '/api/v1/contents', headers: headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 401 without token' do
+      get '/api/v1/contents'
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'GET /api/v1/contents/:id' do
+    it 'returns 200' do
+      allow(Api::V1::Contents::ShowContent).to receive(:call).and_return(success_result(form: {}))
+      get "/api/v1/contents/#{SecureRandom.uuid}", headers: headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 404 when not found' do
+      result = double(status: :not_found, success?: false, message: 'Not found')
+      allow(Api::V1::Contents::ShowContent).to receive(:call).and_return(result)
+      get "/api/v1/contents/#{SecureRandom.uuid}", headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns 401 without token' do
+      get "/api/v1/contents/#{SecureRandom.uuid}"
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+end
+# frozen_string_literal: true
+
 require 'swagger_helper'
 
 RSpec.describe 'Contents API', type: :request do

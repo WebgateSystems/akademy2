@@ -13,18 +13,17 @@
             - colors = %w[blue green yellow pink orange purple lime]
             - @subjects.each_with_index do |subject, index|
               - stats = @subject_results&.dig(subject.id) || {}
-              - completion = stats[:completion_rate] || 0
-              - average_score = stats[:average_score] || 0
-              - is_completed = completion >= 80
+              - best_score = stats[:best_score] || 0
+              - is_passed = stats[:passed] || false
               - color_class = colors[index % colors.length]
               - subject_color = subject.color_light.presence || '#6366f1'
-              - card_class = is_completed ? 'class-result--completed' : "class-result--#{color_class}"
+              / Card turns grey only if quiz passed (score >= threshold from quiz JSON)
+              - card_class = is_passed ? 'class-result--completed' : "class-result--#{color_class}"
               = link_to student_subject_path(subject), class: "class-result #{card_class}", data: { subject_id: subject.id }
-                - if is_completed
+                - if is_passed
+                  / Show score only if passed
                   span.class-result__progress.class-result__progress--colored data-subject-progress=subject.id style="background: #{subject_color}; border-color: #{subject_color};"
-                    = "#{average_score}%"
-                - else
-                  span.class-result__progress data-subject-progress=subject.id = "#{completion}%"
+                    = "#{best_score}%"
                 .class-result__icon aria-hidden="true"
                   - icons = %w[🇵🇱 🌍 🔔 🏃‍♂️ ❤️‍🩹 💻 🛡️]
                   = icons[index % icons.length]

@@ -1,0 +1,516 @@
+.school-videos-section {
+  padding: 24px;
+  padding-top: 0;
+  position: relative;
+  transform: none;
+
+  .schools-page__header {
+    border: none;
+    box-shadow: none;
+
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+}
+
+.pupil-videos-back-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.pupil-videos-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.school-videos-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 20px;
+  background: var(--surface-tertiary);
+  color: var(--content-primary);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  text-transform: none;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--surface-secondary);
+  }
+
+  &.is-active {
+    background: var(--surface-accent);
+    color: #ffffff;
+  }
+}
+
+.view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+  background: var(--surface-tertiary);
+  border-radius: 8px;
+  padding: 0 4px;
+}
+
+.view-toggle__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--content-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: var(--content-primary);
+  }
+
+  &.is-active {
+    background: var(--surface-primary);
+    color: var(--surface-accent);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.school-videos-container {
+  position: relative;
+}
+
+.school-videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.school-video-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+}
+
+.school-video-card--pending {
+  opacity: 0.7;
+}
+
+.school-video-card__thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--surface-tertiary); // Adapts to light/dark theme
+  border-radius: 12px;
+}
+
+.school-video-card__thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; // Preserve aspect ratio for vertical videos
+}
+
+.school-video-card__thumbnail-placeholder {
+  width: 64px;
+  height: 64px;
+  opacity: 0.5;
+}
+
+.school-video-card__status {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 4px 10px;
+  background: var(--surface-warning, #f59e0b);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+.school-video-card__status--rejected {
+  background: var(--state-error, #ef4444);
+}
+
+// Video status badges for list view
+.video-status {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.video-status--approved {
+  background: var(--state-success, #22c55e);
+  color: #fff;
+}
+
+.video-status--pending {
+  background: var(--surface-warning, #f59e0b);
+  color: #fff;
+}
+
+.video-status--rejected {
+  background: var(--state-error, #ef4444);
+  color: #fff;
+}
+
+// Pupil video cell in table
+.pupil-video-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pupil-video-cell__thumb {
+  width: 80px;
+  height: 45px;
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--surface-tertiary); // Adapts to light/dark theme
+  border-radius: 6px;
+}
+
+.pupil-video-cell__thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; // Preserve aspect ratio for vertical videos
+}
+
+.pupil-video-cell__thumb img:not(.pupil-video-cell__thumb-img) {
+  width: 32px;
+  height: 32px;
+  opacity: 0.5;
+}
+
+.pupil-video-cell__details {
+  min-width: 0;
+}
+
+.pupil-video-cell__title {
+  font-weight: 500;
+  color: var(--content-primary);
+}
+
+.school-video-card__info {
+  padding: 12px 0 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  background: transparent;
+}
+
+.school-video-card__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.school-video-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  font-family: var(--font-display);
+  color: var(--content-primary);
+  margin: 0 0 2px 0;
+  line-height: 1.4;
+}
+
+.school-video-card__author {
+  font-size: 13px;
+  font-weight: 400;
+  font-family: var(--font-body);
+  color: var(--content-secondary);
+  margin: 0;
+}
+
+.school-video-card__author-link {
+  color: var(--content-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: var(--surface-accent);
+    text-decoration: underline;
+  }
+}
+
+.pupil-video-cell__author-link {
+  color: var(--content-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: var(--surface-accent);
+    text-decoration: underline;
+  }
+}
+
+.school-video-card__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.school-video-card__description {
+  font-size: 14px;
+  font-weight: 400;
+  font-family: var(--font-body);
+  color: var(--content-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.school-video-card__likes,
+.school-video-card__delete,
+.school-video-card__edit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  img {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  span {
+    font-size: 12px;
+    font-weight: 400;
+    font-family: var(--font-body);
+    color: var(--content-secondary);
+  }
+}
+
+.school-videos-fab {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 56px;
+  height: 56px;
+  background: var(--surface-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(65, 105, 225, 0.4);
+  transition: all 0.2s ease;
+  z-index: 100;
+  text-decoration: none;
+
+  &:hover {
+    background: #5a7fe6;
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(65, 105, 225, 0.5);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.school-videos-empty {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--content-secondary);
+
+  p {
+    margin: 0 0 16px;
+    font-size: 16px;
+  }
+}
+
+// Video player modal info section
+.video-player-modal__info {
+  padding: 16px 0;
+  text-align: left;
+}
+
+.video-player-modal__title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--content-primary);
+}
+
+.video-player-modal__description {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--content-secondary);
+  line-height: 1.5;
+}
+
+.video-player-modal__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+
+.video-detail {
+  font-size: 13px;
+  color: var(--content-secondary);
+
+  strong {
+    color: var(--content-primary);
+    font-weight: 500;
+  }
+}
+
+// File input in modal
+.file-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  background: var(--surface-primary);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--surface-accent);
+  }
+
+  input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+}
+
+.file-input-filename {
+  font-size: 14px;
+  color: var(--content-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.video-upload-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-bottom: 24px;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  img {
+    display: block;
+    margin: 0 auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 310px;
+  }
+}
+
+// Clickable video row in list view
+.js-video-row {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--surface-secondary);
+  }
+}
+
+@media (max-width: 768px) {
+  .school-videos-section {
+    padding: 16px;
+  }
+
+  .school-videos-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .school-videos-fab {
+    bottom: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .filter-tag {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+

@@ -26,7 +26,7 @@
           span.student-detail__value = @student.birthdate&.strftime('%d.%m.%Y') || @student.metadata&.dig('birth_date') || '—'
         .student-detail
           span.student-detail__label Telefon
-          span.student-detail__value = @student.metadata&.dig('phone') || '—'
+          span.student-detail__value = @student.display_phone || '—'
         .student-detail
           span.student-detail__label Email
           span.student-detail__value = @student.email || '—'

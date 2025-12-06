@@ -13,40 +13,76 @@
         = render 'student_dashboard/top_actions'
 
     section.module-content-section
-      - @contents.each do |content|
-        - case content.content_type
+      / Progress indicator
+      - if @total_steps > 1
+        .module-progress
+          span.module-progress__text Materiał #{@current_step} z #{@total_steps}
+          .module-progress__bar
+            .module-progress__fill style="width: #{(@current_step.to_f / @total_steps * 100).round}%"
+
+      - if @content
+        - case @content.content_type
         - when 'video'
-          .module-content-item.module-content-item--video data-content-id=content.id
-            h2.module-content-title = content.title
+          .module-content-item.module-content-item--video data-content-id=@content.id
+            h2.module-content-title = @content.title
             .video-player-container
-              - if content.youtube_url.present?
-                - youtube_id = content.youtube_url.match(/(?:v=|\/embed\/|youtu\.be\/)([a-zA-Z0-9_-]+)/i)&.[](1)
+              - if @content.youtube_url.present?
+                - youtube_id = @content.youtube_url.match(/(?:v=|\/embed\/|youtu\.be\/)([a-zA-Z0-9_-]+)/i)&.[](1)
                 - if youtube_id
-                  iframe.video-player src="https://www.youtube.com/embed/#{youtube_id}" title=content.title allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""
-              - elsif content.file&.url.present?
-                video.video-player controls="" poster=(content.poster&.url)
-                  source src=content.file.url type="video/mp4"
-                  - if content.subtitles&.url.present?
-                    track kind="subtitles" src=content.subtitles.url srclang="pl" label="Polski"
+                  iframe.video-player src="https://www.youtube.com/embed/#{youtube_id}" title=@content.title allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""
+              - elsif @content.file&.url.present?
+                video.video-player controls="" poster=(@content.poster&.url)
+                  source src=@content.file.url type="video/mp4"
+                  - if @content.subtitles&.url.present?
+                    track kind="subtitles" src=@content.subtitles.url srclang="pl" label="Polski"
               - else
                 .video-placeholder
                   = image_tag 'icons/social/L/video.svg', width: 120, height: 120
                   p Wideo niedostępne
+            .content-like-bar
+              button.content-like-btn.js-content-like type="button" data-content-id=@content.id data-liked="#{@content.liked_by?(current_user)}" data-icon-liked="#{image_path('icons/social/S/like.svg')}" data-icon-unliked="#{image_path('icons/social/S/no-like.svg')}"
+                = image_tag @content.liked_by?(current_user) ? 'icons/social/S/like.svg' : 'icons/social/S/no-like.svg', alt: '', class: 'content-like-icon'
+                span.content-like-count = @content.likes_count
+                span.content-like-text Podoba mi się
 
         - when 'infographic'
-          .module-content-item.module-content-item--infographic data-content-id=content.id
-            h2.module-content-title = content.title
+          .module-content-item.module-content-item--infographic data-content-id=@content.id
+            h2.module-content-title = @content.title
             .infographic-container
-              - if content.file&.url.present?
-                = image_tag content.file.url, alt: content.title, class: 'infographic-image'
+              - if @content.file&.url.present?
+                = image_tag @content.file.url, alt: @content.title, class: 'infographic-image'
               - else
                 .infographic-placeholder
                   p Infografika niedostępna
+            .content-like-bar
+              button.content-like-btn.js-content-like type="button" data-content-id=@content.id data-liked="#{@content.liked_by?(current_user)}" data-icon-liked="#{image_path('icons/social/S/like.svg')}" data-icon-unliked="#{image_path('icons/social/S/no-like.svg')}"
+                = image_tag @content.liked_by?(current_user) ? 'icons/social/S/like.svg' : 'icons/social/S/no-like.svg', alt: '', class: 'content-like-icon'
+                span.content-like-count = @content.likes_count
+                span.content-like-text Podoba mi się
 
+      - else
+        .module-empty
+          p Brak materiałów w tym module
+
+      / Navigation buttons
       .module-actions
-        = link_to student_quiz_path(@learning_module), class: 'quiz-start-btn'
-          | Rozpocznij Quiz
-          span.quiz-start-icon →
+        - if @prev_step > 0
+          = link_to student_module_path(@learning_module, step: @prev_step), class: 'module-nav-btn module-nav-btn--prev'
+            span.module-nav-icon ←
+            | Poprzedni
+
+        - if @is_last_content && @has_quiz
+          = link_to student_quiz_path(@learning_module), class: 'quiz-start-btn'
+            | Rozpocznij Quiz
+            span.quiz-start-icon →
+        - elsif @is_last_content && !@has_quiz
+          = link_to student_subject_path(@subject), class: 'module-nav-btn module-nav-btn--finish'
+            | Zakończ moduł
+            span.module-nav-icon ✓
+        - elsif !@is_last_content
+          = link_to student_module_path(@learning_module, step: @next_step), class: 'module-nav-btn module-nav-btn--next'
+            | Następny
+            span.module-nav-icon →
 
     = render 'shared/app_version'
 
@@ -57,8 +93,34 @@ css:
     margin: 0 auto;
   }
 
+  .module-progress {
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .module-progress__text {
+    display: block;
+    font-size: 14px;
+    color: var(--content-secondary);
+    margin-bottom: 8px;
+  }
+
+  .module-progress__bar {
+    height: 4px;
+    background: var(--surface-tertiary);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .module-progress__fill {
+    height: 100%;
+    background: var(--surface-accent);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+
   .module-content-item {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
   }
 
   .module-content-title {
@@ -114,10 +176,59 @@ css:
     color: var(--content-tertiary);
   }
 
+  .module-empty {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--content-secondary);
+  }
+
   .module-actions {
     display: flex;
     justify-content: center;
+    gap: 16px;
     margin-top: 40px;
+    flex-wrap: wrap;
+  }
+
+  .module-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    background: var(--surface-tertiary);
+    color: var(--content-primary);
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .module-nav-btn:hover {
+    background: var(--surface-secondary);
+    transform: translateY(-2px);
+  }
+
+  .module-nav-btn--next {
+    background: var(--surface-accent);
+    color: white;
+  }
+
+  .module-nav-btn--next:hover {
+    opacity: 0.9;
+  }
+
+  .module-nav-btn--finish {
+    background: var(--state-success, #22c55e);
+    color: white;
+  }
+
+  .module-nav-btn--finish:hover {
+    opacity: 0.9;
+  }
+
+  .module-nav-icon {
+    font-size: 18px;
   }
 
   .quiz-start-btn {
@@ -143,12 +254,50 @@ css:
     font-size: 20px;
   }
 
+  .content-like-bar {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 12px;
+  }
+
+  .content-like-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--surface-tertiary);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--content-secondary);
+    font-size: 14px;
+  }
+
+  .content-like-btn:hover {
+    background: var(--surface-secondary);
+  }
+
+  .content-like-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .content-like-count {
+    font-weight: 600;
+  }
+
+  .content-like-text {
+    font-weight: 400;
+  }
+
 javascript:
-  // Track video viewing
+  // Track video viewing and handle likes
   document.addEventListener('DOMContentLoaded', () => {
     const videos = document.querySelectorAll('.video-player');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
+    // Video tracking
     videos.forEach(video => {
       const contentId = video.closest('[data-content-id]')?.dataset.contentId;
 
@@ -183,6 +332,45 @@ javascript:
               learning_module_id: '#{@learning_module.id}'
             })
           });
+        }
+      });
+    });
+
+    // Like buttons
+    document.querySelectorAll('.js-content-like').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const contentId = btn.dataset.contentId;
+        if (!contentId || !csrfToken) return;
+
+        try {
+          const response = await fetch(`/home/contents/${contentId}/like`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': csrfToken
+            }
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            // Update button state
+            btn.dataset.liked = data.liked;
+            
+            // Update icon
+            const icon = btn.querySelector('.content-like-icon');
+            if (icon) {
+              icon.src = data.liked ? btn.dataset.iconLiked : btn.dataset.iconUnliked;
+            }
+            
+            // Update count
+            const countEl = btn.querySelector('.content-like-count');
+            if (countEl) {
+              countEl.textContent = data.likes_count;
+            }
+          }
+        } catch (error) {
+          console.error('Error toggling like:', error);
         }
       });
     });

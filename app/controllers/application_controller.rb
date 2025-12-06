@@ -94,7 +94,8 @@ class ApplicationController < ActionController::Base
   end
 
   def reset_tracking_if_expired(last_time, _last_path, _redirect_count)
-    return unless last_time && Time.current.to_i - last_time > 5
+    # Reset after 3 seconds of inactivity (was 5)
+    return unless last_time && Time.current.to_i - last_time > 3
 
     clear_redirect_tracking
   end
@@ -123,6 +124,7 @@ class ApplicationController < ActionController::Base
     session[:last_redirect_count] = redirect_count
     session[:last_redirect_time] = Time.current.to_i
 
+    # Trigger after 2 rapid redirects to the same path
     handle_redirect_loop if redirect_count >= 2
   end
 
@@ -141,17 +143,12 @@ class ApplicationController < ActionController::Base
     # Clear the redirect tracking
     session.delete(:last_redirect_path)
 
-    # Store user info for logging if needed
-    current_user if respond_to?(:current_user)
-
     # Clear all session data
     reset_session
 
-    # Redirect to login with appropriate message
+    # Redirect to login page to break the loop
     redirect_path = if respond_to?(:new_user_session_path)
                       new_user_session_path
-                    elsif respond_to?(:new_admin_session_path)
-                      new_admin_session_path
                     else
                       root_path
                     end

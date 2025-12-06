@@ -23,6 +23,7 @@
                 th.students-table__heading scope="col" Imię i nazwisko
                 th.students-table__heading scope="col" Data urodzenia
                 th.students-table__heading scope="col" Email
+                th.students-table__heading scope="col" Telefon
                 th.students-table__heading scope="col" Status
                 th.students-table__heading.students-table__heading--actions scope="col" Akcje
             tbody.students-table__body id="students-table-body"
@@ -37,6 +38,7 @@
                     = link_to student_name, dashboard_student_path(student, class_id: @current_class&.id), class: "student-name-link"
                   td.students-table__cell = birth_date
                   td.students-table__cell = student.email || '—'
+                  td.students-table__cell = student.phone || '—'
                   td.students-table__cell
                     - if is_pending
                       span style="color: var(--content-secondary); font-weight: 500;" Oczekuje
@@ -112,10 +114,12 @@
                 const name = cells[0]?.textContent?.toLowerCase() || '';
                 const birthDate = cells[1]?.textContent?.toLowerCase() || '';
                 const email = cells[2]?.textContent?.toLowerCase() || '';
-                const status = cells[3]?.textContent?.toLowerCase() || '';
+                const phone = cells[3]?.textContent?.toLowerCase() || '';
+                const status = cells[4]?.textContent?.toLowerCase() || '';
                 
                 const matches = name.includes(searchTerm) || 
                                email.includes(searchTerm) || 
+                               phone.includes(searchTerm) ||
                                birthDate.includes(searchTerm) ||
                                status.includes(searchTerm);
                 

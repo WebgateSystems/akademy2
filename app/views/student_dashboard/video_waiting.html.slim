@@ -1,0 +1,88 @@
+doctype html
+html lang="pl"
+  head
+    meta charset="utf-8"
+    meta name="viewport" content="width=device-width, initial-scale=1"
+    title AKAdemy 2.0 · Oczekiwanie na akceptację
+    = csrf_meta_tags
+    = csp_meta_tag
+    = stylesheet_link_tag "application", "data-turbo-track": "reload"
+    css:
+      .waiting-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 24px;
+        text-align: center;
+        background: var(--surface-primary);
+        cursor: pointer;
+      }
+
+      .waiting-title {
+        font-size: 32px;
+        font-weight: 600;
+        font-family: var(--font-display);
+        color: var(--content-primary);
+        margin: 0 0 16px 0;
+      }
+
+      .waiting-subtitle {
+        font-size: 18px;
+        font-weight: 400;
+        font-family: var(--font-body);
+        color: var(--content-secondary);
+        margin: 0 0 48px 0;
+      }
+
+      .waiting-timer {
+        font-size: 48px;
+        font-weight: 700;
+        font-family: var(--font-display);
+        color: var(--surface-accent);
+        margin: 0;
+      }
+
+      @media (max-width: 768px) {
+        .waiting-title {
+          font-size: 24px;
+        }
+
+        .waiting-subtitle {
+          font-size: 16px;
+        }
+
+        .waiting-timer {
+          font-size: 36px;
+        }
+      }
+
+  body
+    #waiting-container.waiting-container
+      h1.waiting-title Poczekaj na akceptację nauczyciela
+      p.waiting-subtitle Twój nauczyciel wkrótce przejrzy Twoje zgłoszenie - cierpliwości!
+      p#timer.waiting-timer 3
+
+    javascript:
+      let countdown = 3;
+      const timerElement = document.getElementById('timer');
+      const container = document.getElementById('waiting-container');
+      
+      function redirect() {
+        window.location.href = '#{student_videos_path}';
+      }
+
+      container.addEventListener('click', redirect);
+
+      const interval = setInterval(() => {
+        countdown--;
+        timerElement.textContent = countdown;
+        
+        if (countdown <= 0) {
+          clearInterval(interval);
+          redirect();
+        }
+      }, 1000);
+
+
