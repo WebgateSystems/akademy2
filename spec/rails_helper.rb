@@ -7,7 +7,6 @@ require 'spec_helper'
 require 'json_matchers/rspec'
 require 'shoulda/matchers'
 require 'webmock/rspec'
-require 'database_cleaner/active_record'
 require_relative 'support/helpers/application_test_helper'
 
 require_relative '../config/environment'
@@ -32,37 +31,18 @@ RSpec.configure do |config|
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include Devise::Test::IntegrationHelpers, type: :request
   config.include ActiveJob::TestHelper
+  config.use_transactional_fixtures = true
+  config.infer_spec_type_from_file_location!
+  config.filter_rails_from_backtrace!
 
-  # Use DatabaseCleaner instead of transactional fixtures for better isolation
-  config.use_transactional_fixtures = false
-
-  # DatabaseCleaner configuration
-  config.before(:suite) do
-    DatabaseCleaner.clean_with(:truncation)
-  end
-
+  # Ensure English locale for consistent error messages in tests
   config.before do
-    DatabaseCleaner.strategy = :transaction
-  end
-
-  config.before(:each, js: true) do
-    DatabaseCleaner.strategy = :truncation
-  end
-
-  config.before do
-    DatabaseCleaner.start
-    # Reset locale to English for consistent test behavior
     I18n.locale = :en
   end
 
   config.after do
-    DatabaseCleaner.clean
-    # Ensure locale is reset after each test
     I18n.locale = I18n.default_locale
   end
-
-  config.infer_spec_type_from_file_location!
-  config.filter_rails_from_backtrace!
 end
 
 RSpec::Matchers.define :permit do |action|
