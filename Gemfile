@@ -53,6 +53,7 @@ group :development, :test do
 end
 
 group :test do
+  gem 'database_cleaner-active_record'
   gem 'json_matchers'
   gem 'rspec_junit_formatter'
   gem 'shoulda-matchers', '~> 7.0'
