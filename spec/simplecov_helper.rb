@@ -36,6 +36,6 @@ unless SimpleCov.running
     command_name 'RSpec'
 
     # Minimum coverage threshold (can be adjusted)
-    minimum_coverage(80)
+    minimum_coverage(90)
   end
 end
