@@ -660,4 +660,146 @@ RSpec.describe StudentDashboardController, type: :request do
       end
     end
   end
+
+  describe 'GET /home/videos' do
+    it 'renders school videos page' do
+      get student_videos_path
+      expect(response).to have_http_status(:success)
+    end
+
+    context 'with student videos' do
+      let!(:student_video) do
+        StudentVideo.create!(
+          user: student,
+          school: school,
+          subject: subject_record,
+          title: 'My Test Video',
+          description: 'Video description',
+          status: 'pending',
+          file: Rack::Test::UploadedFile.new(Rails.root.join('spec/fixtures/test.mp4'), 'video/mp4')
+        )
+      end
+
+      it 'displays student videos' do
+        get student_videos_path
+        expect(response.body).to include('My Test Video')
+      end
+    end
+  end
+
+  describe 'DELETE /home/videos/:id' do
+    let!(:pending_video) do
+      StudentVideo.create!(
+        user: student,
+        school: school,
+        subject: subject_record,
+        title: 'Video to delete',
+        description: 'Test',
+        status: 'pending',
+        file: Rack::Test::UploadedFile.new(Rails.root.join('spec/fixtures/test.mp4'), 'video/mp4')
+      )
+    end
+
+    it 'deletes pending video owned by student' do
+      expect do
+        delete destroy_student_video_path(pending_video)
+      end.to change(StudentVideo, :count).by(-1)
+    end
+
+    it 'redirects to videos page with notice' do
+      delete destroy_student_video_path(pending_video)
+      expect(response).to redirect_to(student_videos_path)
+      expect(flash[:notice]).to be_present
+    end
+
+    context 'with approved video' do
+      before { pending_video.update!(status: 'approved', moderated_at: Time.current) }
+
+      it 'does not delete approved video' do
+        expect do
+          delete destroy_student_video_path(pending_video)
+        end.not_to change(StudentVideo, :count)
+      end
+
+      it 'redirects with alert' do
+        delete destroy_student_video_path(pending_video)
+        expect(flash[:alert]).to be_present
+      end
+    end
+
+    context 'with video from another student' do
+      let(:other_student) do
+        user = create(:user, school: school)
+        UserRole.create!(user: user, role: student_role, school: school)
+        user
+      end
+
+      let!(:other_video) do
+        StudentVideo.create!(
+          user: other_student,
+          school: school,
+          subject: subject_record,
+          title: 'Other student video',
+          description: 'Test',
+          status: 'pending',
+          file: Rack::Test::UploadedFile.new(Rails.root.join('spec/fixtures/test.mp4'), 'video/mp4')
+        )
+      end
+
+      it 'does not allow deleting other student video' do
+        expect do
+          delete destroy_student_video_path(other_video)
+        end.not_to change(StudentVideo, :count)
+      end
+
+      it 'redirects with alert' do
+        delete destroy_student_video_path(other_video)
+        expect(flash[:alert]).to be_present
+      end
+    end
+  end
+
+  describe 'POST /home/contents/:id/toggle_like' do
+    it 'toggles like on video content' do
+      post toggle_content_like_path(video_content), as: :json
+      expect(response).to have_http_status(:success)
+      json = JSON.parse(response.body)
+      expect(json['success']).to be true
+      expect(json['liked']).to be true
+    end
+
+    it 'unlikes previously liked content' do
+      ContentLike.create!(user: student, content: video_content)
+      post toggle_content_like_path(video_content), as: :json
+      expect(response).to have_http_status(:success)
+      json = JSON.parse(response.body)
+      expect(json['liked']).to be false
+    end
+
+    context 'with quiz content (not likeable)' do
+      it 'returns error for quiz content' do
+        post toggle_content_like_path(quiz_content), as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
+
+  describe 'GET /home/videos/waiting' do
+    let!(:pending_video) do
+      StudentVideo.create!(
+        user: student,
+        school: school,
+        subject: subject_record,
+        title: 'Pending Video',
+        description: 'Test',
+        status: 'pending',
+        file: Rack::Test::UploadedFile.new(Rails.root.join('spec/fixtures/test.mp4'), 'video/mp4')
+      )
+    end
+
+    it 'renders video waiting page' do
+      get student_video_waiting_path
+      expect(response).to have_http_status(:success)
+    end
+  end
 end

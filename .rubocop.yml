@@ -309,6 +309,10 @@ RSpec/AnyInstance:
     - 'spec/jobs/**/*.rb'
     - 'spec/services/**/*.rb'
 
+RSpec/StubbedMock:
+  Exclude:
+    - 'spec/controllers/api/v1/users/registrations_controller_spec.rb'
+
 RSpec/MessageChain:
   Exclude:
     - 'spec/controllers/**/*.rb'

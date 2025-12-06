@@ -463,6 +463,63 @@ RSpec.describe DashboardController, type: :request do
     end
   end
 
+  describe 'GET #class_qr_svg' do
+    before { sign_in teacher }
+
+    it 'returns SVG content' do
+      get dashboard_class_qr_svg_path(class_id: school_class.id)
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to include('image/svg+xml')
+    end
+  end
+
+  describe 'GET #class_qr_png' do
+    before { sign_in teacher }
+
+    it 'returns PNG content' do
+      get dashboard_class_qr_png_path(class_id: school_class.id)
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to include('image/png')
+    end
+  end
+
+  describe 'GET #pupil_videos' do
+    before { sign_in teacher }
+
+    it 'returns http success' do
+      get dashboard_pupil_videos_path(class_id: school_class.id)
+      expect(response).to have_http_status(:success)
+    end
+
+    context 'with pending student videos' do
+      let!(:student) do
+        user = create(:user, school: school)
+        UserRole.create!(user: user, role: student_role, school: school)
+        StudentClassEnrollment.create!(student: user, school_class: school_class, status: 'approved')
+        user
+      end
+
+      let(:subject_record) { create(:subject, school: school) }
+
+      let!(:pending_video) do
+        StudentVideo.create!(
+          user: student,
+          school: school,
+          subject: subject_record,
+          title: 'Test Video',
+          description: 'Test Description',
+          status: 'pending',
+          file: Rack::Test::UploadedFile.new(Rails.root.join('spec/fixtures/test.mp4'), 'video/mp4')
+        )
+      end
+
+      it 'displays pending videos' do
+        get dashboard_pupil_videos_path(class_id: school_class.id)
+        expect(response.body).to include('Test Video')
+      end
+    end
+  end
+
   describe 'POST #mark_notifications_as_read' do
     before { sign_in teacher }
 
