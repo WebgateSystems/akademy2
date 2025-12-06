@@ -2,6 +2,10 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   skip_before_action :verify_authenticity_token
   respond_to :json
 
+  rescue_from ActiveRecord::RecordNotFound do |exception|
+    render json: { error: exception.message }, status: :not_found
+  end
+
   def create
     invite = find_and_validate_invite!
     build_resource(sign_up_params)

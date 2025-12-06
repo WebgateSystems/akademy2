@@ -277,6 +277,7 @@ RSpec/VerifiedDoubles:
     - 'spec/policies/application_policy_spec.rb'
     - 'spec/controllers/admin/sessions_controller_spec.rb'
     - 'spec/requests/after_sign_in_redirect_spec.rb'
+    - 'spec/requests/api/v1/users/registrations_spec.rb'
 
 RSpec/MessageSpies:
   Exclude:
@@ -288,6 +289,7 @@ RSpec/MessageSpies:
     - 'spec/interactors/register/teacher_profile_submit_spec.rb'
     - 'spec/jobs/process_video_job_spec.rb'
     - 'spec/services/video_processor_spec.rb'
+    - 'spec/requests/api/v1/users/registrations_spec.rb'
 
 RSpec/RepeatedExampleGroupBody:
   Exclude:
