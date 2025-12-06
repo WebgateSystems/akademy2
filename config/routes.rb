@@ -175,6 +175,12 @@ Rails.application.routes.draw do
       end
 
       resource :session, only: :create
+
+      # User registration via invite token
+      namespace :users do
+        post 'registrations', to: 'registrations#create'
+      end
+
       resources :schools, only: %i[index show create update destroy]
       resources :headmasters, only: %i[index show create update destroy] do
         member do

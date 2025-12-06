@@ -42,6 +42,8 @@ RSpec.configure do |config|
 
   config.after do
     I18n.locale = I18n.default_locale
+    # Clean up invite tokens registry after each test
+    InviteTokens::Validator.clear_registry! if defined?(InviteTokens::Validator)
   end
 end
 

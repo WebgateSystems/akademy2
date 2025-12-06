@@ -45,11 +45,22 @@ RSpec.describe Api::V1::Users::RegistrationsController, type: :controller do
         )
       end
 
-      it 'calls InviteTokens::Validator with the token' do
-        expect(InviteTokens::Validator).to receive(:call!).with('some-token')
-        controller_instance.send(:find_and_validate_invite!)
-      rescue ActiveRecord::RecordNotFound
-        # Expected since the stub validator always raises
+      it 'raises RecordNotFound for unregistered token' do
+        expect do
+          controller_instance.send(:find_and_validate_invite!)
+        end.to raise_error(ActiveRecord::RecordNotFound)
+      end
+
+      it 'returns invite for registered token' do
+        invite = InviteTokens::Validator.register(
+          token: 'some-token',
+          kind: 'student',
+          school_id: school.id,
+          school_class_id: school_class.id
+        )
+
+        result = controller_instance.send(:find_and_validate_invite!)
+        expect(result).to eq(invite)
       end
     end
 
@@ -60,11 +71,21 @@ RSpec.describe Api::V1::Users::RegistrationsController, type: :controller do
         )
       end
 
-      it 'calls InviteTokens::Validator with the token' do
-        expect(InviteTokens::Validator).to receive(:call!).with('valid-token')
-        controller_instance.send(:find_and_validate_invite!)
-      rescue ActiveRecord::RecordNotFound
-        # Expected since the stub validator always raises
+      it 'raises RecordNotFound for unregistered token' do
+        expect do
+          controller_instance.send(:find_and_validate_invite!)
+        end.to raise_error(ActiveRecord::RecordNotFound)
+      end
+
+      it 'returns invite for registered token' do
+        invite = InviteTokens::Validator.register(
+          token: 'valid-token',
+          kind: 'teacher',
+          school_id: school.id
+        )
+
+        result = controller_instance.send(:find_and_validate_invite!)
+        expect(result).to eq(invite)
       end
     end
   end
