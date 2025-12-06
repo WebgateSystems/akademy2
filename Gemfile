@@ -13,9 +13,12 @@ gem 'rails', '~> 8.1.1', '>= 8.1.1'
 gem 'bootsnap', require: false
 gem 'carrierwave', '~> 3.0'
 gem 'cssbundling-rails', '~> 1.4'
+
+# Video processing
 gem 'devise', '~> 4.9'
 gem 'devise-jwt', '~> 0.12.1'
 gem 'dry-validation'
+gem 'elasticsearch', '~> 8.0' # Elasticsearch client for searchkick
 gem 'ffaker'
 gem 'image_processing', '~> 1.14'
 gem 'interactor', '~> 3.0'
@@ -30,11 +33,13 @@ gem 'pundit', '~> 2.5'
 gem 'rack-attack', '~> 6.7'
 gem 'rqrcode', '~> 3.1'
 gem 'rswag'
+gem 'searchkick' # Elasticsearch integration for full-text search
 gem 'sidekiq', '~> 8.0'
 gem 'slim-rails'
 gem 'solid_cable'
 gem 'solid_cache'
 gem 'solid_queue'
+gem 'streamio-ffmpeg', '~> 3.0'
 gem 'thruster', require: false
 gem 'wicked_pdf', '~> 2.8'
 
@@ -43,6 +48,7 @@ group :development, :test do
   gem 'debug', platforms: %i[mri windows], require: 'debug/prelude'
   gem 'factory_bot_rails'
   gem 'letter_opener', github: 'ryanb/letter_opener'
+  gem 'rails-controller-testing'
   gem 'rspec-rails', '~> 8.0'
 end
 

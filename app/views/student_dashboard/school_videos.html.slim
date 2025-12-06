@@ -1,0 +1,642 @@
+.dashboard-app data-dashboard-app="" data-student-dashboard="true"
+  = render 'student_dashboard/sidebar', active: 'videos'
+
+  main.dashboard-main
+    = render 'student_dashboard/top_bar'
+
+    section.school-videos-section
+      .school-videos-filters
+        = link_to 'Wszystkie', student_videos_path, class: "filter-tag #{params[:subject].blank? ? 'is-active' : ''}"
+        - @subjects.each do |subject|
+          = link_to subject.title, student_videos_path(subject: subject.slug), class: "filter-tag #{params[:subject] == subject.slug ? 'is-active' : ''}"
+
+      header.schools-page__header
+        label.schools-search.schools-search--half
+          span.visually-hidden Szukaj filmów
+          input type="search" placeholder="Szukaj..." id="videos-search-input" value="#{params[:q]}" data-subject="#{@current_subject&.slug}"
+          = image_tag 'icons/social/S/search.svg', alt: '', aria: { hidden: true }, "data-theme-icon": true
+        .view-toggle
+          button.view-toggle__button.is-active data-view="grid" type="button" aria-label="Widok kafelków"
+            svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+              path d="M6.33333 2.5H4.5C3.39543 2.5 2.5 3.39543 2.5 4.5V6.33333C2.5 7.4379 3.39543 8.33333 4.5 8.33333H6.33333C7.4379 8.33333 8.33333 7.4379 8.33333 6.33333V4.5C8.33333 3.39543 7.4379 2.5 6.33333 2.5Z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"
+              path d="M15.5 2.5H13.6667C12.5621 2.5 11.6667 3.39543 11.6667 4.5V6.33333C11.6667 7.4379 12.5621 8.33333 13.6667 8.33333H15.5C16.6046 8.33333 17.5 7.4379 17.5 6.33333V4.5C17.5 3.39543 16.6046 2.5 15.5 2.5Z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"
+              path d="M15.5 11.6667H13.6667C12.5621 11.6667 11.6667 12.5621 11.6667 13.6667V15.5C11.6667 16.6046 12.5621 17.5 13.6667 17.5H15.5C16.6046 17.5 17.5 16.6046 17.5 15.5V13.6667C17.5 12.5621 16.6046 11.6667 15.5 11.6667Z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"
+              path d="M6.33333 11.6667H4.5C3.39543 11.6667 2.5 12.5621 2.5 13.6667V15.5C2.5 16.6046 3.39543 17.5 4.5 17.5H6.33333C7.4379 17.5 8.33333 16.6046 8.33333 15.5V13.6667C8.33333 12.5621 7.4379 11.6667 6.33333 11.6667Z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"
+          button.view-toggle__button data-view="list" type="button" aria-label="Widok listy"
+            svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+              path d="M6.66667 5.00072L17.5 5.00132M6.66667 10.0007L17.5 10.0014M6.66667 15.0007L17.5 15.0014M2.91667 5.00016H2.925M2.91667 10.0002H2.925M2.91667 15.0002H2.925M3.33333 5.00016C3.33333 5.23028 3.14678 5.41683 2.91667 5.41683C2.68655 5.41683 2.5 5.23028 2.5 5.00016C2.5 4.77005 2.68655 4.5835 2.91667 4.5835C3.14678 4.5835 3.33333 4.77005 3.33333 5.00016ZM3.33333 10.0002C3.33333 10.2302 3.14678 10.4168 2.91667 10.4168C2.68655 10.4168 2.5 10.2302 2.5 10.0002C2.5 9.77008 2.68655 9.5835 2.91667 9.5835C3.14678 9.5835 3.33333 9.77008 3.33333 10.0002ZM3.33333 15.0002C3.33333 15.2302 3.14678 15.4168 2.91667 15.4168C2.68655 15.4168 2.5 15.2302 2.5 15.0002C2.5 14.7701 2.68655 14.5835 2.91667 14.5835C3.14678 14.5835 3.33333 14.7701 3.33333 15.0002Z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"
+
+      / FAB button for adding video
+      button.school-videos-fab type="button" data-open-modal="add-video-modal" aria-label="Dodaj film"
+        svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          line x1="12" y1="5" x2="12" y2="19"
+          line x1="5" y1="12" x2="19" y2="12"
+
+      - if @videos.any?
+        .school-videos-container
+          / Grid view
+          .school-videos-grid data-videos-view="grid"
+            - @videos.each do |video|
+              - is_own = video.user_id == current_user.id
+              - duration_str = video.duration_sec.present? && video.duration_sec > 0 ? "#{video.duration_sec / 60}:#{format('%02d', video.duration_sec % 60)}" : '—'
+              article.school-video-card class="#{is_own && video.pending? ? 'school-video-card--pending' : ''}"
+                button.school-video-card__thumbnail.js-open-video type="button" aria-label="Odtwórz #{video.title}" data-video-url="#{video.youtube_url || video.file&.url}" data-video-title="#{video.title}" data-video-author="#{video.author_name}" data-video-school="#{video.school_name || '—'}" data-video-subject="#{video.subject&.title || '—'}" data-video-date="#{video.created_at.strftime('%d.%m.%Y')}" data-video-duration="#{duration_str}" data-video-description="#{video.description}"
+                  - if video.thumbnail.present?
+                    = image_tag video.thumbnail.url, alt: video.title, class: 'school-video-card__thumbnail-img'
+                  - else
+                    = image_tag 'icons/social/L/video.svg', alt: '', class: 'school-video-card__thumbnail-placeholder'
+                  - if is_own && video.pending?
+                    span.school-video-card__status Oczekuje
+                  - elsif is_own && video.rejected?
+                    span.school-video-card__status.school-video-card__status--rejected Odrzucone
+                .school-video-card__info
+                  .school-video-card__text
+                    h3.school-video-card__title = video.title
+                    p.school-video-card__author = video.author_name
+                  - if is_own && video.pending?
+                    .school-video-card__actions
+                      button.school-video-card__edit.js-edit-video type="button" aria-label="Edytuj film" data-video-id="#{video.id}" data-video-title="#{video.title}" data-video-description="#{video.description || ''}"
+                        = image_tag 'icons/social/S/edit.svg', alt: ''
+                      button.school-video-card__delete.js-delete-video type="button" aria-label="Usuń film" data-video-id="#{video.id}"
+                        = image_tag 'icons/social/S/close.svg', alt: ''
+                  - elsif is_own && video.rejected?
+                    button.school-video-card__delete.js-delete-video type="button" aria-label="Usuń film" data-video-id="#{video.id}"
+                      = image_tag 'icons/social/S/close.svg', alt: ''
+                  - else
+                    button.school-video-card__likes class="#{video.liked_by?(current_user) ? 'is-liked' : ''}" type="button" aria-label="Polub film" data-video-id="#{video.id}" data-icon-liked="#{image_path('icons/social/S/like.svg')}" data-icon-unliked="#{image_path('icons/social/S/no-like.svg')}"
+                      = image_tag video.liked_by?(current_user) ? 'icons/social/S/like.svg' : 'icons/social/S/no-like.svg', alt: ''
+                      span = video.likes_count
+
+          / List view (hidden by default)
+          .teachers-panel data-videos-view="list" style="display: none;"
+            table.teachers-table
+              thead.teachers-table__head
+                tr
+                  th.teachers-table__heading scope="col" Film
+                  th.teachers-table__heading scope="col" Autor
+                  th.teachers-table__heading scope="col" Temat
+                  th.teachers-table__heading scope="col" Dodano
+                  th.teachers-table__heading scope="col" Status
+                  th.teachers-table__heading.teachers-table__heading--actions scope="col" Akcje
+              tbody.teachers-table__body
+                - @videos.each do |video|
+                  - is_own = video.user_id == current_user.id
+                  - duration_str = video.duration_sec.present? && video.duration_sec > 0 ? "#{video.duration_sec / 60}:#{format('%02d', video.duration_sec % 60)}" : '—'
+                  tr.teachers-table__row.js-video-row data-video-url="#{video.youtube_url || video.file&.url}" data-video-title="#{video.title}" data-video-author="#{video.author_name}" data-video-school="#{video.school_name || '—'}" data-video-subject="#{video.subject&.title || '—'}" data-video-date="#{video.created_at.strftime('%d.%m.%Y')}" data-video-duration="#{duration_str}" data-video-description="#{video.description}"
+                    td.teachers-table__cell
+                      .pupil-video-cell
+                        .pupil-video-cell__thumb
+                          - if video.thumbnail.present?
+                            = image_tag video.thumbnail.url, alt: video.title, class: 'pupil-video-cell__thumb-img'
+                          - else
+                            = image_tag 'icons/social/L/video.svg', alt: ''
+                        .pupil-video-cell__details
+                          span.pupil-video-cell__title = video.title
+                    td.teachers-table__cell = video.author_name
+                    td.teachers-table__cell = video.subject&.title || '—'
+                    td.teachers-table__cell = video.created_at.strftime('%d.%m.%Y')
+                    td.teachers-table__cell
+                      - if video.approved?
+                        span.video-status.video-status--approved Zaakceptowane
+                      - elsif video.pending?
+                        span.video-status.video-status--pending Oczekuje
+                      - elsif video.rejected?
+                        span.video-status.video-status--rejected Odrzucone
+                    td.teachers-table__cell.teachers-table__cell--actions
+                      .teachers-actions
+                        - if is_own && video.pending?
+                          button.school-video-card__edit.js-edit-video type="button" aria-label="Edytuj film" data-video-id="#{video.id}" data-video-title="#{video.title}" data-video-description="#{video.description || ''}"
+                            = image_tag 'icons/social/S/edit.svg', alt: ''
+                          button.school-video-card__delete.js-delete-video type="button" aria-label="Usuń film" data-video-id="#{video.id}"
+                            = image_tag 'icons/social/S/close.svg', alt: ''
+                        - elsif is_own && video.rejected?
+                          button.school-video-card__delete.js-delete-video type="button" aria-label="Usuń film" data-video-id="#{video.id}"
+                            = image_tag 'icons/social/S/close.svg', alt: ''
+                        - else
+                          button.school-video-card__likes class="#{video.liked_by?(current_user) ? 'is-liked' : ''}" type="button" aria-label="Polub film" data-video-id="#{video.id}" data-icon-liked="#{image_path('icons/social/S/like.svg')}" data-icon-unliked="#{image_path('icons/social/S/no-like.svg')}"
+                            = image_tag video.liked_by?(current_user) ? 'icons/social/S/like.svg' : 'icons/social/S/no-like.svg', alt: ''
+                            span = video.likes_count
+      - else
+        .school-videos-empty
+          p Nie znaleziono filmów
+          - if params[:q].present? || params[:subject].present?
+            = link_to 'Wyczyść filtry', student_videos_path, class: 'btn btn--secondary'
+
+    / Add video modal
+    .schools-modal#add-video-modal aria-hidden="true"
+      .schools-modal__overlay
+      .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="add-video-title"
+        button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="add-video-modal" style="position: absolute; top: 16px; right: 16px;"
+          svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            line x1="18" y1="6" x2="6" y2="18"
+            line x1="6" y1="6" x2="18" y2="18"
+        .schools-modal__body
+          h3#add-video-title style="margin: 0 0 24px; font-size: 24px; font-weight: 500; text-align: center;" Dodaj nowy film
+        = form_with url: student_videos_path, method: :post, local: true, multipart: true, class: 'schools-modal__form headmaster-form', id: 'add-video-form' do |f|
+          label
+            span
+              | Tytuł
+              sup style="color: var(--content-secondary);" *
+            = text_field_tag :title, nil, placeholder: 'Tytuł filmu', required: true
+          label
+            span
+              | Przedmiot
+              sup style="color: var(--content-secondary);" *
+            = select_tag :subject_id, options_from_collection_for_select(@subjects, :id, :title), include_blank: 'Wybierz przedmiot...', required: true
+          label
+            span Opis
+            = text_area_tag :description, nil, placeholder: 'Opisz swój film...', rows: 3
+          label
+            span
+              | Plik wideo
+              sup style="color: var(--content-secondary);" *
+            .file-input-wrapper
+              = file_field_tag :file, accept: 'video/*', required: true, id: 'video-file-input'
+              span#selected-filename.file-input-filename Nie wybrano pliku
+          .schools-modal__actions
+            button.schools-modal__primary type="submit" Prześlij
+            button.schools-modal__secondary type="button" data-close-modal="add-video-modal" Anuluj
+
+    / Video player modal
+    .schools-modal.video-player-modal#video-player-modal aria-hidden="true"
+      .schools-modal__overlay
+      .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="video-player-modal-title"
+        button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="video-player-modal" style="position: absolute; top: 16px; right: 16px; z-index: 10;"
+          svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            line x1="18" y1="6" x2="6" y2="18"
+            line x1="6" y1="6" x2="18" y2="18"
+        .video-player-modal__frame#video-frame-container
+          iframe#video-player-frame src="" title="Film ucznia" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""
+        .video-player-modal__video-container#video-video-container style="display: none;"
+          video#video-player-video controls=""
+            | Twoja przeglądarka nie obsługuje elementu video.
+        .video-player-modal__info
+          h3.video-player-modal__title
+          p.video-player-modal__description#video-description
+          .video-player-modal__details
+            span.video-detail
+              strong Autor: 
+              span#video-author
+            span.video-detail
+              strong Szkoła: 
+              span#video-school
+            span.video-detail
+              strong Temat: 
+              span#video-subject
+            span.video-detail
+              strong Dodano: 
+              span#video-date
+            span.video-detail
+              strong Długość: 
+              span#video-duration
+        p.video-player-modal__hotkeys style="text-align: center; font-size: 12px; color: var(--content-tertiary); margin-top: 8px;"
+          | Skróty: F = pełny ekran • Esc = zamknij
+
+    / Edit video modal
+    .schools-modal#edit-video-modal aria-hidden="true"
+      .schools-modal__overlay
+      .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="edit-video-modal-title"
+          button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="edit-video-modal" style="position: absolute; top: 16px; right: 16px;"
+            svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              line x1="18" y1="6" x2="6" y2="18"
+              line x1="6" y1="6" x2="18" y2="18"
+          .schools-modal__body
+            h3#edit-video-modal-title style="margin: 0 0 24px; font-size: 24px; font-weight: 500; text-align: center;" Edytuj film
+          form.schools-modal__form#edit-video-form novalidate=""
+            label
+              span
+                | Tytuł
+                sup style="color: var(--content-secondary);" *
+              input#edit-video-title-input.schools-modal__input type="text" name="title" placeholder="Tytuł filmu" required=""
+            label
+              span Opis
+              textarea#edit-video-description.schools-modal__input rows="4" name="description" placeholder="Opisz swój film..."
+            .schools-modal__actions
+              button.schools-modal__primary#edit-video-confirm-btn type="submit" Zapisz zmiany
+              button.schools-modal__secondary type="button" data-close-modal="edit-video-modal" Anuluj
+
+    / Delete confirmation modal
+    .schools-modal#delete-video-modal aria-hidden="true"
+      .schools-modal__overlay
+      .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="delete-video-modal-title"
+          button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="delete-video-modal" style="position: absolute; top: 16px; right: 16px;"
+            svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              line x1="18" y1="6" x2="6" y2="18"
+              line x1="6" y1="6" x2="18" y2="18"
+          .schools-modal__body
+            h3#delete-video-modal-title style="margin: 0 0 16px; font-size: 24px; font-weight: 500; text-align: center;" Usuń film
+            p style="text-align: center; color: var(--content-secondary);" Czy na pewno chcesz usunąć ten film?
+          .schools-modal__actions
+            button.schools-modal__primary.schools-modal__primary--danger#delete-video-confirm-btn type="button" Usuń
+            button.schools-modal__secondary type="button" data-close-modal="delete-video-modal" Anuluj
+
+javascript:
+      document.addEventListener('DOMContentLoaded', function() {
+        const api = new window.ApiClient();
+        const API_BASE = '/student/videos';
+        let deleteVideoId = null;
+        let editVideoId = null;
+        
+        // Search functionality
+        const searchInput = document.getElementById('videos-search-input');
+        if (searchInput) {
+          searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              const query = this.value.trim();
+              const subject = this.getAttribute('data-subject');
+              let url = '/home/videos';
+              const params = new URLSearchParams();
+              if (query) params.set('q', query);
+              if (subject) params.set('subject', subject);
+              if (params.toString()) url += '?' + params.toString();
+              window.location.href = url;
+            }
+          });
+        }
+        
+        // View toggle (grid/list)
+        const viewToggleButtons = document.querySelectorAll('.view-toggle__button');
+        const gridView = document.querySelector('[data-videos-view="grid"]');
+        const listView = document.querySelector('[data-videos-view="list"]');
+        
+        viewToggleButtons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const view = btn.getAttribute('data-view');
+            
+            // Update button states
+            viewToggleButtons.forEach(b => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            
+            // Toggle views
+            if (view === 'grid') {
+              if (gridView) gridView.style.display = '';
+              if (listView) listView.style.display = 'none';
+            } else {
+              if (gridView) gridView.style.display = 'none';
+              if (listView) listView.style.display = '';
+            }
+            
+            // Save preference
+            localStorage.setItem('school-videos-view', view);
+          });
+        });
+        
+        // Restore saved view preference
+        const savedView = localStorage.getItem('school-videos-view');
+        if (savedView === 'list') {
+          const listBtn = document.querySelector('[data-view="list"]');
+          if (listBtn) listBtn.click();
+        }
+        
+        // File input display
+        const fileInput = document.getElementById('video-file-input');
+        const filenameDisplay = document.getElementById('selected-filename');
+        
+        if (fileInput && filenameDisplay) {
+          fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+              filenameDisplay.textContent = this.files[0].name;
+            } else {
+              filenameDisplay.textContent = 'Nie wybrano pliku';
+            }
+          });
+        }
+        
+        // Open modal
+        document.querySelectorAll('[data-open-modal]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const modalId = btn.getAttribute('data-open-modal');
+            const modal = document.getElementById(modalId);
+            if (modal) {
+              modal.setAttribute('aria-hidden', 'false');
+              modal.classList.add('is-open');
+            }
+          });
+        });
+        
+        // Close modal
+        document.querySelectorAll('[data-close-modal]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const modalId = btn.getAttribute('data-close-modal');
+            const modal = document.getElementById(modalId);
+            if (modal) {
+              modal.setAttribute('aria-hidden', 'true');
+              modal.classList.remove('is-open');
+            }
+          });
+        });
+        
+        // Close on overlay click
+        document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+          overlay.addEventListener('click', function() {
+            const modal = this.closest('.schools-modal');
+            if (modal) {
+              modal.setAttribute('aria-hidden', 'true');
+              modal.classList.remove('is-open');
+            }
+          });
+        });
+        
+        // Confirm delete via API
+        const deleteConfirmBtn = document.getElementById('delete-video-confirm-btn');
+        if (deleteConfirmBtn) {
+          deleteConfirmBtn.addEventListener('click', async () => {
+            if (!deleteVideoId) return;
+            
+            try {
+              const result = await api.delete(`${API_BASE}/${deleteVideoId}`);
+              
+              if (result.success) {
+                // Remove video card from both views
+                document.querySelectorAll(`[data-video-id="${deleteVideoId}"]`).forEach(el => {
+                  const card = el.closest('.school-video-card') || el.closest('tr');
+                  if (card) card.remove();
+                });
+                
+                // Check if no videos left
+                const remainingCards = document.querySelectorAll('.school-video-card');
+                if (remainingCards.length === 0) {
+                  window.location.reload(); // Reload to show empty state
+                }
+              } else {
+                alert(result.error || 'Nie udało się usunąć filmu');
+              }
+            } catch (error) {
+              console.error('Delete error:', error);
+              alert('Wystąpił błąd');
+            }
+            
+            const modal = document.getElementById('delete-video-modal');
+            if (modal) {
+              modal.setAttribute('aria-hidden', 'true');
+              modal.classList.remove('is-open');
+            }
+          });
+        }
+        
+        // Video player elements
+        const videoModal = document.getElementById('video-player-modal');
+        const videoElement = document.getElementById('video-player-video');
+        const iframeElement = document.getElementById('video-player-frame');
+        const iframeContainer = document.getElementById('video-frame-container');
+        const videoContainer = document.getElementById('video-video-container');
+        
+        // Helper to check if URL is YouTube
+        function isYouTubeUrl(url) {
+          return url && (url.includes('youtube.com') || url.includes('youtu.be'));
+        }
+        
+        // Helper to close video modal
+        function closeVideoModal() {
+          if (videoModal) {
+            videoModal.setAttribute('aria-hidden', 'true');
+            videoModal.classList.remove('is-open');
+          }
+        }
+        
+        // Helper to open video with details
+        function openVideo(url, title, details = {}) {
+          const titleEl = videoModal?.querySelector('.video-player-modal__title');
+          if (titleEl) titleEl.textContent = title;
+          
+          // Fill in video details
+          const descEl = document.getElementById('video-description');
+          const authorEl = document.getElementById('video-author');
+          const schoolEl = document.getElementById('video-school');
+          const subjectEl = document.getElementById('video-subject');
+          const dateEl = document.getElementById('video-date');
+          const durationEl = document.getElementById('video-duration');
+          
+          if (descEl) descEl.textContent = details.description || '';
+          if (authorEl) authorEl.textContent = details.author || '—';
+          if (schoolEl) schoolEl.textContent = details.school || '—';
+          if (subjectEl) subjectEl.textContent = details.subject || '—';
+          if (dateEl) dateEl.textContent = details.date || '—';
+          if (durationEl) durationEl.textContent = details.duration || '—';
+          
+          if (isYouTubeUrl(url)) {
+            // Use iframe for YouTube
+            if (videoContainer) videoContainer.style.display = 'none';
+            if (iframeContainer) iframeContainer.style.display = 'block';
+            if (iframeElement) iframeElement.src = url;
+          } else {
+            // Use video element for local files
+            if (iframeContainer) iframeContainer.style.display = 'none';
+            if (videoContainer) videoContainer.style.display = 'block';
+            if (videoElement) {
+              videoElement.src = url;
+              videoElement.play().catch(() => {}); // Auto-play, ignore errors
+              // Focus video for keyboard controls (space, arrows, etc.)
+              setTimeout(() => videoElement.focus(), 100);
+            }
+          }
+          
+          videoModal.setAttribute('aria-hidden', 'false');
+          videoModal.classList.add('is-open');
+        }
+        
+        // Stop video on modal close
+        if (videoModal) {
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (mutation.attributeName === 'aria-hidden') {
+                const isHidden = videoModal.getAttribute('aria-hidden') === 'true';
+                if (isHidden) {
+                  if (iframeElement) iframeElement.src = '';
+                  if (videoElement) {
+                    videoElement.pause();
+                    videoElement.src = '';
+                  }
+                }
+              }
+            });
+          });
+          observer.observe(videoModal, { attributes: true });
+        }
+        
+        // Keyboard shortcuts for video player
+        document.addEventListener('keydown', (e) => {
+          // Only handle when video modal is open
+          if (!videoModal || videoModal.getAttribute('aria-hidden') === 'true') return;
+          
+          // Don't handle if typing in an input
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+          
+          // Check if we're using local video (not YouTube iframe)
+          const isLocalVideo = videoContainer && videoContainer.style.display !== 'none';
+          
+          switch (e.key) {
+            case 'Escape':
+              e.preventDefault();
+              closeVideoModal();
+              break;
+              
+            // Note: Space, arrows, M are handled natively by <video controls>
+            // We only add F for fullscreen and Escape for close
+              
+            case 'f':
+            case 'F': // F - toggle fullscreen
+              e.preventDefault();
+              if (document.fullscreenElement) {
+                document.exitFullscreen();
+              } else if (isLocalVideo && videoElement?.requestFullscreen) {
+                videoElement.requestFullscreen();
+              } else if (videoModal?.requestFullscreen) {
+                videoModal.requestFullscreen();
+              }
+              break;
+          }
+        });
+        
+        // Main click handler for video interactions (edit, delete, like, play)
+        document.addEventListener('click', async (e) => {
+          // 1. Handle edit button click
+          const editBtn = e.target.closest('.js-edit-video');
+          if (editBtn) {
+            e.stopPropagation();
+            editVideoId = editBtn.getAttribute('data-video-id');
+            const title = editBtn.getAttribute('data-video-title') || '';
+            const description = editBtn.getAttribute('data-video-description') || '';
+            
+            document.getElementById('edit-video-title-input').value = title;
+            document.getElementById('edit-video-description').value = description;
+            
+            const modal = document.getElementById('edit-video-modal');
+            if (modal) {
+              modal.setAttribute('aria-hidden', 'false');
+              modal.classList.add('is-open');
+            }
+            return; // Stop here, don't process other handlers
+          }
+          
+          // 2. Handle delete button click
+          const deleteBtn = e.target.closest('.js-delete-video');
+          if (deleteBtn) {
+            e.stopPropagation();
+            deleteVideoId = deleteBtn.getAttribute('data-video-id');
+            const modal = document.getElementById('delete-video-modal');
+            if (modal) {
+              modal.setAttribute('aria-hidden', 'false');
+              modal.classList.add('is-open');
+            }
+            return; // Stop here, don't process other handlers
+          }
+          
+          // 3. Handle like button click
+          const likeBtn = e.target.closest('.school-video-card__likes');
+          if (likeBtn) {
+            const videoId = likeBtn.getAttribute('data-video-id');
+            
+            try {
+              const result = await api.post(`${API_BASE}/${videoId}/like`, {});
+              
+              if (result.success && result.data) {
+                const data = result.data.data || result.data;
+                const isLiked = data.liked;
+                const likesCount = data.likes_count;
+                
+                // Update all like buttons for this video (grid + list views)
+                document.querySelectorAll(`.school-video-card__likes[data-video-id="${videoId}"]`).forEach(btn => {
+                  // Toggle liked state
+                  if (isLiked) {
+                    btn.classList.add('is-liked');
+                  } else {
+                    btn.classList.remove('is-liked');
+                  }
+                  
+                  // Update icon using data attributes
+                  const img = btn.querySelector('img');
+                  if (img) {
+                    const likedIcon = btn.getAttribute('data-icon-liked');
+                    const unlikedIcon = btn.getAttribute('data-icon-unliked');
+                    img.src = isLiked ? likedIcon : unlikedIcon;
+                  }
+                  
+                  // Update count
+                  const countSpan = btn.querySelector('span');
+                  if (countSpan) {
+                    countSpan.textContent = likesCount;
+                  }
+                });
+              }
+            } catch (error) {
+              console.error('Like error:', error);
+            }
+            return; // Stop here, don't process other handlers
+          }
+          
+          // 4. Handle video player (thumbnail click or row click)
+          const openBtn = e.target.closest('.js-open-video');
+          const videoRow = e.target.closest('.js-video-row');
+          const clickedElement = openBtn || videoRow;
+          
+          if (clickedElement) {
+            const videoUrl = clickedElement.getAttribute('data-video-url');
+            const videoTitle = clickedElement.getAttribute('data-video-title');
+            
+            if (videoUrl) {
+              const details = {
+                author: clickedElement.getAttribute('data-video-author') || '—',
+                school: clickedElement.getAttribute('data-video-school') || '—',
+                subject: clickedElement.getAttribute('data-video-subject') || '—',
+                date: clickedElement.getAttribute('data-video-date') || '—',
+                duration: clickedElement.getAttribute('data-video-duration') || '—',
+                description: clickedElement.getAttribute('data-video-description') || ''
+              };
+              openVideo(videoUrl, videoTitle, details);
+            }
+          }
+        });
+        
+        // Handle edit video form submission
+        const editVideoForm = document.getElementById('edit-video-form');
+        if (editVideoForm) {
+          editVideoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!editVideoId) return;
+            
+            const btn = document.getElementById('edit-video-confirm-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Zapisywanie...';
+            
+            const title = document.getElementById('edit-video-title-input').value.trim();
+            const description = document.getElementById('edit-video-description').value.trim();
+            
+            if (!title) {
+              alert('Tytuł jest wymagany');
+              btn.disabled = false;
+              btn.textContent = originalText;
+              return;
+            }
+            
+            try {
+              const result = await api.patch(`${API_BASE}/${editVideoId}`, {
+                video: { title, description }
+              });
+              
+              if (result.success) {
+                // Close modal
+                const modal = document.getElementById('edit-video-modal');
+                if (modal) {
+                  modal.setAttribute('aria-hidden', 'true');
+                  modal.classList.remove('is-open');
+                }
+                
+                // Reload page to show updated video
+                window.location.reload();
+              } else {
+                alert('Błąd: ' + (result.error || result.errors?.join(', ') || 'Nie udało się zapisać zmian'));
+                btn.disabled = false;
+                btn.textContent = originalText;
+              }
+            } catch (error) {
+              console.error('Edit error:', error);
+              alert('Wystąpił błąd podczas zapisywania');
+              btn.disabled = false;
+              btn.textContent = originalText;
+            }
+          });
+        }
+      });

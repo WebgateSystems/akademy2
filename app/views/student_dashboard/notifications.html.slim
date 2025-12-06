@@ -1,0 +1,217 @@
+.dashboard-app data-dashboard-app="" data-student-dashboard="true"
+  = render 'student_dashboard/sidebar', active: 'notifications'
+
+  main.dashboard-main
+    = render 'student_dashboard/top_bar', title: "Powiadomienia"
+
+    section.notifications-section aria-label="Notifications list" data-mark-read-url="#{mark_student_notifications_as_read_path}"
+      header.notifications-header
+        .notifications-header__left
+          h2 Powiadomienia
+          .notifications-filters
+            select#notification-status-filter.notifications-filter
+              option value="unread" selected=(@status_filter == 'unread') Nieprzeczytane
+              option value="archived" selected=(@status_filter == 'archived') Archiwum
+        - if @status_filter == 'unread' && @unread_count > 0
+          button.btn.btn-secondary#mark-all-read type="button" Oznacz wszystkie jako przeczytane
+
+      .notifications-panel
+        - if @notifications_list.any?
+          ul.notifications-list
+            - @notifications_list.each do |notification|
+              li.notification-item class=("notification-item--unread" unless notification.read?) data-notification-id=notification.id
+                .notification-item__icon
+                  - case notification.notification_type
+                  - when 'student_video_approved'
+                    span style="font-size: 24px;" 🎉
+                  - when 'student_video_rejected'
+                    span style="font-size: 24px;" ❌
+                  - when 'quiz_completed'
+                    span style="font-size: 24px;" 🏆
+                  - else
+                    span style="font-size: 24px;" 🔔
+                .notification-item__content
+                  h3.notification-item__title = notification.title
+                  p.notification-item__message = notification.message
+                  time.notification-item__time datetime=notification.created_at.iso8601
+                    = time_ago_in_words(notification.created_at)
+                    |  temu
+                .notification-item__actions
+                  - unless notification.read?
+                    button.notification-action.js-mark-read type="button" aria-label="Oznacz jako przeczytane" data-notification-id=notification.id
+                      = image_tag 'icons/social/S/done.svg', alt: '', style: 'width: 16px; height: 16px;'
+        - else
+          .notifications-empty
+            span style="font-size: 48px; display: block; margin-bottom: 16px;" 🔔
+            p Brak powiadomień
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    const notificationsSection = document.querySelector('.notifications-section');
+    const MARK_READ_URL = notificationsSection ? notificationsSection.getAttribute('data-mark-read-url') : '';
+    
+    // Status filter handler
+    const statusFilter = document.getElementById('notification-status-filter');
+    if (statusFilter) {
+      statusFilter.addEventListener('change', function() {
+        const selectedStatus = this.value;
+        const url = new URL(window.location);
+        url.searchParams.set('status', selectedStatus);
+        window.location.href = url.toString();
+      });
+    }
+    
+    function updateNotificationCounter(delta) {
+      // Find counter in top bar
+      const topBar = document.querySelector('.dashboard-top-bar');
+      if (topBar) {
+        const counter = topBar.querySelector('.notification-counter');
+        if (counter) {
+          const currentCount = parseInt(counter.textContent) || 0;
+          const newCount = Math.max(0, currentCount + delta);
+          if (newCount > 0) {
+            counter.textContent = newCount;
+            counter.style.display = '';
+          } else {
+            counter.style.display = 'none';
+          }
+        }
+      }
+    }
+    
+    async function markAsRead(notificationIds) {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+      
+      if (!csrfToken) {
+        console.error('CSRF token not found');
+        return { success: false, error: 'CSRF token missing' };
+      }
+      
+      try {
+        const response = await fetch(MARK_READ_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-Token': csrfToken
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({ notification_ids: notificationIds })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error in markAsRead:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // Mark single notification as read
+    document.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.js-mark-read');
+      if (!btn) return;
+      
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const notificationId = btn.getAttribute('data-notification-id');
+      if (!notificationId) return;
+      
+      try {
+        const result = await markAsRead([notificationId]);
+        
+        if (result.success) {
+          const item = btn.closest('.notification-item');
+          if (item) {
+            item.classList.remove('notification-item--unread');
+            const actionBtn = item.querySelector('.js-mark-read');
+            if (actionBtn) actionBtn.remove();
+            
+            // Update counter in header
+            updateNotificationCounter(-1);
+          }
+        } else {
+          alert('Nie udało się oznaczyć powiadomienia jako przeczytane: ' + (result.error || 'Nieznany błąd'));
+        }
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+        alert('Wystąpił błąd podczas oznaczania powiadomienia jako przeczytane');
+      }
+    });
+
+    // Mark all as read (button is only rendered when there are unread notifications)
+    const markAllReadBtn = document.getElementById('mark-all-read');
+    if (markAllReadBtn) {
+      markAllReadBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const unreadItems = document.querySelectorAll('.notification-item--unread');
+        const notificationIds = Array.from(unreadItems)
+          .map(item => item.getAttribute('data-notification-id'))
+          .filter(id => id);
+        
+        if (notificationIds.length === 0) {
+          return;
+        }
+        
+        // Disable button during request
+        markAllReadBtn.disabled = true;
+        const originalText = markAllReadBtn.textContent;
+        markAllReadBtn.textContent = 'Oznaczanie...';
+        
+        try {
+          const result = await markAsRead(notificationIds);
+          
+          if (result.success) {
+            // Remove unread class and hide items (they should move to archive)
+            unreadItems.forEach(item => {
+              item.classList.remove('notification-item--unread');
+              const btn = item.querySelector('.js-mark-read');
+              if (btn) btn.remove();
+              // Hide the item since it's now read and should be in archive
+              item.style.display = 'none';
+            });
+            
+            // Update counter in header
+            updateNotificationCounter(-notificationIds.length);
+            
+            // Hide button if no more unread notifications
+            if (markAllReadBtn) {
+              markAllReadBtn.style.display = 'none';
+            }
+            
+            // Check if list is now empty and show empty state
+            const visibleItems = Array.from(document.querySelectorAll('.notification-item')).filter(
+              item => item.style.display !== 'none'
+            );
+            if (visibleItems.length === 0) {
+              const emptyState = document.querySelector('.notifications-empty');
+              if (!emptyState) {
+                const panel = document.querySelector('.notifications-panel');
+                if (panel) {
+                  const emptyDiv = document.createElement('div');
+                  emptyDiv.className = 'notifications-empty';
+                  emptyDiv.innerHTML = '<span style="font-size: 48px; display: block; margin-bottom: 16px;">🔔</span><p>Brak powiadomień</p>';
+                  panel.appendChild(emptyDiv);
+                }
+              }
+            }
+          } else {
+            alert('Nie udało się oznaczyć powiadomień jako przeczytane: ' + (result.error || 'Nieznany błąd'));
+            markAllReadBtn.disabled = false;
+            markAllReadBtn.textContent = originalText;
+          }
+        } catch (error) {
+          console.error('Error marking notifications as read:', error);
+          alert('Wystąpił błąd podczas oznaczania powiadomień jako przeczytane');
+          markAllReadBtn.disabled = false;
+          markAllReadBtn.textContent = originalText;
+        }
+      });
+    }
+  });

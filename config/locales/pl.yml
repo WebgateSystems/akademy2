@@ -64,6 +64,15 @@ pl:
   activerecord:
     errors:
       models:
+        student_video:
+          attributes:
+            subject:
+              required: "Przedmiot jest wymagany"
+              blank: "Przedmiot nie może być pusty"
+            title:
+              blank: "Tytuł nie może być pusty"
+            file:
+              blank: "Plik nie może być pusty"
         academic_year:
           attributes:
             year:
@@ -76,6 +85,7 @@ pl:
         taken: "jest już zajęty"
         blank: "nie może być pusty"
         invalid: "ma nieprawidłowy format"
+        required: "jest wymagany"
         record_invalid: "jest nieprawidłowy"
 
   student_dashboard:
@@ -83,6 +93,11 @@ pl:
       subject_not_found: "Przedmiot nie został znaleziony."
       module_not_found: "Moduł nie został znaleziony."
       access_denied: "Nie masz dostępu do tego modułu."
+    videos:
+      not_found: "Film nie został znaleziony."
+      not_authorized: "Brak uprawnień do usunięcia tego filmu."
+      cannot_delete: "Można usunąć tylko filmy oczekujące lub odrzucone."
+      deleted: "Film został usunięty."
 
   management:
     years:

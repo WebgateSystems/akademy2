@@ -1,0 +1,561 @@
+.dashboard-app data-dashboard-app=""
+  = render 'dashboard/sidebar', nav_path_helper: ->(school_class) { dashboard_pupil_videos_path(class_id: school_class.id) }
+
+  main.dashboard-main
+    = render 'dashboard/top_bar', title: "Video uczniów #{@current_class&.name || ''}"
+
+    - if @current_class
+      section.school-videos-section aria-label="Videos list"
+        / Row 1: Back button aligned right
+        .pupil-videos-back-row
+          = link_to dashboard_path(class_id: @current_class.id), class: "schools-page__add"
+            | Wróć
+        / Row 2: Filters (left) + View toggle (right), vertically aligned
+        .pupil-videos-toolbar
+          .school-videos-filters
+            = link_to "Oczekujące (#{@videos_pending_count})", dashboard_pupil_videos_path(class_id: @current_class.id, status: 'pending'), class: "filter-tag #{@status_filter == 'pending' ? 'is-active' : ''}"
+            = link_to "Zatwierdzone (#{@videos_approved_count})", dashboard_pupil_videos_path(class_id: @current_class.id, status: 'approved'), class: "filter-tag #{@status_filter == 'approved' ? 'is-active' : ''}"
+            = link_to "Odrzucone (#{@videos_rejected_count})", dashboard_pupil_videos_path(class_id: @current_class.id, status: 'rejected'), class: "filter-tag #{@status_filter == 'rejected' ? 'is-active' : ''}"
+          .view-toggle
+            button.view-toggle__button.is-active data-view="grid" type="button" aria-label="Widok kafelków"
+              svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+                rect x="2" y="2" width="7" height="7" rx="1.5" fill="currentColor"
+                rect x="11" y="2" width="7" height="7" rx="1.5" fill="currentColor"
+                rect x="2" y="11" width="7" height="7" rx="1.5" fill="currentColor"
+                rect x="11" y="11" width="7" height="7" rx="1.5" fill="currentColor"
+            button.view-toggle__button data-view="list" type="button" aria-label="Widok listy"
+              svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+                rect x="2" y="3" width="16" height="3" rx="1" fill="currentColor"
+                rect x="2" y="8.5" width="16" height="3" rx="1" fill="currentColor"
+                rect x="2" y="14" width="16" height="3" rx="1" fill="currentColor"
+
+        - if @videos.any?
+          .school-videos-container
+            / Grid view
+            .school-videos-grid data-videos-view="grid"
+              - @videos.each do |video|
+                - video_url = video.youtube_url || video.file&.url
+                - duration_str = video.duration_sec.present? && video.duration_sec > 0 ? "#{video.duration_sec / 60}:#{format('%02d', video.duration_sec % 60)}" : '—'
+                article.school-video-card data-video-id=video.id
+                  button.school-video-card__thumbnail.js-open-video type="button" aria-label="Odtwórz #{video.title}" data-video-url="#{video_url}" data-video-title="#{video.title}" data-video-author="#{video.author_name}" data-video-subject="#{video.subject_title}" data-video-date="#{video.created_at.strftime('%d.%m.%Y')}" data-video-duration="#{duration_str}" data-video-description="#{video.description}"
+                    - if video.thumbnail.present?
+                      = image_tag video.thumbnail.url, alt: video.title, class: 'school-video-card__thumbnail-img'
+                    - else
+                      = image_tag 'icons/social/L/video.svg', alt: '', class: 'school-video-card__thumbnail-placeholder'
+                    - if video.pending?
+                      span.school-video-card__status Oczekuje
+                    - elsif video.rejected?
+                      span.school-video-card__status.school-video-card__status--rejected Odrzucone
+                  .school-video-card__info
+                    .school-video-card__text
+                      h3.school-video-card__title = video.title
+                      p.school-video-card__author
+                        = link_to video.author_name, dashboard_student_path(video.user_id), class: "school-video-card__author-link"
+                    .school-video-card__actions
+                      - if video.pending?
+                        button.teacher-action.teacher-action--approve.js-approve-video type="button" aria-label="Zatwierdź" data-video-id=video.id data-video-title=video.title data-author-name=video.author_name
+                          = image_tag "icons/social/S/done.svg", alt: ""
+                        button.teacher-action.teacher-action--reject.js-reject-video type="button" aria-label="Odrzuć" data-video-id=video.id data-video-title=video.title data-author-name=video.author_name
+                          = image_tag "icons/social/S/close_red.svg", alt: ""
+                      - else
+                        button.teacher-action.teacher-action--neutral.js-edit-video type="button" aria-label="Edytuj" data-video-id=video.id data-title=video.title data-description=video.description data-subject-id=video.subject_id
+                          = image_tag "icons/social/S/edit.svg", alt: ""
+                        button.teacher-action.teacher-action--neutral.js-delete-video type="button" aria-label="Usuń" data-video-id=video.id data-video-title=video.title data-author-name=video.author_name
+                          = image_tag "icons/social/S/delete.svg", alt: ""
+
+            / List view (hidden by default)
+            .teachers-panel data-videos-view="list" style="display: none;"
+              table.teachers-table
+                thead.teachers-table__head
+                  tr
+                    th.teachers-table__heading scope="col" Video
+                    th.teachers-table__heading scope="col" Autor
+                    th.teachers-table__heading scope="col" Temat
+                    th.teachers-table__heading scope="col" Dodano
+                    th.teachers-table__heading.teachers-table__heading--actions scope="col" Akcje
+                tbody.teachers-table__body
+                  - @videos.each do |video|
+                    - video_url = video.youtube_url || video.file&.url
+                    - duration_str = video.duration_sec.present? && video.duration_sec > 0 ? "#{video.duration_sec / 60}:#{format('%02d', video.duration_sec % 60)}" : '—'
+                    tr.teachers-table__row.js-video-row data-video-id=video.id data-video-url="#{video_url}" data-video-title="#{video.title}" data-video-author="#{video.author_name}" data-video-subject="#{video.subject_title}" data-video-date="#{video.created_at.strftime('%d.%m.%Y')}" data-video-duration="#{duration_str}" data-video-description="#{video.description}"
+                      td.teachers-table__cell
+                        .pupil-video-cell
+                          .pupil-video-cell__thumb
+                            - if video.thumbnail.present?
+                              = image_tag video.thumbnail.url, alt: video.title, class: 'pupil-video-cell__thumb-img'
+                            - else
+                              = image_tag 'icons/social/L/video.svg', alt: ''
+                          .pupil-video-cell__details
+                            span.pupil-video-cell__title = video.title
+                      td.teachers-table__cell
+                        = link_to video.author_name, dashboard_student_path(video.user_id), class: "pupil-video-cell__author-link"
+                      td.teachers-table__cell = video.subject_title || '—'
+                      td.teachers-table__cell = time_ago_in_words(video.created_at) + " temu"
+                      td.teachers-table__cell.teachers-table__cell--actions
+                        .teachers-actions
+                          - if video.pending?
+                            button.teacher-action.teacher-action--approve.js-approve-video type="button" aria-label="Zatwierdź" data-video-id=video.id data-video-title=video.title data-author-name=video.author_name
+                              = image_tag "icons/social/S/done.svg", alt: ""
+                            button.teacher-action.teacher-action--reject.js-reject-video type="button" aria-label="Odrzuć" data-video-id=video.id data-video-title=video.title data-author-name=video.author_name
+                              = image_tag "icons/social/S/close_red.svg", alt: ""
+                          - else
+                            button.teacher-action.teacher-action--neutral.js-edit-video type="button" aria-label="Edytuj" data-video-id=video.id data-title=video.title data-description=video.description data-subject-id=video.subject_id
+                              = image_tag "icons/social/S/edit.svg", alt: ""
+                            button.teacher-action.teacher-action--neutral.js-delete-video type="button" aria-label="Usuń" data-video-id=video.id data-video-title=video.title data-author-name=video.author_name
+                              = image_tag "icons/social/S/delete.svg", alt: ""
+        - else
+          .school-videos-empty
+            - if @status_filter == 'pending'
+              p Brak video oczekujących na akceptację
+            - elsif @status_filter == 'approved'
+              p Brak zatwierdzonych video
+            - else
+              p Brak odrzuconych video
+
+      / Video player modal with details
+      .schools-modal.video-player-modal#video-player-modal aria-hidden="true"
+        .schools-modal__overlay
+        .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="video-player-modal-title"
+          button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="video-player-modal" style="position: absolute; top: 16px; right: 16px; z-index: 10;"
+            svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              line x1="18" y1="6" x2="6" y2="18"
+              line x1="6" y1="6" x2="18" y2="18"
+          .video-player-modal__frame#video-frame-container
+            iframe#video-player-frame src="" title="Video ucznia" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""
+          .video-player-modal__video-container#video-video-container style="display: none;"
+            video#video-player-video controls=""
+              | Twoja przeglądarka nie obsługuje elementu video.
+          .video-player-modal__info
+            h3.video-player-modal__title
+            p.video-player-modal__description#video-description
+            .video-player-modal__details
+              span.video-detail
+                strong Autor: 
+                span#video-author
+              span.video-detail
+                strong Temat: 
+                span#video-subject
+              span.video-detail
+                strong Dodano: 
+                span#video-date
+              span.video-detail
+                strong Długość: 
+                span#video-duration
+
+      / Approve modal
+      .schools-modal#approve-video-modal aria-hidden="true"
+        .schools-modal__overlay
+        .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="approve-video-title"
+          button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="approve-video-modal" style="position: absolute; top: 16px; right: 16px;"
+            svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              line x1="18" y1="6" x2="6" y2="18"
+              line x1="6" y1="6" x2="18" y2="18"
+          .schools-modal__body
+            h3#approve-video-title style="margin: 0 0 16px; font-size: 24px; font-weight: 500; text-align: center;" Zatwierdź video
+            p style="text-align: center; color: var(--content-secondary);"
+              | Czy chcesz zatwierdzić video 
+              strong.video-approve-modal__video
+              |  przesłane przez 
+              strong.video-approve-modal__author
+              | ?
+          .schools-modal__actions
+            button.schools-modal__primary#approve-video-confirm-btn type="button" Zatwierdź video
+            button.schools-modal__secondary type="button" data-close-modal="approve-video-modal" Anuluj
+
+      / Reject modal
+      .schools-modal#reject-video-modal aria-hidden="true"
+        .schools-modal__overlay
+        .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="reject-video-title"
+          button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="reject-video-modal" style="position: absolute; top: 16px; right: 16px;"
+            svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              line x1="18" y1="6" x2="6" y2="18"
+              line x1="6" y1="6" x2="18" y2="18"
+          .schools-modal__body
+            h3#reject-video-title style="margin: 0 0 16px; font-size: 24px; font-weight: 500; text-align: center;" Odrzuć video
+            p style="text-align: center; color: var(--content-secondary);"
+              | Czy na pewno chcesz odrzucić video 
+              strong.video-reject-modal__video
+              |  przesłane przez 
+              strong.video-reject-modal__author
+              | ?
+          .schools-modal__form style="margin-top: 0;"
+            label
+              span Powód odrzucenia (opcjonalnie):
+              textarea#reject-reason rows="3" placeholder="Podaj powód odrzucenia..."
+            .schools-modal__actions
+              button.schools-modal__primary.schools-modal__primary--danger#reject-video-confirm-btn type="button" Odrzuć video
+              button.schools-modal__secondary type="button" data-close-modal="reject-video-modal" Anuluj
+
+      / Delete modal
+      .schools-modal#delete-video-modal aria-hidden="true"
+        .schools-modal__overlay
+        .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="delete-video-title"
+          button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="delete-video-modal" style="position: absolute; top: 16px; right: 16px;"
+            svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              line x1="18" y1="6" x2="6" y2="18"
+              line x1="6" y1="6" x2="18" y2="18"
+          .schools-modal__body
+            h3#delete-video-title style="margin: 0 0 16px; font-size: 24px; font-weight: 500; text-align: center;" Usuń video
+            p style="text-align: center; color: var(--content-secondary);"
+              | Ta operacja trwale usunie video 
+              strong.video-delete-modal__video
+              |  przesłane przez 
+              strong.video-delete-modal__author
+              | . Czy na pewno?
+          .schools-modal__actions
+            button.schools-modal__primary.schools-modal__primary--danger#delete-video-confirm-btn type="button" Usuń video
+            button.schools-modal__secondary type="button" data-close-modal="delete-video-modal" Anuluj
+
+      / Edit modal
+      .schools-modal#edit-video-modal aria-hidden="true"
+        .schools-modal__overlay
+        .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="edit-video-title"
+          button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="edit-video-modal" style="position: absolute; top: 16px; right: 16px;"
+            svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              line x1="18" y1="6" x2="6" y2="18"
+              line x1="6" y1="6" x2="18" y2="18"
+          .schools-modal__body
+            h3#edit-video-title style="margin: 0 0 24px; font-size: 24px; font-weight: 500; text-align: center;" Edytuj video
+          form.schools-modal__form#edit-video-form novalidate=""
+            label
+              span Tytuł
+              input#edit-video-title-input.schools-modal__input type="text" name="title" placeholder="Tytuł video" required=""
+            label
+              span Opis
+              textarea#edit-video-description.schools-modal__input rows="4" name="description" placeholder="Opis video"
+            .schools-modal__actions
+              button.schools-modal__primary#edit-video-confirm-btn type="submit" Zapisz zmiany
+              button.schools-modal__secondary type="button" data-close-modal="edit-video-modal" Anuluj
+
+      javascript:
+        document.addEventListener('DOMContentLoaded', function() {
+          if (typeof window.ApiClient === 'undefined') {
+            console.error('ApiClient not available');
+            return;
+          }
+
+          const api = new window.ApiClient();
+          const API_BASE = '/teacher/videos';
+          let currentVideoId = null;
+
+          // View toggle
+          const viewToggleBtns = document.querySelectorAll('.view-toggle__button');
+          const gridView = document.querySelector('[data-videos-view="grid"]');
+          const listView = document.querySelector('[data-videos-view="list"]');
+          
+          // Load saved preference
+          const savedView = localStorage.getItem('teacherVideosView') || 'grid';
+          setView(savedView);
+          
+          function setView(view) {
+            viewToggleBtns.forEach(btn => {
+              btn.classList.toggle('is-active', btn.dataset.view === view);
+            });
+            if (gridView) gridView.style.display = view === 'grid' ? '' : 'none';
+            if (listView) listView.style.display = view === 'list' ? '' : 'none';
+            localStorage.setItem('teacherVideosView', view);
+          }
+          
+          viewToggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => setView(btn.dataset.view));
+          });
+
+          // Modal helpers
+          function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+              modal.setAttribute('aria-hidden', 'false');
+              modal.classList.add('is-open');
+            }
+          }
+
+          function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+              modal.setAttribute('aria-hidden', 'true');
+              modal.classList.remove('is-open');
+            }
+          }
+
+          // Close modal handlers
+          document.querySelectorAll('[data-close-modal]').forEach(btn => {
+            btn.addEventListener('click', () => closeModal(btn.getAttribute('data-close-modal')));
+          });
+
+          document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+            overlay.addEventListener('click', function() {
+              const modal = this.closest('.schools-modal');
+              if (modal) {
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+              }
+            });
+          });
+
+          // Video player elements
+          const videoModal = document.getElementById('video-player-modal');
+          const videoElement = document.getElementById('video-player-video');
+          const iframeElement = document.getElementById('video-player-frame');
+          const iframeContainer = document.getElementById('video-frame-container');
+          const videoContainer = document.getElementById('video-video-container');
+
+          function isYouTubeUrl(url) {
+            return url && (url.includes('youtube.com') || url.includes('youtu.be'));
+          }
+
+          function openVideo(url, title, details = {}) {
+            const titleEl = videoModal?.querySelector('.video-player-modal__title');
+            if (titleEl) titleEl.textContent = title;
+            
+            // Fill in video details
+            const descEl = document.getElementById('video-description');
+            const authorEl = document.getElementById('video-author');
+            const subjectEl = document.getElementById('video-subject');
+            const dateEl = document.getElementById('video-date');
+            const durationEl = document.getElementById('video-duration');
+            
+            if (descEl) descEl.textContent = details.description || '';
+            if (authorEl) authorEl.textContent = details.author || '—';
+            if (subjectEl) subjectEl.textContent = details.subject || '—';
+            if (dateEl) dateEl.textContent = details.date || '—';
+            if (durationEl) durationEl.textContent = details.duration || '—';
+            
+            if (isYouTubeUrl(url)) {
+              const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/)?.[1];
+              if (videoContainer) videoContainer.style.display = 'none';
+              if (iframeContainer) iframeContainer.style.display = 'block';
+              if (iframeElement && videoId) iframeElement.src = `https://www.youtube.com/embed/${videoId}`;
+            } else {
+              if (iframeContainer) iframeContainer.style.display = 'none';
+              if (videoContainer) videoContainer.style.display = 'block';
+              if (videoElement) {
+                videoElement.src = url;
+                videoElement.play().catch(() => {});
+                setTimeout(() => videoElement.focus(), 100);
+              }
+            }
+            
+            openModal('video-player-modal');
+          }
+
+          function closeVideoModal() {
+            if (videoElement) {
+              videoElement.pause();
+              videoElement.src = '';
+            }
+            if (iframeElement) iframeElement.src = '';
+            closeModal('video-player-modal');
+          }
+
+          // Click handler for video playback
+          document.addEventListener('click', (e) => {
+            // Handle action buttons first (don't open video)
+            if (e.target.closest('.js-approve-video, .js-reject-video, .js-edit-video, .js-delete-video, .teachers-actions')) {
+              return;
+            }
+            
+            const openBtn = e.target.closest('.js-open-video');
+            const videoRow = e.target.closest('.js-video-row');
+            const clickedElement = openBtn || videoRow;
+            
+            if (clickedElement) {
+              const videoUrl = clickedElement.getAttribute('data-video-url');
+              const videoTitle = clickedElement.getAttribute('data-video-title');
+              
+              if (videoUrl) {
+                const details = {
+                  author: clickedElement.getAttribute('data-video-author') || '—',
+                  subject: clickedElement.getAttribute('data-video-subject') || '—',
+                  date: clickedElement.getAttribute('data-video-date') || '—',
+                  duration: clickedElement.getAttribute('data-video-duration') || '—',
+                  description: clickedElement.getAttribute('data-video-description') || ''
+                };
+                openVideo(videoUrl, videoTitle, details);
+              }
+            }
+          });
+
+          // Close video on modal close
+          document.querySelector('[data-close-modal="video-player-modal"]')?.addEventListener('click', closeVideoModal);
+
+          // Keyboard shortcuts for video
+          document.addEventListener('keydown', (e) => {
+            if (videoModal?.classList.contains('is-open')) {
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                closeVideoModal();
+              } else if (e.key === 'f' || e.key === 'F') {
+                if (!isYouTubeUrl(videoElement?.src)) {
+                  e.preventDefault();
+                  videoElement?.requestFullscreen?.();
+                }
+              }
+            }
+          });
+
+          // Approve video
+          document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.js-approve-video');
+            if (!btn) return;
+            e.stopPropagation();
+            
+            currentVideoId = btn.getAttribute('data-video-id');
+            document.querySelector('.video-approve-modal__video').textContent = `"${btn.getAttribute('data-video-title')}"`;
+            document.querySelector('.video-approve-modal__author').textContent = btn.getAttribute('data-author-name');
+            openModal('approve-video-modal');
+          });
+
+          document.getElementById('approve-video-confirm-btn')?.addEventListener('click', async () => {
+            if (!currentVideoId) return;
+            
+            const btn = document.getElementById('approve-video-confirm-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Zatwierdzanie...';
+
+            try {
+              const result = await api.put(`${API_BASE}/${currentVideoId}/approve`, {});
+              if (result.success) {
+                closeModal('approve-video-modal');
+                window.location.reload();
+              } else {
+                alert('Błąd: ' + (result.error || 'Nie udało się zatwierdzić video'));
+                btn.disabled = false;
+                btn.textContent = originalText;
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Wystąpił błąd podczas zatwierdzania');
+              btn.disabled = false;
+              btn.textContent = originalText;
+            }
+          });
+
+          // Reject video
+          document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.js-reject-video');
+            if (!btn) return;
+            e.stopPropagation();
+            
+            currentVideoId = btn.getAttribute('data-video-id');
+            document.querySelector('.video-reject-modal__video').textContent = `"${btn.getAttribute('data-video-title')}"`;
+            document.querySelector('.video-reject-modal__author').textContent = btn.getAttribute('data-author-name');
+            document.getElementById('reject-reason').value = '';
+            openModal('reject-video-modal');
+          });
+
+          document.getElementById('reject-video-confirm-btn')?.addEventListener('click', async () => {
+            if (!currentVideoId) return;
+            
+            const btn = document.getElementById('reject-video-confirm-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Odrzucanie...';
+            const reason = document.getElementById('reject-reason').value;
+
+            try {
+              const result = await api.put(`${API_BASE}/${currentVideoId}/reject`, { reason });
+              if (result.success) {
+                closeModal('reject-video-modal');
+                window.location.reload();
+              } else {
+                alert('Błąd: ' + (result.error || 'Nie udało się odrzucić video'));
+                btn.disabled = false;
+                btn.textContent = originalText;
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Wystąpił błąd podczas odrzucania');
+              btn.disabled = false;
+              btn.textContent = originalText;
+            }
+          });
+
+          // Delete video
+          document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.js-delete-video');
+            if (!btn) return;
+            e.stopPropagation();
+            
+            currentVideoId = btn.getAttribute('data-video-id');
+            document.querySelector('.video-delete-modal__video').textContent = `"${btn.getAttribute('data-video-title')}"`;
+            document.querySelector('.video-delete-modal__author').textContent = btn.getAttribute('data-author-name');
+            openModal('delete-video-modal');
+          });
+
+          document.getElementById('delete-video-confirm-btn')?.addEventListener('click', async () => {
+            if (!currentVideoId) return;
+            
+            const btn = document.getElementById('delete-video-confirm-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Usuwanie...';
+
+            try {
+              const result = await api.delete(`${API_BASE}/${currentVideoId}`);
+              if (result.success) {
+                closeModal('delete-video-modal');
+                window.location.reload();
+              } else {
+                alert('Błąd: ' + (result.error || 'Nie udało się usunąć video'));
+                btn.disabled = false;
+                btn.textContent = originalText;
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Wystąpił błąd podczas usuwania');
+              btn.disabled = false;
+              btn.textContent = originalText;
+            }
+          });
+
+          // Edit video
+          document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.js-edit-video');
+            if (!btn) return;
+            e.stopPropagation();
+            
+            currentVideoId = btn.getAttribute('data-video-id');
+            document.getElementById('edit-video-title-input').value = btn.getAttribute('data-title') || '';
+            document.getElementById('edit-video-description').value = btn.getAttribute('data-description') || '';
+            openModal('edit-video-modal');
+          });
+
+          document.getElementById('edit-video-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentVideoId) return;
+            
+            const btn = document.getElementById('edit-video-confirm-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Zapisywanie...';
+
+            const title = document.getElementById('edit-video-title-input').value;
+            const description = document.getElementById('edit-video-description').value;
+
+            try {
+              const result = await api.patch(`${API_BASE}/${currentVideoId}`, { video: { title, description } });
+              if (result.success) {
+                closeModal('edit-video-modal');
+                window.location.reload();
+              } else {
+                alert('Błąd: ' + (result.error || result.errors?.join(', ') || 'Nie udało się zapisać zmian'));
+                btn.disabled = false;
+                btn.textContent = originalText;
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Wystąpił błąd podczas zapisywania');
+              btn.disabled = false;
+              btn.textContent = originalText;
+            }
+          });
+        });
+
+    - else
+      .dashboard-empty-state
+        .dashboard-empty-state__content
+          h2 Brak wybranej klasy
+          p Wybierz klasę z menu po lewej stronie
+
+    = render 'shared/app_version'

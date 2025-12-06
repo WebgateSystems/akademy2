@@ -218,33 +218,46 @@
 }
 
 .schools-modal {
-	position: fixed;
-	inset: 0;
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	bottom: 0 !important;
 	display: none;
 	align-items: center;
 	justify-content: center;
 	z-index: 2000;
+	padding: 20px;
+	overflow-y: auto;
 
 	&.is-open {
-		display: flex;
+		display: flex !important;
 	}
 }
 
 .schools-modal__overlay {
-	position: absolute;
-	inset: 0;
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	bottom: 0 !important;
 	background: var(--shadow-overlay);
 	backdrop-filter: blur(3px);
+	z-index: 2000;
 }
 
 .schools-modal__dialog {
 	position: relative;
 	width: 100%;
 	max-width: 520px;
+	max-height: calc(100vh - 40px);
+	overflow-y: auto;
 	background: var(--surface-primary);
 	border-radius: 20px;
 	padding: 40px;
 	box-shadow: 0 40px 120px var(--shadow-modal);
+	margin: auto;
+	z-index: 2001;
 }
 
 .schools-modal__header {
@@ -296,11 +309,13 @@
 	}
 
 		input,
-		textarea {
+		textarea,
+		select {
 			padding: 12px 16px;
 			border: 1px solid var(--border-primary);
 			border-radius: 8px;
 			background: var(--surface-primary);
+			color: var(--content-primary);
 			font: inherit;
 			font-weight: 400;
 			width: 100%;

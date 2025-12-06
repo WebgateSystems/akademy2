@@ -17,7 +17,7 @@ RSpec.describe AcademicYear, type: :model do
       described_class.create!(school: school, year: '2025/2026', is_current: false)
       duplicate = described_class.new(school: school, year: '2025/2026', is_current: false)
       expect(duplicate).not_to be_valid
-      expect(duplicate.errors[:year]).to include('jest już zajęty')
+      expect(duplicate.errors[:year]).to include('has already been taken')
     end
 
     context 'when year format is invalid' do
@@ -42,7 +42,7 @@ RSpec.describe AcademicYear, type: :model do
       it 'rejects empty year' do
         academic_year = described_class.new(school: school, year: '', is_current: false)
         expect(academic_year).not_to be_valid
-        expect(academic_year.errors[:year]).to include('nie może być pusty')
+        expect(academic_year.errors[:year]).to include("can't be blank")
       end
     end
 
@@ -66,7 +66,7 @@ RSpec.describe AcademicYear, type: :model do
       it 'rejects duplicate year for same school' do
         academic_year = described_class.new(school: school, year: '2025/2026', is_current: false)
         expect(academic_year).not_to be_valid
-        expect(academic_year.errors[:year]).to include('jest już zajęty')
+        expect(academic_year.errors[:year]).to include('has already been taken')
       end
 
       it 'allows same year for different school' do

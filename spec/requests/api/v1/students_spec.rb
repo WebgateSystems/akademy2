@@ -1,3 +1,102 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe 'API V1 Students', type: :request do
+  let(:user) { create(:user) }
+  let(:token) { Jwt::TokenService.encode({ user_id: user.id }) }
+  let(:headers) { { 'Authorization' => "Bearer #{token}" } }
+
+  def success_result(status: :ok, form: { data: {} })
+    double(
+      status: status,
+      success?: true,
+      form: form,
+      serializer: nil,
+      headers: {},
+      pagination: nil,
+      access_token: nil,
+      to_h: {}
+    )
+  end
+
+  describe 'GET /api/v1/students' do
+    it 'returns 200' do
+      allow(Api::V1::Students::ListStudents).to receive(:call).and_return(success_result)
+      get '/api/v1/students', headers: headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 401 without token' do
+      get '/api/v1/students'
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'GET /api/v1/students/:id' do
+    it 'returns 200' do
+      allow(Api::V1::Students::ShowStudent).to receive(:call).and_return(success_result(form: {}))
+      get "/api/v1/students/#{SecureRandom.uuid}", headers: headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 404 when not found' do
+      result = double(status: :not_found, success?: false, message: 'Not found')
+      allow(Api::V1::Students::ShowStudent).to receive(:call).and_return(result)
+      get "/api/v1/students/#{SecureRandom.uuid}", headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe 'POST /api/v1/students' do
+    it 'returns 201 on success' do
+      result = success_result(status: :created)
+      allow(Api::V1::Students::CreateStudent).to receive(:call).and_return(result)
+      post '/api/v1/students', headers: headers
+      expect(response).to have_http_status(:created)
+    end
+
+    it 'returns 422 on validation error' do
+      result = double(status: :unprocessable_entity, success?: false, message: ['Invalid'])
+      allow(Api::V1::Students::CreateStudent).to receive(:call).and_return(result)
+      post '/api/v1/students', headers: headers
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
+
+  describe 'PATCH /api/v1/students/:id' do
+    it 'returns 200 on success' do
+      result = success_result(status: :ok)
+      allow(Api::V1::Students::UpdateStudent).to receive(:call).and_return(result)
+      patch "/api/v1/students/#{SecureRandom.uuid}", headers: headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 422 on validation error' do
+      result = double(status: :unprocessable_entity, success?: false, message: ['Invalid'])
+      allow(Api::V1::Students::UpdateStudent).to receive(:call).and_return(result)
+      patch "/api/v1/students/#{SecureRandom.uuid}", headers: headers
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
+
+  describe 'DELETE /api/v1/students/:id' do
+    it 'returns 200 on success' do
+      result = success_result(status: :ok)
+      allow(Api::V1::Students::DestroyStudent).to receive(:call).and_return(result)
+      delete "/api/v1/students/#{SecureRandom.uuid}", headers: headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 404 when not found' do
+      result = double(status: :not_found, success?: false, message: 'Not found')
+      allow(Api::V1::Students::DestroyStudent).to receive(:call).and_return(result)
+      delete "/api/v1/students/#{SecureRandom.uuid}", headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+end
+
 require 'swagger_helper'
 
 RSpec.describe 'Students API', type: :request do

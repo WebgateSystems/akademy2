@@ -13,9 +13,6 @@ header.dashboard-top-bar
     - else
       | Dashboard
   .dashboard-top-actions
-    - if local_assigns[:back_path]
-      = link_to back_path, class: "icon-pill", "aria-label": "Wróć" do
-        i.bi.bi-arrow-left aria-hidden="true"
     - if can_access_management?
       = link_to management_root_path, class: "icon-pill", "aria-label": "School management", title: "Panel zarządzania szkołą" do
         i.bi.bi-clipboard-data aria-hidden="true"

@@ -3,6 +3,17 @@ Rails.application.routes.draw do
   mount Rswag::Api::Engine => '/api-docs'
   devise_for :users, controllers: { sessions: 'users/sessions' }
 
+  # Pretty login URLs (aliases for /users/sign_in?role=xxx)
+  devise_scope :user do
+    get  '/login/student',        to: 'users/sessions#new', defaults: { role: 'student' }, as: :student_login
+    post '/login/student',        to: 'users/sessions#create', defaults: { role: 'student' }
+    get  '/login/teacher',        to: 'users/sessions#new', defaults: { role: 'teacher' }, as: :teacher_login
+    post '/login/teacher',        to: 'users/sessions#create', defaults: { role: 'teacher' }
+    get  '/login/administration', to: 'users/sessions#new', defaults: { role: 'administration' },
+                                  as: :administration_login
+    post '/login/administration', to: 'users/sessions#create', defaults: { role: 'administration' }
+  end
+
   get    '/admin/sign_in',  to: 'admin/sessions#new',     as: :new_admin_session
   post   '/admin/sign_in',  to: 'admin/sessions#create',  as: :admin_session
   delete '/admin/sign_out', to: 'admin/sessions#destroy', as: :destroy_admin_session
@@ -110,7 +121,10 @@ Rails.application.routes.draw do
   get '/dashboard/students', to: 'dashboard#students', as: :dashboard_students
   get '/dashboard/students/:id', to: 'dashboard#show_student', as: :dashboard_student
   get '/dashboard/notifications', to: 'dashboard#notifications', as: :dashboard_notifications
+  post '/dashboard/notifications/mark_as_read', to: 'dashboard#mark_notifications_as_read',
+                                                as: :mark_dashboard_notifications_as_read
   get '/dashboard/quiz_results/:subject_id', to: 'dashboard#quiz_results', as: :dashboard_quiz_results
+  get '/dashboard/pupil_videos', to: 'dashboard#pupil_videos', as: :dashboard_pupil_videos
   get '/dashboard/class_qr.svg', to: 'dashboard#class_qr_svg', as: :dashboard_class_qr_svg
   get '/dashboard/class_qr.png', to: 'dashboard#class_qr_png', as: :dashboard_class_qr_png
 
@@ -122,6 +136,14 @@ Rails.application.routes.draw do
         post 'school_enrollments/join', to: 'school_enrollments#join'
         get 'school_enrollments/pending', to: 'school_enrollments#pending'
         delete 'school_enrollments/:id/cancel', to: 'school_enrollments#cancel', as: :cancel_teacher_enrollment
+
+        # Video moderation
+        resources :videos, only: %i[index show update destroy] do
+          member do
+            put :approve
+            put :reject
+          end
+        end
       end
 
       namespace :student do
@@ -137,6 +159,17 @@ Rails.application.routes.draw do
         resources :events, only: [:create] do
           collection do
             post :batch
+          end
+        end
+
+        # School videos
+        resources :videos, only: %i[index show create update destroy] do
+          collection do
+            get :my, action: :my_videos
+            get :subjects
+          end
+          member do
+            post :like, action: :toggle_like
           end
         end
       end
@@ -189,6 +222,21 @@ Rails.application.routes.draw do
   get '/home/modules/:id/quiz', to: 'student_dashboard#quiz', as: :student_quiz
   post '/home/modules/:id/quiz', to: 'student_dashboard#submit_quiz', as: :submit_student_quiz
   get '/home/modules/:id/result', to: 'student_dashboard#result', as: :student_result
+
+  # Student notifications
+  get '/home/notifications', to: 'student_dashboard#notifications', as: :student_notifications
+  post '/home/notifications/mark_as_read', to: 'student_dashboard#mark_notifications_as_read',
+                                           as: :mark_student_notifications_as_read
+
+  # School videos - student views
+  get '/home/videos', to: 'student_dashboard#school_videos', as: :student_videos
+  get '/home/videos/new', to: 'student_dashboard#new_video', as: :new_student_video
+  post '/home/videos', to: 'student_dashboard#create_video'
+  delete '/home/videos/:id', to: 'student_dashboard#destroy_video', as: :destroy_student_video
+  get '/home/videos/waiting', to: 'student_dashboard#video_waiting', as: :student_video_waiting
+
+  # Content likes (for learning materials)
+  post '/home/contents/:id/like', to: 'student_dashboard#toggle_content_like', as: :toggle_content_like
 
   # Join class via token link (for students)
   get '/join/class/:token', to: 'student_dashboard#join_class', as: :join_class

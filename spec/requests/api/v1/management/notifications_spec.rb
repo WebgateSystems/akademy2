@@ -1,5 +1,65 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
+
+RSpec.describe 'API V1 Management Notifications', type: :request do
+  let(:manager_role) { Role.find_or_create_by!(key: 'school_manager') { |r| r.name = 'School Manager' } }
+  let(:school) { create(:school) }
+  let(:manager) do
+    user = create(:user, school: school)
+    UserRole.create!(user: user, role: manager_role, school: school)
+    user
+  end
+  let(:token) { Jwt::TokenService.encode({ user_id: manager.id }) }
+  let(:headers) { { 'Authorization' => "Bearer #{token}" } }
+
+  def success_result(status: :ok, form: { data: {} })
+    double(
+      status: status,
+      success?: true,
+      form: form,
+      serializer: nil,
+      headers: {},
+      pagination: nil,
+      access_token: nil,
+      to_h: {}
+    )
+  end
+
+  describe 'POST /api/v1/management/notifications/mark_as_read' do
+    it 'returns 200 on success' do
+      # Create notification belonging to manager's school & role
+      notification = Notification.create!(
+        notification_type: 'teacher_awaiting_approval',
+        title: 'Test',
+        message: 'Test',
+        target_role: manager_role.key,
+        school: school
+      )
+
+      post '/api/v1/management/notifications/mark_as_read',
+           params: { notification_id: notification.id },
+           headers: headers
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 404 when notification not found' do
+      post '/api/v1/management/notifications/mark_as_read',
+           params: { notification_id: SecureRandom.uuid },
+           headers: headers
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns 400 when notification_id missing' do
+      post '/api/v1/management/notifications/mark_as_read', headers: headers
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
+end
+# frozen_string_literal: true
+
 require 'swagger_helper'
 
 # rubocop:disable RSpec/MultipleMemoizedHelpers

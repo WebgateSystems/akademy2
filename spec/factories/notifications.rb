@@ -48,5 +48,29 @@ FactoryBot.define do
       # rubocop:enable I18n/GetText/DecorateString
       metadata { { report_id: SecureRandom.uuid } }
     end
+
+    trait :student_video_approved do
+      notification_type { 'student_video_approved' }
+      title { 'Film zatwierdzony' }
+      message { 'Twój film został zatwierdzony' }
+      target_role { 'student' }
+      metadata { {} }
+    end
+
+    trait :student_video_rejected do
+      notification_type { 'student_video_rejected' }
+      title { 'Film odrzucony' }
+      message { 'Twój film został odrzucony' }
+      target_role { 'student' }
+      metadata { {} }
+    end
+
+    trait :quiz_completed do
+      notification_type { 'quiz_completed' }
+      title { 'Quiz ukończony' }
+      message { 'Ukończyłeś quiz' }
+      target_role { 'student' }
+      metadata { {} }
+    end
   end
 end

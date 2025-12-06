@@ -29,3 +29,13 @@
 
 en:
   hello: "Hello world"
+  student_dashboard:
+    alerts:
+      subject_not_found: "Subject not found."
+      module_not_found: "Module not found."
+      access_denied: "You don't have access to this module."
+    videos:
+      not_found: "Video not found."
+      not_authorized: "You are not authorized to delete this video."
+      cannot_delete: "You can only delete pending or rejected videos."
+      deleted: "Video has been deleted."

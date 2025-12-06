@@ -9,6 +9,11 @@ db:
 
 # redis_url: <%= ENV['REDIS_URL'] || 'redis://localhost:6379/4' %>
 
+elasticsearch:
+  url: http://localhost:9200
+  index_prefix: akademy2
+  enabled: true # set to false in test environment or when ES is not available
+
 services:
   twilio:
     account_sid: <%= ENV.fetch('TWILIO_ACCOUNT_SID') { '' } %>

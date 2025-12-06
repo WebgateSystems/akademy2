@@ -79,7 +79,10 @@ class DashboardController < ApplicationController
                        @classes.first
                      end
 
-    @subject = Subject.find(params[:subject_id])
+    # Find subject by slug or UUID
+    @subject = Subject.find_by(slug: params[:subject_id]) || Subject.find_by(id: params[:subject_id])
+    raise ActiveRecord::RecordNotFound, _('Subject not found') unless @subject
+
     load_quiz_results_data
   end
 
@@ -120,11 +123,66 @@ class DashboardController < ApplicationController
                                                      .group(:school_class_id)
                                                      .count
 
-    @notifications_list = Notification.for_school(@school)
-                                      .for_role('teacher')
-                                      .unresolved
-                                      .order(created_at: :desc)
-                                      .limit(50)
+    @status_filter = params[:status] || 'unread'
+
+    base_query = Notification.for_school(@school)
+                             .for_role('teacher')
+
+    @notifications_list = if @status_filter == 'archived'
+                            base_query.read.order(created_at: :desc).limit(50)
+                          else
+                            base_query.unread.order(created_at: :desc).limit(50)
+                          end
+
+    @unread_count = base_query.unread.count
+  end
+
+  # POST /dashboard/notifications/mark_as_read
+  def mark_notifications_as_read
+    notification_ids = params[:notification_ids]
+
+    Notification.where(id: notification_ids).update_all(read_at: Time.current) if notification_ids.present?
+
+    render json: { success: true, marked_count: notification_ids&.count || 0 }
+  end
+
+  # GET /dashboard/pupil_videos
+  # Moderate student videos
+  def pupil_videos
+    @school = current_user.school
+    @classes = current_user.assigned_classes
+                           .where(school_id: @school&.id)
+                           .order(:name)
+
+    class_ids = @classes.pluck(:id)
+    @classes_awaiting_counts = StudentClassEnrollment.where(school_class_id: class_ids, status: 'pending')
+                                                     .group(:school_class_id)
+                                                     .count
+
+    @current_class = if params[:class_id].present?
+                       @classes.find_by(id: params[:class_id]) || @classes.first
+                     else
+                       @classes.first
+                     end
+
+    return unless @current_class
+
+    # Get students from current class
+    student_ids = @current_class.students.pluck(:id)
+
+    # Filter by status (default: pending for moderation)
+    @status_filter = params[:status] || 'pending'
+
+    @videos = StudentVideo.where(user_id: student_ids)
+                          .includes(:user, :subject)
+                          .order(created_at: :desc)
+
+    @videos = @videos.where(status: @status_filter) if StudentVideo::STATUSES.include?(@status_filter)
+
+    # Count videos by status for tabs
+    @videos_pending_count = StudentVideo.where(user_id: student_ids, status: 'pending').count
+    @videos_approved_count = StudentVideo.where(user_id: student_ids, status: 'approved').count
+    @videos_rejected_count = StudentVideo.where(user_id: student_ids, status: 'rejected').count
   end
 
   def show_student
@@ -269,10 +327,11 @@ class DashboardController < ApplicationController
     return 0 unless school
 
     # Count unread notifications for teacher role
-    # Including: student_awaiting_approval, quiz_completed, and student_enrollment_request
+    # Including: student_awaiting_approval, quiz_completed, student_enrollment_request, student_video_pending
     Notification.for_school(school)
                 .for_role('teacher')
-                .where(notification_type: %w[student_awaiting_approval quiz_completed student_enrollment_request])
+                .where(notification_type: %w[student_awaiting_approval quiz_completed student_enrollment_request
+                                             student_video_pending])
                 .unread
                 .unresolved
                 .count
@@ -288,10 +347,9 @@ class DashboardController < ApplicationController
     @students_count = @current_class.students.count
     @students_awaiting = @current_class.student_class_enrollments.where(status: 'pending').count
 
-    # Videos watched by students in this class
+    # Videos uploaded by students in this class
     student_ids = @current_class.students.pluck(:id)
-    @videos_count = Event.where(event_type: 'video_view', user_id: student_ids)
-                         .select(:user_id).distinct.count
+    @videos_pending_count = StudentVideo.where(user_id: student_ids, status: 'pending').count
 
     # Subject completion rates
     @subject_stats = calculate_subject_stats(student_ids)

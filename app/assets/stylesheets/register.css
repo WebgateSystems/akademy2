@@ -1280,13 +1280,15 @@ h5 {
   align-items: center;
   justify-content: center;
   z-index: 2000;
+  padding: 20px;
+  overflow-y: auto;
 }
 .schools-modal.is-open {
   display: flex;
 }
 
 .schools-modal__overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
   background: var(--shadow-overlay);
   backdrop-filter: blur(3px);
@@ -1296,10 +1298,13 @@ h5 {
   position: relative;
   width: 100%;
   max-width: 520px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
   background: var(--surface-primary);
   border-radius: 20px;
   padding: 40px;
   box-shadow: 0 40px 120px var(--shadow-modal);
+  margin: auto;
 }
 
 .schools-modal__header {
@@ -1347,11 +1352,13 @@ h5 {
   font-weight: 400;
 }
 .schools-modal__form input,
-.schools-modal__form textarea {
+.schools-modal__form textarea,
+.schools-modal__form select {
   padding: 12px 16px;
   border: 1px solid var(--border-primary);
   border-radius: 8px;
   background: var(--surface-primary);
+  color: var(--content-primary);
   font: inherit;
   font-weight: 400;
   width: 100%;

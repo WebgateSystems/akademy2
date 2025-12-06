@@ -8,14 +8,17 @@ aside.dashboard-sidebar
       = image_tag "icons/social/M/open-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
 
   nav.dashboard-nav aria-label="Primary"
-    - courses_active = request.path.start_with?(public_home_path)
+    - active ||= nil
+    - courses_active = active == 'courses' || (active.nil? && request.path.start_with?(public_home_path) && !request.path.start_with?(student_videos_path))
+    - videos_active = active == 'videos' || request.path.start_with?(student_videos_path)
+    - account_active = active == 'account'
     = link_to public_home_path, class: "dashboard-nav__button #{'is-active' if courses_active}", "aria-current": (courses_active ? "page" : nil) do
       = image_tag "icons/social/M/sidebar_courses.svg", alt: "", width: 20, height: 20, "aria-hidden": true, "data-theme-icon": true
       span.dashboard-nav__label Courses
-    = link_to "#", class: "dashboard-nav__button", onclick: "return false;" do
+    = link_to student_videos_path, class: "dashboard-nav__button #{'is-active' if videos_active}", "aria-current": (videos_active ? "page" : nil) do
       = image_tag "icons/social/M/sidebar_videos.svg", alt: "", width: 20, height: 20, "aria-hidden": true, "data-theme-icon": true
       span.dashboard-nav__label School videos
-    = link_to "#", class: "dashboard-nav__button", onclick: "return false;" do
+    = link_to "#", class: "dashboard-nav__button #{'is-active' if account_active}", onclick: "return false;" do
       = image_tag "icons/social/M/sidebar_account.svg", alt: "", width: 20, height: 20, "aria-hidden": true, "data-theme-icon": true
       span.dashboard-nav__label Account
 

@@ -30,12 +30,14 @@
                   - if @students_awaiting && @students_awaiting > 0
                     span.stat-awaiting = "#{@students_awaiting} awaiting"
 
-              article.school-profile-hero__stat-card data-entity="videos"
+              = link_to dashboard_pupil_videos_path(class_id: @current_class&.id), class: "school-profile-hero__stat-card school-profile-hero__stat-card--clickable", data: { entity: "videos" } do
                 .school-profile-hero__stat-label
                   h4.stat-label Pupil videos
                 .school-profile-hero__stat-value
                   span.stat-value.stat-value--empty 0
-                  span.stat-value.stat-value--filled = @videos_count || 0
+                  span.stat-value.stat-value--filled = @videos_pending_count || 0
+                  - if @videos_pending_count && @videos_pending_count > 0
+                    span.stat-awaiting = "#{@videos_pending_count} do akceptacji"
 
         section.class-results aria-label="Pupil results"
           h2 Pupil results

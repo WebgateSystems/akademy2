@@ -230,7 +230,7 @@ RSpec.describe Api::V1::Management::CreateAcademicYear do
       it 'returns uniqueness error' do
         result = described_class.call(context)
         expect(result.message).to be_an(Array)
-        expect(result.message.any? { |m| m.include?('zajęty') }).to be true
+        expect(result.message.any? { |m| m.include?('taken') }).to be true
       end
     end
   end

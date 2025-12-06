@@ -313,4 +313,351 @@ RSpec.describe StudentDashboardController, type: :request do
       expect(response.body).to include('100%')
     end
   end
+
+  describe 'GET /home/notifications' do
+    let!(:unread_notification_1) do
+      create(:notification,
+             user: student,
+             school: school,
+             notification_type: 'student_video_approved',
+             title: 'Film zatwierdzony',
+             message: 'Twój film został zatwierdzony',
+             target_role: 'student',
+             read_at: nil)
+    end
+
+    let!(:unread_notification_2) do
+      create(:notification,
+             user: nil,
+             school: school,
+             notification_type: 'student_video_rejected',
+             title: 'Film odrzucony',
+             message: 'Twój film został odrzucony',
+             target_role: 'student',
+             read_at: nil)
+    end
+
+    let!(:read_notification) do
+      create(:notification,
+             user: student,
+             school: school,
+             notification_type: 'quiz_completed',
+             title: 'Quiz ukończony',
+             message: 'Ukończyłeś quiz',
+             target_role: 'student',
+             read_at: 1.day.ago)
+    end
+
+    context 'when viewing unread notifications' do
+      it 'returns http success' do
+        get student_notifications_path(status: 'unread')
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'displays only unread notifications' do
+        get student_notifications_path(status: 'unread')
+        expect(response.body).to include('Film zatwierdzony')
+        expect(response.body).to include('Film odrzucony')
+        expect(response.body).not_to include('Quiz ukończony')
+      end
+
+      it 'sets correct unread count' do
+        get student_notifications_path(status: 'unread')
+        expect(assigns(:unread_count)).to eq(2)
+      end
+
+      it 'shows mark all as read button when there are unread notifications' do
+        get student_notifications_path(status: 'unread')
+        expect(response.body).to include('Oznacz wszystkie jako przeczytane')
+      end
+    end
+
+    context 'when viewing archived notifications' do
+      it 'returns http success' do
+        get student_notifications_path(status: 'archived')
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'displays only read notifications' do
+        get student_notifications_path(status: 'archived')
+        expect(response.body).to include('Quiz ukończony')
+        expect(response.body).not_to include('Film zatwierdzony')
+        expect(response.body).not_to include('Film odrzucony')
+      end
+
+      it 'does not show mark all as read button' do
+        get student_notifications_path(status: 'archived')
+        expect(response.body).not_to include('Oznacz wszystkie jako przeczytane')
+      end
+    end
+
+    context 'when there are no notifications' do
+      before do
+        Notification.delete_all
+      end
+
+      it 'shows empty state' do
+        get student_notifications_path(status: 'unread')
+        expect(response.body).to include('Brak powiadomień')
+      end
+    end
+
+    context 'with notifications for other students' do
+      let(:other_student) do
+        user = create(:user, school: school)
+        UserRole.create!(user: user, role: student_role, school: school)
+        user
+      end
+
+      let!(:other_student_personal_notification) do
+        # Notification with user_id set to other student - should NOT be visible
+        create(:notification,
+               user: other_student,
+               school: school,
+               notification_type: 'student_video_approved',
+               title: 'Inny film osobisty',
+               message: 'Film innego ucznia (osobisty)',
+               target_role: 'student',
+               read_at: nil)
+      end
+
+      let!(:school_wide_notification) do
+        # Notification without user_id but with target_role=student - SHOULD be visible
+        create(:notification,
+               user: nil,
+               school: school,
+               notification_type: 'student_video_approved',
+               title: 'Powiadomienie szkolne',
+               message: 'Powiadomienie dla wszystkich studentów',
+               target_role: 'student',
+               read_at: nil)
+      end
+
+      it 'does not show personal notifications for other students' do
+        get student_notifications_path(status: 'unread')
+        expect(response.body).not_to include('Inny film osobisty')
+      end
+
+      it 'shows school-wide notifications for student role' do
+        get student_notifications_path(status: 'unread')
+        expect(response.body).to include('Powiadomienie szkolne')
+      end
+    end
+  end
+
+  describe 'POST /home/notifications/mark_as_read' do
+    let!(:notification_1) do
+      create(:notification,
+             user: student,
+             school: school,
+             notification_type: 'student_video_approved',
+             title: 'Film zatwierdzony',
+             message: 'Twój film został zatwierdzony',
+             target_role: 'student',
+             read_at: nil)
+    end
+
+    let!(:notification_2) do
+      create(:notification,
+             user: nil,
+             school: school,
+             notification_type: 'student_video_rejected',
+             title: 'Film odrzucony',
+             message: 'Twój film został odrzucony',
+             target_role: 'student',
+             read_at: nil)
+    end
+
+    let!(:notification_3) do
+      create(:notification,
+             user: student,
+             school: school,
+             notification_type: 'quiz_completed',
+             title: 'Quiz ukończony',
+             message: 'Ukończyłeś quiz',
+             target_role: 'student',
+             read_at: nil)
+    end
+
+    let!(:other_student_notification) do
+      other_student = create(:user, school: school)
+      UserRole.create!(user: other_student, role: student_role, school: school)
+      create(:notification,
+             user: other_student,
+             school: school,
+             notification_type: 'student_video_approved',
+             title: 'Inny film',
+             message: 'Film innego ucznia',
+             target_role: 'student',
+             read_at: nil)
+    end
+
+    context 'when marking single notification as read' do
+      it 'marks notification as read' do
+        expect do
+          post mark_student_notifications_as_read_path,
+               params: { notification_ids: [notification_1.id] }
+        end.to change { notification_1.reload.read_at }.from(nil)
+      end
+
+      it 'returns success response' do
+        post mark_student_notifications_as_read_path,
+             params: { notification_ids: [notification_1.id] }
+
+        expect(response).to have_http_status(:success)
+        json_response = JSON.parse(response.body)
+        expect(json_response['success']).to be true
+        expect(json_response['marked_count']).to eq(1)
+      end
+
+      it 'does not mark other notifications' do
+        post mark_student_notifications_as_read_path,
+             params: { notification_ids: [notification_1.id] }
+
+        expect(notification_2.reload.read_at).to be_nil
+        expect(notification_3.reload.read_at).to be_nil
+      end
+    end
+
+    context 'when marking multiple notifications as read' do
+      it 'marks all specified notifications as read' do
+        expect do
+          post mark_student_notifications_as_read_path,
+               params: { notification_ids: [notification_1.id, notification_2.id, notification_3.id] }
+        end.to change { notification_1.reload.read_at }.from(nil)
+                                                       .and change { notification_2.reload.read_at }.from(nil)
+                                                                                                    .and change {
+                                                                                                           notification_3.reload.read_at
+                                                                                                         }.from(nil)
+      end
+
+      it 'returns correct marked count' do
+        post mark_student_notifications_as_read_path,
+             params: { notification_ids: [notification_1.id, notification_2.id, notification_3.id] }
+
+        json_response = JSON.parse(response.body)
+        expect(json_response['marked_count']).to eq(3)
+      end
+    end
+
+    context 'when marking notification without user_id' do
+      it 'marks notification with target_role=student and school_id as read' do
+        expect do
+          post mark_student_notifications_as_read_path,
+               params: { notification_ids: [notification_2.id] }
+        end.to change { notification_2.reload.read_at }.from(nil)
+      end
+    end
+
+    context 'when trying to mark other student notification' do
+      let(:other_student) do
+        user = create(:user, school: school)
+        UserRole.create!(user: user, role: student_role, school: school)
+        user
+      end
+
+      let!(:other_student_notification) do
+        create(:notification,
+               user: other_student,
+               school: school,
+               notification_type: 'student_video_approved',
+               title: 'Other student video',
+               message: 'Video from other student',
+               target_role: 'student',
+               read_at: nil)
+      end
+
+      it 'does not mark notification for other student' do
+        expect do
+          post mark_student_notifications_as_read_path,
+               params: { notification_ids: [other_student_notification.id] }
+        end.not_to(change { other_student_notification.reload.read_at })
+      end
+    end
+
+    context 'when marking notification with wrong notification_type' do
+      let!(:wrong_type_notification) do
+        create(:notification,
+               user: student,
+               school: school,
+               notification_type: 'teacher_awaiting_approval',
+               title: 'Wrong type',
+               message: 'Wrong notification type',
+               target_role: 'teacher',
+               read_at: nil)
+      end
+
+      it 'does not mark notification with wrong type' do
+        expect do
+          post mark_student_notifications_as_read_path,
+               params: { notification_ids: [wrong_type_notification.id] }
+        end.not_to(change { wrong_type_notification.reload.read_at })
+      end
+    end
+
+    context 'when notification_ids is empty' do
+      it 'returns success with zero count' do
+        post mark_student_notifications_as_read_path,
+             params: { notification_ids: [] }
+
+        json_response = JSON.parse(response.body)
+        expect(json_response['success']).to be true
+        expect(json_response['marked_count']).to eq(0)
+      end
+    end
+
+    context 'when notification_ids is nil' do
+      it 'returns success with zero count' do
+        post mark_student_notifications_as_read_path,
+             params: {}
+
+        json_response = JSON.parse(response.body)
+        expect(json_response['success']).to be true
+        expect(json_response['marked_count']).to eq(0)
+      end
+    end
+  end
+
+  describe 'notification count in top bar' do
+    before do
+      create(:notification,
+             user: student,
+             school: school,
+             notification_type: 'student_video_approved',
+             title: 'Film zatwierdzony',
+             message: 'Twój film został zatwierdzony',
+             target_role: 'student',
+             read_at: nil)
+
+      create(:notification,
+             user: nil,
+             school: school,
+             notification_type: 'student_video_rejected',
+             title: 'Film odrzucony',
+             message: 'Twój film został odrzucony',
+             target_role: 'student',
+             read_at: nil)
+    end
+
+    it 'counts unread notifications correctly' do
+      get public_home_path
+      expect(assigns(:notifications_count)).to eq(2)
+    end
+
+    it 'includes notifications without user_id but with target_role=student' do
+      get public_home_path
+      expect(assigns(:notifications_count)).to eq(2)
+    end
+
+    context 'when all notifications are read' do
+      before do
+        Notification.update_all(read_at: Time.current)
+      end
+
+      it 'returns zero count' do
+        get public_home_path
+        expect(assigns(:notifications_count)).to eq(0)
+      end
+    end
+  end
 end

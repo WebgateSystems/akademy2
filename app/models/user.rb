@@ -15,6 +15,8 @@ class User < ApplicationRecord
   has_many :teacher_class_assignments, foreign_key: 'teacher_id', dependent: :destroy, inverse_of: :teacher
   has_many :assigned_classes, through: :teacher_class_assignments, source: :school_class
   has_many :teacher_school_enrollments, foreign_key: 'teacher_id', dependent: :destroy, inverse_of: :teacher
+  has_many :student_videos, dependent: :destroy
+  has_many :student_video_likes, dependent: :destroy
 
   devise :database_authenticatable,
          :registerable,
@@ -55,6 +57,11 @@ class User < ApplicationRecord
   # Check if user account is active (not locked)
   def active?
     locked_at.blank?
+  end
+
+  # Full name combining first and last name
+  def full_name
+    [first_name, last_name].compact.join(' ').presence || email
   end
 
   def inactive?

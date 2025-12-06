@@ -122,6 +122,116 @@ class EventLogger
     )
   end
 
+  # Student Video events
+  def self.log_student_video_upload(video:, user:, client: 'web')
+    log(
+      event_type: 'student_video_upload',
+      user: user,
+      school: user&.school,
+      data: {
+        video_id: video.id,
+        video_title: video.title,
+        subject_id: video.subject_id,
+        subject_title: video.subject_title,
+        file_size_bytes: video.file_size_bytes
+      },
+      client: client
+    )
+  end
+
+  def self.log_student_video_approve(video:, moderator:, client: 'web')
+    log(
+      event_type: 'student_video_approve',
+      user: moderator,
+      school: moderator&.school,
+      data: {
+        video_id: video.id,
+        video_title: video.title,
+        author_id: video.user_id,
+        author_name: video.author_name,
+        subject_id: video.subject_id
+      },
+      client: client
+    )
+  end
+
+  def self.log_student_video_reject(video:, moderator:, reason: nil, client: 'web')
+    log(
+      event_type: 'student_video_reject',
+      user: moderator,
+      school: moderator&.school,
+      data: {
+        video_id: video.id,
+        video_title: video.title,
+        author_id: video.user_id,
+        author_name: video.author_name,
+        reason: reason
+      },
+      client: client
+    )
+  end
+
+  def self.log_student_video_delete(video:, user:, client: 'web')
+    log(
+      event_type: 'student_video_delete',
+      user: user,
+      school: user&.school,
+      data: {
+        video_id: video.id,
+        video_title: video.title,
+        author_id: video.user_id,
+        was_approved: video.approved?
+      },
+      client: client
+    )
+  end
+
+  def self.log_student_video_like(video:, user:, liked:, client: 'web')
+    log(
+      event_type: liked ? 'student_video_like' : 'student_video_unlike',
+      user: user,
+      school: user&.school,
+      data: {
+        video_id: video.id,
+        video_title: video.title,
+        author_id: video.user_id,
+        likes_count: video.likes_count
+      },
+      client: client
+    )
+  end
+
+  def self.log_content_like(content:, user:, liked:, client: 'web')
+    log(
+      event_type: liked ? 'content_like' : 'content_unlike',
+      user: user,
+      school: user&.school,
+      data: {
+        content_id: content.id,
+        content_type: content.content_type,
+        content_title: content.title,
+        learning_module_id: content.learning_module_id,
+        likes_count: content.likes_count
+      },
+      client: client
+    )
+  end
+
+  def self.log_student_video_youtube_upload(video:, youtube_url:, youtube_id:)
+    log(
+      event_type: 'student_video_youtube_upload',
+      user: video.user,
+      school: video.school,
+      data: {
+        video_id: video.id,
+        video_title: video.title,
+        youtube_url: youtube_url,
+        youtube_id: youtube_id
+      },
+      client: 'system'
+    )
+  end
+
   def self.sanitize_params(params)
     # Remove sensitive data from params
     # Convert ActionController::Parameters to hash if needed

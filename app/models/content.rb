@@ -1,10 +1,43 @@
 class Content < ApplicationRecord
   belongs_to :learning_module
+  has_many :likes, class_name: 'ContentLike', dependent: :destroy
+  has_many :liking_users, through: :likes, source: :user
+
   mount_uploader :file, BaseUuidUploader
   mount_uploader :poster, BaseUuidUploader
   mount_uploader :subtitles, BaseUuidUploader
 
   before_save :update_file_metadata, if: :file_changed?
+
+  # Check if content is likeable (video or infographic, not quiz)
+  def likeable?
+    %w[video infographic].include?(content_type)
+  end
+
+  def liked_by?(user)
+    return false unless user
+
+    likes.exists?(user_id: user.id)
+  end
+
+  def toggle_like!(user)
+    return false unless likeable?
+
+    like = likes.find_by(user_id: user.id)
+    liked = if like
+              like.destroy
+              false
+            else
+              likes.create!(user: user)
+              true
+            end
+
+    reload # Get updated likes_count from counter_cache
+
+    # Log to activity log
+    EventLogger.log_content_like(content: self, user: user, liked: liked) if defined?(EventLogger)
+    liked
+  end
 
   # Video format mapping for common extensions
   VIDEO_FORMATS = {
