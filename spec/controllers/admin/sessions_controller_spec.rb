@@ -2,57 +2,105 @@
 
 require 'rails_helper'
 
-RSpec.describe Admin::SessionsController, type: :request do
-  let(:admin_role) { Role.find_or_create_by!(key: 'admin') { |r| r.name = 'Admin' } }
-  let(:admin_user) do
-    user = create(:user)
-    UserRole.find_or_create_by!(user: user, role: admin_role) { |ur| ur.school = user.school }
-    user
-  end
-
-  describe 'POST /admin/sign_in' do
-    before do
-      admin_user # Ensure user is created
+RSpec.describe Admin::SessionsController, type: :controller do
+  describe 'GET #new' do
+    it 'returns success' do
+      get :new
+      expect(response).to have_http_status(:ok)
     end
 
-    context 'with valid credentials' do
-      it 'clears redirect loop tracking on successful login' do
-        # Mock the API call
-        result = double('SessionResult', success?: true, form: admin_user, access_token: 'token')
+    it 'renders new template' do
+      get :new
+      expect(response).to render_template(:new)
+    end
+
+    it 'uses admin_auth layout' do
+      get :new
+      expect(response).to render_template(layout: 'admin_auth')
+    end
+  end
+
+  describe 'POST #create' do
+    context 'with valid admin credentials' do
+      let!(:admin_role) { Role.find_or_create_by!(key: 'admin') { |r| r.name = 'Admin' } }
+      let(:admin) do
+        user = create(:user)
+        UserRole.create!(user: user, role: admin_role)
+        user
+      end
+
+      it 'creates session and redirects to admin root' do
+        result = double(
+          success?: true,
+          form: double(admin?: true),
+          access_token: 'test-token'
+        )
         allow(Api::V1::Sessions::CreateSession).to receive(:call).and_return(result)
 
-        # Simulate redirect loop tracking in session
-        post admin_session_path, params: {
-          user: {
-            email: admin_user.email,
-            password: admin_user.password
-          }
-        }
+        post :create, params: { email: admin.email, password: 'Password1' }
 
-        # After successful login, should redirect to admin_root_path
         expect(response).to redirect_to(admin_root_path)
-        # Session should be cleared of redirect loop tracking (handled by controller)
+      end
+    end
+
+    context 'with invalid credentials' do
+      it 'renders new with error' do
+        result = double(
+          success?: false,
+          message: 'Invalid credentials'
+        )
+        allow(Api::V1::Sessions::CreateSession).to receive(:call).and_return(result)
+
+        post :create, params: { email: 'wrong@example.com', password: 'wrong' }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to render_template(:new)
+      end
+    end
+
+    context 'with non-admin user' do
+      let(:user) { create(:user) }
+
+      it 'renders new with error' do
+        result = double(
+          success?: true,
+          form: double(admin?: false),
+          message: nil
+        )
+        allow(Api::V1::Sessions::CreateSession).to receive(:call).and_return(result)
+
+        post :create, params: { email: user.email, password: 'Password1' }
+
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end
 
-  describe 'DELETE /admin/sign_out' do
+  describe 'DELETE #destroy' do
+    let!(:admin_role) { Role.find_or_create_by!(key: 'admin') { |r| r.name = 'Admin' } }
+    let(:admin) do
+      user = create(:user)
+      UserRole.create!(user: user, role: admin_role)
+      user
+    end
+
     before do
-      admin_user # Ensure user is created
-      # Mock current_admin to return admin_user directly
-      # rubocop:disable RSpec/AnyInstance
-      allow_any_instance_of(described_class).to receive(:current_admin).and_return(admin_user)
-      # rubocop:enable RSpec/AnyInstance
+      session[:admin_id] = Jwt::TokenService.encode({ user_id: admin.id })
+    end
+
+    it 'clears session' do
+      delete :destroy
+      expect(session[:admin_id]).to be_nil
+    end
+
+    it 'redirects to login' do
+      delete :destroy
+      expect(response).to redirect_to(new_admin_session_path)
     end
 
     it 'logs logout event' do
-      expect do
-        delete destroy_admin_session_path
-      end.to change(Event.where(event_type: 'user_logout'), :count).by(1)
-
-      event = Event.where(event_type: 'user_logout').last
-      expect(event.user).to eq(admin_user)
-      expect(event.client).to eq('admin')
+      expect(EventLogger).to receive(:log_logout).with(user: admin, client: 'admin')
+      delete :destroy
     end
   end
 end
