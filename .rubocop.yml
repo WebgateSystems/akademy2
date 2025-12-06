@@ -313,6 +313,14 @@ RSpec/StubbedMock:
   Exclude:
     - 'spec/controllers/api/v1/users/registrations_controller_spec.rb'
 
+RSpec/HookArgument:
+  Exclude:
+    - 'spec/rails_helper.rb'
+
+RSpec/MetadataStyle:
+  Exclude:
+    - 'spec/rails_helper.rb'
+
 RSpec/MessageChain:
   Exclude:
     - 'spec/controllers/**/*.rb'
