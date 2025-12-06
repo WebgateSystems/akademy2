@@ -5,7 +5,7 @@ module InviteTokens
   # TODO: Implement actual token validation logic
   class Validator
     def self.call!(_token)
-      raise ActiveRecord::RecordNotFound, _('Token not found')
+      raise ActiveRecord::RecordNotFound, 'Token not found'
     end
   end
 end
