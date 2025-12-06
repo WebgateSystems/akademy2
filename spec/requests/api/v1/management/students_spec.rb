@@ -46,6 +46,26 @@ RSpec.describe 'API V1 Management Students', type: :request do
     end
   end
 
+  describe 'GET /api/v1/management/students/:id' do
+    it 'returns 200' do
+      allow(Api::V1::Management::ShowStudent).to receive(:call).and_return(success_result)
+      get '/api/v1/management/students/123', headers: headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 404 when not found' do
+      result = double(status: :not_found, success?: false, message: ['Not found'])
+      allow(Api::V1::Management::ShowStudent).to receive(:call).and_return(result)
+      get '/api/v1/management/students/invalid', headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns 401 without token' do
+      get '/api/v1/management/students/123'
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
   describe 'POST /api/v1/management/students' do
     it 'returns 201 on success' do
       result = success_result(status: :created)
@@ -53,6 +73,141 @@ RSpec.describe 'API V1 Management Students', type: :request do
 
       post '/api/v1/management/students', headers: headers
       expect(response).to have_http_status(:created)
+    end
+
+    it 'returns 422 on validation error' do
+      result = double(status: :unprocessable_entity, success?: false, message: ['Error'])
+      allow(Api::V1::Management::CreateStudent).to receive(:call).and_return(result)
+
+      post '/api/v1/management/students', headers: headers
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'returns 401 without token' do
+      post '/api/v1/management/students'
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'PATCH /api/v1/management/students/:id' do
+    it 'returns 200 on success' do
+      allow(Api::V1::Management::UpdateStudent).to receive(:call).and_return(success_result)
+      patch '/api/v1/management/students/123', headers: headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 404 when not found' do
+      result = double(status: :not_found, success?: false, message: ['Not found'])
+      allow(Api::V1::Management::UpdateStudent).to receive(:call).and_return(result)
+      patch '/api/v1/management/students/invalid', headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns 401 without token' do
+      patch '/api/v1/management/students/123'
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'DELETE /api/v1/management/students/:id' do
+    it 'returns 204 on success' do
+      result = success_result(status: :no_content)
+      allow(Api::V1::Management::DestroyStudent).to receive(:call).and_return(result)
+      delete '/api/v1/management/students/123', headers: headers
+      expect(response).to have_http_status(:no_content)
+    end
+
+    it 'returns 404 when not found' do
+      result = double(status: :not_found, success?: false, message: ['Not found'])
+      allow(Api::V1::Management::DestroyStudent).to receive(:call).and_return(result)
+      delete '/api/v1/management/students/invalid', headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns 401 without token' do
+      delete '/api/v1/management/students/123'
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'POST /api/v1/management/students/:id/resend_invite' do
+    it 'returns 200 on success' do
+      allow(Api::V1::Management::ResendInviteStudent).to receive(:call).and_return(success_result)
+      post '/api/v1/management/students/123/resend_invite', headers: headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 404 when not found' do
+      result = double(status: :not_found, success?: false, message: ['Not found'])
+      allow(Api::V1::Management::ResendInviteStudent).to receive(:call).and_return(result)
+      post '/api/v1/management/students/invalid/resend_invite', headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns 401 without token' do
+      post '/api/v1/management/students/123/resend_invite'
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'POST /api/v1/management/students/:id/lock' do
+    it 'returns 200 on success' do
+      allow(Api::V1::Management::LockStudent).to receive(:call).and_return(success_result)
+      post '/api/v1/management/students/123/lock', headers: headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 404 when not found' do
+      result = double(status: :not_found, success?: false, message: ['Not found'])
+      allow(Api::V1::Management::LockStudent).to receive(:call).and_return(result)
+      post '/api/v1/management/students/invalid/lock', headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns 401 without token' do
+      post '/api/v1/management/students/123/lock'
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'POST /api/v1/management/students/:id/approve' do
+    it 'returns 200 on success' do
+      allow(Api::V1::Management::ApproveStudent).to receive(:call).and_return(success_result)
+      post '/api/v1/management/students/123/approve', headers: headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 404 when not found' do
+      result = double(status: :not_found, success?: false, message: ['Not found'])
+      allow(Api::V1::Management::ApproveStudent).to receive(:call).and_return(result)
+      post '/api/v1/management/students/invalid/approve', headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns 401 without token' do
+      post '/api/v1/management/students/123/approve'
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'DELETE /api/v1/management/students/:id/decline' do
+    it 'returns 204 on success' do
+      result = success_result(status: :no_content)
+      allow(Api::V1::Management::DestroyStudent).to receive(:call).and_return(result)
+      delete '/api/v1/management/students/123/decline', headers: headers
+      expect(response).to have_http_status(:no_content)
+    end
+
+    it 'returns 404 when not found' do
+      result = double(status: :not_found, success?: false, message: ['Not found'])
+      allow(Api::V1::Management::DestroyStudent).to receive(:call).and_return(result)
+      delete '/api/v1/management/students/invalid/decline', headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns 401 without token' do
+      delete '/api/v1/management/students/123/decline'
+      expect(response).to have_http_status(:unauthorized)
     end
   end
 end
