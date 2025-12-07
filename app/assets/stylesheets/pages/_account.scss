@@ -1,0 +1,152 @@
+// Account page styles
+.account-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 70vh;
+  padding: 32px 24px;
+}
+
+.account-form {
+  width: 100%;
+  max-width: 455px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.account-form__label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  span {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--content-secondary);
+  }
+}
+
+.account-form__input {
+  height: 48px;
+  border-radius: 4px;
+  border: 1px solid var(--border-muted);
+  padding: 0 14px;
+  font-size: 15px;
+  color: var(--content-primary);
+  background: var(--surface-primary);
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+
+  &::placeholder {
+    color: var(--content-placeholder);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-500);
+  }
+
+  &:disabled {
+    background: var(--surface-secondary);
+    color: var(--content-secondary);
+    cursor: not-allowed;
+  }
+
+  &--warning {
+    border-color: #F4B400;
+  }
+}
+
+.account-form__select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+.account-form__error {
+  font-size: 14px;
+  font-weight: 400;
+  color: #F4B400 !important;
+}
+
+.account-form__errors {
+  background: var(--state-error-soft);
+  border: 1px solid var(--state-error);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+
+  p {
+    color: var(--state-error);
+    font-size: 14px;
+    margin: 0;
+
+    & + p {
+      margin-top: 4px;
+    }
+  }
+}
+
+.account-form__settings,
+.account-form__logout,
+.account-form__save {
+  margin-top: 16px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: var(--font-display);
+  color: var(--primary-500);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--primary-600);
+  }
+}
+
+.account-form__settings {
+  margin-top: 0;
+}
+
+.account-form__save {
+  margin-bottom: 16px;
+}
+
+.account-form__delete {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-display);
+  color: var(--state-error);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  letter-spacing: 0.5px;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--state-error-soft);
+  }
+}
+
+// Danger primary button for modals
+.schools-modal__primary--danger {
+  background: var(--state-error) !important;
+  color: white !important;
+
+  &:hover {
+    background: darken(#dc3545, 10%) !important;
+  }
+}
+

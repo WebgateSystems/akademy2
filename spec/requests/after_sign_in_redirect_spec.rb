@@ -30,7 +30,7 @@ RSpec.describe 'After sign in redirects', type: :request do
     it 'redirects teacher to /dashboard after login when trying to access /dashboard' do
       # Try to access dashboard without login
       get dashboard_path
-      expect(response).to redirect_to(new_user_session_path)
+      expect(response).to redirect_to(teacher_login_path)
 
       # Login
       post user_session_path, params: {
@@ -48,7 +48,7 @@ RSpec.describe 'After sign in redirects', type: :request do
       # Teacher doesn't have management permissions
       # Try to access management without login
       get management_root_path
-      expect(response).to redirect_to(new_user_session_path)
+      expect(response).to redirect_to(administration_login_path)
 
       # Login as teacher (who has no management access)
       post user_session_path, params: {
@@ -68,7 +68,7 @@ RSpec.describe 'After sign in redirects', type: :request do
 
       # Try to access management without login
       get management_root_path
-      expect(response).to redirect_to(new_user_session_path)
+      expect(response).to redirect_to(administration_login_path)
 
       # Login as principal (who has management access)
       post user_session_path, params: {

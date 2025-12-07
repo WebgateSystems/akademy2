@@ -366,6 +366,52 @@ class StudentDashboardController < ApplicationController
     }
   end
 
+  # GET /home/account
+  def account
+    @user = current_user
+    render 'student_dashboard/account'
+  end
+
+  # PATCH /home/account
+  def update_account
+    @user = current_user
+
+    if @user.update(account_params)
+      redirect_to student_account_path, notice: t('student_dashboard.account.updated')
+    else
+      render 'student_dashboard/account', status: :unprocessable_entity
+    end
+  end
+
+  # GET /home/account/settings
+  def settings
+    @user = current_user
+    render 'student_dashboard/settings'
+  end
+
+  # PATCH /home/account/settings
+  def update_settings
+    @user = current_user
+
+    @user.pin = settings_params[:pin] if settings_params[:pin].present? && settings_params[:pin] != '****'
+
+    @user.locale = settings_params[:locale] if settings_params[:locale].present?
+
+    if @user.save
+      redirect_to student_account_path, notice: t('student_dashboard.settings.updated')
+    else
+      render 'student_dashboard/settings', status: :unprocessable_entity
+    end
+  end
+
+  # DELETE /home/account
+  def destroy_account
+    @user = current_user
+    sign_out(@user)
+    @user.destroy
+    redirect_to root_path, notice: t('student_dashboard.account.deleted')
+  end
+
   private
 
   def set_student_token
@@ -394,6 +440,14 @@ class StudentDashboardController < ApplicationController
     params.permit(:title, :description, :subject_id, :file)
   end
 
+  def account_params
+    params.require(:user).permit(:first_name, :last_name, :email, :phone)
+  end
+
+  def settings_params
+    params.require(:user).permit(:pin, :locale, :theme)
+  end
+
   def searchkick_available?
     return false if Rails.env.test? && ENV['ELASTICSEARCH_TEST'] != 'true'
 
@@ -410,11 +464,14 @@ class StudentDashboardController < ApplicationController
       sign_out(current_user)
       session.delete(:return_to)
       session.delete(:user_return_to)
+    else
+      # Save return path for after login
+      session[:user_return_to] = request.fullpath
     end
 
     # Redirect to login with student role (consistent with other dashboards)
     # rubocop:disable I18n/GetText/DecorateString
-    redirect_to new_user_session_path(role: 'student'),
+    redirect_to student_login_path,
                 alert: 'Zaloguj się jako uczeń, aby uzyskać dostęp do panelu ucznia.'
     # rubocop:enable I18n/GetText/DecorateString
   end

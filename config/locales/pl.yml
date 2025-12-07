@@ -98,6 +98,11 @@ pl:
       not_authorized: "Brak uprawnień do usunięcia tego filmu."
       cannot_delete: "Można usunąć tylko filmy oczekujące lub odrzucone."
       deleted: "Film został usunięty."
+    account:
+      updated: "Konto zostało zaktualizowane."
+      deleted: "Twoje konto zostało usunięte."
+    settings:
+      updated: "Ustawienia zostały zapisane."
 
   management:
     years:

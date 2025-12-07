@@ -1,15 +1,21 @@
 header.dashboard-top-bar
   button.dashboard-sidebar-toggle type="button" aria-label="Toggle navigation" data-sidebar-toggle=""
     = image_tag "icons/social/M/burger.svg", alt: "", width: "24", height: "24", "data-theme-icon": true
-  h1
-    - if current_user && @current_class
-      - student_name = "#{current_user.first_name} #{current_user.last_name}".strip.presence || current_user.email
-      - class_info = "#{@current_class.name} (#{@current_class.school&.current_academic_year_value || '2025/2026'})"
-      = "#{student_name} · #{class_info}"
-    - elsif current_user
-      = "#{current_user.first_name} #{current_user.last_name}".strip.presence || current_user.email
-    - else
-      | Panel ucznia
+  .dashboard-top-heading
+    - if local_assigns[:back_path]
+      = link_to back_path, class: "dashboard-back-link", "aria-label": "Back" do
+        = image_tag "icons/social/M/back.svg", alt: "", width: "24", height: "24", "data-theme-icon": true
+    h1
+      - if local_assigns[:title]
+        = title
+      - elsif current_user && @current_class
+        - student_name = "#{current_user.first_name} #{current_user.last_name}".strip.presence || current_user.email
+        - class_info = "#{@current_class.name} (#{@current_class.school&.current_academic_year_value || '2025/2026'})"
+        = "#{student_name} · #{class_info}"
+      - elsif current_user
+        = "#{current_user.first_name} #{current_user.last_name}".strip.presence || current_user.email
+      - else
+        | Panel ucznia
   .dashboard-top-actions
     = link_to student_notifications_path, class: "icon-pill", "aria-label": "Powiadomienia" do
       - if @notifications_count && @notifications_count > 0

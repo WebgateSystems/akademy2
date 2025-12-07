@@ -90,7 +90,7 @@ RSpec.describe StudentDashboardController, type: :request do
 
       get public_home_path
 
-      expect(response).to redirect_to(new_user_session_path(role: 'student'))
+      expect(response).to redirect_to(student_login_path)
     end
   end
 

@@ -1,0 +1,110 @@
+- content_for :title, 'Account'
+
+.dashboard-app data-dashboard-app=""
+  = render 'sidebar', active: 'account'
+
+  main.dashboard-main
+    = render 'top_bar', title: 'Account', back_path: public_home_path
+
+    section.account-section
+      = form_with model: @user, url: student_account_path, method: :patch, class: 'account-form', local: true do |f|
+        - if @user.errors.any?
+          .account-form__errors
+            - @user.errors.full_messages.each do |msg|
+              p.account-form__error = msg
+
+        label.account-form__label
+          span Full name
+          = f.text_field :first_name, class: 'account-form__input', placeholder: 'First name', required: true
+        label.account-form__label
+          span Last name
+          = f.text_field :last_name, class: 'account-form__input', placeholder: 'Last name', required: true
+        label.account-form__label
+          span Date of birth
+          - birthdate_value = @user.birthdate&.strftime('%d.%m.%Y') || ''
+          input.account-form__input type="text" name="user[birthdate_display]" placeholder="DD.MM.YYYY" value=birthdate_value disabled="disabled"
+        label.account-form__label
+          span Email
+          - email_warning = !@user.confirmed_at.present? ? 'account-form__input--warning' : ''
+          = f.email_field :email, class: "account-form__input #{email_warning}", placeholder: 'your@email.com', required: true
+          - unless @user.confirmed_at.present?
+            span.account-form__error Unverified email address.
+        label.account-form__label
+          span Phone
+          - phone_value = @user.display_phone || @user.metadata&.dig('phone') || ''
+          - phone_warning = phone_value.present? && !@user.metadata&.dig('phone_verified') ? 'account-form__input--warning' : ''
+          = f.text_field :phone, class: "account-form__input #{phone_warning}", placeholder: '+48 XXX XXX XXX', value: phone_value
+          - if phone_value.present? && !@user.metadata&.dig('phone_verified')
+            span.account-form__error Unverified phone number.
+
+        = link_to 'SETTINGS', student_settings_path, class: 'account-form__settings'
+
+        = f.submit 'SAVE CHANGES', class: 'account-form__save', id: 'save-changes-btn', style: 'display: none;'
+
+      button.account-form__logout type="button" data-modal-trigger="logout-modal" LOGOUT
+
+.schools-modal#logout-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog.schools-modal__dialog--small role="dialog" aria-modal="true" aria-labelledby="logout-modal-title"
+    header.schools-modal__header
+      h3#logout-modal-title Logout
+    .schools-modal__body
+      p Do you want to logout from your account?
+    .schools-modal__actions
+      button.schools-modal__secondary type="button" data-modal-close CANCEL
+      = button_to 'LOGOUT', destroy_user_session_path, method: :delete, class: 'schools-modal__primary'
+
+javascript:
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('.account-form');
+    const saveBtn = document.getElementById('save-changes-btn');
+    const inputs = form.querySelectorAll('input:not([disabled])');
+    const initialValues = {};
+
+    inputs.forEach(input => {
+      initialValues[input.name] = input.value;
+    });
+
+    const checkChanges = () => {
+      let hasChanges = false;
+      inputs.forEach(inp => {
+        if (inp.value !== initialValues[inp.name]) {
+          hasChanges = true;
+        }
+      });
+      saveBtn.style.display = hasChanges ? 'block' : 'none';
+    };
+
+    inputs.forEach(input => {
+      input.addEventListener('input', checkChanges);
+      input.addEventListener('change', checkChanges);
+    });
+
+    // Logout modal
+    const logoutBtn = document.querySelector('[data-modal-trigger="logout-modal"]');
+    const logoutModal = document.getElementById('logout-modal');
+    const cancelBtn = logoutModal?.querySelector('[data-modal-close]');
+    const overlay = logoutModal?.querySelector('.schools-modal__overlay');
+
+    logoutBtn?.addEventListener('click', () => {
+      logoutModal.classList.add('is-open');
+      logoutModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    });
+
+    const closeModal = () => {
+      logoutModal.classList.remove('is-open');
+      logoutModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    };
+
+    cancelBtn?.addEventListener('click', closeModal);
+    overlay?.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && logoutModal?.classList.contains('is-open')) {
+        closeModal();
+      }
+    });
+  });
+

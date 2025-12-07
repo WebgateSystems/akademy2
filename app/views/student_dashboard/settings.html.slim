@@ -1,0 +1,121 @@
+- content_for :title, 'Settings'
+
+.dashboard-app data-dashboard-app=""
+  = render 'sidebar', active: 'account'
+
+  main.dashboard-main
+    = render 'top_bar', title: 'Settings', back_path: student_account_path
+
+    section.account-section
+      = form_with model: @user, url: student_settings_path, method: :patch, class: 'account-form', id: 'settings-form', local: true do |f|
+        - if @user.errors.any?
+          .account-form__errors
+            - @user.errors.full_messages.each do |msg|
+              p.account-form__error = msg
+
+        label.account-form__label
+          span Pin
+          = f.password_field :pin, class: 'account-form__input', placeholder: '****', value: '****', maxlength: 4
+
+        label.account-form__label
+          span Theme
+          = f.select :theme, [['Light', 'light'], ['Dark', 'dark']], {}, class: 'account-form__input account-form__select', id: 'theme-select'
+
+        label.account-form__label
+          span Language
+          = f.select :locale, [['English', 'en'], ['Polski', 'pl']], { selected: @user.locale || 'en' }, class: 'account-form__input account-form__select'
+
+        = f.submit 'SAVE CHANGES', class: 'account-form__save', id: 'save-btn', style: 'display: none;'
+
+      button.account-form__delete type="button" data-modal-trigger="delete-modal" DELETE ACCOUNT
+
+.schools-modal#save-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog.schools-modal__dialog--small role="dialog" aria-modal="true" aria-labelledby="save-modal-title"
+    header.schools-modal__header
+      h3#save-modal-title Save changes
+    .schools-modal__body
+      p Do you want to save changes?
+    .schools-modal__actions
+      button.schools-modal__secondary type="button" data-modal-close CANCEL
+      button.schools-modal__primary type="button" id="confirm-save-btn" SAVE
+
+.schools-modal#delete-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog.schools-modal__dialog--small role="dialog" aria-modal="true" aria-labelledby="delete-modal-title"
+    header.schools-modal__header
+      h3#delete-modal-title Delete account
+    .schools-modal__body
+      p Do you want to delete your account? This action cannot be undone.
+    .schools-modal__actions
+      button.schools-modal__secondary type="button" data-modal-close CANCEL
+      = button_to 'DELETE', destroy_student_account_path, method: :delete, class: 'schools-modal__primary schools-modal__primary--danger'
+
+javascript:
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('settings-form');
+    const saveBtn = document.getElementById('save-btn');
+    const inputs = form.querySelectorAll('input, select');
+    const initialValues = {};
+
+    inputs.forEach(input => {
+      initialValues[input.name] = input.value;
+    });
+
+    const checkChanges = () => {
+      let hasChanges = false;
+      inputs.forEach(inp => {
+        if (inp.value !== initialValues[inp.name]) {
+          hasChanges = true;
+        }
+      });
+      saveBtn.style.display = hasChanges ? 'block' : 'none';
+    };
+
+    inputs.forEach(input => {
+      input.addEventListener('input', checkChanges);
+      input.addEventListener('change', checkChanges);
+    });
+
+    // Theme switching preview
+    const themeSelect = document.getElementById('theme-select');
+    const THEME_STORAGE_KEY = 'ust-theme';
+    const currentTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'light';
+    themeSelect.value = currentTheme;
+
+    themeSelect.addEventListener('change', () => {
+      const newTheme = themeSelect.value;
+      const isDark = newTheme === 'dark';
+      document.documentElement.classList.toggle('theme-dark', isDark);
+      localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+    });
+
+    // Delete modal
+    const deleteModal = document.getElementById('delete-modal');
+    const deleteModalBtn = document.querySelector('[data-modal-trigger="delete-modal"]');
+    const deleteCancelBtn = deleteModal?.querySelector('[data-modal-close]');
+    const deleteOverlay = deleteModal?.querySelector('.schools-modal__overlay');
+
+    const openDeleteModal = () => {
+      deleteModal.classList.add('is-open');
+      deleteModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeDeleteModal = () => {
+      deleteModal.classList.remove('is-open');
+      deleteModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    };
+
+    deleteModalBtn?.addEventListener('click', openDeleteModal);
+    deleteCancelBtn?.addEventListener('click', closeDeleteModal);
+    deleteOverlay?.addEventListener('click', closeDeleteModal);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (deleteModal?.classList.contains('is-open')) closeDeleteModal();
+      }
+    });
+  });
+

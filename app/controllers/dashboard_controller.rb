@@ -1,5 +1,4 @@
 class DashboardController < ApplicationController
-  before_action :authenticate_user!
   before_action :require_teacher!
   before_action :set_notifications_count
   before_action :set_dashboard_token
@@ -307,6 +306,15 @@ class DashboardController < ApplicationController
   end
 
   def require_teacher!
+    # First check if user is signed in at all
+    unless user_signed_in?
+      session[:user_return_to] = request.fullpath
+      # rubocop:disable I18n/GetText/DecorateString
+      redirect_to teacher_login_path, alert: 'Zaloguj się jako nauczyciel, aby uzyskać dostęp do panelu.'
+      # rubocop:enable I18n/GetText/DecorateString
+      return
+    end
+
     return if current_user.teacher?
 
     # User is logged in but doesn't have teacher role - sign them out and redirect
@@ -318,7 +326,7 @@ class DashboardController < ApplicationController
 
     # Redirect to login with teacher role parameter
     # rubocop:disable I18n/GetText/DecorateString
-    redirect_to new_user_session_path(role: 'teacher'),
+    redirect_to teacher_login_path,
                 alert: 'Brak uprawnień nauczyciela. Zaloguj się kontem nauczyciela.'
     # rubocop:enable I18n/GetText/DecorateString
   end
