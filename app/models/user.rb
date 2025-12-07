@@ -68,6 +68,16 @@ class User < ApplicationRecord
     locked_at.present?
   end
 
+  # Theme accessor stored in metadata
+  def theme
+    metadata&.dig('theme') || 'light'
+  end
+
+  def theme=(value)
+    self.metadata ||= {}
+    self.metadata['theme'] = value
+  end
+
   # Override Devise method to prevent locked users from authenticating
   def active_for_authentication?
     super && active?

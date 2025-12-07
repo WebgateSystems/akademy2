@@ -205,4 +205,136 @@ RSpec.describe NotificationService, type: :service do
       expect(notification.metadata['custom_field']).to eq('value')
     end
   end
+
+  describe '.create_account_deletion_request' do
+    let(:student) do
+      user = create(:user, school: school, first_name: 'Jan', last_name: 'Kowalski')
+      UserRole.create!(user: user, role: student_role, school: school)
+      user
+    end
+
+    before do
+      principal
+      school_manager
+    end
+
+    it 'creates notifications for school managers and principals' do
+      expect do
+        described_class.create_account_deletion_request(student: student, school: school)
+      end.to change(Notification, :count).by(2)
+    end
+
+    it 'creates notification with correct type' do
+      described_class.create_account_deletion_request(student: student, school: school)
+      notification = Notification.find_by(
+        notification_type: 'account_deletion_request',
+        school: school
+      )
+      expect(notification).to be_present
+      expect(notification.metadata['user_id']).to eq(student.id)
+      expect(notification.metadata['user_email']).to eq(student.email)
+      expect(notification.metadata['user_name']).to eq('Jan Kowalski')
+    end
+
+    it 'includes student name in message' do
+      described_class.create_account_deletion_request(student: student, school: school)
+      notification = Notification.find_by(
+        notification_type: 'account_deletion_request',
+        school: school
+      )
+      expect(notification.message).to include('Jan Kowalski')
+    end
+  end
+
+  describe '.resolve_account_deletion_request' do
+    let(:student) do
+      user = create(:user, school: school)
+      UserRole.create!(user: user, role: student_role, school: school)
+      user
+    end
+
+    let!(:notification) do
+      create(:notification,
+             notification_type: 'account_deletion_request',
+             school: school,
+             target_role: 'school_manager',
+             metadata: { 'user_id' => student.id },
+             resolved_at: nil)
+    end
+
+    it 'marks notification as resolved' do
+      expect do
+        described_class.resolve_account_deletion_request(notification: notification)
+      end.to change { notification.reload.resolved_at }.from(nil)
+    end
+  end
+
+  describe '.create_account_deletion_rejected' do
+    let(:student) do
+      user = create(:user, school: school, first_name: 'Jan', last_name: 'Kowalski')
+      UserRole.create!(user: user, role: student_role, school: school)
+      user
+    end
+
+    let(:moderator) do
+      user = create(:user, school: school, first_name: 'Admin', last_name: 'User')
+      UserRole.create!(user: user, role: school_manager_role, school: school)
+      user
+    end
+
+    let!(:original_notification) do
+      create(:notification,
+             notification_type: 'account_deletion_request',
+             school: school,
+             target_role: 'school_manager',
+             metadata: { 'user_id' => student.id })
+    end
+
+    it 'creates rejection notification for student' do
+      expect do
+        described_class.create_account_deletion_rejected(
+          student: student,
+          moderator: moderator,
+          notification: original_notification
+        )
+      end.to change(Notification, :count).by(1)
+    end
+
+    it 'creates notification with correct type and target' do
+      described_class.create_account_deletion_rejected(
+        student: student,
+        moderator: moderator,
+        notification: original_notification
+      )
+
+      notification = Notification.find_by(notification_type: 'account_deletion_rejected')
+      expect(notification).to be_present
+      expect(notification.target_role).to eq('student')
+      expect(notification.user).to eq(student)
+      expect(notification.school).to eq(school)
+    end
+
+    it 'includes moderator name in message' do
+      described_class.create_account_deletion_rejected(
+        student: student,
+        moderator: moderator,
+        notification: original_notification
+      )
+
+      notification = Notification.find_by(notification_type: 'account_deletion_rejected')
+      expect(notification.message).to include('Admin User')
+    end
+
+    it 'stores moderator id in metadata' do
+      described_class.create_account_deletion_rejected(
+        student: student,
+        moderator: moderator,
+        notification: original_notification
+      )
+
+      notification = Notification.find_by(notification_type: 'account_deletion_rejected')
+      expect(notification.metadata['moderator_id']).to eq(moderator.id)
+      expect(notification.metadata['original_notification_id']).to eq(original_notification.id)
+    end
+  end
 end

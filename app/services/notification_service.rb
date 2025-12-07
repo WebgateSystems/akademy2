@@ -385,6 +385,79 @@ class NotificationService
     end
   end
 
+  # Create notification for school managers when student requests account deletion
+  def self.create_account_deletion_request(student:, school:)
+    return unless school
+
+    student_name = [student.first_name, student.last_name].compact.join(' ').presence || student.email
+
+    # Get school managers and principals
+    school_managers = User.joins(:user_roles)
+                          .joins('INNER JOIN roles ON user_roles.role_id = roles.id')
+                          .where(user_roles: { school_id: school.id },
+                                 roles: { key: %w[principal school_manager] })
+                          .distinct
+
+    school_managers.find_each do |manager|
+      role_key = manager.roles.pick(:key) || 'school_manager'
+
+      # Check if notification already exists and is unresolved
+      existing = Notification.where(
+        notification_type: 'account_deletion_request',
+        target_role: role_key,
+        school: school,
+        resolved_at: nil
+      ).where("metadata->>'user_id' = ?", student.id.to_s).first
+
+      next if existing
+
+      Notification.create!(
+        notification_type: 'account_deletion_request',
+        title: I18n.t('notification_service.account_deletion_request.title',
+                      default: 'Account deletion request'),
+        message: I18n.t('notification_service.account_deletion_request.message',
+                        user_name: student_name, user_email: student.email,
+                        default: "#{student_name} (#{student.email}) has requested account deletion."),
+        target_role: role_key,
+        school: school,
+        user: student,
+        metadata: {
+          user_id: student.id,
+          user_email: student.email,
+          user_name: student_name,
+          requested_at: Time.current.iso8601
+        }
+      )
+    end
+  end
+
+  # Resolve account deletion request notification
+  def self.resolve_account_deletion_request(notification:)
+    notification.update!(resolved_at: Time.current, read_at: Time.current)
+  end
+
+  def self.create_account_deletion_rejected(student:, moderator:, notification:)
+    return unless student && moderator
+
+    moderator_name = [moderator.first_name, moderator.last_name].compact.join(' ').presence || moderator.email
+
+    Notification.create!(
+      notification_type: 'account_deletion_rejected',
+      title: I18n.t('notification_service.account_deletion_rejected.title',
+                    default: 'Account deletion request rejected'),
+      message: I18n.t('notification_service.account_deletion_rejected.message',
+                      moderator_name: moderator_name,
+                      default: "Your account deletion request was rejected by #{moderator_name}."),
+      target_role: 'student',
+      school: student.school,
+      user: student,
+      metadata: {
+        moderator_id: moderator.id,
+        original_notification_id: notification.id
+      }
+    )
+  end
+
   # Generic method to create notifications
   # rubocop:disable Metrics/ParameterLists
   def self.create_notification(notification_type:, title:, message:, target_role:, user: nil, school: nil, metadata: {})

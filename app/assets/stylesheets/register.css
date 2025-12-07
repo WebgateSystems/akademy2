@@ -3641,5 +3641,14 @@ button.auth-submit--primary:hover {
   border-color: var(--button-primary);
   color: var(--button-primary);
 }
+.notification-card__action--danger {
+  border-color: #D32F2F;
+  color: #D32F2F;
+  background: rgba(211, 47, 47, 0.1);
+}
+.notification-card__action--danger:hover {
+  background: #D32F2F;
+  color: #FFFFFF;
+}
 
 /*# sourceMappingURL=main.css.map */
