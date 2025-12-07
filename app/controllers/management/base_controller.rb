@@ -8,8 +8,7 @@ module Management
     helper_method :students_notifications_count
     helper_method :current_academic_year
 
-    before_action :authenticate_user!
-    before_action :require_school_management_access!
+    before_action :require_management_login!
     before_action :set_management_token
     before_action :set_notifications_counts
 
@@ -21,7 +20,18 @@ module Management
       @current_school_manager ||= current_user
     end
 
-    def require_school_management_access!
+    def require_management_login!
+      # First check if user is signed in at all
+      unless user_signed_in?
+        session[:user_return_to] = request.fullpath
+        # rubocop:disable I18n/GetText/DecorateString
+        redirect_to administration_login_path,
+                    alert: 'Zaloguj się, aby uzyskać dostęp do panelu zarządzania szkołą.'
+        # rubocop:enable I18n/GetText/DecorateString
+        return
+      end
+
+      # Check if user has management permissions
       policy = SchoolManagementPolicy.new(current_user, :school_management)
       return if policy.access?
 
@@ -32,7 +42,7 @@ module Management
 
       # Redirect to login with administration role parameter
       # rubocop:disable I18n/GetText/DecorateString
-      redirect_to new_user_session_path(role: 'administration'),
+      redirect_to administration_login_path,
                   alert: 'Brak uprawnień do zarządzania szkołą. Zaloguj się kontem z odpowiednimi uprawnieniami.'
       # rubocop:enable I18n/GetText/DecorateString
     end

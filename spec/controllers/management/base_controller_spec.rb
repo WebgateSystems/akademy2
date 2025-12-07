@@ -17,7 +17,22 @@ RSpec.describe Management::BaseController, type: :request do
     Rails.application.routes.default_url_options[:host] ||= 'example.com'
   end
 
-  describe '#require_school_management_access!' do
+  describe '#require_management_login!' do
+    context 'when user is not signed in' do
+      it 'redirects to administration login page' do
+        get management_root_path
+
+        expect(response).to redirect_to(administration_login_path)
+        expect(flash[:alert]).to include('Zaloguj się')
+      end
+
+      it 'stores return path for after login' do
+        get management_root_path
+
+        expect(session[:user_return_to]).to eq(management_root_path)
+      end
+    end
+
     context 'when user has no management roles' do
       let(:non_manager) do
         user = create(:user, school: school)
@@ -30,7 +45,7 @@ RSpec.describe Management::BaseController, type: :request do
       it 'redirects to login page with alert to avoid redirect loop' do
         get management_root_path
 
-        expect(response).to redirect_to(new_user_session_path(role: 'administration'))
+        expect(response).to redirect_to(administration_login_path)
         expect(flash[:alert]).to include('Brak uprawnień do zarządzania szkołą')
       end
     end

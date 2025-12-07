@@ -60,7 +60,7 @@ RSpec.describe HomeController, type: :request do
     context 'when user is not signed in' do
       it 'redirects to login' do
         get public_home_path
-        expect(response).to redirect_to(new_user_session_path(role: 'student'))
+        expect(response).to redirect_to(student_login_path)
       end
     end
 
@@ -121,7 +121,7 @@ RSpec.describe HomeController, type: :request do
 
       it 'redirects to login (requires student role)' do
         get public_home_path
-        expect(response).to redirect_to(new_user_session_path(role: 'student'))
+        expect(response).to redirect_to(student_login_path)
       end
     end
   end

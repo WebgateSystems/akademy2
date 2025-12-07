@@ -35,9 +35,9 @@ RSpec.describe DashboardController, type: :request do
 
   describe 'authentication' do
     # Routes are accessible but require authentication (handled by controller)
-    it 'redirects unauthenticated users to login' do
+    it 'redirects unauthenticated users to teacher login' do
       get dashboard_path
-      expect(response).to redirect_to(new_user_session_path)
+      expect(response).to redirect_to(teacher_login_path)
     end
 
     context 'when user is not a teacher' do
@@ -47,7 +47,7 @@ RSpec.describe DashboardController, type: :request do
 
       it 'redirects to login page with alert to avoid redirect loop' do
         get dashboard_path
-        expect(response).to redirect_to(new_user_session_path(role: 'teacher'))
+        expect(response).to redirect_to(teacher_login_path)
         expect(flash[:alert]).to include('nauczyciel')
       end
     end
@@ -456,10 +456,10 @@ RSpec.describe DashboardController, type: :request do
   end
 
   describe 'redirect parameters for unauthenticated teacher' do
-    it 'redirects to login' do
+    it 'redirects to teacher login' do
       get dashboard_path
-      # Unauthenticated users get redirected by Devise without role parameter
-      expect(response).to redirect_to(new_user_session_path)
+      # Unauthenticated users get redirected to role-specific login
+      expect(response).to redirect_to(teacher_login_path)
     end
   end
 

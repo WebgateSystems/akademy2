@@ -111,35 +111,35 @@ RSpec.describe Users::SessionsController, type: :request do
     end
   end
 
-  describe 'GET /users/sign_in with role parameter' do
-    context 'with role=teacher' do
+  describe 'GET /login routes with role parameter' do
+    context 'when accessing /login/teacher' do
       it 'renders the login form' do
-        get new_user_session_path(role: 'teacher')
+        get teacher_login_path
         expect(response).to have_http_status(:success)
       end
 
       it 'shows sign up link to teacher registration' do
-        get new_user_session_path(role: 'teacher')
+        get teacher_login_path
         expect(response.body).to include('register/teacher')
       end
     end
 
-    context 'with role=student' do
+    context 'when accessing /login/student' do
       it 'renders the login form with PIN fields' do
-        get new_user_session_path(role: 'student')
+        get student_login_path
         expect(response).to have_http_status(:success)
         expect(response.body).to include('login-pin')
       end
 
       it 'shows sign up link to student registration' do
-        get new_user_session_path(role: 'student')
+        get student_login_path
         expect(response.body).to include('register/profile')
       end
     end
 
-    context 'with role=administration' do
+    context 'when accessing /login/administration' do
       it 'does not show sign up link' do
-        get new_user_session_path(role: 'administration')
+        get administration_login_path
         expect(response).to have_http_status(:success)
         expect(response.body).not_to include('Sign up')
       end

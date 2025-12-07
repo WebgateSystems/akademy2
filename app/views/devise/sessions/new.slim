@@ -7,13 +7,17 @@
 
       h1.h4.mb-3.text-center Logowanie
 
+      / Determine role from params or intended path
+      - role = params[:role] || (session[:user_return_to].present? ? (session[:user_return_to].include?('/home') ? 'student' : (session[:user_return_to].include?('/management') ? 'administration' : 'teacher')) : 'teacher')
+      / Use role-specific login path for pretty URLs
+      - login_url = role == 'student' ? student_login_path : (role == 'administration' ? administration_login_path : teacher_login_path)
+
       = form_for(resource,
                  as: resource_name,
-                 url: session_path(resource_name),
+                 url: login_url,
                  html: { data: { login_form: true } }) do |f|
 
-        / Hidden role field, determined by intended path (outside user params to avoid unpermitted parameter warning)
-        - role = params[:role] || (session[:user_return_to].present? ? (session[:user_return_to].include?('/home') ? 'student' : (session[:user_return_to].include?('/management') ? 'administration' : 'teacher')) : 'teacher')
+        / Hidden role field for controller (outside user params to avoid unpermitted parameter warning)
         = hidden_field_tag :role, role, id: "login-role"
 
         - if role == "student"

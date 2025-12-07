@@ -244,6 +244,13 @@ Rails.application.routes.draw do
   # Content likes (for learning materials)
   post '/home/contents/:id/like', to: 'student_dashboard#toggle_content_like', as: :toggle_content_like
 
+  # Student account
+  get '/home/account', to: 'student_dashboard#account', as: :student_account
+  patch '/home/account', to: 'student_dashboard#update_account'
+  get '/home/account/settings', to: 'student_dashboard#settings', as: :student_settings
+  patch '/home/account/settings', to: 'student_dashboard#update_settings'
+  delete '/home/account', to: 'student_dashboard#destroy_account', as: :destroy_student_account
+
   # Join class via token link (for students)
   get '/join/class/:token', to: 'student_dashboard#join_class', as: :join_class
 
