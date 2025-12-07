@@ -101,10 +101,27 @@ pl:
     account:
       updated: "Konto zostało zaktualizowane."
       deleted: "Twoje konto zostało usunięte."
+      no_changes: "Brak zmian do zapisania."
+      deletion_requested: "Prośba o usunięcie konta została wysłana do administracji szkoły."
     settings:
       updated: "Ustawienia zostały zapisane."
+      pin_length_error: "PIN musi mieć dokładnie 4 cyfry."
+      pin_digits_only: "PIN może zawierać tylko cyfry."
+      pin_mismatch: "Potwierdzenie PIN nie jest zgodne."
+
+  notification_service:
+    account_deletion_request:
+      title: "Prośba o usunięcie konta"
+      message: "%{user_name} (%{user_email}) prosi o usunięcie swojego konta."
+    account_deletion_rejected:
+      title: "Prośba o usunięcie konta odrzucona"
+      message: "Twoja prośba o usunięcie konta została odrzucona przez %{moderator_name}."
 
   management:
+    notifications:
+      account_deletion_approved: "Konto użytkownika %{user_name} zostało usunięte."
+      account_deletion_rejected: "Prośba o usunięcie konta dla %{user_name} została odrzucona."
+      student_not_found: "Uczeń nie został znaleziony (konto mogło już zostać usunięte)."
     years:
       processing: "Przetwarzanie..."
       actions:

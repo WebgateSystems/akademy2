@@ -29,6 +29,24 @@
 
 en:
   hello: "Hello world"
+  api:
+    student:
+      account:
+        email_verified_cannot_change: "Email is verified and cannot be changed."
+        phone_verified_cannot_change: "Phone is verified and cannot be changed."
+        updated: "Account updated successfully."
+  notification_service:
+    account_deletion_request:
+      title: "Account deletion request"
+      message: "%{user_name} (%{user_email}) has requested account deletion."
+    account_deletion_rejected:
+      title: "Account deletion request rejected"
+      message: "Your account deletion request was rejected by %{moderator_name}."
+  management:
+    notifications:
+      account_deletion_approved: "Account for %{user_name} has been deleted."
+      account_deletion_rejected: "Account deletion request for %{user_name} was rejected."
+      student_not_found: "Student not found (account may have been deleted)."
   student_dashboard:
     alerts:
       subject_not_found: "Subject not found."
@@ -42,5 +60,10 @@ en:
     account:
       updated: "Account updated successfully."
       deleted: "Your account has been deleted."
+      no_changes: "No changes to save."
+      deletion_requested: "Your account deletion request has been sent to the school administration."
     settings:
       updated: "Settings saved successfully."
+      pin_length_error: "PIN must be exactly 4 digits."
+      pin_digits_only: "PIN must contain only digits."
+      pin_mismatch: "PIN confirmation does not match."

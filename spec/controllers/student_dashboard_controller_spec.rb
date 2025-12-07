@@ -802,4 +802,193 @@ RSpec.describe StudentDashboardController, type: :request do
       expect(response).to have_http_status(:success)
     end
   end
+
+  describe 'GET /home/account' do
+    it 'renders account page' do
+      get student_account_path
+      expect(response).to have_http_status(:success)
+    end
+
+    it 'shows user full name as read-only' do
+      get student_account_path
+      expect(response.body).to include(student.full_name)
+    end
+
+    it 'shows link to settings' do
+      get student_account_path
+      expect(response.body).to include(student_settings_path)
+    end
+  end
+
+  describe 'PATCH /home/account' do
+    context 'when email is unverified' do
+      let(:unverified_student) do
+        user = create(:user, school: school, confirmed_at: nil)
+        UserRole.create!(user: user, role: student_role, school: school)
+        StudentClassEnrollment.create!(student: user, school_class: school_class, status: 'approved')
+        user
+      end
+
+      before do
+        sign_out student
+        sign_in unverified_student
+      end
+
+      it 'allows updating email' do
+        patch student_account_path, params: { user: { email: 'newemail@example.com' } }
+        unverified_student.reload
+        # With skip_reconfirmation!, email should be updated directly
+        expect(unverified_student.email).to eq('newemail@example.com')
+      end
+    end
+
+    context 'when email is verified' do
+      it 'does not allow updating email and redirects with notice' do
+        old_email = student.email
+        patch student_account_path, params: { user: { email: 'newemail@example.com' } }
+        expect(student.reload.email).to eq(old_email)
+        expect(response).to redirect_to(student_account_path)
+      end
+    end
+
+    context 'when phone is unverified' do
+      before { student.update!(metadata: { 'phone_verified' => false }) }
+
+      it 'allows updating phone' do
+        patch student_account_path, params: { user: { phone: '+48123456789' } }
+        expect(student.reload.phone).to eq('+48123456789')
+      end
+    end
+
+    context 'when phone is verified' do
+      before { student.update!(phone: '+48111222333', metadata: { 'phone_verified' => true }) }
+
+      it 'does not allow updating phone' do
+        patch student_account_path, params: { user: { phone: '+48999888777' } }
+        expect(student.reload.phone).to eq('+48111222333')
+      end
+    end
+  end
+
+  describe 'GET /home/account/settings' do
+    it 'renders settings page' do
+      get student_settings_path
+      expect(response).to have_http_status(:success)
+    end
+
+    it 'shows theme selector' do
+      get student_settings_path
+      expect(response.body).to include('theme')
+    end
+
+    it 'shows language selector' do
+      get student_settings_path
+      expect(response.body).to include('locale')
+    end
+
+    it 'shows PIN input fields' do
+      get student_settings_path
+      expect(response.body).to include('new_pin')
+      expect(response.body).to include('confirm_pin')
+    end
+  end
+
+  describe 'PATCH /home/account/settings' do
+    context 'when changing locale' do
+      it 'updates user locale' do
+        patch student_settings_path, params: { user: { locale: 'pl', theme: 'light' } }
+        expect(student.reload.locale).to eq('pl')
+      end
+
+      it 'redirects to account page with notice' do
+        patch student_settings_path, params: { user: { locale: 'en', theme: 'dark' } }
+        expect(response).to redirect_to(student_account_path)
+        expect(flash[:notice]).to be_present
+      end
+    end
+
+    context 'when changing PIN' do
+      context 'with valid 4-digit PIN' do
+        it 'updates password successfully' do
+          patch student_settings_path, params: {
+            user: { new_pin: '1234', pin_confirmation: '1234', theme: 'light', locale: 'en' }
+          }
+          expect(response).to redirect_to(student_account_path)
+          expect(student.reload.valid_password?('1234')).to be true
+        end
+      end
+
+      context 'with mismatched PIN confirmation' do
+        it 'returns error' do
+          patch student_settings_path, params: {
+            user: { new_pin: '1234', pin_confirmation: '5678', theme: 'light', locale: 'en' }
+          }
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      context 'with PIN shorter than 4 digits' do
+        it 'returns error' do
+          patch student_settings_path, params: {
+            user: { new_pin: '123', pin_confirmation: '123', theme: 'light', locale: 'en' }
+          }
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      context 'with PIN longer than 4 digits' do
+        it 'returns error' do
+          patch student_settings_path, params: {
+            user: { new_pin: '12345', pin_confirmation: '12345', theme: 'light', locale: 'en' }
+          }
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      context 'with non-numeric PIN' do
+        it 'returns error' do
+          patch student_settings_path, params: {
+            user: { new_pin: 'abcd', pin_confirmation: 'abcd', theme: 'light', locale: 'en' }
+          }
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+    end
+  end
+
+  describe 'POST /home/account/request-deletion' do
+    let!(:principal_role) { Role.find_or_create_by!(key: 'principal') { |r| r.name = 'Principal' } }
+    let!(:school_manager_role) { Role.find_or_create_by!(key: 'school_manager') { |r| r.name = 'School Manager' } }
+
+    let!(:principal) do
+      user = create(:user, school: school)
+      UserRole.create!(user: user, role: principal_role, school: school)
+      user
+    end
+
+    it 'creates account deletion request notification' do
+      expect do
+        post request_student_account_deletion_path
+      end.to change(Notification, :count).by(1)
+    end
+
+    it 'creates notification with correct type and metadata' do
+      post request_student_account_deletion_path
+      notification = Notification.find_by(notification_type: 'account_deletion_request')
+      expect(notification).to be_present
+      expect(notification.metadata['user_id']).to eq(student.id)
+    end
+
+    it 'redirects to account page with notice' do
+      post request_student_account_deletion_path
+      expect(response).to redirect_to(student_account_path)
+      expect(flash[:notice]).to be_present
+    end
+
+    it 'does not delete the account immediately' do
+      expect do
+        post request_student_account_deletion_path
+      end.not_to change(User, :count)
+    end
+  end
 end

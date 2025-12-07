@@ -128,5 +128,124 @@ RSpec.describe Management::NotificationsController, type: :request do
         expect(response.body).to be_present
       end
     end
+
+    context 'with account_deletion_request filter' do
+      let!(:student_role) { Role.find_or_create_by!(key: 'student') { |r| r.name = 'Student' } }
+      let(:student) do
+        user = create(:user, school: school, first_name: 'Jan', last_name: 'Kowalski')
+        UserRole.create!(user: user, role: student_role, school: school)
+        user
+      end
+
+      before do
+        NotificationService.create_account_deletion_request(student: student, school: school)
+      end
+
+      it 'displays account deletion request notifications' do
+        get management_notifications_path, params: { status: 'unread', type: 'account_deletion_request' }
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('account_deletion_request')
+      end
+    end
+  end
+
+  describe 'POST /management/notifications/:id/approve_account_deletion' do
+    let!(:student_role) { Role.find_or_create_by!(key: 'student') { |r| r.name = 'Student' } }
+    let!(:student) do
+      user = create(:user, school: school, first_name: 'Jan', last_name: 'Kowalski')
+      UserRole.create!(user: user, role: student_role, school: school)
+      user
+    end
+
+    let!(:deletion_notification) do
+      create(:notification,
+             notification_type: 'account_deletion_request',
+             school: school,
+             target_role: 'principal',
+             title: 'Account deletion request',
+             message: "Student #{student.full_name} requested account deletion",
+             user: student,
+             metadata: {
+               'user_id' => student.id,
+               'user_email' => student.email,
+               'user_name' => student.full_name
+             },
+             resolved_at: nil)
+    end
+
+    it 'deletes the student account' do
+      expect do
+        post approve_account_deletion_management_notification_path(deletion_notification)
+      end.to change(User, :count).by(-1)
+    end
+
+    it 'deletes or resolves the notification' do
+      notification_id = deletion_notification.id
+      post approve_account_deletion_management_notification_path(deletion_notification)
+      # Notification is either resolved or deleted with the student (cascade)
+      notification = Notification.find_by(id: notification_id)
+      expect(notification.nil? || notification.resolved_at.present?).to be true
+    end
+
+    it 'redirects to notifications with success message' do
+      post approve_account_deletion_management_notification_path(deletion_notification)
+      expect(response).to redirect_to(management_notifications_path)
+      expect(flash[:notice]).to be_present
+    end
+  end
+
+  describe 'POST /management/notifications/:id/reject_account_deletion' do
+    let!(:student_role) { Role.find_or_create_by!(key: 'student') { |r| r.name = 'Student' } }
+    let!(:student) do
+      user = create(:user, school: school, first_name: 'Jan', last_name: 'Kowalski')
+      UserRole.create!(user: user, role: student_role, school: school)
+      user
+    end
+
+    let!(:deletion_notification) do
+      create(:notification,
+             notification_type: 'account_deletion_request',
+             school: school,
+             target_role: 'principal',
+             title: 'Account deletion request',
+             message: "Student #{student.full_name} requested account deletion",
+             user: student,
+             metadata: {
+               'user_id' => student.id,
+               'user_email' => student.email,
+               'user_name' => student.full_name
+             },
+             resolved_at: nil)
+    end
+
+    it 'does not delete the student account' do
+      expect do
+        post reject_account_deletion_management_notification_path(deletion_notification)
+      end.not_to change(User, :count)
+    end
+
+    it 'marks notification as resolved' do
+      post reject_account_deletion_management_notification_path(deletion_notification)
+      expect(deletion_notification.reload.resolved_at).to be_present
+    end
+
+    it 'creates rejection notification for student' do
+      expect do
+        post reject_account_deletion_management_notification_path(deletion_notification)
+      end.to change(Notification.where(notification_type: 'account_deletion_rejected'), :count).by(1)
+    end
+
+    it 'redirects to notifications with success message' do
+      post reject_account_deletion_management_notification_path(deletion_notification)
+      expect(response).to redirect_to(management_notifications_path)
+      expect(flash[:notice]).to be_present
+    end
+
+    it 'notifies student about rejection' do
+      post reject_account_deletion_management_notification_path(deletion_notification)
+      rejection_notification = Notification.find_by(notification_type: 'account_deletion_rejected', user: student)
+      expect(rejection_notification).to be_present
+      expect(rejection_notification.target_role).to eq('student')
+    end
   end
 end

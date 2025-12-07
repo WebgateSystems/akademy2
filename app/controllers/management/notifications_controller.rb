@@ -9,7 +9,66 @@ module Management
       @unread_count = count_unread_notifications
     end
 
+    # POST /management/notifications/:id/approve_account_deletion
+    def approve_account_deletion
+      notification = find_notification
+      return redirect_to management_notifications_path, alert: 'Notification not found' unless notification
+
+      student_id = notification.metadata['user_id']
+      student = User.find_by(id: student_id)
+
+      if student
+        student_name = student.full_name
+        # Delete the student account
+        student.destroy
+        NotificationService.resolve_account_deletion_request(notification: notification)
+
+        redirect_to management_notifications_path,
+                    notice: I18n.t('management.notifications.account_deletion_approved',
+                                   user_name: student_name,
+                                   default: "Account for #{student_name} has been deleted.")
+      else
+        notification.update!(resolved_at: Time.current, read_at: Time.current)
+        redirect_to management_notifications_path,
+                    alert: I18n.t('management.notifications.student_not_found')
+      end
+    end
+
+    # POST /management/notifications/:id/reject_account_deletion
+    def reject_account_deletion
+      notification = find_notification
+      return redirect_to management_notifications_path, alert: 'Notification not found' unless notification
+
+      student_id = notification.metadata['user_id']
+      student = User.find_by(id: student_id)
+
+      # Mark notification as resolved (rejected)
+      NotificationService.resolve_account_deletion_request(notification: notification)
+
+      # Create a notification for the student that their request was rejected
+      if student
+        NotificationService.create_account_deletion_rejected(
+          student: student,
+          moderator: current_user,
+          notification: notification
+        )
+      end
+
+      student_name = notification.metadata['user_name'] || 'Unknown'
+      redirect_to management_notifications_path,
+                  notice: I18n.t('management.notifications.account_deletion_rejected',
+                                 user_name: student_name,
+                                 default: "Account deletion request for #{student_name} was rejected.")
+    end
+
     private
+
+    def find_notification
+      school = current_school_manager.school
+      return nil unless school
+
+      Notification.for_school(school).find_by(id: params[:id])
+    end
 
     def load_notifications(status_filter = 'unread', type_filter = 'all')
       school = current_school_manager.school
@@ -74,6 +133,24 @@ module Management
         if student_id && !notification.read?
           actions << { label: 'Mark as read', action: 'mark_read',
                        data: { notification_id: notification.id } }
+        end
+      when 'account_deletion_request'
+        student_id = notification.metadata['student_id']
+        if student_id && !notification.resolved?
+          actions << {
+            label: 'Approve deletion',
+            action: 'approve_deletion',
+            url: approve_account_deletion_management_notification_path(notification),
+            method: :post,
+            primary: true,
+            danger: true
+          }
+          actions << {
+            label: 'Reject',
+            action: 'reject_deletion',
+            url: reject_account_deletion_management_notification_path(notification),
+            method: :post
+          }
         end
       else
         # Generic actions for other notification types

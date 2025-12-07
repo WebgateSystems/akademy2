@@ -62,7 +62,12 @@ Rails.application.routes.draw do
     get 'teachers', to: 'teachers#index', as: :teachers
     get 'students', to: 'students#index', as: :students
     get 'parents', to: 'parents#index', as: :parents
-    get 'notifications', to: 'notifications#index', as: :notifications
+    resources :notifications, only: [:index] do
+      member do
+        post :approve_account_deletion
+        post :reject_account_deletion
+      end
+    end
     get 'classes', to: 'classes#index', as: :classes
     get 'years', to: 'years#index', as: :years
   end
@@ -150,6 +155,13 @@ Rails.application.routes.draw do
         post 'enrollments/join', to: 'enrollments#join'
         get 'enrollments/pending', to: 'enrollments#pending'
         delete 'enrollments/:id/cancel', to: 'enrollments#cancel', as: :cancel_enrollment
+
+        # Student account API
+        get 'account', to: 'account#show'
+        patch 'account', to: 'account#update'
+        get 'account/settings', to: 'account#settings'
+        patch 'account/settings', to: 'account#update_settings'
+        post 'account/request_deletion', to: 'account#request_deletion'
 
         # Student learning API
         get 'dashboard', to: 'dashboard#index'
@@ -249,7 +261,8 @@ Rails.application.routes.draw do
   patch '/home/account', to: 'student_dashboard#update_account'
   get '/home/account/settings', to: 'student_dashboard#settings', as: :student_settings
   patch '/home/account/settings', to: 'student_dashboard#update_settings'
-  delete '/home/account', to: 'student_dashboard#destroy_account', as: :destroy_student_account
+  post '/home/account/request-deletion', to: 'student_dashboard#request_account_deletion',
+                                         as: :request_student_account_deletion
 
   # Join class via token link (for students)
   get '/join/class/:token', to: 'student_dashboard#join_class', as: :join_class

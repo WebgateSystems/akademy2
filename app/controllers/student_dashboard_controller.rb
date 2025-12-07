@@ -373,10 +373,28 @@ class StudentDashboardController < ApplicationController
   end
 
   # PATCH /home/account
+  # Students can only update email (if unverified) and phone (if unverified)
   def update_account
     @user = current_user
+    has_changes = false
 
-    if @user.update(account_params)
+    # Email can only be changed if NOT verified
+    if params[:user][:email].present? && params[:user][:email] != @user.email && @user.confirmed_at.blank?
+      @user.skip_reconfirmation!
+      @user.email = params[:user][:email]
+      has_changes = true
+    end
+
+    # Phone can only be changed if NOT verified
+    phone_verified = @user.metadata&.dig('phone_verified') == true
+    if params[:user][:phone].present? && params[:user][:phone] != @user.phone && !phone_verified
+      @user.phone = params[:user][:phone]
+      has_changes = true
+    end
+
+    if !has_changes
+      redirect_to student_account_path, notice: t('student_dashboard.account.no_changes')
+    elsif @user.save
       redirect_to student_account_path, notice: t('student_dashboard.account.updated')
     else
       render 'student_dashboard/account', status: :unprocessable_entity
@@ -393,11 +411,37 @@ class StudentDashboardController < ApplicationController
   def update_settings
     @user = current_user
 
-    @user.pin = settings_params[:pin] if settings_params[:pin].present? && settings_params[:pin] != '****'
+    # Handle PIN change with confirmation
+    # For students, PIN is stored as their password (4-digit numeric)
+    new_pin = params[:user][:new_pin]
+    pin_confirmation = params[:user][:pin_confirmation]
+
+    if new_pin.present?
+      if new_pin.length != 4
+        @user.errors.add(:base, t('student_dashboard.settings.pin_length_error'))
+        return render 'student_dashboard/settings', status: :unprocessable_entity
+      end
+
+      unless new_pin.match?(/^\d{4}$/)
+        @user.errors.add(:base, t('student_dashboard.settings.pin_digits_only'))
+        return render 'student_dashboard/settings', status: :unprocessable_entity
+      end
+
+      if new_pin != pin_confirmation
+        @user.errors.add(:base, t('student_dashboard.settings.pin_mismatch'))
+        return render 'student_dashboard/settings', status: :unprocessable_entity
+      end
+
+      # PIN is stored as password for students
+      @user.password = new_pin
+      @user.password_confirmation = pin_confirmation
+    end
 
     @user.locale = settings_params[:locale] if settings_params[:locale].present?
 
     if @user.save
+      # Re-sign in the user after password change to maintain session
+      bypass_sign_in(@user) if new_pin.present?
       redirect_to student_account_path, notice: t('student_dashboard.settings.updated')
     else
       render 'student_dashboard/settings', status: :unprocessable_entity
@@ -405,11 +449,15 @@ class StudentDashboardController < ApplicationController
   end
 
   # DELETE /home/account
-  def destroy_account
+  # POST /home/account/request-deletion
+  # Instead of deleting directly, sends a request to school administration
+  def request_account_deletion
     @user = current_user
-    sign_out(@user)
-    @user.destroy
-    redirect_to root_path, notice: t('student_dashboard.account.deleted')
+
+    # Use NotificationService to create notification for all school managers
+    NotificationService.create_account_deletion_request(student: @user, school: @user.school)
+
+    redirect_to student_account_path, notice: t('student_dashboard.account.deletion_requested')
   end
 
   private
@@ -441,11 +489,12 @@ class StudentDashboardController < ApplicationController
   end
 
   def account_params
-    params.require(:user).permit(:first_name, :last_name, :email, :phone)
+    # Students cannot change name/birthdate - only email and phone if unverified
+    params.require(:user).permit(:email, :phone)
   end
 
   def settings_params
-    params.require(:user).permit(:pin, :locale, :theme)
+    params.require(:user).permit(:locale, :theme, :new_pin, :pin_confirmation)
   end
 
   def searchkick_available?

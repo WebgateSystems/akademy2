@@ -9,6 +9,7 @@
         <option value="teacher_awaiting_approval" <%= 'selected' if @type_filter == 'teacher_awaiting_approval' %>>Teacher invitations</option>
         <option value="teacher_enrollment_request" <%= 'selected' if @type_filter == 'teacher_enrollment_request' %>>Teacher enrollment requests</option>
         <option value="student_awaiting_approval" <%= 'selected' if @type_filter == 'student_awaiting_approval' %>>Student invitations</option>
+        <option value="account_deletion_request" <%= 'selected' if @type_filter == 'account_deletion_request' %>>Account deletion requests</option>
         <option value="report_ready" <%= 'selected' if @type_filter == 'report_ready' %>>Reports</option>
         <option value="reminder" <%= 'selected' if @type_filter == 'reminder' %>>Reminders</option>
         <option value="alert" <%= 'selected' if @type_filter == 'alert' %>>Alerts</option>
@@ -36,7 +37,12 @@
           </header>
           <div class="notification-card__actions">
             <% notification[:actions].each do |action| %>
-              <% if action[:url] %>
+              <% if action[:url] && action[:method] == :post %>
+                <%= button_to action[:label], action[:url], 
+                    method: :post, 
+                    class: "notification-card__action #{'notification-card__action--primary' if action[:primary]} #{'notification-card__action--danger' if action[:danger]}",
+                    data: { confirm: action[:danger] ? 'Czy na pewno chcesz usunąć to konto? Ta operacja jest nieodwracalna.' : nil }.compact %>
+              <% elsif action[:url] %>
                 <%= link_to action[:label], action[:url], class: "notification-card__action #{'notification-card__action--primary' if action[:primary]}" %>
               <% elsif action[:action] %>
                 <button class="notification-card__action" type="button" data-action="<%= action[:action] %>" <%= "data-notification-id=#{action[:data][:notification_id]}" if action[:data]&.dig(:notification_id) %>>
