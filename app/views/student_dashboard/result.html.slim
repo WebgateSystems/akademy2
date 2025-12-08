@@ -52,9 +52,7 @@
           = link_to public_home_path, class: 'quiz-result-link'
             | POMIŃ
           - if @current_passed
-            / TODO: Certificate download
-            button.quiz-result-btn type="button" disabled=""
-              | POBIERZ CERTYFIKAT
+            = button_to 'POBIERZ CERTYFIKAT', download_api_v1_certificate_path(@quiz_result.certificate.id), method: :get, class: 'quiz-result-btn'
           - else
             = link_to student_module_path(@learning_module), class: 'quiz-result-btn'
               | POWTÓRZ MATERIAŁ
