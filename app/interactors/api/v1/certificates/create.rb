@@ -48,7 +48,8 @@ module Api
         def teacher
           student = quiz_result.user
           student.school_classes.find_by(year: student.school.current_academic_year_value).main_teacher ||
-            student.school_classes.find_by(year: student.school.current_academic_year_value).teachers.first
+            student.school_classes.find_by(year: student.school.current_academic_year_value).teachers.first ||
+            Struct.new(:first_name, :last_name).new('Jonh', 'Doe')
         end
 
         def upload_pdf

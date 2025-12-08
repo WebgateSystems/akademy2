@@ -9,7 +9,7 @@ class TwilioService
 
   # Send SMS message - simple and clean interface
   def send_sms(from:, to:, body:, account_sid: nil, auth_token: nil, messaging_service_sid: nil)
-    Rails.logger.info "=== TWILIO SERVICE SEND_SMS CALLED ==="
+    Rails.logger.info '=== TWILIO SERVICE SEND_SMS CALLED ==='
     Rails.logger.info "From: #{from}, To: #{to}, Body: #{body}"
     Rails.logger.info "Account SID: #{account_sid}, Messaging Service SID: #{messaging_service_sid}"
 
@@ -51,7 +51,7 @@ class TwilioService
         error: e.message,
         error_code: e.code
       }
-    rescue => e
+    rescue StandardError => e
       Rails.logger.error "Unexpected SMS error: #{e.message}"
       {
         success: false,
@@ -62,28 +62,26 @@ class TwilioService
   end
 
   def webhook_verify?(signature, url, params)
-    begin
-      # Twilio validator expects a Hash of params (for form-encoded requests)
-      params_hash =
-        if defined?(ActionController::Parameters) && params.is_a?(ActionController::Parameters)
-          params.to_unsafe_h
-        elsif params.respond_to?(:to_h)
-          params.to_h
-        else
-          params || {}
-        end
+    # Twilio validator expects a Hash of params (for form-encoded requests)
+    params_hash =
+      if defined?(ActionController::Parameters) && params.is_a?(ActionController::Parameters)
+        params.to_unsafe_h
+      elsif params.respond_to?(:to_h)
+        params.to_h
+      else
+        params || {}
+      end
 
-      # Ensure string keys and drop Rails-internal routing keys
-      params_hash = params_hash.transform_keys(&:to_s)
-      params_hash = params_hash.except("controller", "action")
+    # Ensure string keys and drop Rails-internal routing keys
+    params_hash = params_hash.transform_keys(&:to_s)
+    params_hash = params_hash.except('controller', 'action')
 
-      Twilio::Security::RequestValidator
-        .new(Settings.twilio.auth_token)
-        .validate(url, params_hash, signature)
-    rescue => e
-      Rails.logger.error "Webhook verification failed: #{e.message}"
-      false
-    end
+    Twilio::Security::RequestValidator
+      .new(Settings.twilio.auth_token)
+      .validate(url, params_hash, signature)
+  rescue StandardError => e
+    Rails.logger.error "Webhook verification failed: #{e.message}"
+    false
   end
 
   private
@@ -91,9 +89,11 @@ class TwilioService
   # Normalize to E.164 string, ensuring it starts with '+'; accept integers or strings
   def normalize_msisdn(value)
     str = value.to_s.strip
-    return str if str.start_with?("+") || str.start_with?("whatsapp:")
-    digits = str.gsub(/\D/, "")
-    return "" if digits.empty?
+    return str if str.start_with?('+', 'whatsapp:')
+
+    digits = str.gsub(/\D/, '')
+    return '' if digits.empty?
+
     "+#{digits}"
   end
 
@@ -127,6 +127,6 @@ class TwilioService
 
   # Class methods for easy access
   class << self
-    delegate :send_sms, :send_whatsapp, to: :instance
+    delegate :send_sms, to: :instance
   end
 end

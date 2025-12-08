@@ -27,6 +27,11 @@ class SchoolClass < ApplicationRecord
     find_by(join_token: cleaned_token)
   end
 
+  def main_teacher
+    teachers.joins(:teacher_class_assignments)
+            .find_by(teacher_class_assignments: { role: 'main' })
+  end
+
   private
 
   def generate_join_token
@@ -37,10 +42,5 @@ class SchoolClass < ApplicationRecord
       self.join_token = SecureRandom.uuid.split('-').first(3).join('-')
       break unless SchoolClass.exists?(join_token: join_token)
     end
-  end
-
-  def main_teacher
-    teachers.joins(:teacher_class_assignments)
-            .find_by(teacher_class_assignments: { role: 'main' })
   end
 end

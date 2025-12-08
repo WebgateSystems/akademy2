@@ -171,6 +171,9 @@ class StudentDashboardController < ApplicationController
     # Log completion with current attempt score
     EventLogger.log_quiz_complete(quiz_result: @quiz_result, user: current_user)
 
+    # Create new certificate (has_one)
+    ::Api::V1::Certificates::Create.call(params: { quiz_result_id: @quiz_result.id })
+
     # Pass current attempt result to the result page
     redirect_to student_result_path(@learning_module, score: score, passed: passed)
   end
