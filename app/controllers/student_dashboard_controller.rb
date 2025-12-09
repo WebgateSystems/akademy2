@@ -269,7 +269,7 @@ class StudentDashboardController < ApplicationController
       '(user_id = :uid) OR (user_id IS NULL AND target_role = :role AND school_id = :sid)',
       uid: current_user.id,
       role: 'student',
-      sid: @school.id
+      sid: @school&.id
     ).where(notification_type: %w[student_video_approved student_video_rejected quiz_completed])
 
     @notifications_list = if @status_filter == 'archived'
@@ -297,7 +297,7 @@ class StudentDashboardController < ApplicationController
         '(user_id = :uid) OR (user_id IS NULL AND target_role = :role AND school_id = :sid)',
         uid: current_user.id,
         role: 'student',
-        sid: @school.id
+        sid: @school&.id
       ).where(notification_type: %w[student_video_approved student_video_rejected quiz_completed])
 
       # Only update notifications that match the query AND are in the provided IDs

@@ -44,7 +44,6 @@ module Register
 
       context.flow.update(:user, { 'user_id' => user.id })
       mark_verified!(user)
-      user.send_confirmation_instructions
       true
     end
 
