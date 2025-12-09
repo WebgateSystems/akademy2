@@ -225,6 +225,7 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
+    ed25519 (1.4.0)
     elastic-transport (8.4.1)
       faraday (< 3)
       multi_json
@@ -611,6 +612,10 @@ GEM
     tsort (0.2.0)
     ttfunk (1.8.0)
       bigdecimal (~> 3.1)
+    twilio-ruby (7.8.8)
+      faraday (>= 0.9, < 3.0)
+      jwt (>= 1.5, < 4.0)
+      nokogiri (>= 1.6, < 2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (3.2.0)
@@ -678,6 +683,7 @@ DEPENDENCIES
   devise (~> 4.9)
   devise-jwt (~> 0.12.1)
   dry-validation
+  ed25519 (~> 1.2)
   elasticsearch (~> 8.0)
   factory_bot_rails
   fasterer
@@ -724,6 +730,7 @@ DEPENDENCIES
   solid_queue
   streamio-ffmpeg (~> 3.0)
   thruster
+  twilio-ruby
   web-console
   webmock
   wicked_pdf (~> 2.8)

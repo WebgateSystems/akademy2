@@ -36,7 +36,7 @@ module Api
               completed_at: Time.current
             )
             quiz_result.save!
-            ::Api::V1::Certificates::Create(params: { quiz_result_id: quiz_result.id })
+            ::Api::V1::Certificates::Create.call(params: { quiz_result_id: quiz_result.id })
           end
 
           # Log the quiz completion event

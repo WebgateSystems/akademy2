@@ -1,19 +1,10 @@
-module Register
+module Users
   class SendSmsCode < BaseInteractor
     def call
       context.code = generate_code
 
-      context.flow.update(
-        :phone,
-        {
-          'sms_code' => context.code,
-          'verified' => false,
-          'phone' => context.phone
-        }
-      )
-
       log_verification_code
-      # send_sms
+      send_sms
     end
 
     private
@@ -38,7 +29,7 @@ module Register
     end
 
     def send_sms
-      ::TwilioService.send_sms(
+      TwilioService.send_sms(
         to: context.phone,
         body: "Your verification code: #{context.code}"
       )

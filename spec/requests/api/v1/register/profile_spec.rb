@@ -42,6 +42,19 @@ RSpec.describe 'API Register — Profile Step', type: :request do
           }
         end
 
+        before do
+          twilio_client = instance_double(Twilio::REST::Client)
+          messages = instance_double(Twilio::REST::Api::V2010::AccountContext::MessageList)
+
+          allow(messages).to receive(:create).and_return(
+            OpenStruct.new(sid: 'SM123', status: 'sent')
+          )
+
+          allow(twilio_client).to receive(:messages).and_return(messages)
+
+          allow(Twilio::REST::Client).to receive(:new).and_return(twilio_client)
+        end
+
         schema JSON.parse(File.read(Rails.root.join(
                                       'spec/support/api/schemas/register/profile.json'
                                     )))

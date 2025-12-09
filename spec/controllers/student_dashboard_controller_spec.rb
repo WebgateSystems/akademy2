@@ -263,6 +263,7 @@ RSpec.describe StudentDashboardController, type: :request do
           details: { 'correct_count' => 2, 'total' => 2 },
           completed_at: Time.current
         )
+        create(:certificate, quiz_result: QuizResult.first)
       end
 
       it 'renders result page' do

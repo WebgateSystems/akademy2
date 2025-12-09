@@ -65,7 +65,10 @@ module Api
         end
 
         def send_sms
-          # SmsGateway.send(context.phone, "Your verification code: #{context.code}")
+          ::TwilioService.send_sms(
+            to: context.phone,
+            body: "Your verification code: #{context.code}"
+          )
         end
       end
     end
