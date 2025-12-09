@@ -47,12 +47,47 @@
               = image_tag "icons/social/S/check-circle.svg", alt: "", width: 14, height: 14 rescue nil
               | Verified
           - elsif phone_value.present?
-            = form_with model: @user, url: student_account_path, method: :patch, class: 'account-form__inline-form', local: true, id: 'phone-form' do |f|
-              = f.text_field :phone, class: "account-form__input account-form__input--warning", placeholder: '+48 XXX XXX XXX', value: phone_value, data: { original: phone_value }
-              span.account-form__status.account-form__status--warning
-                | Unverified - 
-                = link_to 'verify now', '#', class: 'account-form__verify-link'
-              button.account-form__inline-save type="submit" style="display: none;" Save
+            = form_with model: @user, url: api_v1_student_account_verify_submit_path, method: :put, class: 'account-form__inline-form', local: true, id: 'phone-form' do |f|
+              / PHONE INPUT
+              = f.text_field :phone,
+                class: "account-form__input account-form__input--warning",
+                placeholder: '+48 XXX XXX XXX',
+                value: phone_value,
+                data: { original: phone_value }
+
+              = f.hidden_field :verification_code, id: 'phone-code-value'
+
+              / STATUS + VERIFY NOW LINK
+              span.account-form__status.account-form__status--warning.phone-status
+                | Unverified -
+                = link_to 'verify now',
+                          '#',
+                          class: 'account-form__verify-link',
+                          id: 'phone-verify-now',
+                          data: { url: api_v1_student_account_verify_phone_path }
+              / HIDDEN VERIFICATION FIELDS
+              .phone-verification-wrapper style="display: none;"
+                label.account-form__label.small-label Verification code
+
+                .phone-verification-inputs
+                  input.account-form__input.phone-code-input maxlength="1" inputmode="numeric"
+                  input.account-form__input.phone-code-input maxlength="1" inputmode="numeric"
+                  input.account-form__input.phone-code-input maxlength="1" inputmode="numeric"
+                  input.account-form__input.phone-code-input maxlength="1" inputmode="numeric"
+
+                .phone-verification-actions
+                  button.phone-close-btn type="button"
+                    | Close
+
+                  button.account-form__inline-save.phone-action-btn type="button" 
+                    data-url="#{api_v1_student_account_verify_phone_path}"
+                    | Resend (in 0:59)
+
+
+              / Regular Save button
+              button.account-form__inline-save.phone-save-btn type="submit" style="display: none;"
+                | Save
+
           - else
             = form_with model: @user, url: student_account_path, method: :patch, class: 'account-form__inline-form', local: true, id: 'phone-form' do |f|
               = f.text_field :phone, class: "account-form__input", placeholder: '+48 XXX XXX XXX', value: '', data: { original: '' }
@@ -118,3 +153,170 @@ javascript:
     });
   });
 
+  document.addEventListener('DOMContentLoaded', () => {
+    // ----------------------------------------
+    // PHONE VERIFY UI
+    // ----------------------------------------
+
+    const verifyNowBtn = document.getElementById('phone-verify-now');
+    const wrapper = document.querySelector('.phone-verification-wrapper');
+    const phoneStatus = document.querySelector('.phone-status');
+    const phoneSaveBtn = document.querySelector('.phone-save-btn');
+    const actionBtn = document.querySelector('.phone-action-btn');
+    const closeBtn = document.querySelector('.phone-close-btn');
+    const inputs = Array.from(document.querySelectorAll('.phone-code-input'));
+    const verifyUrl = verifyNowBtn.dataset.url;  
+
+    const hiddenCodeField = document.getElementById('phone-code-value');
+
+    function updateHiddenCode() {
+      const code = inputs.map(i => i.value).join('');
+      hiddenCodeField.value = code;
+    }
+
+    if (!verifyNowBtn || !wrapper || !actionBtn || !closeBtn) return;
+
+    // TIMER
+    let timerSeconds = 59;
+    let resendAvailable = false;
+    let timerId = null;
+
+    const formatSeconds = (v) => `0:${String(v).padStart(2, '0')}`;
+
+    const setButtonState = (label, disabled, action = 'resend') => {
+      actionBtn.textContent = label;
+      actionBtn.disabled = disabled;
+      actionBtn.dataset.action = action;
+
+      actionBtn.classList.toggle('account-form__inline-save--disabled', disabled);
+    };
+
+    const showTimerLabel = () => {
+      if (resendAvailable) {
+        setButtonState('Resend code', false, 'resend');
+      } else {
+        setButtonState(`Resend (in ${formatSeconds(timerSeconds)})`, true, 'resend');
+      }
+    };
+
+    const hasAnyValue = () => inputs.some(i => i.value.trim() !== '');
+    const isComplete = () => inputs.every(i => i.value.trim().length === 1);
+
+    const updateState = () => {
+      if (hasAnyValue()) {
+        const canSubmit = isComplete();
+        setButtonState('Verify code', !canSubmit, 'verify');
+      } else {
+        showTimerLabel();
+      }
+    };
+
+    const tickTimer = () => {
+      if (timerSeconds <= 0) {
+        resendAvailable = true;
+        clearInterval(timerId);
+        timerId = null;
+        if (!hasAnyValue()) showTimerLabel();
+        return;
+      }
+      timerSeconds -= 1;
+      if (!hasAnyValue()) showTimerLabel();
+    };
+
+    const startTimer = () => {
+      if (timerId) clearInterval(timerId);
+      timerSeconds = 59;
+      resendAvailable = false;
+      showTimerLabel();
+      timerId = setInterval(tickTimer, 1000);
+    };
+
+    // ----------------------------------------
+    // SHOW verification area
+    // ----------------------------------------
+
+  verifyNowBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    const url = verifyNowBtn.dataset.url;
+
+    fetch(url, {
+      method: "GET",
+      headers: { "X-Requested-With": "XMLHttpRequest" },
+      credentials: "same-origin"
+    }).then(() => {
+
+      phoneStatus.style.display = 'none';
+      phoneSaveBtn.style.display = 'none';
+      wrapper.style.display = 'block';
+      inputs[0].focus();
+
+      startTimer();
+      updateState();
+    });
+  });
+
+
+
+
+    // ----------------------------------------
+    // CLOSE verification
+    // ----------------------------------------
+
+    closeBtn.addEventListener('click', () => {
+      wrapper.style.display = 'none';
+      phoneStatus.style.display = 'inline-flex';
+
+      inputs.forEach(i => i.value = '');
+      updateState();
+    });
+
+    // ----------------------------------------
+    // INPUT logic
+    // ----------------------------------------
+
+    inputs.forEach((input, index) => {
+      input.addEventListener('input', () => {
+        input.value = input.value.replace(/\D/g, '').slice(-1);
+
+        if (input.value && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+
+        updateState();
+      });
+
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Backspace' && !input.value && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+    });
+
+    // ----------------------------------------
+    // ACTION BUTTON (verify / resend)
+    // ----------------------------------------
+
+    actionBtn.addEventListener('click', () => {
+      const action = actionBtn.dataset.action;
+
+      if (action === 'verify' && !actionBtn.disabled) {
+        updateHiddenCode();
+        document.getElementById('phone-form').submit();
+      }
+
+      if (action === 'resend' && resendAvailable) {
+        const url = actionBtn.dataset.url;
+
+        fetch(verifyUrl, {
+          method: "GET",
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+          credentials: "same-origin"
+        })
+        .then(() => {
+          startTimer();
+        })
+        .catch(() => alert("Something went wrong. Try again."));
+      }
+    });
+  });

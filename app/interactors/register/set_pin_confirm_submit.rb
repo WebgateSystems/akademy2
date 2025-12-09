@@ -43,8 +43,15 @@ module Register
       end
 
       context.flow.update(:user, { 'user_id' => user.id })
+      mark_verified!(user)
       user.send_confirmation_instructions
       true
+    end
+
+    def mark_verified!(user)
+      metadata = user.metadata
+      metadata['phone_verified'] = true
+      user.update!(metadata: metadata)
     end
 
     def teacher_registration?

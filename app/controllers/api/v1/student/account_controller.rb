@@ -3,9 +3,36 @@
 module Api
   module V1
     module Student
-      class AccountController < ApplicationApiController
-        before_action :authorize_access_request!
+      class AccountController < AuthentificateController
         before_action :require_student!
+
+        JSON_VERIFY_RESPONSES = {
+          ok: ->(c) { c.render json: { success: true, phone_verified: true } },
+          invalid: lambda { |c|
+            c.render json: { success: false, error: 'Invalid verification code' }, status: :unprocessable_entity
+          },
+          expired: lambda { |c|
+            c.render json: { success: false, error: 'Verification code expired' }, status: :unprocessable_entity
+          },
+          fallback: lambda { |c|
+            c.render json: { success: false, error: 'No verification request found' }, status: :unprocessable_entity
+          }
+        }.freeze
+
+        HTML_VERIFY_RESPONSES = {
+          ok: lambda { |c|
+            c.redirect_back fallback_location: c.student_account_path, notice: 'Phone successfully verified.'
+          },
+          invalid: lambda { |c|
+            c.redirect_back fallback_location: c.student_account_path, alert: 'Invalid verification code.'
+          },
+          expired: lambda { |c|
+            c.redirect_back fallback_location: c.student_account_path, alert: 'Verification code expired.'
+          },
+          fallback: lambda { |c|
+            c.redirect_back fallback_location: c.student_account_path, alert: 'No verification request found.'
+          }
+        }.freeze
 
         # GET /api/v1/student/account
         def show
@@ -47,6 +74,26 @@ module Api
           else
             render json: { success: false, errors: user.errors.full_messages }, status: :unprocessable_entity
           end
+        end
+
+        def verify_phone
+          result = ::Users::SendSmsCode.call(
+            phone: current_user.phone
+          )
+
+          update_phone_metadata!(current_user, result.code)
+
+          render json: { success: true }
+        end
+
+        def verify_submit
+          submitted_code = params.dig(:user, :verification_code).to_s.strip
+          result = Users::VerifyPhoneCode.new(current_user, submitted_code).call
+
+          return render_json_verify_response(result) if request.format.json?
+          return render_html_verify_response(result) if request.format.html?
+
+          render_json_verify_response(result)
         end
 
         # GET /api/v1/student/account/settings
@@ -110,6 +157,28 @@ module Api
           return if current_user.student?
 
           render json: { success: false, error: 'Student access required' }, status: :forbidden
+        end
+
+        def update_phone_metadata!(user, code)
+          user.metadata ||= {}
+
+          user.metadata['phone_verification'] = {
+            'code' => code,
+            'phone' => user.phone,
+            'sent_at' => Time.current.iso8601,
+            'verified' => false,
+            'attempts' => 0
+          }
+
+          user.save!
+        end
+
+        def render_json_verify_response(result)
+          JSON_VERIFY_RESPONSES.fetch(result, JSON_VERIFY_RESPONSES[:fallback]).call(self)
+        end
+
+        def render_html_verify_response(result)
+          HTML_VERIFY_RESPONSES.fetch(result, HTML_VERIFY_RESPONSES[:fallback]).call(self)
         end
 
         def account_params

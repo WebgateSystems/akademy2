@@ -7,6 +7,18 @@ RSpec.describe 'Register flow interactors' do
     ActionController::Parameters.new(hash)
   end
 
+  before do
+    twilio_client = instance_double(Twilio::REST::Client)
+    messages = instance_double(Twilio::REST::Api::V2010::AccountContext::MessageList)
+
+    allow(messages).to receive(:create).and_return(
+      OpenStruct.new(sid: 'SM123', status: 'sent')
+    )
+
+    allow(twilio_client).to receive(:messages).and_return(messages)
+    allow(Twilio::REST::Client).to receive(:new).and_return(twilio_client)
+  end
+
   describe Api::V1::Register::Flows::Create do
     it 'creates a new registration flow' do
       expect do

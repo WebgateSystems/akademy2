@@ -480,7 +480,7 @@ class StudentDashboardController < ApplicationController
       '(user_id = ? OR (user_id IS NULL AND target_role = ? AND school_id = ?)) AND notification_type IN (?)',
       current_user.id,
       'student',
-      @school.id,
+      @school&.id,
       %w[student_video_approved student_video_rejected quiz_completed]
     )
 

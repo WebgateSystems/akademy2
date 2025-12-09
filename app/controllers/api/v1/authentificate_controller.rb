@@ -1,7 +1,7 @@
 module Api
   module V1
     class AuthentificateController < ApplicationApiController
-      before_action :authorize_access_request!, :prepare_lang
+      before_action :authenticate!, :prepare_lang
 
       private
 

@@ -159,6 +159,8 @@ Rails.application.routes.draw do
         # Student account API
         get 'account', to: 'account#show'
         patch 'account', to: 'account#update'
+        get 'account/verify_phone', to: 'account#verify_phone'
+        put 'account/verify_submit', to: 'account#verify_submit'
         get 'account/settings', to: 'account#settings'
         patch 'account/settings', to: 'account#update_settings'
         post 'account/request_deletion', to: 'account#request_deletion'

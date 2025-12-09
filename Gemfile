@@ -41,6 +41,7 @@ gem 'solid_cache'
 gem 'solid_queue'
 gem 'streamio-ffmpeg', '~> 3.0'
 gem 'thruster', require: false
+gem 'twilio-ruby'
 gem 'wicked_pdf', '~> 2.8'
 
 gem 'combine_pdf'
