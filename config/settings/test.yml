@@ -9,3 +9,8 @@ twilio:
   phone_number: "+10000000000"
   account_sid: "test_sid"
   auth_token: "test_token"
+
+youtube:
+  client_id: 'test_id'
+  client_secret: 'test_secret'
+  refresh_token: 'Test_token'

@@ -35,7 +35,7 @@ class StudentSerializer < ApplicationSerializer
   end
 
   attribute :class_name do |student|
-    return nil unless student.school
+    next nil unless student.school
 
     current_year = student.school.current_academic_year_value
     current_class = student.student_class_enrollments

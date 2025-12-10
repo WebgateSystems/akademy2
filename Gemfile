@@ -45,6 +45,7 @@ gem 'twilio-ruby'
 gem 'wicked_pdf', '~> 2.8'
 
 gem 'combine_pdf'
+gem 'google-api-client', '~> 0.53.0'
 gem 'prawn'
 
 group :development, :test do
