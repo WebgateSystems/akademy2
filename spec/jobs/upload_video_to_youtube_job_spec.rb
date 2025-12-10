@@ -3,61 +3,148 @@
 require 'rails_helper'
 
 RSpec.describe UploadVideoToYoutubeJob, type: :job do
+  subject(:job) { described_class.new }
+
+  let(:video_id) { 'test-id' }
+  let(:logger)   { Rails.logger }
+
+  before do
+    allow(logger).to receive(:info)
+  end
+
   describe '#perform' do
     context 'when video does not exist' do
-      it 'returns early without error' do
-        expect { described_class.new.perform('nonexistent-id') }.not_to raise_error
+      it 'logs not_found and exits' do
+        allow(StudentVideo).to receive(:find_by).with(id: video_id).and_return(nil)
+
+        expect { job.perform(video_id) }.not_to raise_error
+
+        expect(logger).to have_received(:info)
+          .with(/\[YouTubeUpload\]\[not_found\].*Video not found/)
       end
     end
 
     context 'when video is not approved' do
-      it 'returns early without error' do
-        video_double = instance_double(StudentVideo, approved?: false)
-        allow(StudentVideo).to receive(:find_by).with(id: 'test-id').and_return(video_double)
+      let(:video) { instance_double(StudentVideo, id: video_id, approved?: false) }
 
-        expect { described_class.new.perform('test-id') }.not_to raise_error
+      it 'logs not_approved and exits' do
+        allow(StudentVideo).to receive(:find_by).and_return(video)
+
+        expect { job.perform(video_id) }.not_to raise_error
+
+        expect(logger).to have_received(:info)
+          .with(/\[YouTubeUpload\]\[not_approved\].*Not approved/)
       end
     end
 
-    context 'when video already has youtube_url' do
-      it 'returns early without error' do
-        video_double = instance_double(StudentVideo, approved?: true)
-        allow(video_double).to receive(:youtube_url).and_return('https://youtube.com/watch?v=abc123')
-        allow(StudentVideo).to receive(:find_by).with(id: 'test-id').and_return(video_double)
+    context 'when video already uploaded' do
+      let(:video) do
+        instance_double(
+          StudentVideo,
+          id: video_id,
+          approved?: true,
+          youtube_url: 'https://youtu.be/abc'
+        )
+      end
 
-        expect { described_class.new.perform('test-id') }.not_to raise_error
+      it 'logs already_uploaded and exits' do
+        allow(StudentVideo).to receive(:find_by).and_return(video)
+
+        expect { job.perform(video_id) }.not_to raise_error
+
+        expect(logger).to have_received(:info)
+          .with(/\[YouTubeUpload\]\[already_uploaded\].*Already uploaded/)
       end
     end
 
-    context 'when video is approved and has no youtube_url' do
-      it 'logs not implemented message' do
-        video_double = instance_double(StudentVideo, approved?: true)
-        allow(video_double).to receive(:youtube_url).and_return(nil)
-        allow(StudentVideo).to receive(:find_by).with(id: 'test-id').and_return(video_double)
-        allow(Rails.logger).to receive(:info)
+    context 'when video is approved and not uploaded' do
+      let(:video) do
+        instance_double(
+          StudentVideo,
+          id: video_id,
+          approved?: true,
+          youtube_url: nil,
+          file: double(path: '/tmp/video.mp4'),
+          title: 'Test title',
+          description: 'Test desc',
+          subject_title: 'Math'
+        )
+      end
 
-        described_class.new.perform('test-id')
+      let(:upload_result) { double(id: 'yt123') }
+      let(:uploader)      { instance_double(YoutubeUploadService) }
 
-        expect(Rails.logger).to have_received(:info).with(/YouTube upload not yet implemented/)
+      before do
+        allow(StudentVideo).to receive(:find_by).and_return(video)
+        allow(YoutubeUploadService).to receive(:new).and_return(uploader)
+        allow(uploader).to receive(:call).and_return(upload_result)
+        allow(video).to receive(:update!)
+      end
+
+      it 'uploads video and updates record' do
+        job.perform(video_id)
+
+        expect(YoutubeUploadService).to have_received(:new).with(
+          file_path: '/tmp/video.mp4',
+          title: 'Test title',
+          description: 'Test desc',
+          tags: ['Math', 'Akademy2.0']
+        )
+
+        expect(video).to have_received(:update!).with(
+          youtube_url: 'https://youtu.be/yt123',
+          youtube_id: 'yt123',
+          youtube_uploaded_at: kind_of(Time)
+        )
+
+        expect(logger).to have_received(:info)
+          .with(/\[YouTubeUpload\]\[success\].*Uploaded to YouTube: yt123/)
+      end
+    end
+
+    context 'when authorization error occurs' do
+      let(:video) do
+        instance_double(
+          StudentVideo,
+          id: video_id,
+          approved?: true,
+          youtube_url: nil,
+          file: double(path: '/tmp/video.mp4'),
+          title: 'Test',
+          description: 'Test',
+          subject_title: 'Test'
+        )
+      end
+
+      let(:uploader) { instance_double(YoutubeUploadService) }
+
+      before do
+        allow(StudentVideo).to receive(:find_by).and_return(video)
+        allow(YoutubeUploadService).to receive(:new).and_return(uploader)
+        allow(uploader).to receive(:call).and_raise(Signet::AuthorizationError.new('fail'))
+      end
+
+      it 'logs auth_error and re-raises' do
+        expect { job.perform(video_id) }
+          .to raise_error(Signet::AuthorizationError)
+
+        expect(logger).to have_received(:info)
+          .with(/\[YouTubeUpload\]\[auth_error\].*Authorization failed/)
       end
     end
   end
 
   describe 'queue' do
     it 'uses default queue' do
-      expect(described_class.new.queue_name).to eq('default')
+      expect(described_class.queue_name).to eq('default')
     end
   end
 
   describe 'retry configuration' do
-    it 'is configured to retry on StandardError' do
-      handler_classes = described_class.rescue_handlers.map { |h| h[0] }
-      expect(handler_classes).to include('StandardError')
-    end
+    it 'retries on StandardError with 5 attempts' do
+      handler = described_class.rescue_handlers
+                               .find { |h| h.first == 'StandardError' }
 
-    it 'has 5 retry attempts' do
-      handler = described_class.rescue_handlers.find { |h| h[0] == 'StandardError' }
-      # Handler is [exception_class_string, proc]
       expect(handler).to be_present
     end
   end

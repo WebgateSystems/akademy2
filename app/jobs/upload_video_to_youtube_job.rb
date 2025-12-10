@@ -3,37 +3,73 @@
 class UploadVideoToYoutubeJob < ApplicationJob
   queue_as :default
 
-  # Retry with exponential backoff on YouTube API errors
   retry_on StandardError, wait: :polynomially_longer, attempts: 5
 
   def perform(student_video_id)
-    student_video = StudentVideo.find_by(id: student_video_id)
-    return unless student_video
-    return unless student_video.approved?
-    return if student_video.youtube_url.present?
+    @video = StudentVideo.find_by(id: student_video_id)
 
-    # TODO: Implement YouTube API upload
-    # This requires:
-    # 1. Google API credentials (OAuth2 or service account)
-    # 2. YouTube Data API v3
-    # 3. Channel ID to upload to
-    #
-    # Example implementation:
-    # youtube_service = YoutubeUploadService.new
-    # result = youtube_service.upload(
-    #   file_path: student_video.file.path,
-    #   title: student_video.title,
-    #   description: student_video.description,
-    #   tags: [student_video.subject_title, 'Akademy2.0']
-    # )
-    #
-    # student_video.update!(
-    #   youtube_url: result[:url],
-    #   youtube_id: result[:video_id],
-    #   youtube_uploaded_at: Time.current
-    # )
+    return log(:not_found, 'Video not found')            unless @video
+    return log(:not_approved, 'Not approved')            unless @video.approved?
+    return log(:already_uploaded, 'Already uploaded')    if @video.youtube_url.present?
 
-    Rails.logger.info "[YouTubeUpload] Job for StudentVideo##{student_video_id} - " \
-                      'YouTube upload not yet implemented'
+    upload_to_youtube
+  end
+
+  private
+
+  def upload_to_youtube
+    result = execute_upload
+    update_video_record(result)
+    log(:success, "Uploaded to YouTube: #{result.id}")
+  rescue Signet::AuthorizationError => e
+    handle_auth_error(e)
+  rescue Google::Apis::ServerError, Google::Apis::ClientError => e
+    handle_api_error(e)
+  rescue StandardError => e
+    handle_unexpected_error(e)
+  end
+
+  # --- Small, single-purpose helpers ---
+
+  def uploader
+    YoutubeUploadService.new(
+      file_path: @video.file.path,
+      title: @video.title,
+      description: @video.description,
+      tags: [@video.subject_title, 'Akademy2.0']
+    )
+  end
+
+  def execute_upload
+    uploader.call
+  end
+
+  def update_video_record(result)
+    @video.update!(
+      youtube_url: "https://youtu.be/#{result.id}",
+      youtube_id: result.id,
+      youtube_uploaded_at: Time.current
+    )
+  end
+
+  # --- Error handling ---
+
+  def handle_auth_error(error)
+    log(:auth_error, "Authorization failed: #{error.message}")
+    raise
+  end
+
+  def handle_api_error(error)
+    log(:api_error, "YouTube API error: #{error.message}")
+    raise
+  end
+
+  def handle_unexpected_error(error)
+    log(:unexpected, "Unexpected error: #{error.class} – #{error.message}")
+    raise
+  end
+
+  def log(type, message)
+    Rails.logger.info "[YouTubeUpload][#{type}] StudentVideo##{@video&.id} — #{message}"
   end
 end
