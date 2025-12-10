@@ -3145,6 +3145,140 @@ paths:
           description: unauthorized
         '404':
           description: module not found
+  "/api/v1/student/enrollments/join":
+    post:
+      summary: Join a class using join token
+      tags:
+      - Student Enrollments
+      security: []
+      parameters: []
+      responses:
+        '201':
+          description: join request created
+          content:
+            application/json:
+              schema:
+                "$schema": http://json-schema.org/draft-07/schema#
+                type: object
+                required:
+                - success
+                - message
+                - enrollment_id
+                - class_name
+                - school_name
+                - status
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  enrollment_id:
+                    type: string
+                  class_name:
+                    type: string
+                  school_name:
+                    type: string
+                  status:
+                    type: string
+        '404':
+          description: class not found
+        '422':
+          description: already enrolled
+        '403':
+          description: user is not a student
+        '401':
+          description: unauthenticated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - token
+              properties:
+                token:
+                  type: string
+                  description: Join token
+        required: true
+  "/api/v1/student/enrollments/pending":
+    get:
+      summary: List pending enrollments
+      tags:
+      - Student Enrollments
+      security: []
+      responses:
+        '200':
+          description: empty list when none pending
+          content:
+            application/json:
+              schema:
+                "$schema": http://json-schema.org/draft-07/schema#
+                type: object
+                required:
+                - enrollments
+                properties:
+                  enrollments:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - id
+                      - class_name
+                      - school_name
+                      - status
+                      - created_at
+                      properties:
+                        id:
+                          type: string
+                        class_name:
+                          type: string
+                        school_name:
+                          type: string
+                        status:
+                          type: string
+                        created_at:
+                          type: string
+        '403':
+          description: user is not a student
+        '401':
+          description: unauthenticated
+  "/api/v1/student/enrollments/{id}/cancel":
+    parameters:
+    - name: id
+      in: path
+      description: Enrollment ID
+      required: true
+      schema:
+        type: string
+    delete:
+      summary: Cancel pending enrollment
+      tags:
+      - Student Enrollments
+      security: []
+      responses:
+        '200':
+          description: enrollment canceled
+          content:
+            application/json:
+              schema:
+                "$schema": http://json-schema.org/draft-07/schema#
+                type: object
+                required:
+                - success
+                - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '404':
+          description: enrollment belongs to another student
+        '422':
+          description: enrollment not pending
+        '403':
+          description: user is not a student
+        '401':
+          description: unauthenticated
   "/api/v1/student/events":
     post:
       summary: Log student activity event
@@ -4499,6 +4633,134 @@ paths:
           description: subject not found
         '401':
           description: unauthorized
+  "/api/v1/teacher/school_enrollments/join":
+    post:
+      summary: Join a school using join token
+      tags:
+      - Teacher Enrollments
+      security: []
+      parameters: []
+      responses:
+        '201':
+          description: join request created
+          content:
+            application/json:
+              schema:
+                "$schema": http://json-schema.org/draft-07/schema#
+                type: object
+                required:
+                - success
+                - message
+                - enrollment_id
+                - school_name
+                - status
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  enrollment_id:
+                    type: string
+                  school_name:
+                    type: string
+                  status:
+                    type: string
+        '404':
+          description: school not found
+        '422':
+          description: already enrolled
+        '403':
+          description: user is not a teacher
+        '401':
+          description: unauthenticated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - token
+              properties:
+                token:
+                  type: string
+                  description: School join token
+        required: true
+  "/api/v1/teacher/school_enrollments/pending":
+    get:
+      summary: List pending school enrollments
+      tags:
+      - Teacher Enrollments
+      security: []
+      responses:
+        '200':
+          description: empty list when none pending
+          content:
+            application/json:
+              schema:
+                "$schema": http://json-schema.org/draft-07/schema#
+                type: object
+                required:
+                - enrollments
+                properties:
+                  enrollments:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - id
+                      - school_name
+                      - status
+                      - created_at
+                      properties:
+                        id:
+                          type: string
+                        school_name:
+                          type: string
+                        status:
+                          type: string
+                        created_at:
+                          type: string
+        '403':
+          description: user is not a teacher
+        '401':
+          description: unauthenticated
+  "/api/v1/teacher/school_enrollments/{id}/cancel":
+    parameters:
+    - name: id
+      in: path
+      description: Enrollment ID
+      required: true
+      schema:
+        type: string
+    delete:
+      summary: Cancel pending school enrollment
+      tags:
+      - Teacher Enrollments
+      security: []
+      responses:
+        '200':
+          description: enrollment canceled
+          content:
+            application/json:
+              schema:
+                "$schema": http://json-schema.org/draft-07/schema#
+                type: object
+                required:
+                - success
+                - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '404':
+          description: enrollment belongs to another teacher
+        '422':
+          description: enrollment not pending
+        '403':
+          description: user is not a teacher
+        '401':
+          description: unauthenticated
   "/api/v1/teachers":
     get:
       summary: List teachers

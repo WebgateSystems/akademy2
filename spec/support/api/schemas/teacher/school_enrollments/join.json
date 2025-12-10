@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "success",
+    "message",
+    "enrollment_id",
+    "school_name",
+    "status"
+  ],
+  "properties": {
+    "success": { "type": "boolean" },
+    "message": { "type": "string" },
+    "enrollment_id": { "type": "string" },
+    "school_name": { "type": "string" },
+    "status": { "type": "string" }
+  }
+}
