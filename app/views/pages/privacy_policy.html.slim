@@ -1,0 +1,188 @@
+doctype html
+html lang="pl"
+  head
+    meta charset="utf-8"
+    meta name="viewport" content="width=device-width, initial-scale=1"
+    title Polityka prywatności | AKAdemy 2.0
+    meta name="description" content="Polityka prywatności platformy edukacyjnej AKAdemy 2.0"
+    meta name="theme-color" content="#0f172a"
+    link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"
+    link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"
+    == render 'shared/favicons'
+    = stylesheet_link_tag "landing", "data-turbo-track": "reload"
+
+  body style="font-family: 'Inter', sans-serif; line-height: 1.6; color: #1e293b; background: #f8fafc; padding: 0; margin: 0;"
+    header style="background: #0f172a; color: white; padding: 1rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
+      .container style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: flex; justify-content: space-between; align-items: center;"
+        a href="/" style="color: white; text-decoration: none; font-weight: 700; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;"
+          | AKAdemy 2.0
+        a href="/" style="color: white; text-decoration: underline;"
+          | Powrót do strony głównej
+
+    main.container style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;"
+      article style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+        h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: #0f172a;"
+          | Polityka prywatności
+
+        p style="color: #64748b; margin-bottom: 2rem;"
+          | Ostatnia aktualizacja: #{Date.current.strftime('%d.%m.%Y')}
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 1. Wprowadzenie
+          p style="margin-bottom: 1rem;"
+            | Platforma edukacyjna AKAdemy 2.0 (zwana dalej "Platformą") jest zarządzana przez Fundacja Sebastiana Ody.
+            | Niniejsza Polityka prywatności określa zasady przetwarzania danych osobowych użytkowników Platformy.
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 2. Administrator danych
+          p style="margin-bottom: 1rem;"
+            | Administratorem danych osobowych jest:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li Fundacja Sebastiana Ody
+            li Adres: Strażacka 12/4, 81-616 Gdynia, Polska
+            li Email: fso@akademy.edu.pl
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 3. Zakres zbieranych danych
+          p style="margin-bottom: 1rem;"
+            | Platforma zbiera następujące dane osobowe:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li
+              strong Dane identyfikacyjne:
+              |  imię, nazwisko, adres email, numer telefonu
+            li
+              strong Dane edukacyjne:
+              |  wyniki quizów, postępy w nauce, certyfikaty, materiały przesłane przez użytkownika
+            li
+              strong Dane techniczne:
+              |  adres IP, typ przeglądarki, informacje o urządzeniu, logi systemowe
+            li
+              strong Dane opcjonalne:
+              |  data urodzenia, preferencje użytkownika
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 4. Cel przetwarzania danych
+          p style="margin-bottom: 1rem;"
+            | Dane osobowe są przetwarzane w następujących celach:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li
+              | Świadczenie usług edukacyjnych poprzez Platformę
+            li
+              | Zarządzanie kontami użytkowników (uczniów, nauczycieli, administratorów)
+            li
+              | Weryfikacja tożsamości i autoryzacja dostępu
+            li
+              | Generowanie certyfikatów i raportów edukacyjnych
+            li
+              | Komunikacja z użytkownikami (powiadomienia, wsparcie techniczne)
+            li
+              | Analiza statystyczna i poprawa funkcjonalności Platformy
+            li
+              | Wypełnienie obowiązków prawnych
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 5. Podstawa prawna przetwarzania
+          p style="margin-bottom: 1rem;"
+            | Przetwarzanie danych osobowych odbywa się na podstawie:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li
+              | Wykonania umowy o świadczenie usług edukacyjnych (art. 6 ust. 1 lit. b RODO)
+            li
+              | Zgody użytkownika (art. 6 ust. 1 lit. a RODO)
+            li
+              | Wypełnienia obowiązku prawnego (art. 6 ust. 1 lit. c RODO)
+            li
+              | Prawidłowego interesu administratora (art. 6 ust. 1 lit. f RODO)
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 6. Udostępnianie danych
+          p style="margin-bottom: 1rem;"
+            | Dane osobowe mogą być udostępniane:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li
+              | Nauczycielom i administratorom szkoły w zakresie niezbędnym do prowadzenia zajęć edukacyjnych
+            li
+              | Dostawcom usług technicznych (hosting, analityka) działającym jako podmioty przetwarzające
+            li
+              | Organom państwowym na podstawie obowiązujących przepisów prawa
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 7. Okres przechowywania danych
+          p style="margin-bottom: 1rem;"
+            | Dane osobowe są przechowywane przez okres:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li
+              | Aktywnego korzystania z Platformy przez użytkownika
+            li
+              | Wymagany przepisami prawa (np. przepisy podatkowe, archiwizacja dokumentów)
+            li
+              | Do momentu wycofania zgody lub wniesienia sprzeciwu (jeśli dotyczy)
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 8. Prawa użytkownika
+          p style="margin-bottom: 1rem;"
+            | Użytkownik ma prawo do:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li
+              | Dostępu do swoich danych osobowych
+            li
+              | Sprostowania (poprawienia) danych
+            li
+              | Usunięcia danych ("prawo do bycia zapomnianym")
+            li
+              | Ograniczenia przetwarzania
+            li
+              | Przenoszenia danych
+            li
+              | Sprzeciwu wobec przetwarzania
+            li
+              | Wycofania zgody w dowolnym momencie
+            li
+              | Wniesienia skargi do organu nadzorczego (UODO)
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 9. Bezpieczeństwo danych
+          p style="margin-bottom: 1rem;"
+            | Stosujemy odpowiednie środki techniczne i organizacyjne zapewniające bezpieczeństwo danych osobowych, 
+            | w tym szyfrowanie połączeń (HTTPS), regularne kopie zapasowe oraz kontrolę dostępu.
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 10. Pliki cookies
+          p style="margin-bottom: 1rem;"
+            | Platforma wykorzystuje pliki cookies w celu zapewnienia prawidłowego funkcjonowania, 
+            | zapamiętywania preferencji użytkownika oraz analizy ruchu. Szczegółowe informacje znajdują się 
+            | w naszej Polityce cookies.
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 11. Zmiany w polityce prywatności
+          p style="margin-bottom: 1rem;"
+            | Zastrzegamy sobie prawo do wprowadzania zmian w niniejszej Polityce prywatności. 
+            | O wszelkich zmianach użytkownicy będą informowani poprzez Platformę lub email.
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 12. Kontakt
+          p style="margin-bottom: 1rem;"
+            | W sprawach związanych z ochroną danych osobowych można kontaktować się z nami:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li Email: fso@akademy.edu.pl
+            li Adres: Strażacka 12/4, 81-616 Gdynia, Polska
+
+    footer style="background: #0f172a; color: white; padding: 2rem 0; margin-top: 3rem;"
+      .container style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; text-align: center;"
+        p style="margin: 0; color: #94a3b8;"
+          | © #{Date.current.year} Webgate Systems LTD • 
+          a href="/privacy-policy" style="color: white; text-decoration: underline;"
+            | Polityka prywatności
+

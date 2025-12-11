@@ -287,6 +287,9 @@ Rails.application.routes.draw do
   get 'health', to: 'home#spinup_status'
   get 'version', to: 'home#version'
 
+  # Public pages
+  get 'privacy-policy', to: 'pages#privacy_policy', as: :privacy_policy
+
   # Landing page
   root 'home#index'
 end

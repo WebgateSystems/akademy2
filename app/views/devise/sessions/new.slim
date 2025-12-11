@@ -110,3 +110,5 @@
     .login-footer
       | © #{Time.current.year} 
       a.copyright-link href="https://webgate.pro" target="_blank" Webgate Systems LTD
+      |  • 
+      = link_to 'Polityka prywatności', privacy_policy_path, class: 'copyright-link'

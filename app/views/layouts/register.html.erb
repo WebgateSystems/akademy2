@@ -27,6 +27,9 @@
     <div class="auth-layout">
       <%= yield %>
     </div>
+    <footer style="text-align: center; padding: 1rem; color: #64748b; font-size: 0.875rem; margin-top: 2rem;">
+      <%= link_to 'Polityka prywatności', privacy_policy_path, style: 'color: #6366f1; text-decoration: underline;' %>
+    </footer>
   </div>
 </body>
 </html>
