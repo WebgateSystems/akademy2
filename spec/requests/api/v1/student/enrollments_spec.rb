@@ -84,17 +84,48 @@ RSpec.describe 'API V1 Student Enrollments', type: :request do
       end
     end
 
+    context 'when authenticated with JWT' do
+      let(:token) { Jwt::TokenService.encode({ user_id: student.id }) }
+      let(:headers) { { 'Authorization' => "Bearer #{token}" } }
+
+      it 'returns 201 when joining with valid token' do
+        allow(NotificationService).to receive(:create_student_enrollment_request)
+
+        post '/api/v1/student/enrollments/join', params: { token: school_class.join_token }.to_json,
+                                                 headers: headers.merge('Content-Type' => 'application/json')
+
+        expect(response).to have_http_status(:created)
+        json = JSON.parse(response.body)
+        expect(json['success']).to be true
+        expect(json['class_name']).to eq('1A')
+        expect(json['status']).to eq('pending')
+      end
+
+      it 'updates student school if not set' do
+        student.update!(school: nil)
+        allow(NotificationService).to receive(:create_student_enrollment_request)
+
+        post '/api/v1/student/enrollments/join', params: { token: school_class.join_token }.to_json,
+                                                 headers: headers.merge('Content-Type' => 'application/json')
+
+        student.reload
+        expect(student.school).to eq(school)
+      end
+    end
+
     context 'when not authenticated' do
       it 'returns 401 unauthorized' do
         post '/api/v1/student/enrollments/join', params: { token: school_class.join_token }
 
-        expect(response).to have_http_status(:unauthorized).or redirect_to(new_user_session_path)
+        expect(response).to have_http_status(:unauthorized)
+        json = JSON.parse(response.body)
+        expect(json['error']).to be_present
       end
     end
   end
 
   describe 'GET /api/v1/student/enrollments/pending' do
-    context 'when student is authenticated' do
+    context 'when student is authenticated with Devise' do
       before { sign_in student }
 
       it 'returns 200 with pending enrollments' do
@@ -116,6 +147,24 @@ RSpec.describe 'API V1 Student Enrollments', type: :request do
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['enrollments']).to eq([])
+      end
+    end
+
+    context 'when student is authenticated with JWT' do
+      let(:token) { Jwt::TokenService.encode({ user_id: student.id }) }
+      let(:headers) { { 'Authorization' => "Bearer #{token}" } }
+
+      it 'returns 200 with pending enrollments' do
+        enrollment = StudentClassEnrollment.create!(student: student, school_class: school_class, status: 'pending')
+
+        get '/api/v1/student/enrollments/pending', headers: headers
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['enrollments']).to be_an(Array)
+        expect(json['enrollments'].length).to eq(1)
+        expect(json['enrollments'].first['id']).to eq(enrollment.id)
+        expect(json['enrollments'].first['class_name']).to eq('1A')
       end
     end
 

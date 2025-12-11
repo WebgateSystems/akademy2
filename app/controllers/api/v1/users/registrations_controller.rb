@@ -53,9 +53,39 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   end
 
   def find_and_validate_invite!
-    token = params[:invite_token] || params[:class_token]
+    token = params[:invite_token] || params[:class_token] || params[:join_token]
     raise ActiveRecord::RecordNotFound if token.blank?
 
-    InviteTokens::Validator.call!(token) # patrz punkt 3
+    # First try to find by join_token (for SchoolClass or School)
+    # rubocop:disable Rails/DynamicFindBy
+    school_class = SchoolClass.find_by_join_token(token)
+    # rubocop:enable Rails/DynamicFindBy
+    if school_class
+      # Create a virtual invite for student registration with class
+      return InviteTokens::Invite.new(
+        token: token,
+        kind: 'student',
+        school_id: school_class.school_id,
+        school_class_id: school_class.id,
+        used: false
+      )
+    end
+
+    # rubocop:disable Rails/DynamicFindBy
+    school = School.find_by_join_token(token)
+    # rubocop:enable Rails/DynamicFindBy
+    if school
+      # Create a virtual invite for teacher registration with school
+      return InviteTokens::Invite.new(
+        token: token,
+        kind: 'teacher',
+        school_id: school.id,
+        school_class_id: nil,
+        used: false
+      )
+    end
+
+    # Fallback to old invite token system (for tests)
+    InviteTokens::Validator.call!(token)
   end
 end

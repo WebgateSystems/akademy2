@@ -10,7 +10,12 @@
 / Only show sign up if route helper exists and user is not administration
 - role = params[:role] || (session[:user_return_to].present? ? (session[:user_return_to].include?('/home') ? 'student' : (session[:user_return_to].include?('/management') ? 'administration' : 'teacher')) : 'teacher')
 - if devise_mapping.registerable? && controller_name != 'registrations' && respond_to?(:new_user_registration_path) && role != 'administration'
-  - sign_up_path = role == 'teacher' ? register_teacher_path : register_profile_path
+  - if role == 'student'
+    - class_token = session[:join_class_token] || params[:class_token]
+    - sign_up_path = class_token.present? ? register_student_path(class_token: class_token) : register_student_path
+  - else
+    - school_token = session[:join_school_token] || params[:school_token]
+    - sign_up_path = school_token.present? ? register_teacher_path(school_token: school_token) : register_teacher_path
   = link_to t('devise.shared.links.sign_up', default: 'Sign up'), sign_up_path
   br
 

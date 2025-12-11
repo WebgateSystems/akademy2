@@ -46,5 +46,9 @@ module Akademy
       g.orm :active_record, primary_key_type: :uuid
       g.test_framework :rspec
     end
+
+    # Enable session support for API controllers
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Session::CookieStore, key: '_akademy_session'
   end
 end

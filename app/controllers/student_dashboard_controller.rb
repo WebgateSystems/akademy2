@@ -195,6 +195,13 @@ class StudentDashboardController < ApplicationController
   # GET /home/videos
   # School videos list with filtering
   def school_videos
+    # Only allow access if student has approved enrollment
+    unless @classes.any?
+      # rubocop:disable I18n/GetText/DecorateString
+      redirect_to public_home_path, alert: 'Musisz być przypisany do klasy, aby zobaczyć filmy szkolne.'
+      # rubocop:enable I18n/GetText/DecorateString
+      return
+    end
     # Find subject by slug or UUID
     @current_subject = find_subject_by_slug_or_id(params[:subject]) if params[:subject].present?
 
@@ -510,6 +517,10 @@ class StudentDashboardController < ApplicationController
 
   def require_student!
     return if user_signed_in? && current_user.student?
+
+    # Preserve class token if present in URL or session
+    class_token = params[:token] || session[:join_class_token]
+    session[:join_class_token] = class_token if class_token.present?
 
     # If user is logged in but not a student, sign them out first
     if user_signed_in?

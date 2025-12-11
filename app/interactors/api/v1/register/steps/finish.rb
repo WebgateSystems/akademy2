@@ -55,12 +55,51 @@ module Api
 
           def after_success(user)
             authentificate_user(user)
+
+            if student_registered_with_class_token?
+              create_student_with_enrollment(user)
+            else
+              create_student_without_school(user)
+            end
+
             user.send_confirmation_instructions
             flow.destroy!
 
             context.form = user
             context.access_token = context.session_service.access_token
             context.status = :created
+          end
+
+          def student_registered_with_class_token?
+            class_data = flow.data['school_class']
+            class_data.present? && class_data['school_class_id'].present?
+          end
+
+          def create_student_with_enrollment(user)
+            class_data = flow.data['school_class']
+            school_class = SchoolClass.find_by(id: class_data['school_class_id'])
+            school = school_class&.school
+
+            return unless school_class && school
+
+            student_role = Role.find_by(key: 'student')
+            return unless student_role
+
+            UserRole.create!(user: user, role: student_role, school: school)
+            user.update!(school: school)
+
+            StudentClassEnrollment.create!(
+              student: user,
+              school_class: school_class,
+              status: 'pending'
+            )
+
+            NotificationService.create_student_enrollment_request(student: user, school_class: school_class)
+          end
+
+          def create_student_without_school(user)
+            student_role = Role.find_by(key: 'student')
+            UserRole.create!(user: user, role: student_role, school: nil) if student_role
           end
 
           def user_failed(user)

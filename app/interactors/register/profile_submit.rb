@@ -21,13 +21,18 @@ module Register
     end
 
     def permit_params
-      context.params.require(:register_profile_form).permit(
+      # birthdate_display and marketing are only for form display, not stored in form model
+      permitted = context.params.require(:register_profile_form).permit(
         :first_name,
         :last_name,
         :birthdate,
+        :birthdate_display,
         :email,
-        :phone
+        :phone,
+        :marketing
       )
+      # Remove fields that are not part of the form model
+      permitted.except(:birthdate_display, :marketing)
     end
 
     def send_sms_code

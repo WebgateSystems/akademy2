@@ -100,6 +100,7 @@ RSpec.describe Register::SetPinConfirmSubmit do
       let(:matching_params) { { pin_hidden: '1234' } }
 
       before do
+        flow.data['registration_type'] = 'teacher'
         flow.update(:school, { 'school_id' => school.id })
         allow(NotificationService).to receive(:create_teacher_enrollment_request)
       end
@@ -123,6 +124,99 @@ RSpec.describe Register::SetPinConfirmSubmit do
         described_class.call(params: matching_params, flow: flow)
 
         expect(NotificationService).to have_received(:create_teacher_enrollment_request)
+      end
+    end
+
+    context 'with student registration and class token' do
+      let(:school) { create(:school) }
+      let(:school_class) { create(:school_class, school: school) }
+      let(:matching_params) { { pin_hidden: '1234' } }
+
+      before do
+        flow.data['registration_type'] = 'student'
+        flow.update(:school_class, {
+                      'join_token' => school_class.join_token,
+                      'school_class_id' => school_class.id,
+                      'school_id' => school.id
+                    })
+        flow.update(:school, { 'school_id' => school.id })
+        allow(NotificationService).to receive(:create_student_enrollment_request)
+      end
+
+      it 'assigns student role with school' do
+        result = described_class.call(params: matching_params, flow: flow)
+
+        expect(result).to be_success
+        user_id = flow['user']['user_id']
+        user = User.find(user_id)
+        expect(user.roles.pluck(:key)).to include('student')
+        expect(user.school).to eq(school)
+      end
+
+      it 'creates pending enrollment' do
+        expect do
+          described_class.call(params: matching_params, flow: flow)
+        end.to change(StudentClassEnrollment, :count).by(1)
+      end
+
+      it 'creates enrollment with pending status' do
+        described_class.call(params: matching_params, flow: flow)
+
+        user_id = flow['user']['user_id']
+        user = User.find(user_id)
+        enrollment = StudentClassEnrollment.find_by(student: user, school_class: school_class)
+        expect(enrollment.status).to eq('pending')
+      end
+
+      it 'creates notification' do
+        described_class.call(params: matching_params, flow: flow)
+
+        expect(NotificationService).to have_received(:create_student_enrollment_request)
+      end
+    end
+
+    context 'with student registration without class token' do
+      let(:matching_params) { { pin_hidden: '1234' } }
+
+      before do
+        flow.data['registration_type'] = 'student'
+      end
+
+      it 'assigns student role without school' do
+        result = described_class.call(params: matching_params, flow: flow)
+
+        expect(result).to be_success
+        user_id = flow['user']['user_id']
+        user = User.find(user_id)
+        expect(user.roles.pluck(:key)).to include('student')
+        expect(user.school).to be_nil
+      end
+
+      it 'does not create enrollment' do
+        expect do
+          described_class.call(params: matching_params, flow: flow)
+        end.not_to change(StudentClassEnrollment, :count)
+      end
+    end
+
+    context 'when student has school but no class (should not be teacher)' do
+      let(:school) { create(:school) }
+      let(:matching_params) { { pin_hidden: '1234' } }
+
+      before do
+        flow.data['registration_type'] = 'student'
+        flow.update(:school, { 'school_id' => school.id })
+        # No school_class data
+      end
+
+      it 'assigns student role, not teacher role' do
+        result = described_class.call(params: matching_params, flow: flow)
+
+        expect(result).to be_success
+        user_id = flow['user']['user_id']
+        user = User.find(user_id)
+        expect(user.roles.pluck(:key)).to include('student')
+        expect(user.roles.pluck(:key)).not_to include('teacher')
       end
     end
   end

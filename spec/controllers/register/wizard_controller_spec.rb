@@ -40,6 +40,52 @@ RSpec.describe Register::WizardController, type: :controller do
       end
     end
 
+    context 'with student registration and class token' do
+      let(:school) { create(:school) }
+      let(:school_class) { create(:school_class, school: school) }
+      let(:valid_params) do
+        {
+          register_profile_form: {
+            first_name: 'John',
+            last_name: 'Doe',
+            birthdate: '1990-01-15',
+            email: 'john@example.com',
+            phone: '+48123456789'
+          }
+        }
+      end
+
+      before do
+        session['register_wizard'] = {
+          'registration_type' => 'student',
+          'school_class' => {
+            'school_class_id' => school_class.id,
+            'school_id' => school.id
+          },
+          'school' => {
+            'school_id' => school.id
+          }
+        }
+      end
+
+      it 'redirects to verify_phone' do
+        post :profile_submit, params: valid_params
+        expect(response).to redirect_to(register_verify_phone_path)
+      end
+
+      it 'renders student template on error' do
+        invalid_params = {
+          register_profile_form: {
+            first_name: '',
+            last_name: ''
+          }
+        }
+        post :profile_submit, params: invalid_params
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to render_template(:student)
+      end
+    end
+
     context 'with invalid params' do
       let(:invalid_params) do
         {
@@ -157,6 +203,94 @@ RSpec.describe Register::WizardController, type: :controller do
         expect(assigns(:school)).to eq(school)
       end
     end
+
+    context 'with school_token' do
+      let(:school) { create(:school, join_token: 'school-token') }
+
+      it 'finds school by school_token' do
+        get :teacher, params: { school_token: school.join_token }
+        expect(assigns(:school)).to eq(school)
+      end
+    end
+  end
+
+  describe 'GET #student' do
+    it 'returns success' do
+      get :student
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'assigns form' do
+      get :student
+      expect(assigns(:form)).to be_a(Register::ProfileForm)
+    end
+
+    it 'sets registration_type in flow' do
+      get :student
+      expect(session['register_wizard']['registration_type']).to eq('student')
+    end
+
+    context 'with class_token' do
+      let(:school) { create(:school) }
+      let(:school_class) { create(:school_class, school: school) }
+
+      it 'finds school class and assigns to @school_class' do
+        get :student, params: { class_token: school_class.join_token }
+        expect(assigns(:school_class)).to eq(school_class)
+        expect(assigns(:school)).to eq(school)
+      end
+
+      it 'stores class and school info in flow' do
+        get :student, params: { class_token: school_class.join_token }
+        flow = Register::WizardFlow.new(session)
+        expect(flow['school_class']['school_class_id']).to eq(school_class.id)
+        expect(flow['school']['school_id']).to eq(school.id)
+      end
+    end
+
+    context 'with class_token in session' do
+      let(:school) { create(:school) }
+      let(:school_class) { create(:school_class, school: school) }
+
+      before do
+        session[:join_class_token] = school_class.join_token
+      end
+
+      it 'finds school class from session' do
+        get :student
+        expect(assigns(:school_class)).to eq(school_class)
+        expect(assigns(:school)).to eq(school)
+      end
+    end
+  end
+
+  describe 'GET #profile' do
+    context 'with class_token' do
+      let(:school) { create(:school) }
+      let(:school_class) { create(:school_class, school: school) }
+
+      it 'redirects to student registration' do
+        get :profile, params: { class_token: school_class.join_token }
+        expect(response).to redirect_to(register_student_path(class_token: school_class.join_token))
+      end
+    end
+
+    context 'with school_token' do
+      let(:school) { create(:school) }
+
+      it 'redirects to teacher registration' do
+        get :profile, params: { school_token: school.join_token }
+        expect(response).to redirect_to(register_teacher_path(school_token: school.join_token))
+      end
+    end
+
+    context 'without tokens' do
+      it 'sets registration_type to student by default' do
+        get :profile
+        flow = Register::WizardFlow.new(session)
+        expect(flow['registration_type']).to eq('student')
+      end
+    end
   end
 
   describe 'POST #verify_phone_submit' do
@@ -238,10 +372,12 @@ RSpec.describe Register::WizardController, type: :controller do
   end
 
   describe 'GET #confirm_email' do
+    let(:user) { create(:user) }
+
     before do
       session['register_wizard'] = {
         'profile' => { 'first_name' => 'John', 'email' => 'john@example.com' },
-        'user' => { 'user_id' => SecureRandom.uuid }
+        'user' => { 'user_id' => user.id }
       }
     end
 
@@ -253,6 +389,35 @@ RSpec.describe Register::WizardController, type: :controller do
     it 'renders confirm_email template' do
       get :confirm_email
       expect(response).to render_template(:confirm_email)
+    end
+
+    context 'with student and class token' do
+      let(:school) { create(:school) }
+      let(:school_class) { create(:school_class, school: school) }
+      let(:student_role) { Role.find_or_create_by!(key: 'student') { |r| r.name = 'Student' } }
+      let(:user) { create(:user) }
+
+      before do
+        UserRole.create!(user: user, role: student_role, school: school)
+        session['register_wizard'] = {
+          'profile' => { 'first_name' => 'John', 'email' => 'john@example.com' },
+          'user' => { 'user_id' => user.id },
+          'school_class' => {
+            'join_token' => school_class.join_token
+          }
+        }
+        session[:join_class_token] = school_class.join_token
+      end
+
+      it 'redirects to dashboard' do
+        get :confirm_email
+        expect(response).to redirect_to(public_home_path)
+      end
+
+      it 'clears join_class_token from session' do
+        get :confirm_email
+        expect(session[:join_class_token]).to be_nil
+      end
     end
   end
 

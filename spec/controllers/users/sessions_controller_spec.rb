@@ -133,7 +133,7 @@ RSpec.describe Users::SessionsController, type: :request do
 
       it 'shows sign up link to student registration' do
         get student_login_path
-        expect(response.body).to include('register/profile')
+        expect(response.body).to include('register/student')
       end
     end
 

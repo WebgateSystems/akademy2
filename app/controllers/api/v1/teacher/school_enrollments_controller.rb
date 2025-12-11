@@ -1,10 +1,9 @@
 module Api
   module V1
     module Teacher
-      # This controller uses session-based auth (Devise) instead of JWT
-      # because it's called from browser with session cookies
-      class SchoolEnrollmentsController < ApplicationController
-        before_action :authenticate_user!
+      # This controller supports both JWT (for mobile apps) and Devise session-based auth (for web)
+      class SchoolEnrollmentsController < ApplicationApiController
+        before_action :authenticate!
         before_action :require_teacher!
 
         # POST /api/v1/teacher/school_enrollments/join

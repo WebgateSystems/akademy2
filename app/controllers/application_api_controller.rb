@@ -2,13 +2,19 @@ class ApplicationApiController < ActionController::API
   include HandleStatusCode
   include ApiRequestLogger
   include ActionController::Flash
+  include ActionController::Cookies
+
   attr_reader :current_user
 
   private
 
   def authenticate!
     # JWT OR Devise
-    request.headers['Authorization'].present? ? authorize_access_request! : devise_auth
+    if request.headers['Authorization'].present?
+      authorize_access_request!
+    else
+      devise_auth
+    end
   end
 
   def authorize_access_request!
@@ -25,16 +31,17 @@ class ApplicationApiController < ActionController::API
   end
 
   def devise_auth
-    authenticate_user!
-    @current_user = warden.user
+    # Use Warden directly for API controllers with session support
+    user = warden.authenticate(scope: :user)
+    if user
+      @current_user = user
+    else
+      not_authorized
+    end
   end
 
-  def authenticate_user!
-    if user_signed_in?
-      super
-    else
-      render json: { error: I18n.t('session.errors.not_autorized') }, status: :unauthorized
-    end
+  def warden
+    request.env['warden']
   end
 
   def check_exp_token(decoded_token)

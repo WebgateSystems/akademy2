@@ -4,8 +4,6 @@ section.auth-card aria-labelledby="auth-card-title"
     - if @school.present? && @school_class.present?
       p.auth-card__subtitle Dołączenie do szkoły: #{@school.name}
       p.auth-card__subtitle Klasa: #{@school_class.name}
-    - elsif @school.present?
-      p.auth-card__subtitle Dołączenie do szkoły: #{@school.name}
 
   = form_with model: @form,
               url: register_profile_path,
@@ -92,3 +90,4 @@ section.auth-card aria-labelledby="auth-card-title"
     / Submit button
     / ===============================
     button.auth-submit.auth-submit--disabled type="submit" disabled=true Create account
+

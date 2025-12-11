@@ -64,6 +64,42 @@ RSpec.describe Api::V1::Users::RegistrationsController, type: :controller do
       end
     end
 
+    context 'when join_token is provided (for SchoolClass)' do
+      let(:school_class_with_token) { create(:school_class, school: school) }
+
+      before do
+        school_class_with_token
+        allow(controller_instance).to receive(:params).and_return(
+          ActionController::Parameters.new(join_token: school_class_with_token.join_token)
+        )
+      end
+
+      it 'returns virtual invite for student with class' do
+        result = controller_instance.send(:find_and_validate_invite!)
+        expect(result.kind).to eq('student')
+        expect(result.school_id).to eq(school.id)
+        expect(result.school_class_id).to eq(school_class_with_token.id)
+      end
+    end
+
+    context 'when join_token is provided (for School)' do
+      let(:school_with_token) { create(:school) }
+
+      before do
+        school_with_token
+        allow(controller_instance).to receive(:params).and_return(
+          ActionController::Parameters.new(join_token: school_with_token.join_token)
+        )
+      end
+
+      it 'returns virtual invite for teacher with school' do
+        result = controller_instance.send(:find_and_validate_invite!)
+        expect(result.kind).to eq('teacher')
+        expect(result.school_id).to eq(school_with_token.id)
+        expect(result.school_class_id).to be_nil
+      end
+    end
+
     context 'when invite_token is provided' do
       before do
         allow(controller_instance).to receive(:params).and_return(

@@ -30,9 +30,11 @@ RSpec.describe Api::V1::AuthentificateController, type: :controller do
   end
 
   describe 'before_action authorize_access_request!' do
-    it 'responds 302 without token' do
+    it 'responds 401 without token' do
       get :dummy
-      expect(response.status).to eq(302)
+      expect(response.status).to eq(401)
+      json = JSON.parse(response.body)
+      expect(json['error']).to be_present
     end
   end
 end

@@ -52,6 +52,9 @@ Rails.application.routes.draw do
 
     # Teacher registration
     get 'teacher', to: 'wizard#teacher', as: :teacher
+
+    # Student registration
+    get 'student', to: 'wizard#student', as: :student
   end
 
   namespace :management do

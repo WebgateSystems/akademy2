@@ -54,8 +54,17 @@ module Register
     end
 
     def teacher_registration?
+      # Check registration_type first (set in wizard controller)
+      registration_type = context.flow['registration_type']
+      return true if registration_type == 'teacher'
+      return false if registration_type == 'student'
+
+      # Fallback: if no registration_type, check if it's teacher registration
+      # Teacher registration has school but no school_class
       school_data = context.flow['school']
-      school_data.present? && school_data['school_id'].present?
+      class_data = context.flow['school_class']
+
+      school_data.present? && school_data['school_id'].present? && class_data.blank?
     end
 
     def assign_teacher_role(user)
@@ -101,9 +110,62 @@ module Register
       student_role = Role.find_by(key: 'student')
       return unless student_role
 
-      # Student registers without school - they join school later via QR/link invitation
-      UserRole.create!(user: user, role: student_role, school: nil)
+      class_data = context.flow['school_class']
+      if class_data.present? && class_data['school_class_id'].present?
+        assign_student_role_with_class(user, student_role, class_data)
+      else
+        assign_student_role_without_school(user, student_role)
+      end
+    end
 
+    def assign_student_role_with_class(user, student_role, class_data)
+      school_class = SchoolClass.find_by(id: class_data['school_class_id'])
+      school = school_class&.school
+
+      if school_class && school
+        create_student_with_class(user, student_role, school_class, school)
+      else
+        UserRole.create!(user: user, role: student_role, school: nil)
+      end
+    end
+
+    def create_student_with_class(user, student_role, school_class, school)
+      UserRole.create!(user: user, role: student_role, school: school)
+      user.update!(school: school)
+
+      StudentClassEnrollment.create!(
+        student: user,
+        school_class: school_class,
+        status: 'pending'
+      )
+
+      NotificationService.create_student_enrollment_request(student: user, school_class: school_class)
+
+      log_student_role_assigned_with_class(user, school, school_class)
+    end
+
+    def assign_student_role_without_school(user, student_role)
+      UserRole.create!(user: user, role: student_role, school: nil)
+      log_student_role_assigned(user)
+    end
+
+    def log_student_role_assigned_with_class(user, school, school_class)
+      # rubocop:disable Rails/Output
+      puts ''
+      puts '=' * 60
+      puts '✅ STUDENT ROLE ASSIGNED WITH CLASS'
+      puts '=' * 60
+      puts "   User: #{user.email}"
+      puts "   Phone: #{user.phone}"
+      puts "   School: #{school.name}"
+      puts "   Class: #{school_class.name}"
+      puts '   Enrollment: pending approval'
+      puts '=' * 60
+      puts ''
+      # rubocop:enable Rails/Output
+    end
+
+    def log_student_role_assigned(user)
       # rubocop:disable Rails/Output
       puts ''
       puts '=' * 60

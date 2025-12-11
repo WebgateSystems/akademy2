@@ -12,23 +12,33 @@ module Register
     # === STEP 1: PROFILE ===
 
     def profile
+      # Profile is for general registration (without specific school/class token)
+      # If there's a class token, redirect to student registration
+      class_token = session[:join_class_token] || params[:class_token]
+      if class_token.present?
+        redirect_to register_student_path(class_token: class_token)
+        return
+      end
+
+      # If there's a school token, redirect to teacher registration
+      school_token = session[:join_school_token] || params[:school_token]
+      if school_token.present?
+        redirect_to register_teacher_path(school_token: school_token)
+        return
+      end
+
+      # Mark as student registration by default (general registration)
+      @flow.data['registration_type'] = 'student' if @flow['registration_type'].blank?
+
       @form = ProfileForm.new(@flow['profile'] || {})
     end
 
     def profile_submit
       # Use different form for teacher registration
       if @flow['registration_type'] == 'teacher'
-        result = Register::TeacherProfileSubmit.call(params:, flow: @flow)
-        @form = result.form
-        return redirect_to register_verify_phone_path if result.success?
-
-        render :teacher, status: :unprocessable_entity
+        handle_teacher_profile_submit
       else
-        result = Register::ProfileSubmit.call(params:, flow: @flow)
-        @form = result.form
-        return redirect_to register_verify_phone_path if result.success?
-
-        render :profile, status: :unprocessable_entity
+        handle_student_profile_submit
       end
     end
 
@@ -110,6 +120,14 @@ module Register
       sign_in(@user) if @user
 
       @user_email = @user&.email
+
+      # Check if student registered with class token - enrollment is already created
+      if student_registered_with_class_token?
+        handle_student_registration_complete
+        return
+      end
+
+      # For teacher registration or general student registration
       @flow.finish!
     end
 
@@ -117,7 +135,8 @@ module Register
 
     def teacher
       # Try to find school by join_token if provided (optional)
-      join_token = params[:join_token] || session[:join_school_token]
+      # Note: school_token is for joining a school, not a class
+      join_token = params[:school_token] || params[:join_token] || session[:join_school_token]
       @school = School.find_by(join_token: join_token) if join_token.present?
 
       # Also check session for school_id
@@ -140,14 +159,104 @@ module Register
       @form = TeacherProfileForm.new(teacher_profile_data)
     end
 
+    # === STUDENT REGISTRATION ===
+
+    def student
+      # Check for class join token from session or params (when coming from /join/class/:token)
+      class_token = session[:join_class_token] || params[:class_token]
+      if class_token.present?
+        # rubocop:disable Rails/DynamicFindBy
+        school_class = SchoolClass.find_by_join_token(class_token)
+        # rubocop:enable Rails/DynamicFindBy
+        if school_class
+          # Store class and school info in flow
+          session[:join_class_token] = class_token
+          @flow.update(:school_class, {
+                         'join_token' => class_token,
+                         'school_class_id' => school_class.id,
+                         'school_id' => school_class.school_id
+                       })
+          @flow.update(:school, {
+                         'school_id' => school_class.school_id
+                       })
+
+          # Set instance variables for view
+          @school_class = school_class
+          @school = school_class.school
+        end
+      end
+
+      # Mark this as student registration (not teacher)
+      @flow.data['registration_type'] = 'student'
+
+      # Initialize form with student-specific fields (include birthdate)
+      profile_data = @flow['profile'] || {}
+      @form = ProfileForm.new(profile_data)
+    end
+
     private
 
     def build_flow
       @flow = WizardFlow.new(session)
     end
 
+    def handle_teacher_profile_submit
+      result = Register::TeacherProfileSubmit.call(params:, flow: @flow)
+      @form = result.form
+      return redirect_to register_verify_phone_path if result.success?
+
+      render :teacher, status: :unprocessable_entity
+    end
+
+    def handle_student_profile_submit
+      result = Register::ProfileSubmit.call(params:, flow: @flow)
+      @form = result.form
+
+      reload_school_and_class_info
+
+      return redirect_to register_verify_phone_path if result.success?
+
+      render_student_or_profile_view
+    end
+
+    def reload_school_and_class_info
+      class_data = @flow['school_class']
+      return unless class_data.present? && class_data['school_class_id'].present?
+
+      @school_class = SchoolClass.find_by(id: class_data['school_class_id'])
+      @school = @school_class&.school
+    end
+
+    def render_student_or_profile_view
+      if @flow['registration_type'] == 'student' && @school_class.present?
+        render :student, status: :unprocessable_entity
+      else
+        render :profile, status: :unprocessable_entity
+      end
+    end
+
+    def student_registered_with_class_token?
+      class_token = session[:join_class_token] || @flow['school_class']&.dig('join_token')
+      class_token.present? && @user&.student?
+    end
+
+    def handle_student_registration_complete
+      session.delete(:join_class_token) # Clean up session
+      @flow.finish!
+      # Redirect to dashboard - student will see pending enrollment screen
+      redirect_to public_home_path,
+                  notice: 'Rejestracja zakończona pomyślnie. Oczekuj na akceptację dołączenia do klasy.'
+    end
+
     def ensure_step_allowed(step)
-      redirect_to register_profile_path unless @flow.can_access?(step)
+      # Redirect to appropriate registration path based on registration type
+      if @flow['registration_type'] == 'teacher'
+        redirect_to register_teacher_path unless @flow.can_access?(step)
+      elsif @flow['registration_type'] == 'student' && @flow['school_class'].present?
+        redirect_to register_student_path unless @flow.can_access?(step)
+      else
+        redirect_to register_profile_path unless @flow.can_access?(step)
+      end
     end
 
     def handle_success

@@ -67,5 +67,30 @@ RSpec.describe Register::ProfileSubmit do
         expect(result.message).to eq('Validation failed')
       end
     end
+
+    context 'with birthdate_display and marketing params' do
+      let(:params_with_extra_fields) do
+        ActionController::Parameters.new(
+          register_profile_form: {
+            first_name: 'John',
+            last_name: 'Doe',
+            birthdate: '1990-01-15',
+            birthdate_display: '15.01.1990',
+            email: 'john@example.com',
+            phone: '+48123456789',
+            marketing: '1'
+          }
+        )
+      end
+
+      it 'removes birthdate_display and marketing from params' do
+        result = described_class.call(params: params_with_extra_fields, flow: flow)
+
+        expect(result).to be_success
+        expect(flow['profile']['birthdate_display']).to be_nil
+        expect(flow['profile']['marketing']).to be_nil
+        expect(flow['profile']['birthdate']).to eq('1990-01-15')
+      end
+    end
   end
 end
