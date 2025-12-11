@@ -4,7 +4,7 @@ module Api
       # This controller uses session-based auth (Devise) instead of JWT
       # because it's called from browser with session cookies
       class EnrollmentsController < AuthentificateController
-        before_action :require_student!
+        # before_action :require_student!
 
         # POST /api/v1/student/enrollments/join
         def join
@@ -40,11 +40,11 @@ module Api
 
         private
 
-        def require_student!
-          return if current_user.student?
+        # def require_student!
+        #   return if current_user.student?
 
-          render json: { error: 'Tylko uczniowie mogą korzystać z tej funkcji' }, status: :forbidden
-        end
+        #   render json: { error: 'Tylko uczniowie mogą korzystać z tej funkcji' }, status: :forbidden
+        # end
 
         def render_error(message, status)
           render json: { error: message }, status: status
