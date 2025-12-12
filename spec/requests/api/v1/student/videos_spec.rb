@@ -54,6 +54,48 @@ RSpec.describe 'API V1 Student Videos', type: :request do
       expect(json['data']).to be_an(Array)
     end
 
+    it 'returns 200 with search query parameter q' do
+      create(:student_video, :approved, user: other_student, school: school, subject: subject_record,
+                                        title: 'Math Tutorial')
+      create(:student_video, :approved, user: other_student, school: school, subject: subject_record,
+                                        title: 'Science Lesson')
+
+      get '/api/v1/student/videos', params: { q: 'Math' }, headers: headers
+
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json['success']).to be true
+      expect(json['data']).to be_an(Array)
+      expect(json['data'].length).to eq(1)
+      expect(json['data'].first['title']).to eq('Math Tutorial')
+    end
+
+    it 'searches by author name with q parameter' do
+      other_student.update!(first_name: 'Unique', last_name: 'Author')
+      create(:student_video, :approved, user: other_student, school: school, subject: subject_record,
+                                        title: 'Some Video')
+
+      get '/api/v1/student/videos', params: { q: 'Unique' }, headers: headers
+
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json['success']).to be true
+      expect(json['data'].length).to eq(1)
+    end
+
+    it 'returns empty array when search has no matches' do
+      create(:student_video, :approved, user: other_student, school: school, subject: subject_record,
+                                        title: 'Math Tutorial')
+
+      get '/api/v1/student/videos', params: { q: 'NonExistent' }, headers: headers
+
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json['success']).to be true
+      expect(json['data']).to eq([])
+      expect(json['meta']['total']).to eq(0)
+    end
+
     it 'returns 401 without token' do
       get '/api/v1/student/videos'
 

@@ -118,6 +118,29 @@ RSpec.describe 'Student Videos API', type: :request do
         end
       end
 
+      response '200', 'videos list with search query', document: false do
+        let!(:video1) do
+          other_student = create(:user, school: school)
+          UserRole.create!(user: other_student, role: student_role, school: school)
+          create(:student_video, user: other_student, school: school, subject: subject_record,
+                                 title: 'Math Tutorial', status: 'approved')
+        end
+        let!(:video2) do
+          other_student = create(:user, school: school)
+          UserRole.create!(user: other_student, role: student_role, school: school)
+          create(:student_video, user: other_student, school: school, subject: subject_record,
+                                 title: 'Science Lesson', status: 'approved')
+        end
+        let(:q) { 'Math' }
+
+        run_test! do
+          json = JSON.parse(response.body)
+          expect(json['success']).to be true
+          expect(json['data'].length).to eq(1)
+          expect(json['data'].first['title']).to eq('Math Tutorial')
+        end
+      end
+
       response '401', 'unauthorized' do
         let(:Authorization) { nil }
         run_test!

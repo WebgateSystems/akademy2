@@ -43,14 +43,14 @@ module Api
             # Simple ILIKE search as fallback
             if params[:q].present?
               query = "%#{params[:q]}%"
-              videos = videos.joins(:user).where(
+              videos = videos.left_joins(:user).where(
                 'student_videos.title ILIKE :q OR student_videos.description ILIKE :q OR ' \
                 'users.first_name ILIKE :q OR users.last_name ILIKE :q',
                 q: query
-              )
+              ).distinct
             end
 
-            total = videos.count
+            total = videos.count(:all)
             videos = videos.offset((page - 1) * per_page).limit(per_page)
           end
 

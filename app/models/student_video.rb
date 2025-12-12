@@ -36,7 +36,7 @@ class StudentVideo < ApplicationRecord
   scope :rejected, -> { where(status: 'rejected') }
   scope :by_subject, ->(subject_id) { where(subject_id: subject_id) if subject_id.present? }
   scope :by_school, ->(school_id) { where(school_id: school_id) if school_id.present? }
-  scope :newest_first, -> { order(created_at: :desc) }
+  scope :newest_first, -> { order(student_videos: { created_at: :desc }) }
 
   # Callbacks
   after_destroy :remove_file_from_disk
