@@ -33,9 +33,13 @@ RSpec.describe Register::SendSmsCode do
     end
 
     it 'logs verification code' do
-      expect(Rails.logger).to receive(:info).with(/Verification code for/)
+      allow(Rails.logger).to receive(:info)
 
       described_class.call(phone: phone, flow: flow)
+
+      expect(Rails.logger).to have_received(:info)
+        .with(/verification code/i)
+        .at_least(:once)
     end
   end
 end

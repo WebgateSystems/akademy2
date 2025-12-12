@@ -3,6 +3,11 @@ class TwilioService
 
   # rubocop:disable Metrics/ParameterLists
   def send_sms(to:, body:, from: nil, account_sid: nil, auth_token: nil, messaging_service_sid: nil)
+    unless allowed_environment?
+      log "[Twilio] SMS skipped (env=#{Rails.env}) to #{to}: #{body}"
+      return { success: true, skipped: true }
+    end
+
     log "[Twilio] Sending SMS to #{to}: #{body}"
 
     params = build_params(to: to, body: body, from: from, messaging_service_sid: messaging_service_sid)
@@ -13,6 +18,10 @@ class TwilioService
   # rubocop:enable Metrics/ParameterLists
 
   private
+
+  def allowed_environment?
+    Rails.env.in?(%w[production staging])
+  end
 
   # --------------------------
   # PARAMS BUILDING
