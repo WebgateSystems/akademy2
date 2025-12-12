@@ -13,7 +13,7 @@ module Register
       )
 
       log_verification_code
-      # send_sms
+      send_sms
     end
 
     private
