@@ -4,6 +4,22 @@
   main.dashboard-main
     = render 'dashboard/top_bar', title: @subject.title, back_path: dashboard_path(class_id: @current_class&.id)
 
+    / Export dropdown
+    .d-flex.justify-content-end.mb-3
+      .dropdown
+        button.btn.btn-outline-secondary.btn-sm.dropdown-toggle type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+          i.bi.bi-download.me-1
+          | Export
+        ul.dropdown-menu.dropdown-menu-end aria-labelledby="exportDropdown"
+          li
+            = link_to export_quiz_results_csv_path(@subject, class_id: @current_class&.id), class: 'dropdown-item' do
+              i.bi.bi-filetype-csv.me-2
+              | CSV (Excel)
+          li
+            = link_to export_quiz_results_pdf_path(@subject, class_id: @current_class&.id), class: 'dropdown-item', target: '_blank' do
+              i.bi.bi-file-earmark-pdf.me-2
+              | PDF
+
     section.classes-archive aria-label="Quiz statistics"
       / Top row: 3 cards
       .classes-archive__grid

@@ -132,6 +132,10 @@ Rails.application.routes.draw do
   post '/dashboard/notifications/mark_as_read', to: 'dashboard#mark_notifications_as_read',
                                                 as: :mark_dashboard_notifications_as_read
   get '/dashboard/quiz_results/:subject_id', to: 'dashboard#quiz_results', as: :dashboard_quiz_results
+  get '/dashboard/quiz_results/:subject_id/export.csv', to: 'dashboard#export_quiz_results_csv',
+                                                        as: :export_quiz_results_csv
+  get '/dashboard/quiz_results/:subject_id/export.pdf', to: 'dashboard#export_quiz_results_pdf',
+                                                        as: :export_quiz_results_pdf
   get '/dashboard/pupil_videos', to: 'dashboard#pupil_videos', as: :dashboard_pupil_videos
   get '/dashboard/class_qr.svg', to: 'dashboard#class_qr_svg', as: :dashboard_class_qr_svg
   get '/dashboard/class_qr.png', to: 'dashboard#class_qr_png', as: :dashboard_class_qr_png

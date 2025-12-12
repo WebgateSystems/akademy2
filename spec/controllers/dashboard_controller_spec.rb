@@ -353,6 +353,150 @@ RSpec.describe DashboardController, type: :request do
     end
   end
 
+  describe 'GET #export_quiz_results_csv' do
+    let(:subject_record) { create(:subject, school: school, title: 'Matematyka') }
+    let(:unit) { create(:unit, subject: subject_record) }
+    let(:learning_module) { create(:learning_module, unit: unit, title: 'Algebra') }
+    let!(:quiz_content) do
+      create(:content, learning_module: learning_module, content_type: 'quiz', payload: {
+               'questions' => [
+                 { 'id' => 'q1', 'text' => 'Pytanie 1?', 'options' => [{ 'id' => 'a', 'text' => 'Opcja A' }],
+                   'correct' => ['a'] },
+                 { 'id' => 'q2', 'text' => 'Pytanie 2?', 'options' => [{ 'id' => 'b', 'text' => 'Opcja B' }],
+                   'correct' => ['b'] }
+               ]
+             })
+    end
+
+    before { sign_in teacher }
+
+    it 'returns CSV content' do
+      get export_quiz_results_csv_path(subject_id: subject_record.id, class_id: school_class.id)
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to include('text/csv')
+    end
+
+    it 'includes proper filename in Content-Disposition header' do
+      get export_quiz_results_csv_path(subject_id: subject_record.id, class_id: school_class.id)
+      expect(response.headers['Content-Disposition']).to include('attachment')
+      expect(response.headers['Content-Disposition']).to include('.csv')
+    end
+
+    it 'includes header row with column names' do
+      get export_quiz_results_csv_path(subject_id: subject_record.id, class_id: school_class.id)
+      csv_content = response.body
+      expect(csv_content).to include('Nazwisko')
+      expect(csv_content).to include('Imię')
+      expect(csv_content).to include('Wynik')
+    end
+
+    context 'with students and quiz results' do
+      let!(:student) do
+        user = create(:user, school: school, first_name: 'Jan', last_name: 'Kowalski')
+        UserRole.create!(user: user, role: student_role, school: school)
+        StudentClassEnrollment.create!(student: user, school_class: school_class, status: 'approved')
+        user
+      end
+      let!(:quiz_result) do
+        create(:quiz_result, user: student, learning_module: learning_module, score: 80, details: {
+                 'answers' => { 'q1' => 'a', 'q2' => 'b' }
+               })
+      end
+
+      it 'includes student data in CSV' do
+        get export_quiz_results_csv_path(subject_id: subject_record.id, class_id: school_class.id)
+        csv_content = response.body
+        expect(csv_content).to include('Kowalski')
+        expect(csv_content).to include('Jan')
+      end
+    end
+
+    context 'when not authenticated' do
+      before { sign_out teacher }
+
+      it 'redirects to login' do
+        get export_quiz_results_csv_path(subject_id: subject_record.id, class_id: school_class.id)
+        expect(response).to redirect_to(teacher_login_path)
+      end
+    end
+
+    context 'with invalid subject' do
+      it 'returns not found' do
+        get export_quiz_results_csv_path(subject_id: 'nonexistent', class_id: school_class.id)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
+  describe 'GET #export_quiz_results_pdf' do
+    let(:subject_record) { create(:subject, school: school, title: 'Fizyka') }
+    let(:unit) { create(:unit, subject: subject_record) }
+    let(:learning_module) { create(:learning_module, unit: unit, title: 'Mechanika') }
+    let!(:quiz_content) do
+      create(:content, learning_module: learning_module, content_type: 'quiz', payload: {
+               'questions' => [
+                 { 'id' => 'q1', 'text' => 'Pytanie 1?',
+                   'options' => [{ 'id' => 'a', 'text' => 'Opcja A' }], 'correct' => ['a'] }
+               ]
+             })
+    end
+
+    before { sign_in teacher }
+
+    it 'returns PDF content' do
+      get export_quiz_results_pdf_path(subject_id: subject_record.id, class_id: school_class.id)
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to include('application/pdf')
+    end
+
+    it 'includes proper filename in Content-Disposition header' do
+      get export_quiz_results_pdf_path(subject_id: subject_record.id, class_id: school_class.id)
+      expect(response.headers['Content-Disposition']).to include('.pdf')
+    end
+
+    it 'returns valid PDF binary data' do
+      get export_quiz_results_pdf_path(subject_id: subject_record.id, class_id: school_class.id)
+      # PDF files start with %PDF
+      expect(response.body[0..3]).to eq('%PDF')
+    end
+
+    context 'with students and quiz results' do
+      let!(:student) do
+        user = create(:user, school: school, first_name: 'Anna', last_name: 'Nowak')
+        UserRole.create!(user: user, role: student_role, school: school)
+        StudentClassEnrollment.create!(student: user, school_class: school_class, status: 'approved')
+        user
+      end
+      let!(:quiz_result) do
+        create(:quiz_result, user: student, learning_module: learning_module, score: 90, details: {
+                 'answers' => { 'q1' => 'a' }
+               })
+      end
+
+      it 'generates PDF successfully' do
+        get export_quiz_results_pdf_path(subject_id: subject_record.id, class_id: school_class.id)
+        expect(response).to have_http_status(:success)
+        expect(response.body.length).to be > 1000 # PDF should have reasonable size
+      end
+    end
+
+    context 'when not authenticated' do
+      before { sign_out teacher }
+
+      it 'redirects to login' do
+        get export_quiz_results_pdf_path(subject_id: subject_record.id, class_id: school_class.id)
+        expect(response).to redirect_to(teacher_login_path)
+      end
+    end
+
+    context 'with invalid subject' do
+      it 'returns not found' do
+        get export_quiz_results_pdf_path(subject_id: 'nonexistent', class_id: school_class.id)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
   describe 'helper methods' do
     context 'with #can_access_management?' do
       before { sign_in teacher }

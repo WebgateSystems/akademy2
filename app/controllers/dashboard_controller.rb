@@ -223,6 +223,46 @@ class DashboardController < ApplicationController
     load_student_results
   end
 
+  # GET /dashboard/quiz_results/:subject_id/export.csv
+  def export_quiz_results_csv
+    load_export_data
+    return head :not_found unless @subject && @current_class
+
+    csv_data = generate_quiz_results_csv
+    filename = "wyniki-#{@subject.slug}-#{@current_class.name.parameterize}-#{Date.current}.csv"
+
+    send_data csv_data,
+              type: 'text/csv; charset=utf-8',
+              disposition: 'attachment',
+              filename: filename
+  end
+
+  # GET /dashboard/quiz_results/:subject_id/export.pdf
+  def export_quiz_results_pdf
+    load_export_data
+    return head :not_found unless @subject && @current_class
+
+    pdf_data = QuizResultsPdf.build(
+      subject: @subject,
+      school_class: @current_class,
+      school: @school,
+      students: @students,
+      questions: @questions,
+      student_answers: @student_answers,
+      completion_rate: @completion_rate,
+      average_score: @average_score,
+      distribution: @distribution,
+      teacher: current_user
+    )
+
+    filename = "wyniki-#{@subject.slug}-#{@current_class.name.parameterize}-#{Date.current}.pdf"
+
+    send_data pdf_data,
+              type: 'application/pdf',
+              disposition: 'inline',
+              filename: filename
+  end
+
   # GET /dashboard/class_qr.svg
   def class_qr_svg
     school_class = find_teacher_class(params[:class_id])
@@ -542,5 +582,60 @@ class DashboardController < ApplicationController
       average_results: ((average_results.to_f / total_students) * 100).round,
       great_results: ((great_results.to_f / total_students) * 100).round
     }
+  end
+
+  # ============================================
+  # Export helpers
+  # ============================================
+
+  def load_export_data
+    @school = current_user.school
+    @classes = current_user.assigned_classes
+                           .where(school_id: @school&.id)
+                           .order(:name)
+
+    @current_class = if params[:class_id].present?
+                       @classes.find_by(id: params[:class_id]) || @classes.first
+                     else
+                       @classes.first
+                     end
+
+    @subject = Subject.find_by(slug: params[:subject_id]) || Subject.find_by(id: params[:subject_id])
+    return unless @subject && @current_class
+
+    load_quiz_results_data
+  end
+
+  def generate_quiz_results_csv
+    CSV.generate(col_sep: ';', encoding: 'UTF-8') do |csv|
+      # Header row
+      header = %w[Nazwisko Imię]
+      (1..10).each { |n| header << "P#{n}" }
+      header << 'Wynik'
+      csv << header
+
+      # Data rows
+      @students.each do |student|
+        row = [student.last_name, student.first_name]
+
+        (1..10).each do |q_num|
+          answer_data = @student_answers&.dig(student.id, q_num)
+          row << if answer_data.nil?
+                   '-'
+                 elsif answer_data[:correct]
+                   '1'
+                 else
+                   '0'
+                 end
+        end
+
+        # Calculate score
+        answers = @student_answers&.dig(student.id) || {}
+        correct_count = answers.values.compact.count { |a| a[:correct] }
+        row << (correct_count * 10).to_s
+
+        csv << row
+      end
+    end
   end
 end
