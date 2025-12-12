@@ -7,6 +7,12 @@
   - internal
   - default
 
+:scheduler:
+  :schedule:
+    clear_register_flow:
+      cron: "0 0 * * *" # Runs every day at midnight     '* * * * *' every minute
+      class: "ClearRegisterFlowJob"
+
 staging:
   :concurrency: 10
 
