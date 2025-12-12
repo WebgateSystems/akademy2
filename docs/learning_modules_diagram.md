@@ -1,6 +1,16 @@
 # Learning Modules - Diagrams
 
+Powiązane dokumenty:
+
+- start dokumentacji: [`docs/README.md`](README.md)
+- opis architektury: [`docs/architecture_learning_modules.md`](architecture_learning_modules.md)
+- flow użytkowników: [`docs/flow_uzytkownikow.md`](flow_uzytkownikow.md)
+
 ## ERD (Diagram Związków Encji)
+
+Wizualny diagram relacji (PNG): [`docs/relations.png`](relations.png)
+
+![ERD / relacje encji](relations.png)
 
 ```mermaid
 erDiagram

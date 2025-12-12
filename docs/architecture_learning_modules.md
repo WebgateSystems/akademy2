@@ -1,5 +1,11 @@
 # Architektura: Moduły Edukacyjne
 
+Powiązane dokumenty:
+
+- start dokumentacji: [`docs/README.md`](README.md)
+- flow użytkowników: [`docs/flow_uzytkownikow.md`](flow_uzytkownikow.md)
+- API/Swagger: [`docs/api.md`](api.md)
+
 ## Hierarchia Modeli
 
 Struktura treści edukacyjnych następuje hierarchicznemu modelowi:
@@ -95,6 +101,10 @@ Subject (Przedmiot) - np. "Matematyka", "Język polski"
 - Ogólne wgrywanie pliku dla różnych zasobów
 
 ## Relacje w Bazie Danych
+
+Diagram relacji encji (PNG): [`docs/relations.png`](relations.png)
+
+![Relacje encji](relations.png)
 
 ### Subject (Przedmiot)
 - `belongs_to :school` (opcjonalne - `nil` = przedmiot globalny)

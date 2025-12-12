@@ -1,0 +1,203 @@
+# AKAdemy 2.0
+
+Languages: [Polski (default)](README.md) · English
+
+Educational platform for schools (Web panels + API for a mobile app).
+
+More documentation (including **user flows**, roles/screens and API/Swagger) is available in `docs/README.md`.
+
+## Local requirements
+
+- **Ruby**: `3.4.6` (see `.ruby-version`)
+- **PostgreSQL**: 13+ (15+ recommended)
+- **Node.js** + **Yarn** (repo uses `yarn@3.2.0`, see `package.json`)
+- **Elasticsearch 8.x** (optional; recommended for “School videos” search)
+- **FFmpeg** (optional; auto `duration_sec` + thumbnails for uploaded videos)
+- **Redis + Sidekiq** (optional in dev; needed if you run jobs via Sidekiq like in prod)
+
+## System dependencies
+
+- PostgreSQL 15+
+- Node.js (assets: `esbuild`/`sass`)
+- Elasticsearch 8.x (optional)
+
+## Configuration
+
+Defaults live in `config/settings.yml` (many values have ENV fallbacks).
+
+Common environment variables:
+
+- **`DATABASE_URL`** (or standard PG vars)
+- **`DEVISE_JWT_SECRET_KEY`** (JWT secret; dev has a fallback in `config/settings.yml`)
+- **`ELASTICSEARCH_URL`** (if you use ES; default `http://localhost:9200`)
+- **`TWILIO_*` / `SMTP_*` / `YOUTUBE_*`** (optional integrations)
+
+## Database
+
+```bash
+bin/rails db:prepare
+```
+
+Optional sample data (dev):
+
+```bash
+bin/rails db:seed
+```
+
+## Start (development)
+
+1) Install Ruby deps:
+
+```bash
+bundle install
+```
+
+2) Install JS deps:
+
+```bash
+corepack enable
+yarn install
+```
+
+3) Prepare DB and run dev (Rails + JS/CSS watchers):
+
+```bash
+bin/setup
+```
+
+Alternatively:
+
+```bash
+bin/rails db:prepare
+bin/dev
+```
+
+## Tests
+
+```bash
+bundle exec rspec
+```
+
+## OpenAPI / Swagger
+
+UI is available at `/api-docs/index.html` and serves `docs/swagger/v1/swagger.yaml`.
+
+Regenerate docs:
+
+```bash
+bundle exec rake rswag:specs:swaggerize
+```
+
+## FFmpeg (video processing)
+
+FFmpeg is used for automatic video processing (duration extraction, thumbnail generation).
+
+### Installation
+
+**macOS:**
+```bash
+brew install ffmpeg
+```
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install ffmpeg mediainfo
+```
+
+**CentOS/RHEL:**
+```bash
+sudo yum install ffmpeg
+```
+
+### How it works
+
+When a student uploads a video:
+1. `ProcessVideoJob` is automatically enqueued
+2. FFmpeg extracts video duration (stored in `duration_sec`)
+3. FFmpeg captures a frame (at 1 second or the middle for short videos) as a thumbnail
+4. Thumbnail is stored via a CarrierWave uploader
+
+If FFmpeg is not installed, videos will still upload but without automatic duration/thumbnail.
+
+## Elasticsearch
+
+The app uses Elasticsearch for full-text search (the “School videos” feature).
+The ES instance is **shared** between multiple projects — indices are prefixed with `akademy2_{environment}`.
+
+### Configuration
+
+In `config/settings.yml`:
+```yaml
+elasticsearch:
+  url: http://localhost:9200
+  index_prefix: akademy2
+```
+
+Or via environment variable:
+```bash
+export ELASTICSEARCH_URL=http://localhost:9200
+```
+
+### Index naming convention
+
+```
+{prefix}_{environment}_{model}
+```
+
+Examples:
+- `akademy2_development_student_videos`
+- `akademy2_staging_student_videos`
+- `akademy2_production_student_videos`
+
+### Managing indices
+
+```bash
+# Start Rails console
+rails c
+
+# Reindex all StudentVideo records
+StudentVideo.reindex
+
+# Check index name
+StudentVideo.searchkick_index.name
+# => "akademy2_production_student_videos"
+
+# Check if index exists
+StudentVideo.searchkick_index.exists?
+
+# Delete and recreate index
+StudentVideo.reindex(force: true)
+
+# Reindex asynchronously (via Sidekiq)
+StudentVideo.reindex(async: true)
+```
+
+### Search examples
+
+```ruby
+# Basic search
+StudentVideo.search("keyword")
+
+# Search with filters
+StudentVideo.search("keyword", where: { status: "approved", subject_id: "uuid" })
+
+# Search with pagination
+StudentVideo.search("keyword", page: 1, per_page: 20)
+```
+
+## Services / components
+
+- **Sidekiq** – background job processing (production; in development jobs may run inline by default)
+- **Elasticsearch** – full-text search for “School videos”
+- **SMTP** – email delivery (Devise notifications)
+
+## Deployment
+
+Deployment is done via Capistrano:
+
+```bash
+cap staging deploy
+cap production deploy
+```
+
+

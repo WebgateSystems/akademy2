@@ -2,60 +2,96 @@
 
 Języki: Polski (domyślny) · [English](README.en.md)
 
-Educational platform for Polish schools.
+Platforma edukacyjna dla szkół (panel WWW + API dla aplikacji mobilnej).
 
-## Ruby version
+Więcej dokumentacji (w tym **flow użytkowników**, rola/ekrany oraz API/Swagger) znajdziesz w `docs/README.md`.
 
-##### 1. Install Gems
+## Wymagania (lokalnie)
 
-## System dependencies
+- **Ruby**: `3.4.6` (patrz `.ruby-version`)
+- **PostgreSQL**: 13+ (zalecane 15+)
+- **Node.js** + **Yarn** (repo używa `yarn@3.2.0`, patrz `package.json`)
+- **Elasticsearch 8.x** (opcjonalne, ale zalecane dla wyszukiwania „School videos”)
+- **FFmpeg** (opcjonalne; automatyczne `duration_sec` + miniatury do wideo)
+- **Redis + Sidekiq** (opcjonalne w dev; wymagane jeśli uruchamiasz joby przez Sidekiq jak na prod)
+
+## Zależności systemowe
 
 - PostgreSQL 15+
-- Redis (for Sidekiq)
-- Elasticsearch 8.x (shared instance, port 9200)
-- Node.js (for assets)
+- Node.js (dla assetów: `esbuild`/`sass`)
+- Elasticsearch 8.x (opcjonalnie)
 
-## Configuration
+## Konfiguracja
 
-Copy environment variables:
-```bash
-cp .env.example .env
-```
+Domyślne ustawienia są w `config/settings.yml` (część wartości ma fallbacki do ENV).
 
-Key environment variables:
-```bash
-ELASTICSEARCH_URL=http://localhost:9200
-REDIS_URL=redis://localhost:6379/4
-```
+Najczęściej używane zmienne środowiskowe:
 
-## Database setup
+- **`DATABASE_URL`** lub standardowe zmienne PG (host/user/password)
+- **`DEVISE_JWT_SECRET_KEY`** (sekret do JWT; w dev ma domyślną wartość w `config/settings.yml`)
+- **`ELASTICSEARCH_URL`** (jeśli używasz ES; domyślnie `http://localhost:9200`)
+- **`TWILIO_*` / `SMTP_*` / `YOUTUBE_*`** (opcjonalnie – integracje)
+
+## Baza danych
 
 ```bash
-rails db:create
-rails db:migrate
-rails db:seed
+bin/rails db:prepare
 ```
 
-## How to run the test suite
+Jeśli chcesz wgrać dane przykładowe (dev):
+
+```bash
+bin/rails db:seed
+```
+
+## Testy
 
 ```bash
 bundle exec rspec
 ```
 
-## OpenAPI documentation
+## Start aplikacji (development)
 
-Accessible at `/api-docs/index.html`
+1) Zainstaluj zależności Ruby:
 
-Regenerate documentation:
+```bash
+bundle install
+```
+
+2) Zainstaluj zależności JS:
+
+```bash
+corepack enable
+yarn install
+```
+
+3) Przygotuj bazę i uruchom dev (Rails + watchery JS/CSS):
+
+```bash
+bin/setup
+```
+
+Alternatywnie (bez `bin/setup`):
+
+```bash
+bin/rails db:prepare
+bin/dev
+```
+
+## Dokumentacja OpenAPI (Swagger)
+
+UI jest dostępne pod `/api-docs/index.html` i serwuje plik `docs/swagger/v1/swagger.yaml`.
+
+Regenerowanie dokumentacji:
 ```bash
 bundle exec rake rswag:specs:swaggerize
 ```
 
-## FFmpeg (Video Processing)
+## FFmpeg (przetwarzanie wideo)
 
-FFmpeg is required for automatic video processing (duration extraction, thumbnail generation).
+FFmpeg jest potrzebny do automatycznego przetwarzania wideo (wykrywanie czasu trwania, generowanie miniatur).
 
-### Installation
+### Instalacja
 
 **macOS:**
 ```bash
@@ -72,47 +108,47 @@ sudo apt-get install ffmpeg mediainfo
 sudo yum install ffmpeg
 ```
 
-### How it works
+### Jak to działa
 
-When a student uploads a video:
+Gdy uczeń wgrywa wideo:
 1. `ProcessVideoJob` is automatically enqueued
-2. FFmpeg extracts video duration (stored in `duration_sec`)
-3. FFmpeg captures a frame at 1 second (or middle for short videos) as thumbnail
-4. Thumbnail is stored via CarrierWave uploader
+2. FFmpeg wyciąga `duration_sec`
+3. FFmpeg generuje miniaturę (klatka z 1 sekundy lub ze środka dla krótkich filmów)
+4. Miniatura jest zapisywana przez uploader CarrierWave
 
-If FFmpeg is not installed, videos will still upload but without automatic duration/thumbnail.
+Jeśli FFmpeg nie jest zainstalowany, upload nadal zadziała, ale bez automatycznego czasu trwania/miniatur.
 
 ## Elasticsearch
 
-The app uses Elasticsearch for full-text search (School Videos feature).
-ES instance is **shared** between multiple projects - indices are prefixed with `akademy2_{environment}`.
+Aplikacja używa Elasticsearch do wyszukiwania pełnotekstowego (funkcja „School videos”).
+Instancja ES jest **współdzielona** między projektami – indeksy mają prefiks `akademy2_{environment}`.
 
-### Configuration
+### Konfiguracja
 
-In `config/settings.yml`:
+W `config/settings.yml`:
 ```yaml
 elasticsearch:
   url: http://localhost:9200
   index_prefix: akademy2
 ```
 
-Or via environment variable:
+Albo przez zmienną środowiskową:
 ```bash
 export ELASTICSEARCH_URL=http://localhost:9200
 ```
 
-### Index naming convention
+### Konwencja nazw indeksów
 
 ```
 {prefix}_{environment}_{model}
 ```
 
-Examples:
+Przykłady:
 - `akademy2_development_student_videos`
 - `akademy2_staging_student_videos`
 - `akademy2_production_student_videos`
 
-### Managing indices
+### Zarządzanie indeksami
 
 ```bash
 # Start Rails console
@@ -135,7 +171,7 @@ StudentVideo.reindex(force: true)
 StudentVideo.reindex(async: true)
 ```
 
-### Search examples
+### Przykłady wyszukiwania
 
 ```ruby
 # Basic search
@@ -148,15 +184,15 @@ StudentVideo.search("keyword", where: { status: "approved", subject_id: "uuid" }
 StudentVideo.search("keyword", page: 1, per_page: 20)
 ```
 
-## Services
+## Usługi / komponenty
 
-- **Sidekiq** - Background job processing
-- **Elasticsearch** - Full-text search for School Videos
-- **SMTP** - Email delivery (Devise notifications)
+- **Sidekiq** – przetwarzanie zadań w tle (w produkcji; w development domyślnie joby mogą działać inline)
+- **Elasticsearch** – wyszukiwanie pełnotekstowe dla „School videos”
+- **SMTP** – wysyłka e-maili (powiadomienia Devise)
 
 ## Deployment
 
-Using Capistrano:
+Wdrożenia są realizowane przez Capistrano:
 ```bash
 cap staging deploy
 cap production deploy
