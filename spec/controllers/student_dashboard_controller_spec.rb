@@ -812,7 +812,8 @@ RSpec.describe StudentDashboardController, type: :request do
 
     it 'shows user full name as read-only' do
       get student_account_path
-      expect(response.body).to include(student.full_name)
+      # Use CGI.escapeHTML to handle names with apostrophes (e.g., O'Conner -> O&#39;Conner)
+      expect(response.body).to include(CGI.escapeHTML(student.full_name))
     end
 
     it 'shows link to settings' do
