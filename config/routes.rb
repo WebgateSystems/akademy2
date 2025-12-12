@@ -288,6 +288,8 @@ Rails.application.routes.draw do
 
   # Public pages
   get 'privacy-policy', to: 'pages#privacy_policy', as: :privacy_policy
+  get 'accessibility', to: 'pages#accessibility', as: :accessibility
+  get 'license', to: 'pages#license', as: :license
 
   # Landing page
   root 'home#index'

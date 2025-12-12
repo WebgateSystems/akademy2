@@ -1,0 +1,173 @@
+doctype html
+html lang="pl"
+  head
+    meta charset="utf-8"
+    meta name="viewport" content="width=device-width, initial-scale=1"
+    title Informacja o dostępności | AKAdemy 2.0
+    meta name="description" content="Deklaracja dostępności platformy edukacyjnej AKAdemy 2.0 zgodnie z WCAG 2.1 AA"
+    meta name="theme-color" content="#0f172a"
+    link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"
+    link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"
+    == render 'shared/favicons'
+    = stylesheet_link_tag "landing", "data-turbo-track": "reload"
+
+  body style="font-family: 'Inter', sans-serif; line-height: 1.6; color: #1e293b; background: #f8fafc; padding: 0; margin: 0;"
+    header style="background: #0f172a; color: white; padding: 1rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
+      .container style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: flex; justify-content: space-between; align-items: center;"
+        a href="/" style="color: white; text-decoration: none; font-weight: 700; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;"
+          | AKAdemy 2.0
+        a href="/" style="color: white; text-decoration: underline;"
+          | Powrót do strony głównej
+
+    main.container style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;"
+      article style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+        h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: #0f172a;"
+          | Deklaracja dostępności
+
+        p style="color: #64748b; margin-bottom: 2rem;"
+          | Ostatnia aktualizacja: #{Date.current.strftime('%d.%m.%Y')}
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 1. Wstęp
+          p style="margin-bottom: 1rem;"
+            | Fundacja Sebastiana Ody zobowiązuje się zapewnić dostępność platformy edukacyjnej AKAdemy 2.0 
+            | zgodnie z przepisami ustawy z dnia 4 kwietnia 2019 r. o dostępności cyfrowej stron internetowych 
+            | i aplikacji mobilnych podmiotów publicznych.
+          p style="margin-bottom: 1rem;"
+            | Deklaracja dostępności dotyczy platformy AKAdemy 2.0 dostępnej pod adresem 
+            strong https://akademy.edu.pl
+            |  oraz aplikacji mobilnych na systemy iOS i Android.
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 2. Status zgodności
+          p style="margin-bottom: 1rem;"
+            | Platforma AKAdemy 2.0 jest 
+            strong częściowo zgodna
+            |  z wytycznymi WCAG 2.1 na poziomie AA ze względu na poniższe wyłączenia.
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 3. Dostępne funkcje
+          p style="margin-bottom: 1rem;"
+            | Platforma zapewnia następujące ułatwienia dostępności:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li
+              strong Nawigacja klawiaturą
+              |  – pełna obsługa interfejsu bez użycia myszy
+            li
+              strong Widoczne fokusowanie
+              |  – wyraźne oznaczenie aktywnych elementów
+            li
+              strong Odpowiedni kontrast
+              |  – stosunek kontrastu zgodny z WCAG 2.1 AA (minimum 4.5:1 dla tekstu)
+            li
+              strong Napisy do filmów
+              |  – materiały wideo posiadają napisy dla osób niesłyszących
+            li
+              strong Responsywność
+              |  – interfejs dostosowany do różnych rozmiarów ekranów
+            li
+              strong Alternatywne teksty
+              |  – obrazy posiadają opisy tekstowe (alt)
+            li
+              strong Struktura nagłówków
+              |  – hierarchiczna struktura nagłówków ułatwiająca nawigację
+            li
+              strong Tryb ciemny/jasny
+              |  – możliwość przełączania motywu kolorystycznego
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 4. Treści niedostępne
+          p style="margin-bottom: 1rem;"
+            | Następujące treści mogą nie być w pełni dostępne:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li
+              | Niektóre starsze materiały wideo mogą nie posiadać napisów
+            li
+              | Pliki PDF generowane automatycznie (certyfikaty) mogą mieć ograniczoną dostępność
+            li
+              | Mapy i treści interaktywne mogą wymagać dodatkowej obsługi
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 5. Przygotowanie deklaracji
+          p style="margin-bottom: 1rem;"
+            | Deklarację sporządzono na podstawie samooceny przeprowadzonej przez zespół deweloperski platformy.
+          p style="margin-bottom: 1rem;"
+            | Platforma jest regularnie testowana pod kątem zgodności z WCAG 2.1 przy użyciu narzędzi takich jak:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li WAVE Web Accessibility Evaluator
+            li Lighthouse (Google Chrome DevTools)
+            li axe DevTools
+            li Ręczne testy z czytnikami ekranu (VoiceOver, NVDA)
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 6. Informacje zwrotne i dane kontaktowe
+          p style="margin-bottom: 1rem;"
+            | W przypadku problemów z dostępnością platformy prosimy o kontakt:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li
+              strong Email:
+              |  fso@akademy.edu.pl
+            li
+              strong Adres:
+              |  Strażacka 12/4, 81-616 Gdynia, Polska
+          p style="margin-bottom: 1rem;"
+            | Staramy się odpowiadać na zgłoszenia dotyczące dostępności w ciągu 7 dni roboczych.
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 7. Procedura wnioskowo-skargowa
+          p style="margin-bottom: 1rem;"
+            | Każdy ma prawo do wystąpienia z żądaniem zapewnienia dostępności cyfrowej strony internetowej, 
+            | aplikacji mobilnej lub jakiegoś ich elementu.
+          p style="margin-bottom: 1rem;"
+            | Można także zażądać udostępnienia informacji za pomocą alternatywnego sposobu dostępu, 
+            | na przykład przez odczytanie niedostępnego cyfrowo dokumentu, opisanie zawartości filmu bez 
+            | audiodeskrypcji itp.
+          p style="margin-bottom: 1rem;"
+            | Żądanie powinno zawierać:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li Dane kontaktowe osoby zgłaszającej
+            li Wskazanie strony lub elementu strony, której dotyczy żądanie
+            li Wskazanie preferowanego sposobu udostępnienia informacji
+          p style="margin-bottom: 1rem;"
+            | Jeżeli zapewnienie dostępności nie jest możliwe, podmiot publiczny może zaproponować 
+            | alternatywny sposób dostępu do informacji.
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 8. Dostępność architektoniczna
+          p style="margin-bottom: 1rem;"
+            | Nie dotyczy – platforma AKAdemy 2.0 jest usługą wyłącznie cyfrową i nie posiada 
+            | siedziby dostępnej dla użytkowników.
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | 9. Aplikacje mobilne
+          p style="margin-bottom: 1rem;"
+            | Aplikacje mobilne AKAdemy 2.0 są dostępne w sklepach:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li
+              strong iOS:
+              |  App Store (wkrótce)
+            li
+              strong Android:
+              |  Google Play (wkrótce)
+          p style="margin-bottom: 1rem;"
+            | Aplikacje mobilne spełniają te same standardy dostępności co wersja webowa platformy.
+
+    footer style="background: #0f172a; color: white; padding: 2rem 0; margin-top: 3rem;"
+      .container style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; text-align: center;"
+        p style="margin: 0; color: #94a3b8;"
+          | © #{Date.current.year} Webgate Systems LTD • 
+          a href="/privacy-policy" style="color: white; text-decoration: underline;"
+            | Polityka prywatności
+          |  • 
+          a href="/accessibility" style="color: white; text-decoration: underline;"
+            | Dostępność
+

@@ -223,26 +223,6 @@ nav {
   border-radius: 8px;
 }
 
-.pricing .plan {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 24px;
-  border-radius: 18px;
-  border: 1px solid var(--card-border);
-  background: var(--card);
-}
-
-.pricing h4 {
-  margin: 0;
-  font-size: 20px;
-}
-
-.price {
-  font-size: 36px;
-  font-weight: 800;
-}
-
 footer {
   border-top: 1px solid var(--card-border);
   padding: 24px 0;

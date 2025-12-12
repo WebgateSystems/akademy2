@@ -1,0 +1,188 @@
+doctype html
+html lang="pl"
+  head
+    meta charset="utf-8"
+    meta name="viewport" content="width=device-width, initial-scale=1"
+    title Licencja Open Source | AKAdemy 2.0
+    meta name="description" content="Licencja GNU Affero General Public License v3.0 (AGPLv3) platformy AKAdemy 2.0"
+    meta name="theme-color" content="#0f172a"
+    link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"
+    link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"
+    == render 'shared/favicons'
+    = stylesheet_link_tag "landing", "data-turbo-track": "reload"
+
+  body style="font-family: 'Inter', sans-serif; line-height: 1.6; color: #1e293b; background: #f8fafc; padding: 0; margin: 0;"
+    header style="background: #0f172a; color: white; padding: 1rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
+      .container style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: flex; justify-content: space-between; align-items: center;"
+        a href="/" style="color: white; text-decoration: none; font-weight: 700; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;"
+          | AKAdemy 2.0
+        a href="/" style="color: white; text-decoration: none;"
+          | Powrót do strony głównej
+
+    main.container style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;"
+      article style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+        h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: #0f172a;"
+          | Licencja Open Source
+
+        p style="color: #64748b; margin-bottom: 2rem;"
+          | GNU Affero General Public License v3.0 (AGPLv3)
+
+        section style="margin-bottom: 2rem; padding: 1.5rem; background: #f1f5f9; border-radius: 8px; border-left: 4px solid #3b82f6;"
+          h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #0f172a;"
+            | Informacja o prawach autorskich
+          p style="margin-bottom: 0.5rem;"
+            | Copyright © 2025 Jerzy Sładkowski, Webgate Systems LTD
+          p style="margin: 0;"
+            a href="https://webgate.pro" target="_blank" style="color: #3b82f6; text-decoration: none;"
+              | https://webgate.pro
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | Streszczenie licencji
+          p style="margin-bottom: 1rem;"
+            | Ten program jest wolnym oprogramowaniem: możesz go rozprowadzać i/lub modyfikować 
+            | na warunkach GNU Affero General Public License opublikowanej przez Free Software Foundation, 
+            | w wersji 3 Licencji lub (według własnego uznania) dowolnej późniejszej wersji.
+          p style="margin-bottom: 1rem;"
+            | Ten program jest rozprowadzany z nadzieją, że będzie użyteczny, ale 
+            strong BEZ JAKIEJKOLWIEK GWARANCJI
+            | ; nawet bez dorozumianej gwarancji 
+            strong PRZYDATNOŚCI HANDLOWEJ
+            |  lub 
+            strong PRZYDATNOŚCI DO OKREŚLONEGO CELU
+            | . Więcej szczegółów znajdziesz w GNU Affero General Public License.
+          p style="margin-bottom: 1rem;"
+            | Powinieneś był otrzymać kopię GNU Affero General Public License wraz z tym programem. 
+            | Jeśli nie, zobacz 
+            a href="https://www.gnu.org/licenses/" target="_blank" rel="nofollow noopener" style="color: #3b82f6; text-decoration: none;"
+              | https://www.gnu.org/licenses/
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | Co możesz robić
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li
+              strong Używać
+              |  – możesz używać tego oprogramowania w dowolnym celu
+            li
+              strong Kopiować
+              |  – możesz kopiować i rozprowadzać kopie programu
+            li
+              strong Modyfikować
+              |  – możesz zmieniać program i tworzyć dzieła pochodne
+            li
+              strong Rozprowadzać
+              |  – możesz rozprowadzać zmodyfikowane wersje
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | Warunki dodatkowe
+
+          h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #334155;"
+            | Atrybucja
+          p style="margin-bottom: 1rem;"
+            | Korzystając z tego oprogramowania, musisz:
+          ol style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li Zachować oryginalną informację o prawach autorskich
+            li Podać link do oryginalnego repozytorium źródłowego
+            li Wskazać, jeśli wprowadzono zmiany
+
+          h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #334155;"
+            | Użycie sieciowe (Network Use)
+          p style="margin-bottom: 1rem;"
+            | Jeśli uruchamiasz zmodyfikowaną wersję tego programu na serwerze i pozwalasz innym 
+            | użytkownikom komunikować się z nim, musisz udostępnić im również swój zmodyfikowany kod źródłowy.
+          p style="margin-bottom: 1rem; padding: 1rem; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;"
+            strong Uwaga:
+            |  Ta klauzula (charakterystyczna dla AGPL) oznacza, że jeśli uruchomisz zmodyfikowaną 
+            | wersję AKAdemy jako usługę dostępną przez internet, musisz udostępnić kod źródłowy 
+            | swoich modyfikacji.
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | Pełny tekst licencji
+          p style="margin-bottom: 1rem;"
+            | Pełny tekst licencji GNU Affero General Public License v3.0 jest dostępny pod adresem:
+          p style="margin-bottom: 1rem;"
+            a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="nofollow noopener" style="color: #3b82f6; text-decoration: none; font-weight: 600;"
+              | https://www.gnu.org/licenses/agpl-3.0.html
+          p style="margin-bottom: 1rem;"
+            | Kod źródłowy platformy AKAdemy 2.0 jest dostępny w repozytorium:
+          p style="margin-bottom: 1rem;"
+            a href="https://github.com/WebgateSystems/akademy2" target="_blank" rel="nofollow noopener" style="color: #3b82f6; text-decoration: none; font-weight: 600;"
+              | https://github.com/WebgateSystems/akademy2
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | Komponenty zewnętrzne
+          p style="margin-bottom: 1rem;"
+            | Projekt wykorzystuje następujące komponenty zewnętrzne, każdy na własnej licencji:
+
+          table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem;"
+            thead
+              tr style="background: #f1f5f9;"
+                th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0;"
+                  | Komponent
+                th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e2e8f0;"
+                  | Licencja
+            tbody
+              tr
+                td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;"
+                  | Ruby
+                td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;"
+                  a href="https://opensource.org/licenses/BSD-2-Clause" target="_blank" rel="nofollow noopener" style="color: #3b82f6; text-decoration: none;"
+                    | BSD 2-Clause
+              tr
+                td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;"
+                  | Ruby on Rails
+                td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;"
+                  a href="https://opensource.org/licenses/MIT" target="_blank" rel="nofollow noopener" style="color: #3b82f6; text-decoration: none;"
+                    | MIT
+              tr
+                td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;"
+                  | PostgreSQL
+                td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;"
+                  a href="https://www.postgresql.org/about/licence/" target="_blank" rel="nofollow noopener" style="color: #3b82f6; text-decoration: none;"
+                    | PostgreSQL License
+              tr
+                td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;"
+                  | Elasticsearch
+                td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;"
+                  a href="https://www.elastic.co/licensing/elastic-license" target="_blank" rel="nofollow noopener" style="color: #3b82f6; text-decoration: none;"
+                    | Elastic License 2.0
+              tr
+                td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;"
+                  | Flutter
+                td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;"
+                  a href="https://opensource.org/licenses/BSD-3-Clause" target="_blank" rel="nofollow noopener" style="color: #3b82f6; text-decoration: none;"
+                    | BSD 3-Clause
+
+          p style="color: #64748b; font-size: 0.875rem;"
+            | Każdy komponent podlega warunkom własnej licencji. Szczegóły dostępne w dokumentacji 
+            | poszczególnych projektów.
+
+        section style="margin-bottom: 2rem;"
+          h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #0f172a;"
+            | Kontakt
+          p style="margin-bottom: 1rem;"
+            | W sprawach związanych z licencją i kodem źródłowym można kontaktować się:
+          ul style="margin-left: 1.5rem; margin-bottom: 1rem;"
+            li
+              strong Email:
+              |  office@webgate.pro
+            li
+              strong Strona:
+              |  
+              a href="https://webgate.pro" target="_blank" style="color: #3b82f6; text-decoration: none;"
+                | https://webgate.pro
+
+    footer style="background: #0f172a; color: white; padding: 2rem 0; margin-top: 3rem;"
+      .container style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; text-align: center;"
+        p style="margin: 0; color: #94a3b8;"
+          | © #{Date.current.year} Webgate Systems LTD • 
+          a href="/privacy-policy" style="color: white; text-decoration: none;"
+            | Polityka prywatności
+          |  • 
+          a href="/license" style="color: white; text-decoration: none;"
+            | Licencja
+

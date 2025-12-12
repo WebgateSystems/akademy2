@@ -56,7 +56,6 @@ html lang="pl"
         nav
           a.only-desktop href="#features" Funkcje
           a.only-desktop href="#how" Jak to działa
-          a.only-desktop href="#pricing" Plany
           a.only-desktop href="#faq" FAQ
           span.switch aria-label="Przełącz motyw"
             span ☾
@@ -148,7 +147,13 @@ html lang="pl"
                 path fill="currentColor" d="M12 3l9 4v6c0 5-4 8-9 9-5-1-9-4-9-9V7l9-4z"
               div
                 strong Szkoła
-                |  – zakładasz profil i branding, wybierasz plan.
+                |  – administrator aplikacji zakłada profil szkoły i konto dyrektora/administratora.
+            li
+              svg.icon viewBox="0 0 24 24" aria-hidden="true"
+                path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"
+              div
+                strong Klasy
+                |  – dyrekcja lub administracja tworzy klasy i przypisuje do nich nauczycieli.
             li
               svg.icon viewBox="0 0 24 24" aria-hidden="true"
                 path fill="currentColor" d="M12 12a5 5 0 110-10 5 5 0 010 10zM3 22a9 9 0 1118 0H3z"
@@ -156,15 +161,15 @@ html lang="pl"
                 strong Nauczyciele
                 |  – zaproszeni przez 
                 span.kbd QR/link
-                | , akceptacja przez dyrektora.
+                | , akceptacja przez dyrektora. Mają dostęp do wyników i akceptacji uczniów.
             li
               svg.icon viewBox="0 0 24 24" aria-hidden="true"
-                path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"
+                path fill="currentColor" d="M12 4a4 4 0 110 8 4 4 0 010-8zM6 20v-2c0-2.2 3.6-4 6-4s6 1.8 6 4v2H6z"
               div
-                strong Klasy
-                |  – nauczyciel tworzy klasy i udostępnia 
+                strong Uczniowie
+                |  – dołączają do klasy przez 
                 span.kbd QR/link
-                |  uczniom.
+                | , akceptacja przez nauczyciela.
             li
               svg.icon viewBox="0 0 24 24" aria-hidden="true"
                 path fill="currentColor" d="M3 5h18v14H3z"
@@ -199,45 +204,13 @@ html lang="pl"
                 path fill="currentColor" d="M12 17l-5 3 1.9-5.9L4 10h6l2-6 2 6h6l-4.9 4.1L17 20z"
               |  Certyfikaty PDF z QR
 
-    section#pricing.section.container.pricing
-      h2 style="font-size:clamp(28px,4vw,40px); margin:0 0 16px" Plany
-      p.small style="margin:0 0 24px" Elastycznie dla szkół — od pilotażu po pełne wdrożenie.
-      .cols
-        .plan
-          h4 Free
-          .price 0 zł
-          p.small Dla testów i małych klas
-          ul.list
-            li Offline dla wybranych tematów
-            li Quiz + certyfikat PDF
-            li Podstawowy panel nauczyciela
-          a.btn.ghost href="#cta" Rozpocznij pilotaż
-        .plan style="border-color:var(--accent)"
-          h4 Basic
-          .price —
-          p.small Dla większości szkół
-          ul.list
-            li Pełny offline (tematy/moduły)
-            li Submissions (akceptacja nauczyciela)
-            li CSV + raporty klasy
-          a.btn href="#cta" Zapytaj o ofertę
-        .plan
-          h4 Premium
-          .price —
-          p.small Dla dużych szkół i sieci
-          ul.list
-            li Zaawansowane statystyki
-            li Telemetria i API
-            li Priorytetowe wsparcie
-          a.btn.ghost href="#cta" Porozmawiajmy
-
     section#faq.section.container
       h2 style="font-size:clamp(28px,4vw,40px); margin:0 0 16px" FAQ
       .grid style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))"
         details.card
           summary
             strong Jak wygląda wdrożenie?
-          p Dyrektor zaprasza nauczycieli (QR/link), nauczyciel tworzy klasy i udostępnia QR/link uczniom. Mamy gotowe instrukcje i checklisty.
+          p Administrator aplikacji zakłada profil szkoły i konto dyrektora. Dyrekcja tworzy klasy, przypisuje nauczycieli i udostępnia QR/link uczniom. Mamy gotowe instrukcje i checklisty.
         details.card
           summary
             strong Czy działa bez internetu?
@@ -267,5 +240,5 @@ html lang="pl"
           |  
           a.copyright-link href="https://webgate.pro" target="_blank" Webgate Systems LTD
         a href=privacy_policy_path Polityka prywatności
-        a href="#" Informacja o dostępności
-        span.small Open Source • AGPLv3
+        a href=accessibility_path Informacja o dostępności
+        a href=license_path Open Source • AGPLv3

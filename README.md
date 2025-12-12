@@ -1,5 +1,7 @@
 # AKAdemy 2.0
 
+Języki: Polski (domyślny) · [English](README.en.md)
+
 Educational platform for Polish schools.
 
 ## Ruby version
