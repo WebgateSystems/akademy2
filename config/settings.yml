@@ -32,4 +32,7 @@ services:
     authentication: <%= ENV['SMTP_AUTH'] || 'plain' %>
     from: 'AKAdemy 2.0 <bot@akademy.edu.pl>'
     reply_to: 'hello@akademy.edu.pl'
-  
+  youtube:
+    client_id: <%= ENV['YOUTUBE_ID'] || 'youtube_id' %>
+    client_secret: <%= ENV['YOUTUBE_CLIENT_SECRET'] || 'youtube_client_secret' %>
+    refresh_token: <%= ENV['YOUTUBE_REFRESH_TOKEN'] || 'youtube_refresh_token' %>
