@@ -51,6 +51,13 @@ pl:
       send_instructions: "Otrzymasz e-mail z instrukcjami odblokowania konta w ciągu kilku minut."
       send_paranoid_instructions: "Jeśli konto istnieje, otrzymasz wiadomość z instrukcjami odblokowania."
       unlocked: "Twoje konto zostało pomyślnie odblokowane. Zaloguj się, aby kontynuować."
+    shared:
+      links:
+        sign_in: "Zaloguj się"
+        sign_up: "Zarejestruj się"
+        forgot_password: "Nie pamiętasz hasła?"
+        didnt_receive_confirmation: "Nie otrzymałeś instrukcji potwierdzenia?"
+        didnt_receive_unlock: "Nie otrzymałeś instrukcji odblokowania?"
 
   errors:
     messages:

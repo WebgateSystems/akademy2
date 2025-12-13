@@ -2,12 +2,12 @@ aside.dashboard-sidebar
   .dashboard-logo
     .dashboard-logo__brand
       = image_tag "icons/logo/Akademy_logo.svg", class: "dashboard-logo__icon", alt: "", width: "32", height: "32", "aria-hidden": "true", "data-theme-icon": true
-      = image_tag "icons/logo/Akademy_logo_full.svg", class: "dashboard-logo__full", alt: "Academy 2.0", "aria-hidden": "false", "data-theme-icon": true
-    button.dashboard-collapse-toggle type="button" aria-label="Collapse sidebar" aria-expanded="true" data-sidebar-collapse-toggle=""
+      = image_tag "icons/logo/Akademy_logo_full.svg", class: "dashboard-logo__full", alt: "Akademy 2.0", "aria-hidden": "false", "data-theme-icon": true
+    button.dashboard-collapse-toggle type="button" aria-label=t('actions.collapse_sidebar') aria-expanded="true" data-sidebar-collapse-toggle=""
       = image_tag "icons/social/M/close-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--collapse", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
       = image_tag "icons/social/M/open-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
 
-  nav.dashboard-nav aria-label="Primary" data-classes-nav=""
+  nav.dashboard-nav aria-label=t('aria.primary_navigation') data-classes-nav=""
     - if @classes.any?
       - @classes.each do |school_class|
         - is_active = school_class.id == @current_class&.id
@@ -19,7 +19,7 @@ aside.dashboard-sidebar
           - if awaiting > 0
             span.notification-counter aria-hidden="true" = awaiting
     - else
-      p.dashboard-nav__empty Brak przypisanych klas
+      p.dashboard-nav__empty = t('dashboard.empty.no_classes')
 
 .dashboard-sidebar-overlay data-sidebar-overlay="" aria-hidden="true"
 

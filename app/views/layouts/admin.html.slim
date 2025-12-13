@@ -32,32 +32,32 @@ html lang="pl" class="no-js" data-theme="auto"
             span.dashboard-nav__label Dashboard
           = link_to admin_resource_collection_path(resource: 'schools'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/schools')}" do
             i.bi.bi-building aria-hidden="true"
-            span.dashboard-nav__label Schools
+            span.dashboard-nav__label = t('navigation.schools')
           = link_to admin_resource_collection_path(resource: 'users'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/users')}" do
             i.bi.bi-person-badge aria-hidden="true"
-            span.dashboard-nav__label Headmasters
+            span.dashboard-nav__label = t('navigation.headmasters')
           = link_to admin_resource_collection_path(resource: 'teachers'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/teachers')}" do
             i.bi.bi-person-workspace aria-hidden="true"
-            span.dashboard-nav__label Teachers
+            span.dashboard-nav__label = t('navigation.teachers')
           = link_to admin_resource_collection_path(resource: 'students'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/students')}" do
             i.bi.bi-people aria-hidden="true"
-            span.dashboard-nav__label Students
+            span.dashboard-nav__label = t('navigation.students')
           = link_to admin_resource_collection_path(resource: 'events'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/events')}" do
             i.bi.bi-clock-history aria-hidden="true"
-            span.dashboard-nav__label Activity log
+            span.dashboard-nav__label = t('navigation.activity_log')
           .dashboard-nav__divider
           = link_to admin_resource_collection_path(resource: 'subjects'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/subjects')}" do
             i.bi.bi-book aria-hidden="true"
-            span.dashboard-nav__label Subjects
+            span.dashboard-nav__label = t('navigation.subjects')
           = link_to admin_resource_collection_path(resource: 'units'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/units')}" do
             i.bi.bi-layers aria-hidden="true"
-            span.dashboard-nav__label Units
+            span.dashboard-nav__label = t('navigation.units')
           = link_to admin_resource_collection_path(resource: 'learning_modules'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/learning_modules')}" do
             i.bi.bi-stack aria-hidden="true"
-            span.dashboard-nav__label Learning Modules
+            span.dashboard-nav__label = t('navigation.modules')
           = link_to admin_resource_collection_path(resource: 'contents'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/contents')}" do
             i.bi.bi-file-earmark aria-hidden="true"
-            span.dashboard-nav__label Contents
+            span.dashboard-nav__label = t('navigation.content')
       .dashboard-sidebar-overlay data-sidebar-overlay="" aria-hidden="true"
       main.dashboard-main
         = render 'admin/top_bar'

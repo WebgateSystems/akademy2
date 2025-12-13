@@ -6,41 +6,41 @@
 
     - if @classes.any?
       .school-profile data-state="filled"
-        section.school-profile-hero aria-label="Invite students to your class"
+        section.school-profile-hero aria-label=t('dashboard.hero.title')
           .school-profile-hero__text
-            h2 Let's build your class together!
-            p Download the QR code or share the school code so your students can join your class.
+            h2 = t('dashboard.hero.title')
+            p = t('dashboard.hero.description')
             .school-profile-hero__actions
-              button.school-profile-hero__button.school-profile-hero__button--primary type="button" id="download-qr-btn" Download
-              button.school-profile-hero__button type="button" id="copy-code-btn" Copy code
+              button.school-profile-hero__button.school-profile-hero__button--primary type="button" id="download-qr-btn" = t('dashboard.hero.download')
+              button.school-profile-hero__button type="button" id="copy-code-btn" = t('dashboard.hero.copy_code')
 
           .school-profile-hero__visuals
             #qr-code-container.school-profile-hero__qr
               = image_tag "icons/social/L/QR-code.svg", width: 250, height: 250, alt: "", id: "qr-code-image", data: { theme_icon: true }
 
             .school-profile-hero__stats aria-labelledby="teacher-stats-heading"
-              h3#teacher-stats-heading.visually-hidden Teacher and pupil counters
+              h3#teacher-stats-heading.visually-hidden = t('dashboard.stats.teachers_heading')
 
               = link_to dashboard_students_path(class_id: @current_class&.id), class: "school-profile-hero__stat-card school-profile-hero__stat-card--clickable", data: { entity: "pupils" } do
                 .school-profile-hero__stat-label
-                  h4.stat-label Pupils
+                  h4.stat-label = t('dashboard.stats.pupils')
                 .school-profile-hero__stat-value
                   span.stat-value.stat-value--empty 0
                   span.stat-value.stat-value--filled = @students_count || 0
                   - if @students_awaiting && @students_awaiting > 0
-                    span.stat-awaiting = "#{@students_awaiting} awaiting"
+                    span.stat-awaiting = t('dashboard.stats.awaiting', count: @students_awaiting)
 
               = link_to dashboard_pupil_videos_path(class_id: @current_class&.id), class: "school-profile-hero__stat-card school-profile-hero__stat-card--clickable", data: { entity: "videos" } do
                 .school-profile-hero__stat-label
-                  h4.stat-label Pupil videos
+                  h4.stat-label = t('dashboard.stats.pupil_videos')
                 .school-profile-hero__stat-value
                   span.stat-value.stat-value--empty 0
                   span.stat-value.stat-value--filled = @videos_pending_count || 0
                   - if @videos_pending_count && @videos_pending_count > 0
-                    span.stat-awaiting = "#{@videos_pending_count} do akceptacji"
+                    span.stat-awaiting = t('dashboard.stats.pending_approval', count: @videos_pending_count)
 
-        section.class-results aria-label="Pupil results"
-          h2 Pupil results
+        section.class-results aria-label=t('dashboard.sections.pupil_results')
+          h2 = t('dashboard.sections.pupil_results')
           .class-results__grid data-subjects-grid=""
             - if @subjects.any?
               - colors = %w[blue green yellow pink orange purple lime]

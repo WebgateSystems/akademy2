@@ -1,5 +1,5 @@
 header.dashboard-top-bar
-  button.dashboard-sidebar-toggle type="button" aria-label="Toggle navigation" data-sidebar-toggle=""
+  button.dashboard-sidebar-toggle type="button" aria-label=t('actions.toggle_navigation') data-sidebar-toggle=""
     = image_tag "icons/social/M/burger.svg", alt: "", width: "24", height: "24", "data-theme-icon": true
   h1
     - if local_assigns[:title]
@@ -14,9 +14,9 @@ header.dashboard-top-bar
       | Dashboard
   .dashboard-top-actions
     - if can_access_management?
-      = link_to management_root_path, class: "icon-pill", "aria-label": "School management", title: "Panel zarządzania szkołą" do
+      = link_to management_root_path, class: "icon-pill", "aria-label": t('aria.school_management'), title: t('aria.school_management') do
         i.bi.bi-clipboard-data aria-hidden="true"
-    = link_to dashboard_notifications_path, class: "icon-pill", "aria-label": "Notifications" do
+    = link_to dashboard_notifications_path, class: "icon-pill", "aria-label": t('aria.notifications') do
       - if @notifications_count && @notifications_count > 0
         span.notification-counter aria-hidden="true" = @notifications_count
       - else
@@ -25,6 +25,6 @@ header.dashboard-top-bar
     = render 'shared/theme_toggle'
     - if current_user
       .settings-control
-        = button_to destroy_user_session_path, method: :delete, class: "icon-pill", "aria-label": "Logout", form: { class: "m-0 p-0" } do
+        = button_to destroy_user_session_path, method: :delete, class: "icon-pill", "aria-label": t('actions.logout'), form: { class: "m-0 p-0" } do
           = image_tag "icons/social/M/logout.svg", alt: "", "data-theme-icon": true
 

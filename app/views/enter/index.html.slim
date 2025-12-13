@@ -4,7 +4,7 @@
     button#enterThemeToggle.enter-theme-toggle__button role="switch" aria-checked="false" aria-label="Theme toggle"
     span.enter-theme-toggle__label ☀︎
 
-  h1.enter-title Who you are?
+  h1.enter-title = t('enter.heading')
 
   .enter-cards
     = link_to public_home_path, class: 'enter-card enter-card--pupil' do
@@ -14,7 +14,7 @@
           circle cx="9" cy="7" r="4"
           path d="M23 21v-2a4 4 0 0 0-3-3.87"
           path d="M16 3.13a4 4 0 0 1 0 7.75"
-      h2.enter-card__title Pupil
+      h2.enter-card__title = t('enter.pupil')
 
     = link_to dashboard_path, class: 'enter-card enter-card--teacher' do
       .enter-card__icon aria-hidden="true"
@@ -23,7 +23,7 @@
           path d="M6 12v5.8"
           path d="M18 12v5.8"
           path d="M12 7v5.8"
-      h2.enter-card__title Teacher
+      h2.enter-card__title = t('enter.teacher')
 
     = link_to management_root_path, class: 'enter-card enter-card--administration' do
       .enter-card__icon aria-hidden="true"
@@ -33,4 +33,4 @@
           path d="M16 13H8"
           path d="M16 17H8"
           path d="M10 9H8"
-      h2.enter-card__title Administration
+      h2.enter-card__title = t('enter.administration')

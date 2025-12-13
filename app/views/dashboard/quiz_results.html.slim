@@ -67,11 +67,11 @@
           .school-profile-hero__stat-value
             span.stat-value.stat-value--filled = "#{@distribution&.dig(:great_results) || 0}%"
 
-    section.quiz-results aria-label="Pupil quiz results"
+    section.quiz-results aria-label=t('dashboard.quiz_results.section_title')
       table.quiz-results-table
         thead
           tr
-            th.name scope="col" Pupil name
+            th.name scope="col" = t('dashboard.quiz_results.pupil_name')
             - (1..10).each do |num|
               th scope="col" = num
             th.score-col scope="col" Results

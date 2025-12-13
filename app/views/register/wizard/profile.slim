@@ -1,11 +1,11 @@
 section.auth-card aria-labelledby="auth-card-title"
   header.auth-card__header
-    h1#auth-card-title Create an Account
+    h1#auth-card-title = t('register.student.title')
     - if @school.present? && @school_class.present?
-      p.auth-card__subtitle Dołączenie do szkoły: #{@school.name}
-      p.auth-card__subtitle Klasa: #{@school_class.name}
+      p.auth-card__subtitle = t('register.student.joining_school', school_name: @school.name)
+      p.auth-card__subtitle = t('register.student.joining_class', class_name: @school_class.name)
     - elsif @school.present?
-      p.auth-card__subtitle Dołączenie do szkoły: #{@school.name}
+      p.auth-card__subtitle = t('register.student.joining_school', school_name: @school.name)
 
   = form_with model: @form,
               url: register_profile_path,
@@ -16,9 +16,9 @@ section.auth-card aria-labelledby="auth-card-title"
     / First name
     / ===============================
     label
-      span First name
+      span = t('register.student.first_name')
       = f.text_field :first_name,
-          placeholder: "First name",
+          placeholder: t('register.student.first_name'),
           class: (@form.errors[:first_name].present? ? "error-input" : "")
       - if @form.errors[:first_name].present?
         .field-error = @form.errors[:first_name].first
@@ -27,9 +27,9 @@ section.auth-card aria-labelledby="auth-card-title"
     / Last name
     / ===============================
     label
-      span Last name
+      span = t('register.student.last_name')
       = f.text_field :last_name,
-          placeholder: "Last name",
+          placeholder: t('register.student.last_name'),
           class: (@form.errors[:last_name].present? ? "error-input" : "")
       - if @form.errors[:last_name].present?
         .field-error = @form.errors[:last_name].first
@@ -38,11 +38,11 @@ section.auth-card aria-labelledby="auth-card-title"
     / Date of birth
     / ===============================
     label
-      span Date of birth
+      span = t('register.student.date_of_birth')
       .auth-date-picker class=(@form.errors[:birthdate].present? ? "auth-date-picker--error" : "")
         = text_field_tag "register_profile_form[birthdate_display]",
             nil,
-            placeholder: "DD.MM.YYYY",
+            placeholder: "DD.MM.RRRR",
             class: "auth-date-picker__display",
             inputmode: "numeric",
             pattern: "[0-9.]*",
@@ -61,9 +61,9 @@ section.auth-card aria-labelledby="auth-card-title"
     / Email
     / ===============================
     label
-      span Email
+      span = t('register.student.email')
       = f.email_field :email,
-          placeholder: "example@mail.com",
+          placeholder: "przyklad@mail.com",
           class: (@form.errors[:email].present? ? "error-input" : "")
       - if @form.errors[:email].present?
         .field-error = @form.errors[:email].first
@@ -72,7 +72,7 @@ section.auth-card aria-labelledby="auth-card-title"
     / Phone
     / ===============================
     label
-      span Phone
+      span = t('register.student.phone')
       = f.text_field :phone,
           placeholder: "+48 XXX XXX XXX",
           class: (@form.errors[:phone].present? ? "error-input" : "")
@@ -84,11 +84,9 @@ section.auth-card aria-labelledby="auth-card-title"
     / ===============================
     label.auth-checkbox
       = f.check_box :marketing
-      span
-        | By providing my email I agree to receive communications from Academy 2.0.
-        | I understand I can opt out at any time.
+      span = t('register.student.marketing_consent')
 
     / ===============================
     / Submit button
     / ===============================
-    button.auth-submit.auth-submit--disabled type="submit" disabled=true Create account
+    button.auth-submit.auth-submit--disabled type="submit" disabled=true = t('register.student.submit')

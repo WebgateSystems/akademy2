@@ -1,4 +1,138 @@
 pl:
+  enter:
+    title: "Akademy - Kim jesteś?"
+    heading: "Kim jesteś?"
+    pupil: "Uczeń"
+    teacher: "Nauczyciel"
+    administration: "Administracja"
+
+  roles:
+    pupil: "Uczeń"
+    teacher: "Nauczyciel"
+    administration: "Administracja"
+    pupils: "Uczniowie"
+    teachers: "Nauczyciele"
+
+  navigation:
+    school_profile: "Profil szkoły"
+    teacher_view: "Widok nauczyciela"
+    administration: "Administracja"
+    teachers: "Nauczyciele"
+    pupils: "Uczniowie"
+    students: "Uczniowie"
+    parents: "Rodzice"
+    classes: "Klasy"
+    subjects: "Przedmioty"
+    units: "Jednostki"
+    modules: "Moduły"
+    years: "Lata akademickie"
+    notifications: "Powiadomienia"
+    settings: "Ustawienia"
+    schools: "Szkoły"
+    headmasters: "Dyrektorzy"
+    activity_log: "Dziennik aktywności"
+    content: "Treści"
+    videos: "Filmy"
+    quizzes: "Quizy"
+
+  dashboard:
+    hero:
+      title: "Zbudujmy razem Twoją klasę!"
+      description: "Pobierz kod QR lub udostępnij kod szkoły, aby uczniowie mogli dołączyć do Twojej klasy."
+      download: "Pobierz"
+      copy_code: "Skopiuj kod"
+    stats:
+      pupils: "Uczniowie"
+      pupil_videos: "Filmy uczniów"
+      teachers_heading: "Statystyki nauczycieli i uczniów"
+      awaiting: "%{count} oczekuje"
+      pending_approval: "%{count} do akceptacji"
+    sections:
+      pupil_results: "Wyniki uczniów"
+      no_subjects: "Brak dostępnych przedmiotów"
+    quiz_results:
+      section_title: "Wyniki quizów uczniów"
+      pupil_name: "Imię i nazwisko ucznia"
+    empty:
+      no_classes: "Brak przypisanych klas"
+      contact_admin: "Skontaktuj się z administracją szkoły, aby zostać przypisanym do klasy."
+
+  actions:
+    logout: "Wyloguj"
+    toggle_navigation: "Przełącz nawigację"
+    collapse_sidebar: "Zwiń panel boczny"
+    expand_sidebar: "Rozwiń panel boczny"
+    toggle_theme: "Zmień motyw"
+    close: "Zamknij"
+
+  aria:
+    primary_navigation: "Nawigacja główna"
+    notifications: "Powiadomienia"
+    school_management: "Panel zarządzania szkołą"
+    new_pin_code: "Nowy kod PIN"
+    confirm_pin_code: "Potwierdź kod PIN"
+    pin_digit: "Cyfra PIN %{number}"
+    confirm_pin_digit: "Potwierdź cyfrę PIN %{number}"
+
+  admin:
+    sessions:
+      title: "Logowanie administratora"
+      email: "Email"
+      password: "Hasło"
+      submit: "Zaloguj się"
+
+  register:
+    student:
+      title: "Utwórz konto"
+      joining_school: "Dołączenie do szkoły: %{school_name}"
+      joining_class: "Klasa: %{class_name}"
+      first_name: "Imię"
+      last_name: "Nazwisko"
+      date_of_birth: "Data urodzenia"
+      email: "Email"
+      phone: "Telefon"
+      marketing_consent: "Podając swój email, zgadzam się na otrzymywanie komunikacji od Akademy 2.0. Rozumiem, że mogę zrezygnować w dowolnym momencie."
+      submit: "Utwórz konto"
+    teacher:
+      title: "Rejestracja nauczyciela"
+      joining_school: "Szkoła: %{school_name}"
+      no_school_info: "Po rejestracji możesz dołączyć do szkoły za pomocą linku od administracji"
+      first_name: "Imię"
+      last_name: "Nazwisko"
+      email: "Email"
+      phone: "Telefon"
+      password: "Hasło"
+      password_confirmation: "Potwierdź hasło"
+      confirm_password_placeholder: "Potwierdź hasło"
+      marketing_consent: "Podając swój email, zgadzam się na otrzymywanie komunikacji od Akademy 2.0. Rozumiem, że mogę zrezygnować w dowolnym momencie."
+      submit: "Utwórz konto"
+    profile:
+      title: "Uzupełnij profil"
+
+  management:
+    top_bar:
+      default_title: "Profil szkoły"
+    teachers:
+      title: "Nauczyciele"
+      list_label: "Lista nauczycieli"
+      table_heading: "Imię i nazwisko nauczyciela"
+      add_teacher: "Dodaj nauczyciela"
+      edit_teacher: "Edytuj nauczyciela"
+      teacher_name: "Imię i nazwisko nauczyciela"
+    students:
+      title: "Uczniowie"
+    administrations:
+      title: "Administracja"
+      list_label: "Lista administracji"
+    notifications:
+      all_types: "Wszystkie typy"
+      teacher_invitations: "Zaproszenia nauczycieli"
+      teacher_enrollment_requests: "Prośby o dołączenie nauczycieli"
+      student_invitations: "Zaproszenia uczniów"
+      account_deletion_requests: "Prośby o usunięcie konta"
+    pending:
+      comment: "Nauczyciel oczekuje na zatwierdzenie"
+
   datetime:
     distance_in_words:
       half_a_minute: "pół minuty"

@@ -1,19 +1,19 @@
-<h2 class="text-center mb-4">Admin Login</h2>
+<h2 class="text-center mb-4"><%= t('admin.sessions.title') %></h2>
 
 <%= form_with url: admin_session_path, method: :post, class: "admin-login-form" do |f| %>
 
   <div class="mb-3">
-    <%= f.label :email, class: "form-label" %>
+    <%= f.label :email, t('admin.sessions.email'), class: "form-label" %>
     <%= f.email_field :email, class: "form-control", autofocus: true %>
   </div>
 
   <div class="mb-3">
-    <%= f.label :password, class: "form-label" %>
+    <%= f.label :password, t('admin.sessions.password'), class: "form-label" %>
     <%= f.password_field :password, class: "form-control" %>
   </div>
 
   <div class="d-grid">
-    <%= f.submit "Log in", class: "btn btn-primary" %>
+    <%= f.submit t('admin.sessions.submit'), class: "btn btn-primary" %>
   </div>
 
 <% end %>
