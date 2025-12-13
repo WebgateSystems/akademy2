@@ -18,6 +18,12 @@ require 'action_cable/engine'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# Devise 4.9.x fix for Rails 8.x deprecation warnings
+# See: lib/devise_rails8_route_patch.rb
+# TODO: Remove once Devise 4.10+ is released with the fix
+require_relative '../lib/devise_rails8_route_patch'
+ActionDispatch::Routing::Mapper.prepend(DeviseRails8RoutePatch)
+
 module Akademy
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
