@@ -8,6 +8,7 @@ html lang="pl"
     meta name="theme-color" content="#0f172a"
     link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"
     link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"
+    link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
     == render 'shared/favicons'
     = javascript_include_tag "landing", "data-turbo-track": "reload"
     = stylesheet_link_tag "landing", "data-turbo-track": "reload"
@@ -45,22 +46,14 @@ html lang="pl"
     header
       .container.row role="navigation" aria-label="Główna nawigacja"
         a.brand href="#home" aria-label="AKAdemy 2.0 – Strona główna"
-          svg.icon viewBox="0 0 64 64" aria-hidden="true"
-            defs
-              linearGradient#g x1="0" x2="1"
-                stop offset="0%" stop-color="var(--accent)"
-                stop offset="100%" stop-color="var(--accent-600)"
-            rect x="4" y="8" width="56" height="40" rx="10" fill="none" stroke="url(#g)" stroke-width="4"
-            path d="M10 40 L32 24 L54 40" fill="none" stroke="url(#g)" stroke-width="4" stroke-linecap="round"
-          span AKAdemy 2.0
+          = image_tag "icons/logo/Akademy_logo_full.svg", alt: "AKAdemy 2.0", class: "brand-logo", "data-theme-icon": true
         nav
           a.only-desktop href="#features" Funkcje
           a.only-desktop href="#how" Jak to działa
           a.only-desktop href="#faq" FAQ
-          span.switch aria-label="Przełącz motyw"
-            span ☾
-            button#themeToggle.toggle role="switch" aria-checked="false" aria-label="Theme toggle"
-            span ☀︎
+          button#themeToggle.icon-pill type="button" aria-label="Przełącz motyw" title="Przełącz motyw"
+            i.bi.bi-sun-fill.theme-icon-light aria-hidden="true"
+            i.bi.bi-moon-fill.theme-icon-dark aria-hidden="true"
           a.btn href="/enter" Wypróbuj w szkole
 
     main#home.hero.container

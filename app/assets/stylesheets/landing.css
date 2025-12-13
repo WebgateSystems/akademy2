@@ -83,9 +83,18 @@ a {
   letter-spacing: 0.2px;
 }
 
-.brand svg {
-  width: 32px;
-  height: 32px;
+.brand-logo {
+  height: 70px;
+  width: auto;
+}
+
+/* Theme icon filter - same as dashboards */
+[data-theme-icon] {
+  transition: filter 0.2s ease;
+}
+
+.theme-dark [data-theme-icon] {
+  filter: brightness(0) invert(1);
 }
 
 nav a {
@@ -297,37 +306,56 @@ footer .copyright-link:hover {
   opacity: 0.7;
 }
 
-.switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.toggle {
-  --s: 42px;
-  width: var(--s);
-  height: 24px;
-  border-radius: 999px;
-  border: 1px solid var(--card-border);
-  background: var(--surface);
+/* Theme toggle button - same as dashboards */
+.icon-pill {
   position: relative;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg);
   cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
-.toggle::after {
-  content: "";
-  position: absolute;
-  inset: 2px;
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  background: var(--accent);
-  transform: translateX(0);
-  transition: transform 0.25s ease;
+.icon-pill:hover {
+  transform: translateY(-1px);
 }
 
-.toggle[aria-checked="true"]::after {
-  transform: translateX(18px);
+#themeToggle {
+  transition: transform 0.3s ease;
+}
+
+#themeToggle:hover {
+  transform: rotate(20deg);
+}
+
+/* Theme toggle icons (sun/moon) */
+.theme-icon-light,
+.theme-icon-dark {
+  font-size: 18px;
+  transition: opacity 0.2s ease;
+}
+
+/* Light theme: show sun, hide moon */
+.theme-icon-dark {
+  display: none;
+}
+
+.theme-icon-light {
+  display: inline;
+}
+
+/* Dark theme: show moon, hide sun */
+.theme-dark .theme-icon-dark {
+  display: inline;
+}
+
+.theme-dark .theme-icon-light {
+  display: none;
 }
 
 .icon {

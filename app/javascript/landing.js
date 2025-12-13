@@ -16,14 +16,6 @@
     document.documentElement.setAttribute('data-theme', theme);
   }
 
-  function updateToggleState(isLight) {
-    const toggle = document.getElementById('themeToggle');
-    if (toggle) {
-      // aria-checked="true" means toggle is on the right (sun/light side)
-      toggle.setAttribute('aria-checked', isLight ? 'true' : 'false');
-    }
-  }
-
   // Apply theme immediately on script load
   const storedTheme = getStoredTheme();
   const effectiveTheme = storedTheme || getSystemTheme();
@@ -38,11 +30,8 @@
     if (yearEl) {
       yearEl.textContent = new Date().getFullYear();
     }
-    
-    // Set initial toggle state
-    const currentTheme = getStoredTheme() || getSystemTheme();
-    updateToggleState(currentTheme === 'light');
 
+    // Theme toggle - single icon button (sun in dark mode, moon in light mode)
     if (toggle) {
       toggle.addEventListener('click', function() {
         const currentTheme = document.documentElement.classList.contains('theme-dark') ? 'dark' : 'light';
@@ -50,7 +39,6 @@
         
         localStorage.setItem(STORAGE_KEY, newTheme);
         applyTheme(newTheme);
-        updateToggleState(newTheme === 'light');
       });
     }
   });
