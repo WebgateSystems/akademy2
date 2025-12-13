@@ -4,7 +4,7 @@
   main.dashboard-main
     = render 'dashboard/top_bar', title: "Powiadomienia"
 
-    section.notifications-section aria-label="Notifications list" data-mark-read-url="#{mark_dashboard_notifications_as_read_path}"
+    section.notifications-section aria-label="Lista powiadomień" data-mark-read-url="#{mark_dashboard_notifications_as_read_path}"
       .notifications-back-row
         = link_to dashboard_path, class: "schools-page__add"
           | Wróć

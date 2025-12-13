@@ -1,4 +1,4 @@
-<% content_for :page_title, "Teachers" %>
+<% content_for :page_title, "Nauczyciele" %>
 <%# Store asset path for JavaScript in a script tag %>
 <script>
   window.TEACHERS_ASSET_PATHS = {
@@ -9,14 +9,14 @@
   window.MANAGEMENT_SCHOOL_ID = '<%= @school&.id %>';
 </script>
 
-<section aria-label="Teachers list">
+<section aria-label="Lista nauczycieli">
   <header class="schools-page__header">
     <label class="schools-search schools-search--half">
-      <span class="visually-hidden">Search teachers</span>
-      <input type="search" placeholder="Search teacher" id="teachers-search-input">
+      <span class="visually-hidden">Szukaj nauczycieli</span>
+      <input type="search" placeholder="Szukaj nauczyciela..." id="teachers-search-input">
       <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true", "data-theme-icon": true %>
     </label>
-    <button class="schools-page__add" type="button" data-open-modal="add-teacher-modal">Add teacher</button>
+    <button class="schools-page__add" type="button" data-open-modal="add-teacher-modal">Dodaj nauczyciela</button>
   </header>
   <div class="schools-page__controls"></div>
 
@@ -24,12 +24,12 @@
     <table class="teachers-table">
       <thead class="teachers-table__head">
         <tr>
-          <th scope="col" class="teachers-table__heading">Teacher name</th>
-          <th scope="col" class="teachers-table__heading">Birth date</th>
+          <th scope="col" class="teachers-table__heading">Imię i nazwisko</th>
+          <th scope="col" class="teachers-table__heading">Data urodzenia</th>
           <th scope="col" class="teachers-table__heading">Email</th>
-          <th scope="col" class="teachers-table__heading">Phone</th>
+          <th scope="col" class="teachers-table__heading">Telefon</th>
           <th scope="col" class="teachers-table__heading">Status</th>
-          <th scope="col" class="teachers-table__heading teachers-table__heading--actions">Actions</th>
+          <th scope="col" class="teachers-table__heading teachers-table__heading--actions">Akcje</th>
         </tr>
       </thead>
       <tbody class="teachers-table__body" id="teachers-table-body">
@@ -38,10 +38,10 @@
     </table>
     <div id="teachers-loading-indicator" class="teachers-loading" style="display: none; padding: 20px; text-align: center;">
       <div class="spinner" style="display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--content-primary); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
-      <span style="margin-left: 12px; color: var(--content-secondary);">Loading teachers...</span>
+      <span style="margin-left: 12px; color: var(--content-secondary);">Ładowanie nauczycieli...</span>
     </div>
     <div id="teachers-empty-message" class="text-center" style="padding: 40px; color: var(--content-secondary); display: none;">
-      No teachers yet
+      Brak nauczycieli
     </div>
   </div>
 </section>
@@ -56,36 +56,36 @@
   <div class="schools-modal__overlay"></div>
   <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="add-teacher-title">
     <header class="schools-modal__header">
-      <h3 id="add-teacher-title">Add teacher</h3>
-      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="add-teacher-modal">
+      <h3 id="add-teacher-title">Dodaj nauczyciela</h3>
+      <button class="schools-modal__close" type="button" aria-label="Zamknij" data-close-modal="add-teacher-modal">
         <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
       </button>
     </header>
     <form class="schools-modal__form headmaster-form" id="add-teacher-form">
       <input type="hidden" name="teacher[school_id]" id="add-teacher-school" value="<%= @school&.id %>">
       <label>
-        <span>Teacher name<sup style="color: var(--content-secondary);">*</sup></span>
-        <input type="text" name="teacher[first_name]" id="add-teacher-first-name" placeholder="First name" required>
+        <span>Imię<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="teacher[first_name]" id="add-teacher-first-name" placeholder="Imię" required>
       </label>
       <label>
-        <span>Last name<sup style="color: var(--content-secondary);">*</sup></span>
-        <input type="text" name="teacher[last_name]" id="add-teacher-last-name" placeholder="Last name" required>
+        <span>Nazwisko<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="teacher[last_name]" id="add-teacher-last-name" placeholder="Nazwisko" required>
       </label>
       <label>
         <span>Email<sup style="color: var(--content-secondary);">*</sup></span>
-        <input type="email" name="teacher[email]" id="add-teacher-email" placeholder="teacher@school.pl" required>
+        <input type="email" name="teacher[email]" id="add-teacher-email" placeholder="nauczyciel@szkola.pl" required>
       </label>
       <label>
-        <span>Phone</span>
+        <span>Telefon</span>
         <input type="text" name="teacher[metadata][phone]" id="add-teacher-phone" placeholder="+48 XXX XXX XXX">
       </label>
       <label>
-        <span>Birth date</span>
+        <span>Data urodzenia</span>
         <input type="date" name="teacher[metadata][birth_date]" id="add-teacher-birth-date">
       </label>
       <div class="schools-modal__actions">
-        <button type="submit" class="schools-modal__primary">Add</button>
-        <button type="button" class="schools-modal__secondary" data-close-modal="add-teacher-modal">Cancel</button>
+        <button type="submit" class="schools-modal__primary">Dodaj</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="add-teacher-modal">Anuluj</button>
       </div>
     </form>
   </div>
@@ -95,8 +95,8 @@
   <div class="schools-modal__overlay"></div>
   <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="edit-teacher-title">
     <header class="schools-modal__header">
-      <h3 id="edit-teacher-title">Edit teacher</h3>
-      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="edit-teacher-modal">
+      <h3 id="edit-teacher-title">Edytuj nauczyciela</h3>
+      <button class="schools-modal__close" type="button" aria-label="Zamknij" data-close-modal="edit-teacher-modal">
         <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
       </button>
     </header>
@@ -104,28 +104,28 @@
       <input type="hidden" id="edit-teacher-id" value="">
       <input type="hidden" name="teacher[school_id]" id="edit-teacher-school" value="<%= @school&.id %>">
       <label>
-        <span>Teacher name<sup style="color: var(--content-secondary);">*</sup></span>
-        <input type="text" name="teacher[first_name]" id="edit-teacher-first-name" placeholder="First name" required>
+        <span>Imię<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="teacher[first_name]" id="edit-teacher-first-name" placeholder="Imię" required>
       </label>
       <label>
-        <span>Last name<sup style="color: var(--content-secondary);">*</sup></span>
-        <input type="text" name="teacher[last_name]" id="edit-teacher-last-name" placeholder="Last name" required>
+        <span>Nazwisko<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="teacher[last_name]" id="edit-teacher-last-name" placeholder="Nazwisko" required>
       </label>
       <label>
         <span>Email<sup style="color: var(--content-secondary);">*</sup></span>
-        <input type="email" name="teacher[email]" id="edit-teacher-email" placeholder="teacher@school.pl" required>
+        <input type="email" name="teacher[email]" id="edit-teacher-email" placeholder="nauczyciel@szkola.pl" required>
       </label>
       <label>
-        <span>Phone</span>
+        <span>Telefon</span>
         <input type="text" name="teacher[metadata][phone]" id="edit-teacher-phone" placeholder="+48 XXX XXX XXX">
       </label>
       <label>
-        <span>Birth date</span>
+        <span>Data urodzenia</span>
         <input type="date" name="teacher[metadata][birth_date]" id="edit-teacher-birth-date">
       </label>
       <div class="schools-modal__actions">
-        <button type="submit" class="schools-modal__primary" id="edit-teacher-save-btn">Save</button>
-        <button type="button" class="schools-modal__secondary" data-close-modal="edit-teacher-modal">Cancel</button>
+        <button type="submit" class="schools-modal__primary" id="edit-teacher-save-btn">Zapisz</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="edit-teacher-modal">Anuluj</button>
       </div>
     </form>
   </div>
@@ -135,17 +135,17 @@
   <div class="schools-modal__overlay"></div>
   <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="deactivate-teacher-title">
     <header class="schools-modal__header">
-      <h3 id="deactivate-teacher-title">Deactivate teacher</h3>
-      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="deactivate-teacher-modal">
+      <h3 id="deactivate-teacher-title">Dezaktywuj nauczyciela</h3>
+      <button class="schools-modal__close" type="button" aria-label="Zamknij" data-close-modal="deactivate-teacher-modal">
         <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
       </button>
     </header>
     <div class="schools-modal__body">
-      <p id="deactivate-teacher-message">Are you sure you want to deactivate <strong data-deactivate-name>this teacher</strong>? They will lose access immediately.</p>
+      <p id="deactivate-teacher-message">Czy na pewno chcesz dezaktywować <strong data-deactivate-name>tego nauczyciela</strong>? Straci natychmiastowy dostęp do systemu.</p>
     </div>
     <div class="schools-modal__actions">
-      <button type="button" id="deactivate-teacher-confirm-btn" class="schools-modal__primary schools-modal__primary--danger">Deactivate</button>
-      <button type="button" class="schools-modal__secondary" data-close-modal="deactivate-teacher-modal">Cancel</button>
+      <button type="button" id="deactivate-teacher-confirm-btn" class="schools-modal__primary schools-modal__primary--danger">Dezaktywuj</button>
+      <button type="button" class="schools-modal__secondary" data-close-modal="deactivate-teacher-modal">Anuluj</button>
     </div>
   </div>
 </div>
@@ -154,17 +154,17 @@
   <div class="schools-modal__overlay"></div>
   <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="approve-teacher-title">
     <header class="schools-modal__header">
-      <h3 id="approve-teacher-title">Approve teacher</h3>
-      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="approve-teacher-modal">
+      <h3 id="approve-teacher-title">Zatwierdź nauczyciela</h3>
+      <button class="schools-modal__close" type="button" aria-label="Zamknij" data-close-modal="approve-teacher-modal">
         <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
       </button>
     </header>
     <div class="schools-modal__body">
-      <p id="approve-teacher-message">Are you sure you want to approve this teacher?</p>
+      <p id="approve-teacher-message">Czy na pewno chcesz zatwierdzić tego nauczyciela?</p>
     </div>
     <div class="schools-modal__actions">
-      <button type="button" id="approve-teacher-confirm-btn" class="schools-modal__primary">Approve</button>
-      <button type="button" class="schools-modal__secondary" data-close-modal="approve-teacher-modal">Cancel</button>
+      <button type="button" id="approve-teacher-confirm-btn" class="schools-modal__primary">Zatwierdź</button>
+      <button type="button" class="schools-modal__secondary" data-close-modal="approve-teacher-modal">Anuluj</button>
     </div>
   </div>
 </div>
@@ -173,17 +173,17 @@
   <div class="schools-modal__overlay"></div>
   <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="decline-teacher-title">
     <header class="schools-modal__header">
-      <h3 id="decline-teacher-title">Decline teacher</h3>
-      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="decline-teacher-modal">
+      <h3 id="decline-teacher-title">Odrzuć nauczyciela</h3>
+      <button class="schools-modal__close" type="button" aria-label="Zamknij" data-close-modal="decline-teacher-modal">
         <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
       </button>
     </header>
     <div class="schools-modal__body">
-      <p id="decline-teacher-message">Are you sure you want to decline and remove this teacher? This action cannot be undone.</p>
+      <p id="decline-teacher-message">Czy na pewno chcesz odrzucić i usunąć tego nauczyciela? Tej operacji nie można cofnąć.</p>
     </div>
     <div class="schools-modal__actions">
-      <button type="button" id="decline-teacher-confirm-btn" class="schools-modal__primary schools-modal__primary--danger">Decline</button>
-      <button type="button" class="schools-modal__secondary" data-close-modal="decline-teacher-modal">Cancel</button>
+      <button type="button" id="decline-teacher-confirm-btn" class="schools-modal__primary schools-modal__primary--danger">Odrzuć</button>
+      <button type="button" class="schools-modal__secondary" data-close-modal="decline-teacher-modal">Anuluj</button>
     </div>
   </div>
 </div>
@@ -247,15 +247,15 @@
       statusCell.className = 'teachers-table__cell';
       const statusBadge = document.createElement('span');
       if (isAwaitingApproval) {
-        statusBadge.textContent = 'Awaiting approval';
+        statusBadge.textContent = 'Oczekuje';
         statusBadge.style.color = 'var(--content-secondary)';
         statusBadge.style.fontWeight = '500';
       } else if (isLocked) {
-        statusBadge.textContent = 'Inactive';
+        statusBadge.textContent = 'Nieaktywny';
         statusBadge.style.color = 'var(--state-error)';
         statusBadge.style.fontWeight = '500';
       } else {
-        statusBadge.textContent = 'Active';
+        statusBadge.textContent = 'Aktywny';
         statusBadge.style.color = 'var(--state-success)';
         statusBadge.style.fontWeight = '500';
       }
@@ -273,7 +273,7 @@
         const approveBtn = document.createElement('button');
         approveBtn.className = 'teacher-action teacher-action--approve js-approve-teacher';
         approveBtn.type = 'button';
-        approveBtn.setAttribute('aria-label', 'Approve teacher');
+        approveBtn.setAttribute('aria-label', 'Zatwierdź nauczyciela');
         approveBtn.setAttribute('data-teacher-id', teacherId);
         approveBtn.setAttribute('data-teacher-name', name);
         if (enrollmentId) {
@@ -287,7 +287,7 @@
         const declineBtn = document.createElement('button');
         declineBtn.className = 'teacher-action teacher-action--reject js-decline-teacher';
         declineBtn.type = 'button';
-        declineBtn.setAttribute('aria-label', 'Decline teacher');
+        declineBtn.setAttribute('aria-label', 'Odrzuć nauczyciela');
         declineBtn.setAttribute('data-teacher-id', teacherId);
         declineBtn.setAttribute('data-teacher-name', name);
         if (enrollmentId) {
@@ -330,7 +330,7 @@
         editBtn.setAttribute('data-teacher-email', attrs.email || '');
         editBtn.setAttribute('data-teacher-phone', attrs.phone || '');
         editBtn.setAttribute('data-teacher-birth-date', attrs.birth_date || '');
-        editBtn.textContent = 'Edit';
+        editBtn.textContent = 'Edytuj';
         editLi.appendChild(editBtn);
         
         // Resend invite button
@@ -351,7 +351,7 @@
         deactivateBtn.setAttribute('data-teacher-id', teacherId);
         deactivateBtn.setAttribute('data-teacher-name', name);
         deactivateBtn.setAttribute('data-teacher-is-locked', isLocked ? 'true' : 'false');
-        deactivateBtn.textContent = isLocked ? 'Activate' : 'Deactivate';
+        deactivateBtn.textContent = isLocked ? 'Aktywuj' : 'Dezaktywuj';
         deactivateLi.appendChild(deactivateBtn);
         
         ul.appendChild(editLi);
@@ -658,7 +658,7 @@
             if (confirmBtn) {
               confirmBtn.disabled = false;
               confirmBtn.removeAttribute('aria-disabled');
-              confirmBtn.textContent = 'Deactivate';
+              confirmBtn.textContent = 'Dezaktywuj';
             }
             deactivateTeacherId = null;
           } else if (modalId === 'approve-teacher-modal') {
@@ -666,7 +666,7 @@
             if (confirmBtn) {
               confirmBtn.disabled = false;
               confirmBtn.removeAttribute('aria-disabled');
-              confirmBtn.textContent = 'Approve';
+              confirmBtn.textContent = 'Zatwierdź';
             }
             approveTeacherId = null;
           } else if (modalId === 'decline-teacher-modal') {
@@ -674,7 +674,7 @@
             if (confirmBtn) {
               confirmBtn.disabled = false;
               confirmBtn.removeAttribute('aria-disabled');
-              confirmBtn.textContent = 'Decline';
+              confirmBtn.textContent = 'Odrzuć';
             }
             declineTeacherId = null;
           }
@@ -699,7 +699,7 @@
             if (confirmBtn) {
               confirmBtn.disabled = false;
               confirmBtn.removeAttribute('aria-disabled');
-              confirmBtn.textContent = 'Deactivate';
+              confirmBtn.textContent = 'Dezaktywuj';
             }
             deactivateTeacherId = null;
           }
@@ -1070,14 +1070,14 @@
         }
         
         if (isLocked) {
-          if (modalTitle) modalTitle.textContent = 'Activate teacher';
+          if (modalTitle) modalTitle.textContent = 'Aktywuj nauczyciela';
           if (modalMessage) modalMessage.textContent = `Are you sure you want to activate ${name}? They will regain access immediately.`;
           if (confirmBtn) {
             confirmBtn.textContent = 'Activate';
             confirmBtn.classList.remove('schools-modal__primary--danger');
           }
         } else {
-          if (modalTitle) modalTitle.textContent = 'Deactivate teacher';
+          if (modalTitle) modalTitle.textContent = 'Dezaktywuj nauczyciela';
           if (modalMessage) modalMessage.textContent = `Are you sure you want to deactivate ${name}? They will lose access immediately.`;
           if (confirmBtn) {
             confirmBtn.textContent = 'Deactivate';
@@ -1142,7 +1142,7 @@
                     }
                   }
                   
-                  triggerBtn.textContent = newLockedStatus ? 'Activate' : 'Deactivate';
+                  triggerBtn.textContent = newLockedStatus ? 'Aktywuj' : 'Dezaktywuj';
                   triggerBtn.setAttribute('data-teacher-is-locked', newLockedStatus ? 'true' : 'false');
                 }
                 
@@ -1201,7 +1201,7 @@
           const modalMessage = document.getElementById('approve-teacher-message');
           const confirmBtn = document.getElementById('approve-teacher-confirm-btn');
           
-          if (modalTitle) modalTitle.textContent = 'Approve teacher';
+          if (modalTitle) modalTitle.textContent = 'Zatwierdź nauczyciela';
           if (modalMessage) modalMessage.textContent = `Are you sure you want to approve ${name}?`;
           if (confirmBtn) {
             confirmBtn.disabled = false;
@@ -1305,7 +1305,7 @@
           const modalMessage = document.getElementById('decline-teacher-message');
           const confirmBtn = document.getElementById('decline-teacher-confirm-btn');
           
-          if (modalTitle) modalTitle.textContent = 'Decline teacher';
+          if (modalTitle) modalTitle.textContent = 'Odrzuć nauczyciela';
           if (modalMessage) modalMessage.textContent = `Are you sure you want to decline and remove ${name}? This action cannot be undone.`;
           if (confirmBtn) {
             confirmBtn.disabled = false;

@@ -1,25 +1,25 @@
-<% content_for :page_title, "Notifications center" %>
+<% content_for :page_title, "Centrum powiadomień" %>
 
-<section class="notifications-board" aria-label="Notifications timeline">
+<section class="notifications-board" aria-label="Lista powiadomień">
   <div class="notifications-board__filters">
     <label>
-      <span>Type</span>
+      <span>Typ</span>
       <select id="notification-type-filter">
-        <option value="all" <%= 'selected' if @type_filter == 'all' %>>All types</option>
-        <option value="teacher_awaiting_approval" <%= 'selected' if @type_filter == 'teacher_awaiting_approval' %>>Teacher invitations</option>
-        <option value="teacher_enrollment_request" <%= 'selected' if @type_filter == 'teacher_enrollment_request' %>>Teacher enrollment requests</option>
-        <option value="student_awaiting_approval" <%= 'selected' if @type_filter == 'student_awaiting_approval' %>>Student invitations</option>
-        <option value="account_deletion_request" <%= 'selected' if @type_filter == 'account_deletion_request' %>>Account deletion requests</option>
-        <option value="report_ready" <%= 'selected' if @type_filter == 'report_ready' %>>Reports</option>
-        <option value="reminder" <%= 'selected' if @type_filter == 'reminder' %>>Reminders</option>
-        <option value="alert" <%= 'selected' if @type_filter == 'alert' %>>Alerts</option>
+        <option value="all" <%= 'selected' if @type_filter == 'all' %>>Wszystkie typy</option>
+        <option value="teacher_awaiting_approval" <%= 'selected' if @type_filter == 'teacher_awaiting_approval' %>>Zaproszenia nauczycieli</option>
+        <option value="teacher_enrollment_request" <%= 'selected' if @type_filter == 'teacher_enrollment_request' %>>Wnioski nauczycieli</option>
+        <option value="student_awaiting_approval" <%= 'selected' if @type_filter == 'student_awaiting_approval' %>>Zaproszenia uczniów</option>
+        <option value="account_deletion_request" <%= 'selected' if @type_filter == 'account_deletion_request' %>>Wnioski o usunięcie konta</option>
+        <option value="report_ready" <%= 'selected' if @type_filter == 'report_ready' %>>Raporty</option>
+        <option value="reminder" <%= 'selected' if @type_filter == 'reminder' %>>Przypomnienia</option>
+        <option value="alert" <%= 'selected' if @type_filter == 'alert' %>>Alerty</option>
       </select>
     </label>
     <label>
       <span>Status</span>
       <select id="notification-status-filter">
-        <option value="unread" <%= 'selected' if @status_filter == 'unread' %>>Unread</option>
-        <option value="archived" <%= 'selected' if @status_filter == 'archived' %>>Archived</option>
+        <option value="unread" <%= 'selected' if @status_filter == 'unread' %>>Nieprzeczytane</option>
+        <option value="archived" <%= 'selected' if @status_filter == 'archived' %>>Archiwum</option>
       </select>
     </label>
   </div>
@@ -33,7 +33,7 @@
               <h3><%= notification[:title] %></h3>
               <p><%= notification[:message] %></p>
             </div>
-            <span class="notification-card__badge"><%= notification[:time_ago] %> ago</span>
+            <span class="notification-card__badge"><%= notification[:time_ago] %> temu</span>
           </header>
           <div class="notification-card__actions">
             <% notification[:actions].each do |action| %>
@@ -55,7 +55,7 @@
       <% end %>
     <% else %>
       <div class="notifications-empty">
-        <p>No notifications</p>
+        <p>Brak powiadomień</p>
       </div>
     <% end %>
   </div>

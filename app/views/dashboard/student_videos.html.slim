@@ -5,7 +5,7 @@
     = render 'dashboard/top_bar', title: "Video uczniów #{@current_class&.name || ''}"
 
     - if @current_class
-      section.school-videos-section aria-label="Videos list"
+      section.school-videos-section aria-label="Lista filmów"
         / Row 1: Back button aligned right
         .student-videos-back-row
           = link_to dashboard_path(class_id: @current_class.id), class: "schools-page__add"

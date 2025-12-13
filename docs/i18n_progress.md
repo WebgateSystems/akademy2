@@ -15,20 +15,32 @@ Ten dokument śledzi postęp prac nad internacjonalizacją aplikacji AKAdemy.
 
 ### Layouts
 - [x] `app/views/layouts/enter.html.slim` - tytuł strony
-- [x] `app/views/layouts/management.html.erb` - nawigacja boczna (School profile, Administration, Teachers, Students, Parents, Classes, Years)
-- [x] `app/views/layouts/admin.html.slim` - nawigacja boczna (Schools, Headmasters, Teachers, Students, Activity log, Subjects, Units, Modules, Content)
+- [x] `app/views/layouts/management.html.erb` - nawigacja boczna (Profil szkoły, Administracja, Nauczyciele, Uczniowie, Rodzice, Klasy, Lata)
+- [x] `app/views/layouts/admin.html.slim` - nawigacja boczna (Szkoły, Dyrektorzy, Nauczyciele, Uczniowie, Dziennik aktywności, Przedmioty, Jednostki, Moduły, Treści)
 
 ### Widoki - Enter (strona główna wyboru roli)
 - [x] `app/views/enter/index.html.slim` - "Kim jesteś?", Uczeń, Nauczyciel, Administracja
 
 ### Widoki - Dashboard (nauczyciel)
 - [x] `app/views/dashboard/index.html.slim` - hero section, statystyki, wyniki uczniów
-- [x] `app/views/dashboard/quiz_results.html.slim` - nagłówki tabeli
+- [x] `app/views/dashboard/quiz_results.html.slim` - nagłówki tabeli, eksport
 - [x] `app/views/dashboard/_sidebar.html.slim` - nawigacja boczna, aria-labels
 - [x] `app/views/dashboard/_top_bar.html.slim` - górny pasek, aria-labels
+- [x] `app/views/dashboard/students.html.slim` - lista uczniów, statusy, modale zatwierdzenia/odrzucenia
+- [x] `app/views/dashboard/show_student.html.slim` - szczegóły ucznia, wyniki z przedmiotów
+- [x] `app/views/dashboard/notifications.html.slim` - lista powiadomień, filtry
+- [x] `app/views/dashboard/student_videos.html.slim` - filmy uczniów, modale akcji
+- [x] `app/views/dashboard/pending_school_enrollment.html.slim` - oczekiwanie na akceptację
+- [x] `app/views/dashboard/no_school.html.slim` - brak szkoły, formularz dołączenia
 
-### Widoki - Management
+### Widoki - Management (dyrekcja)
 - [x] `app/views/management/_top_bar.html.erb` - tytuł, aria-labels
+- [x] `app/views/management/teachers/index.html.erb` - lista nauczycieli, formularze, modale, statusy JS
+- [x] `app/views/management/students/index.html.erb` - lista uczniów, formularze, modale, statusy JS
+- [x] `app/views/management/administrations/index.html.slim` - lista administracji, formularze, role
+- [x] `app/views/management/classes/index.html.erb` - lista klas, formularze dodawania/edycji
+- [x] `app/views/management/years/index.html.erb` - lista lat szkolnych, formularze
+- [x] `app/views/management/notifications/index.html.erb` - centrum powiadomień, filtry
 
 ### Widoki - Devise (logowanie)
 - [x] `app/views/devise/shared/_links.slim` - linki (zaloguj, zarejestruj, nie pamiętasz hasła)
@@ -71,26 +83,11 @@ Ten dokument śledzi postęp prac nad internacjonalizacją aplikacji AKAdemy.
 
 ## ❌ Do zrobienia
 
-### Widoki - Dashboard (nauczyciel)
-- [ ] `app/views/dashboard/students.html.slim` - lista uczniów, statusy
-- [ ] `app/views/dashboard/show_student.html.slim` - szczegóły ucznia
-- [ ] `app/views/dashboard/notifications.html.slim` - powiadomienia
-- [ ] `app/views/dashboard/student_videos.html.slim` - filmy uczniów
-- [ ] `app/views/dashboard/pending_school_enrollment.html.slim` - oczekiwanie na zatwierdzenie
-- [ ] `app/views/dashboard/no_school.html.slim` - brak szkoły
-
-### Widoki - Management (dyrekcja)
-- [ ] `app/views/management/teachers/index.html.erb` - lista nauczycieli, formularze, JavaScript
-- [ ] `app/views/management/students/index.html.erb` - lista uczniów
-- [ ] `app/views/management/administrations/index.html.slim` - lista administracji
-- [ ] `app/views/management/notifications/index.html.erb` - filtrowanie powiadomień
-- [ ] `app/views/management/classes/index.html.erb` - lista klas
-- [ ] `app/views/management/parents/index.html.erb` - lista rodziców
-- [ ] `app/views/management/years/index.html.erb` - lata akademickie
-- [ ] `app/views/management/school_profile/show.html.erb` - profil szkoły
+### Widoki - Management (dyrekcja) - pozostałe
+- [ ] `app/views/management/parents/index.html.erb` - lista rodziców (plik nie istnieje)
+- [ ] `app/views/management/school_profile/show.html.erb` - profil szkoły (plik nie istnieje)
 
 ### Widoki - Admin (globalny admin)
-- [ ] `app/views/admin/_top_bar.html.slim` - górny pasek
 - [ ] `app/views/admin/schools/` - wszystkie widoki szkół
 - [ ] `app/views/admin/users/` - zarządzanie użytkownikami
 - [ ] `app/views/admin/subjects/` - przedmioty
@@ -103,15 +100,14 @@ Ten dokument śledzi postęp prac nad internacjonalizacją aplikacji AKAdemy.
 - [ ] `app/views/home/` - strona główna ucznia
 
 ### Widoki - Rejestracja/Logowanie
-- [ ] `app/views/devise/` - formularze Devise
+- [ ] `app/views/devise/` - formularze Devise (pozostałe)
 - [ ] `app/views/registrations/` - rejestracja
 - [ ] `app/views/sessions/` - logowanie
 
 ### Widoki - Wspólne
-- [ ] `app/views/shared/` - komponenty współdzielone
+- [ ] `app/views/shared/` - komponenty współdzielone (pozostałe)
 
 ### Mailers
-- [ ] `app/views/devise_mailer/` - emaile Devise
 - [ ] `app/views/user_mailer/` - emaile użytkownika
 
 ### Testy
@@ -138,11 +134,9 @@ pl:
 
 ### Problematyczne miejsca
 
-1. **JavaScript w widokach** - wiele widoków (np. `teachers/index.html.erb`) zawiera inline JavaScript z zahardkodowanymi tekstami. Wymagają:
-   - Przeniesienia tekstów do atrybutów `data-*` 
-   - Lub użycia `I18n-js` gem
+1. **JavaScript w widokach** - wiele widoków zawiera inline JavaScript z zahardkodowanymi tekstami. Przetłumaczone bezpośrednio w kodzie JS.
 
-2. **Formularze dynamiczne** - modale i formularze generowane przez JS
+2. **Formularze dynamiczne** - modale i formularze generowane przez JS - przetłumaczone inline
 
 3. **Walidacje ActiveRecord** - część komunikatów walidacji jest po angielsku
 
@@ -153,4 +147,5 @@ pl:
 | Data | Opis |
 |------|------|
 | 2025-01-13 | Utworzenie dokumentu, naprawione: enter, dashboard/index, layouts |
-
+| 2025-12-13 | Przetłumaczone: dashboard/students, show_student, notifications, student_videos, pending_school_enrollment, no_school |
+| 2025-12-13 | Przetłumaczone: management/teachers, students, administrations, classes, years, notifications |
