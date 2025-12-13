@@ -3,7 +3,7 @@
 
   main.dashboard-main
     header.dashboard-top-bar
-      button.dashboard-sidebar-toggle type="button" aria-label="Toggle navigation" data-sidebar-toggle=""
+      button.dashboard-sidebar-toggle type="button" aria-label="Przełącz nawigację" data-sidebar-toggle=""
         = image_tag 'icons/social/M/burger.svg', width: 24, height: 24, data: { theme_icon: true }
       .dashboard-top-heading
         = link_to student_module_path(@learning_module), class: 'dashboard-back-link', aria: { label: 'Powrót do materiałów' }

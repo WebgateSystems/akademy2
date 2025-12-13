@@ -27,7 +27,7 @@ RSpec.describe 'Student Dashboard', type: :request do
       it 'shows School videos link in sidebar' do
         get public_home_path
         expect(response).to have_http_status(:ok)
-        expect(response.body).to include('School videos')
+        expect(response.body).to include('Filmy szkolne')
       end
     end
 
@@ -40,7 +40,7 @@ RSpec.describe 'Student Dashboard', type: :request do
       it 'does not show School videos link in sidebar' do
         get public_home_path
         expect(response).to have_http_status(:ok)
-        expect(response.body).not_to include('School videos')
+        expect(response.body).not_to include('Filmy szkolne')
       end
     end
   end

@@ -1,14 +1,14 @@
-<% content_for :page_title, "Learning Modules" %>
+<% content_for :page_title, "Moduły" %>
 
-<section aria-label="Learning Modules list">
+<section aria-label="Lista modułów">
   <header class="schools-page__header">
     <label class="schools-search schools-search--half">
-      <span class="visually-hidden">Search learning modules</span>
-      <input type="search" placeholder="Search" id="learning-modules-search-input">
+      <span class="visually-hidden">Szukaj modułów</span>
+      <input type="search" placeholder="Szukaj..." id="learning-modules-search-input">
       <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true" %>
     </label>
     <%= link_to admin_new_resource_path(resource: 'learning_modules'), class: "schools-page__add", style: "text-decoration: none;" do %>
-      Add learning module
+      Dodaj moduł
     <% end %>
   </header>
   <div class="schools-page__controls"></div>
@@ -16,13 +16,13 @@
     <table class="schools-page__table">
       <thead>
         <tr>
-          <th scope="col" class="left">Id</th>
-          <th scope="col" class="left">Title</th>
-          <th scope="col" class="left">Unit</th>
-          <th scope="col" class="left">Subject</th>
-          <th scope="col" class="left">Published</th>
-          <th scope="col" class="left">Single Flow</th>
-          <th scope="col" class="right">Actions</th>
+          <th scope="col" class="left">Lp.</th>
+          <th scope="col" class="left">Tytuł</th>
+          <th scope="col" class="left">Jednostka</th>
+          <th scope="col" class="left">Przedmiot</th>
+          <th scope="col" class="left">Opublikowany</th>
+          <th scope="col" class="left">Pojedynczy przepływ</th>
+          <th scope="col" class="right">Akcje</th>
         </tr>
       </thead>
       <tbody id="learning-modules-tbody">
@@ -42,7 +42,7 @@
             </td>
             <td>
               <% if module_record.published? %>
-                <span style="color: var(--content-success);">✓ Published</span>
+                <span style="color: var(--content-success);">✓ Opublikowany</span>
               <% else %>
                 <span style="color: var(--content-secondary);">—</span>
               <% end %>
@@ -55,13 +55,13 @@
               <% end %>
             </td>
             <td class="schools-page__actions">
-              <%= link_to admin_resource_path(resource: 'learning_modules', id: module_record.id), "aria-label": "View learning module" do %>
+              <%= link_to admin_resource_path(resource: 'learning_modules', id: module_record.id), "aria-label": "Pokaż moduł" do %>
                 <%= image_tag "icons/social/S/search.svg", alt: "" %>
               <% end %>
-              <%= link_to admin_edit_resource_path(resource: 'learning_modules', id: module_record.id), "aria-label": "Edit learning module" do %>
+              <%= link_to admin_edit_resource_path(resource: 'learning_modules', id: module_record.id), "aria-label": "Edytuj moduł" do %>
                 <%= image_tag "icons/social/S/edit.svg", alt: "" %>
               <% end %>
-              <button type="button" aria-label="Delete learning module" data-action="delete-learning-module" data-learning-module-id="<%= module_record.id %>" data-learning-module-title="<%= h(module_record.title&.to_s || '') %>">
+              <button type="button" aria-label="Usuń moduł" data-action="delete-learning-module" data-learning-module-id="<%= module_record.id %>" data-learning-module-title="<%= h(module_record.title&.to_s || '') %>">
                 <%= image_tag "icons/social/S/delete.svg", alt: "" %>
               </button>
             </td>

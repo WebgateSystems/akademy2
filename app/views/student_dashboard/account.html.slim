@@ -1,21 +1,21 @@
-- content_for :title, 'Account'
+- content_for :title, 'Konto'
 
 .dashboard-app data-dashboard-app=""
   = render 'sidebar', active: 'account'
 
   main.dashboard-main
-    = render 'top_bar', title: 'Account', back_path: public_home_path
+    = render 'top_bar', title: 'Konto', back_path: public_home_path
 
     section.account-section
       .account-form
         - # Name fields - always read-only for students (only teacher can edit)
         label.account-form__label
-          span Full name
-          input.account-form__input.account-form__input--readonly type="text" value="#{@user.first_name} #{@user.last_name}" disabled="disabled" placeholder="First and Last name"
+          span Imię i nazwisko
+          input.account-form__input.account-form__input--readonly type="text" value="#{@user.first_name} #{@user.last_name}" disabled="disabled" placeholder="Imię i nazwisko"
 
         - # Date of birth - always read-only for students
         label.account-form__label
-          span Date of birth
+          span Data urodzenia
           - birthdate_value = @user.birthdate&.strftime('%d.%m.%Y') || ''
           input.account-form__input.account-form__input--readonly type="text" value=birthdate_value disabled="disabled" placeholder="DD.MM.YYYY"
 
@@ -27,25 +27,25 @@
             input.account-form__input.account-form__input--readonly type="email" value=@user.email disabled="disabled"
             span.account-form__status.account-form__status--verified
               = image_tag "icons/social/S/check-circle.svg", alt: "", width: 14, height: 14 rescue nil
-              | Verified
+              | Zweryfikowany
           - else
             = form_with model: @user, url: student_account_path, method: :patch, class: 'account-form__inline-form', local: true, id: 'email-form' do |f|
-              = f.email_field :email, class: "account-form__input account-form__input--warning", placeholder: 'your@email.com', required: true, data: { original: @user.email }
+              = f.email_field :email, class: "account-form__input account-form__input--warning", placeholder: 'twoj@email.com', required: true, data: { original: @user.email }
               span.account-form__status.account-form__status--warning
-                | Unverified - 
-                = link_to 'verify now', '#', class: 'account-form__verify-link'
-              button.account-form__inline-save type="submit" style="display: none;" Save
+                | Niezweryfikowany - 
+                = link_to 'zweryfikuj teraz', '#', class: 'account-form__verify-link'
+              button.account-form__inline-save type="submit" style="display: none;" Zapisz
 
         - # Phone - editable only if NOT verified
         - phone_value = @user.phone || @user.display_phone || @user.metadata&.dig('phone') || ''
         - phone_verified = @user.metadata&.dig('phone_verified') == true
         label.account-form__label
-          span Phone
+          span Telefon
           - if phone_verified
             input.account-form__input.account-form__input--readonly type="text" value=phone_value disabled="disabled"
             span.account-form__status.account-form__status--verified
               = image_tag "icons/social/S/check-circle.svg", alt: "", width: 14, height: 14 rescue nil
-              | Verified
+              | Zweryfikowany
           - elsif phone_value.present?
             = form_with model: @user, url: api_v1_student_account_verify_submit_path, method: :put, class: 'account-form__inline-form', local: true, id: 'phone-form' do |f|
               / PHONE INPUT
@@ -59,15 +59,15 @@
 
               / STATUS + VERIFY NOW LINK
               span.account-form__status.account-form__status--warning.phone-status
-                | Unverified -
-                = link_to 'verify now',
+                | Niezweryfikowany -
+                = link_to 'zweryfikuj teraz',
                           '#',
                           class: 'account-form__verify-link',
                           id: 'phone-verify-now',
                           data: { url: api_v1_student_account_verify_phone_path }
               / HIDDEN VERIFICATION FIELDS
               .phone-verification-wrapper style="display: none;"
-                label.account-form__label.small-label Verification code
+                label.account-form__label.small-label Kod weryfikacyjny
 
                 .phone-verification-inputs
                   input.account-form__input.phone-code-input maxlength="1" inputmode="numeric"
@@ -77,36 +77,36 @@
 
                 .phone-verification-actions
                   button.phone-close-btn type="button"
-                    | Close
+                    | Zamknij
 
                   button.account-form__inline-save.phone-action-btn type="button" 
                     data-url="#{api_v1_student_account_verify_phone_path}"
-                    | Resend (in 0:59)
+                    | Wyślij ponownie (za 0:59)
 
 
               / Regular Save button
               button.account-form__inline-save.phone-save-btn type="submit" style="display: none;"
-                | Save
+                | Zapisz
 
           - else
             = form_with model: @user, url: student_account_path, method: :patch, class: 'account-form__inline-form', local: true, id: 'phone-form' do |f|
               = f.text_field :phone, class: "account-form__input", placeholder: '+48 XXX XXX XXX', value: '', data: { original: '' }
-              button.account-form__inline-save type="submit" style="display: none;" Save
+              button.account-form__inline-save type="submit" style="display: none;" Zapisz
 
-        = link_to 'SETTINGS', student_settings_path, class: 'account-form__settings'
+        = link_to 'USTAWIENIA', student_settings_path, class: 'account-form__settings'
 
-      button.account-form__logout type="button" data-modal-trigger="logout-modal" LOGOUT
+      button.account-form__logout type="button" data-modal-trigger="logout-modal" WYLOGUJ
 
 .schools-modal#logout-modal aria-hidden="true"
   .schools-modal__overlay
   .schools-modal__dialog.schools-modal__dialog--small role="dialog" aria-modal="true" aria-labelledby="logout-modal-title"
     header.schools-modal__header
-      h3#logout-modal-title Logout
+      h3#logout-modal-title Wylogowanie
     .schools-modal__body
-      p Do you want to logout from your account?
+      p Czy chcesz się wylogować z konta?
     .schools-modal__actions
-      button.schools-modal__secondary type="button" data-modal-close CANCEL
-      = button_to 'LOGOUT', destroy_user_session_path, method: :delete, class: 'schools-modal__primary'
+      button.schools-modal__secondary type="button" data-modal-close ANULUJ
+      = button_to 'WYLOGUJ', destroy_user_session_path, method: :delete, class: 'schools-modal__primary'
 
 javascript:
   document.addEventListener('DOMContentLoaded', () => {
@@ -193,9 +193,9 @@ javascript:
 
     const showTimerLabel = () => {
       if (resendAvailable) {
-        setButtonState('Resend code', false, 'resend');
+        setButtonState('Wyślij ponownie kod', false, 'resend');
       } else {
-        setButtonState(`Resend (in ${formatSeconds(timerSeconds)})`, true, 'resend');
+        setButtonState(`Wyślij ponownie (za ${formatSeconds(timerSeconds)})`, true, 'resend');
       }
     };
 
@@ -205,7 +205,7 @@ javascript:
     const updateState = () => {
       if (hasAnyValue()) {
         const canSubmit = isComplete();
-        setButtonState('Verify code', !canSubmit, 'verify');
+        setButtonState('Zweryfikuj kod', !canSubmit, 'verify');
       } else {
         showTimerLabel();
       }
@@ -316,7 +316,7 @@ javascript:
         .then(() => {
           startTimer();
         })
-        .catch(() => alert("Something went wrong. Try again."));
+        .catch(() => alert("Coś poszło nie tak. Spróbuj ponownie."));
       }
     });
   });

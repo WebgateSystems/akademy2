@@ -1,14 +1,14 @@
-<% content_for :page_title, "Subjects" %>
+<% content_for :page_title, "Przedmioty" %>
 
-<section aria-label="Subjects list">
+<section aria-label="Lista przedmiotów">
   <header class="schools-page__header">
     <label class="schools-search schools-search--half">
-      <span class="visually-hidden">Search subjects</span>
-      <input type="search" placeholder="Search" id="subjects-search-input">
+      <span class="visually-hidden">Szukaj przedmiotów</span>
+      <input type="search" placeholder="Szukaj..." id="subjects-search-input">
       <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true" %>
     </label>
     <%= link_to admin_new_resource_path(resource: 'subjects'), class: "schools-page__add", style: "text-decoration: none;" do %>
-      Add subject
+      Dodaj przedmiot
     <% end %>
   </header>
   <div class="schools-page__controls"></div>
@@ -16,12 +16,12 @@
     <table class="schools-page__table">
       <thead>
         <tr>
-          <th scope="col" class="left">Id</th>
-          <th scope="col" class="left">Icon</th>
-          <th scope="col" class="left">Title</th>
+          <th scope="col" class="left">Lp.</th>
+          <th scope="col" class="left">Ikona</th>
+          <th scope="col" class="left">Tytuł</th>
           <th scope="col" class="left">Slug</th>
-          <th scope="col" class="left">Colors</th>
-          <th scope="col" class="right">Actions</th>
+          <th scope="col" class="left">Kolory</th>
+          <th scope="col" class="right">Akcje</th>
         </tr>
       </thead>
       <tbody id="subjects-tbody">
@@ -50,13 +50,13 @@
               </div>
             </td>
             <td class="schools-page__actions">
-              <%= link_to admin_resource_path(resource: 'subjects', id: subject.id), "aria-label": "View subject" do %>
+              <%= link_to admin_resource_path(resource: 'subjects', id: subject.id), "aria-label": "Pokaż przedmiot" do %>
                 <%= image_tag "icons/social/S/search.svg", alt: "" %>
               <% end %>
-              <%= link_to admin_edit_resource_path(resource: 'subjects', id: subject.id), "aria-label": "Edit subject" do %>
+              <%= link_to admin_edit_resource_path(resource: 'subjects', id: subject.id), "aria-label": "Edytuj przedmiot" do %>
                 <%= image_tag "icons/social/S/edit.svg", alt: "" %>
               <% end %>
-              <button type="button" aria-label="Delete subject" data-action="delete-subject" data-subject-id="<%= subject.id %>" data-subject-title="<%= h(subject.title&.to_s || '') %>">
+              <button type="button" aria-label="Usuń przedmiot" data-action="delete-subject" data-subject-id="<%= subject.id %>" data-subject-title="<%= h(subject.title&.to_s || '') %>">
                 <%= image_tag "icons/social/S/delete.svg", alt: "" %>
               </button>
             </td>
@@ -64,7 +64,7 @@
         <% end %>
         <% if @records.empty? %>
           <tr>
-            <td colspan="6" class="text-center" style="padding: 40px; color: var(--content-secondary);">No subjects yet</td>
+            <td colspan="6" class="text-center" style="padding: 40px; color: var(--content-secondary);">Brak przedmiotów</td>
           </tr>
         <% end %>
       </tbody>
@@ -76,8 +76,8 @@
   <div class="schools-modal__overlay"></div>
   <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="delete-subject-modal-title">
     <header class="schools-modal__header">
-      <h3 id="delete-subject-modal-title">Delete subject</h3>
-      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="delete-subject-modal">
+      <h3 id="delete-subject-modal-title">Usuń przedmiot</h3>
+      <button class="schools-modal__close" type="button" aria-label="Zamknij" data-close-modal="delete-subject-modal">
         <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
       </button>
     </header>

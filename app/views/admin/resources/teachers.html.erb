@@ -1,4 +1,4 @@
-<% content_for :page_title, "Teachers" %>
+<% content_for :page_title, "Nauczyciele" %>
 <%# Store asset path for JavaScript in a script tag %>
 <script>
   window.TEACHERS_ASSET_PATHS = {
@@ -6,14 +6,14 @@
   };
 </script>
 
-<section aria-label="Teachers list">
+<section aria-label="Lista nauczycieli">
   <header class="schools-page__header">
     <label class="schools-search schools-search--half">
-      <span class="visually-hidden">Search teachers</span>
-      <input type="search" placeholder="Search teacher" id="teachers-search-input">
+      <span class="visually-hidden">Szukaj nauczycieli</span>
+      <input type="search" placeholder="Szukaj nauczyciela..." id="teachers-search-input">
       <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true", "data-theme-icon": true %>
     </label>
-    <button class="schools-page__add" type="button" data-open-modal="add-teacher-modal">Add teacher</button>
+    <button class="schools-page__add" type="button" data-open-modal="add-teacher-modal">Dodaj nauczyciela</button>
   </header>
   <div class="schools-page__controls"></div>
 
@@ -21,13 +21,13 @@
     <table class="teachers-table">
       <thead class="teachers-table__head">
         <tr>
-          <th scope="col" class="teachers-table__heading">Teacher name</th>
-          <th scope="col" class="teachers-table__heading">Birth date</th>
+          <th scope="col" class="teachers-table__heading">Imię i nazwisko</th>
+          <th scope="col" class="teachers-table__heading">Data urodzenia</th>
           <th scope="col" class="teachers-table__heading">Email</th>
-          <th scope="col" class="teachers-table__heading">Phone</th>
-          <th scope="col" class="teachers-table__heading">School</th>
+          <th scope="col" class="teachers-table__heading">Telefon</th>
+          <th scope="col" class="teachers-table__heading">Szkoła</th>
           <th scope="col" class="teachers-table__heading">Status</th>
-          <th scope="col" class="teachers-table__heading teachers-table__heading--actions">Actions</th>
+          <th scope="col" class="teachers-table__heading teachers-table__heading--actions">Akcje</th>
         </tr>
       </thead>
       <tbody class="teachers-table__body" id="teachers-table-body">
@@ -36,10 +36,10 @@
     </table>
     <div id="teachers-loading-indicator" class="teachers-loading" style="display: none; padding: 20px; text-align: center;">
       <div class="spinner" style="display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--content-primary); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
-      <span style="margin-left: 12px; color: var(--content-secondary);">Loading teachers...</span>
+      <span style="margin-left: 12px; color: var(--content-secondary);">Ładowanie nauczycieli...</span>
     </div>
     <div id="teachers-empty-message" class="text-center" style="padding: 40px; color: var(--content-secondary); display: none;">
-      No teachers yet
+      Brak nauczycieli
     </div>
   </div>
 </section>
@@ -57,27 +57,27 @@
   <div class="schools-modal__overlay"></div>
   <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="add-teacher-title">
     <header class="schools-modal__header">
-      <h3 id="add-teacher-title">Add teacher</h3>
-      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="add-teacher-modal">
+      <h3 id="add-teacher-title">Dodaj nauczyciela</h3>
+      <button class="schools-modal__close" type="button" aria-label="Zamknij" data-close-modal="add-teacher-modal">
         <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
       </button>
     </header>
     <form class="schools-modal__form headmaster-form" id="add-teacher-form">
       <label>
-        <span>School<sup style="color: var(--content-secondary);">*</sup></span>
+        <span>Szkoła<sup style="color: var(--content-secondary);">*</sup></span>
         <select name="teacher[school_id]" id="add-teacher-school" required>
-          <option value="">Choose the school</option>
+          <option value="">Wybierz szkołę</option>
           <% School.all.each do |school| %>
             <option value="<%= school.id %>"><%= school.name %></option>
           <% end %>
         </select>
       </label>
       <label>
-        <span>Teacher name<sup style="color: var(--content-secondary);">*</sup></span>
-        <input type="text" name="teacher[first_name]" id="add-teacher-first-name" placeholder="First name" required>
+        <span>Imię<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="teacher[first_name]" id="add-teacher-first-name" placeholder="Imię" required>
       </label>
       <label>
-        <span>Last name<sup style="color: var(--content-secondary);">*</sup></span>
+        <span>Nazwisko<sup style="color: var(--content-secondary);">*</sup></span>
         <input type="text" name="teacher[last_name]" id="add-teacher-last-name" placeholder="Last name" required>
       </label>
       <label>

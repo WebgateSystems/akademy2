@@ -1,10 +1,10 @@
-- content_for :title, 'Settings'
+- content_for :title, 'Ustawienia'
 
 .dashboard-app data-dashboard-app=""
   = render 'sidebar', active: 'account'
 
   main.dashboard-main
-    = render 'top_bar', title: 'Settings', back_path: student_account_path
+    = render 'top_bar', title: 'Ustawienia', back_path: student_account_path
 
     section.account-section
       = form_with model: @user, url: student_settings_path, method: :patch, class: 'account-form', id: 'settings-form', local: true do |f|
@@ -16,8 +16,8 @@
         - # New PIN - 4 separate digit inputs
         .account-form__pin-section
           label.account-form__label
-            span New PIN
-          .account-form__pin-inputs role="group" aria-label="New PIN code"
+            span Nowy PIN
+          .account-form__pin-inputs role="group" aria-label="Nowy kod PIN"
             = password_field_tag 'new_pin_1', nil, maxlength: 1, inputmode: "numeric", class: 'account-form__pin-digit', aria: { label: "New PIN digit 1" }, data: { pin_group: "new", pin_index: "0" }, autocomplete: "off", pattern: "[0-9]*"
             = password_field_tag 'new_pin_2', nil, maxlength: 1, inputmode: "numeric", class: 'account-form__pin-digit', aria: { label: "New PIN digit 2" }, data: { pin_group: "new", pin_index: "1" }, autocomplete: "off", pattern: "[0-9]*"
             = password_field_tag 'new_pin_3', nil, maxlength: 1, inputmode: "numeric", class: 'account-form__pin-digit', aria: { label: "New PIN digit 3" }, data: { pin_group: "new", pin_index: "2" }, autocomplete: "off", pattern: "[0-9]*"
@@ -27,8 +27,8 @@
         - # Confirm PIN - 4 separate digit inputs  
         .account-form__pin-section
           label.account-form__label
-            span Confirm PIN
-          .account-form__pin-inputs role="group" aria-label="Confirm PIN code"
+            span Potwierdź PIN
+          .account-form__pin-inputs role="group" aria-label="Potwierdź kod PIN"
             = password_field_tag 'confirm_pin_1', nil, maxlength: 1, inputmode: "numeric", class: 'account-form__pin-digit', aria: { label: "Confirm PIN digit 1" }, data: { pin_group: "confirm", pin_index: "0" }, autocomplete: "off", pattern: "[0-9]*"
             = password_field_tag 'confirm_pin_2', nil, maxlength: 1, inputmode: "numeric", class: 'account-form__pin-digit', aria: { label: "Confirm PIN digit 2" }, data: { pin_group: "confirm", pin_index: "1" }, autocomplete: "off", pattern: "[0-9]*"
             = password_field_tag 'confirm_pin_3', nil, maxlength: 1, inputmode: "numeric", class: 'account-form__pin-digit', aria: { label: "Confirm PIN digit 3" }, data: { pin_group: "confirm", pin_index: "2" }, autocomplete: "off", pattern: "[0-9]*"
@@ -36,34 +36,34 @@
           = hidden_field_tag 'user[pin_confirmation]', '', id: 'confirm-pin-hidden'
 
         label.account-form__label
-          span Theme
-          = f.select :theme, [['Light', 'light'], ['Dark', 'dark']], {}, class: 'account-form__input account-form__select', id: 'theme-select'
+          span Motyw
+          = f.select :theme, [['Jasny', 'light'], ['Ciemny', 'dark']], {}, class: 'account-form__input account-form__select', id: 'theme-select'
 
         label.account-form__label
-          span Language
-          = f.select :locale, [['English', 'en'], ['Polski', 'pl']], { selected: @user.locale || 'en' }, class: 'account-form__input account-form__select'
+          span Język
+          = f.select :locale, [['English', 'en'], ['Polski', 'pl']], { selected: @user.locale || 'pl' }, class: 'account-form__input account-form__select'
 
-        = f.submit 'SAVE CHANGES', class: 'account-form__save', id: 'save-btn', style: 'display: none;'
+        = f.submit 'ZAPISZ ZMIANY', class: 'account-form__save', id: 'save-btn', style: 'display: none;'
 
       button.account-form__delete type="button" id="delete-account-btn"
-        | DELETE ACCOUNT
+        | USUŃ KONTO
 
 / Delete account modal - requests deletion approval from school administration
 #delete-modal.schools-modal aria-hidden="true"
   .schools-modal__overlay data-modal-overlay="delete"
   .schools-modal__dialog.schools-modal__dialog--small role="dialog" aria-modal="true" aria-labelledby="delete-modal-title"
     .schools-modal__body
-      h3#delete-modal-title.schools-modal__title Delete account
+      h3#delete-modal-title.schools-modal__title Usuń konto
       p.schools-modal__text
-        | Are you sure you want to request account deletion? 
+        | Czy na pewno chcesz złożyć wniosek o usunięcie konta? 
         br
-        | Your request will be sent to the school administration for approval.
+        | Twój wniosek zostanie wysłany do administracji szkoły do zatwierdzenia.
     .schools-modal__actions
       button.schools-modal__secondary type="button" id="delete-cancel-btn"
-        | CANCEL
+        | ANULUJ
       = form_with url: request_student_account_deletion_path, method: :post, local: true, class: 'schools-modal__form-inline' do
         button.schools-modal__primary.schools-modal__primary--danger type="submit"
-          | DELETE
+          | USUŃ
 
 javascript:
   document.addEventListener('DOMContentLoaded', () => {

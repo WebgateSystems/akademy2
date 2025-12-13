@@ -1,29 +1,29 @@
-<% content_for :page_title, "Activity log" %>
+<% content_for :page_title, "Dziennik aktywności" %>
 
-<section class="activity-log" aria-label="Activity log">
+<section class="activity-log" aria-label="Dziennik aktywności">
   <div class="activity-log__filters">
     <div class="activity-filter activity-filter--date">
-      <label class="activity-filter__label" for="activity-date-from">From</label>
+      <label class="activity-filter__label" for="activity-date-from">Od</label>
       <div class="activity-date-picker" data-date-role="from">
-        <input id="activity-date-from" class="activity-date-picker__display" type="text" aria-label="From date" placeholder="DD.MM.YYYY HH:MM">
+        <input id="activity-date-from" class="activity-date-picker__display" type="text" aria-label="Data od" placeholder="DD.MM.YYYY HH:MM">
         <input class="activity-date-picker__native" type="datetime-local" aria-hidden="true" tabindex="-1">
-        <button class="activity-date-picker__clear" type="button" aria-label="Clear from date">
+        <button class="activity-date-picker__clear" type="button" aria-label="Wyczyść datę od">
           <%= image_tag "icons/social/XS/Close.svg", alt: "" %>
         </button>
-        <button class="activity-date-picker__calendar" type="button" aria-label="Select from date">
+        <button class="activity-date-picker__calendar" type="button" aria-label="Wybierz datę od">
           <%= image_tag "icons/social/M/calendar.svg", alt: "", "data-theme-icon": true %>
         </button>
       </div>
     </div>
     <div class="activity-filter activity-filter--date">
-      <label class="activity-filter__label" for="activity-date-to">To</label>
+      <label class="activity-filter__label" for="activity-date-to">Do</label>
       <div class="activity-date-picker" data-date-role="to">
-        <input id="activity-date-to" class="activity-date-picker__display" type="text" aria-label="To date" placeholder="DD.MM.YYYY HH:MM">
+        <input id="activity-date-to" class="activity-date-picker__display" type="text" aria-label="Data do" placeholder="DD.MM.YYYY HH:MM">
         <input class="activity-date-picker__native" type="datetime-local" aria-hidden="true" tabindex="-1">
-        <button class="activity-date-picker__clear" type="button" aria-label="Clear to date">
+        <button class="activity-date-picker__clear" type="button" aria-label="Wyczyść datę do">
           <%= image_tag "icons/social/XS/Close.svg", alt: "" %>
         </button>
-        <button class="activity-date-picker__calendar" type="button" aria-label="Select to date">
+        <button class="activity-date-picker__calendar" type="button" aria-label="Wybierz datę do">
           <%= image_tag "icons/social/M/calendar.svg", alt: "", "data-theme-icon": true %>
         </button>
       </div>
@@ -32,21 +32,21 @@
 
   <div class="activity-log__table">
     <div class="activity-log__head">
-      <span>Date</span>
-      <span>Source</span>
-      <span>Action</span>
-      <span>Subject</span>
-      <span>Subject ID</span>
+      <span>Data</span>
+      <span>Źródło</span>
+      <span>Akcja</span>
+      <span>Obiekt</span>
+      <span>ID obiektu</span>
     </div>
     <div class="activity-log__body" id="activity-log-body">
       <!-- Events will be loaded via API -->
     </div>
     <div id="activity-loading-indicator" class="activity-loading" style="display: none; padding: 20px; text-align: center;">
       <div class="spinner" style="display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--content-primary); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
-      <span style="margin-left: 12px; color: var(--content-secondary);">Loading events...</span>
+      <span style="margin-left: 12px; color: var(--content-secondary);">Ładowanie zdarzeń...</span>
     </div>
     <div id="activity-empty-message" class="activity-log__empty" style="display: none;">
-      <p>No activity logged yet</p>
+      <p>Brak zarejestrowanych aktywności</p>
     </div>
     <div id="activity-error-message" class="activity-log__empty" style="display: none; color: var(--state-error);">
       <p id="activity-error-text">Error loading events</p>

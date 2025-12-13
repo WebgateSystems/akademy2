@@ -3,11 +3,11 @@ aside.dashboard-sidebar
     .dashboard-logo__brand
       = image_tag "icons/logo/Akademy_logo.svg", class: "dashboard-logo__icon", alt: "", width: "32", height: "32", "aria-hidden": "true", "data-theme-icon": true
       = image_tag "icons/logo/Akademy_logo_full.svg", class: "dashboard-logo__full", alt: "Academy 2.0", "aria-hidden": "false", "data-theme-icon": true
-    button.dashboard-collapse-toggle type="button" aria-label="Collapse sidebar" aria-expanded="true" data-sidebar-collapse-toggle=""
+    button.dashboard-collapse-toggle type="button" aria-label="Zwiń panel" aria-expanded="true" data-sidebar-collapse-toggle=""
       = image_tag "icons/social/M/close-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--collapse", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
       = image_tag "icons/social/M/open-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
 
-  nav.dashboard-nav aria-label="Primary"
+  nav.dashboard-nav aria-label="Menu główne"
     - active ||= nil
     - courses_active = active == 'courses' || (active.nil? && request.path.start_with?(public_home_path) && !request.path.start_with?(student_videos_path) && !request.path.start_with?(student_account_path))
     - videos_active = active == 'videos' || request.path.start_with?(student_videos_path)
@@ -15,13 +15,13 @@ aside.dashboard-sidebar
     - has_approved_classes = @classes.present? && @classes.any?
     = link_to public_home_path, class: "dashboard-nav__button #{'is-active' if courses_active}", "aria-current": (courses_active ? "page" : nil) do
       = image_tag "icons/social/M/sidebar_courses.svg", alt: "", width: 20, height: 20, "aria-hidden": true, "data-theme-icon": true
-      span.dashboard-nav__label Courses
+      span.dashboard-nav__label Kursy
     - if has_approved_classes
       = link_to student_videos_path, class: "dashboard-nav__button #{'is-active' if videos_active}", "aria-current": (videos_active ? "page" : nil) do
         = image_tag "icons/social/M/sidebar_videos.svg", alt: "", width: 20, height: 20, "aria-hidden": true, "data-theme-icon": true
-        span.dashboard-nav__label School videos
+        span.dashboard-nav__label Filmy szkolne
     = link_to student_account_path, class: "dashboard-nav__button #{'is-active' if account_active}", "aria-current": (account_active ? "page" : nil) do
       = image_tag "icons/social/M/sidebar_account.svg", alt: "", width: 20, height: 20, "aria-hidden": true, "data-theme-icon": true
-      span.dashboard-nav__label Account
+      span.dashboard-nav__label Konto
 
 .dashboard-sidebar-overlay data-sidebar-overlay="" aria-hidden="true"

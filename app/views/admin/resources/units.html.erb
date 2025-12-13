@@ -1,14 +1,14 @@
-<% content_for :page_title, "Units" %>
+<% content_for :page_title, "Jednostki" %>
 
-<section aria-label="Units list">
+<section aria-label="Lista jednostek">
   <header class="schools-page__header">
     <label class="schools-search schools-search--half">
-      <span class="visually-hidden">Search units</span>
-      <input type="search" placeholder="Search" id="units-search-input">
+      <span class="visually-hidden">Szukaj jednostek</span>
+      <input type="search" placeholder="Szukaj..." id="units-search-input">
       <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true" %>
     </label>
     <%= link_to admin_new_resource_path(resource: 'units'), class: "schools-page__add", style: "text-decoration: none;" do %>
-      Add unit
+      Dodaj jednostkę
     <% end %>
   </header>
   <div class="schools-page__controls"></div>
@@ -16,10 +16,10 @@
     <table class="schools-page__table">
       <thead>
         <tr>
-          <th scope="col" class="left">Id</th>
-          <th scope="col" class="left">Title</th>
-          <th scope="col" class="left">Subject</th>
-          <th scope="col" class="right">Actions</th>
+          <th scope="col" class="left">Lp.</th>
+          <th scope="col" class="left">Tytuł</th>
+          <th scope="col" class="left">Przedmiot</th>
+          <th scope="col" class="right">Akcje</th>
         </tr>
       </thead>
       <tbody id="units-tbody">
@@ -35,13 +35,13 @@
               <%= unit.subject&.title || '—' %>
             </td>
             <td class="schools-page__actions">
-              <%= link_to admin_resource_path(resource: 'units', id: unit.id), "aria-label": "View unit" do %>
+              <%= link_to admin_resource_path(resource: 'units', id: unit.id), "aria-label": "Pokaż jednostkę" do %>
                 <%= image_tag "icons/social/S/search.svg", alt: "" %>
               <% end %>
-              <%= link_to admin_edit_resource_path(resource: 'units', id: unit.id), "aria-label": "Edit unit" do %>
+              <%= link_to admin_edit_resource_path(resource: 'units', id: unit.id), "aria-label": "Edytuj jednostkę" do %>
                 <%= image_tag "icons/social/S/edit.svg", alt: "" %>
               <% end %>
-              <button type="button" aria-label="Delete unit" data-action="delete-unit" data-unit-id="<%= unit.id %>" data-unit-title="<%= h(unit.title&.to_s || '') %>">
+              <button type="button" aria-label="Usuń jednostkę" data-action="delete-unit" data-unit-id="<%= unit.id %>" data-unit-title="<%= h(unit.title&.to_s || '') %>">
                 <%= image_tag "icons/social/S/delete.svg", alt: "" %>
               </button>
             </td>
@@ -49,7 +49,7 @@
         <% end %>
         <% if @records.empty? %>
           <tr>
-            <td colspan="4" class="text-center" style="padding: 40px; color: var(--content-secondary);">No units yet</td>
+            <td colspan="4" class="text-center" style="padding: 40px; color: var(--content-secondary);">Brak jednostek</td>
           </tr>
         <% end %>
       </tbody>
@@ -61,13 +61,13 @@
   <div class="schools-modal__overlay"></div>
   <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="delete-unit-modal-title">
     <header class="schools-modal__header">
-      <h3 id="delete-unit-modal-title">Delete unit</h3>
-      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="delete-unit-modal">
+      <h3 id="delete-unit-modal-title">Usuń jednostkę</h3>
+      <button class="schools-modal__close" type="button" aria-label="Zamknij" data-close-modal="delete-unit-modal">
         <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
       </button>
     </header>
     <div class="schools-modal__body">
-      <p>Are you sure you want to delete <strong data-unit-delete-title>this unit</strong>? This action cannot be undone.</p>
+      <p>Czy na pewno chcesz usunąć <strong data-unit-delete-title>tę jednostkę</strong>? Tej operacji nie można cofnąć.</p>
     </div>
     <div class="schools-modal__actions">
       <button type="button" id="delete-unit-confirm-btn" class="schools-modal__primary schools-modal__primary--danger">Delete</button>

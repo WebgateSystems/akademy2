@@ -1,14 +1,14 @@
-<% content_for :page_title, "Contents" %>
+<% content_for :page_title, "Treści" %>
 
-<section aria-label="Contents list">
+<section aria-label="Lista treści">
   <header class="schools-page__header">
     <label class="schools-search schools-search--half">
-      <span class="visually-hidden">Search contents</span>
-      <input type="search" placeholder="Search" id="contents-search-input">
+      <span class="visually-hidden">Szukaj treści</span>
+      <input type="search" placeholder="Szukaj..." id="contents-search-input">
       <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true" %>
     </label>
     <%= link_to admin_new_resource_path(resource: 'contents'), class: "schools-page__add", style: "text-decoration: none;" do %>
-      Add content
+      Dodaj treść
     <% end %>
   </header>
   <div class="schools-page__controls"></div>
@@ -16,13 +16,13 @@
     <table class="schools-page__table">
       <thead>
         <tr>
-          <th scope="col" class="left">Id</th>
-          <th scope="col" class="left">Title</th>
-          <th scope="col" class="left">Type</th>
-          <th scope="col" class="left">Learning Module</th>
-          <th scope="col" class="left">Unit</th>
-          <th scope="col" class="left">Subject</th>
-          <th scope="col" class="right">Actions</th>
+          <th scope="col" class="left">Lp.</th>
+          <th scope="col" class="left">Tytuł</th>
+          <th scope="col" class="left">Typ</th>
+          <th scope="col" class="left">Moduł</th>
+          <th scope="col" class="left">Jednostka</th>
+          <th scope="col" class="left">Przedmiot</th>
+          <th scope="col" class="right">Akcje</th>
         </tr>
       </thead>
       <tbody id="contents-tbody">
@@ -49,13 +49,13 @@
               <%= content.learning_module&.unit&.subject&.title || '—' %>
             </td>
             <td class="schools-page__actions">
-              <%= link_to admin_resource_path(resource: 'contents', id: content.id), "aria-label": "View content" do %>
+              <%= link_to admin_resource_path(resource: 'contents', id: content.id), "aria-label": "Pokaż treść" do %>
                 <%= image_tag "icons/social/S/search.svg", alt: "" %>
               <% end %>
-              <%= link_to admin_edit_resource_path(resource: 'contents', id: content.id), "aria-label": "Edit content" do %>
+              <%= link_to admin_edit_resource_path(resource: 'contents', id: content.id), "aria-label": "Edytuj treść" do %>
                 <%= image_tag "icons/social/S/edit.svg", alt: "" %>
               <% end %>
-              <button type="button" aria-label="Delete content" data-action="delete-content" data-content-id="<%= content.id %>" data-content-title="<%= h(content.title&.to_s || '') %>">
+              <button type="button" aria-label="Usuń treść" data-action="delete-content" data-content-id="<%= content.id %>" data-content-title="<%= h(content.title&.to_s || '') %>">
                 <%= image_tag "icons/social/S/delete.svg", alt: "" %>
               </button>
             </td>
@@ -63,7 +63,7 @@
         <% end %>
         <% if @records.empty? %>
           <tr>
-            <td colspan="7" class="text-center" style="padding: 40px; color: var(--content-secondary);">No contents yet</td>
+            <td colspan="7" class="text-center" style="padding: 40px; color: var(--content-secondary);">Brak treści</td>
           </tr>
         <% end %>
       </tbody>

@@ -1,9 +1,9 @@
 header.dashboard-top-bar
-  button.dashboard-sidebar-toggle type="button" aria-label="Toggle navigation" data-sidebar-toggle=""
+  button.dashboard-sidebar-toggle type="button" aria-label="Przełącz nawigację" data-sidebar-toggle=""
     = image_tag "icons/social/M/burger.svg", alt: "", width: "24", height: "24", "data-theme-icon": true
   .dashboard-top-heading
     - if local_assigns[:back_path]
-      = link_to back_path, class: "dashboard-back-link", "aria-label": "Back" do
+      = link_to back_path, class: "dashboard-back-link", "aria-label": "Wstecz" do
         = image_tag "icons/social/M/back.svg", alt: "", width: "24", height: "24", "data-theme-icon": true
     h1
       - if local_assigns[:title]

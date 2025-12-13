@@ -1,24 +1,24 @@
-<% content_for :page_title, "Schools" %>
+<% content_for :page_title, "Szkoły" %>
 
-<section aria-label="Schools list">
+<section aria-label="Lista szkół">
   <header class="schools-page__header">
     <label class="schools-search schools-search--half">
-      <span class="visually-hidden">Search schools</span>
-      <input type="search" placeholder="Search" id="schools-search-input">
+      <span class="visually-hidden">Szukaj szkół</span>
+      <input type="search" placeholder="Szukaj..." id="schools-search-input">
       <%= image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true" %>
     </label>
-    <button class="schools-page__add" type="button" data-open-modal="add-school-modal">Add school</button>
+    <button class="schools-page__add" type="button" data-open-modal="add-school-modal">Dodaj szkołę</button>
   </header>
   <div class="schools-page__controls"></div>
   <div class="schools-card">
     <table class="schools-page__table">
       <thead>
         <tr>
-          <th scope="col" class="left">Name</th>
-          <th scope="col" class="left">Address</th>
-          <th scope="col" class="left">Phone</th>
-          <th scope="col" class="left">Headmaster</th>
-          <th scope="col" class="right">Actions</th>
+          <th scope="col" class="left">Nazwa</th>
+          <th scope="col" class="left">Adres</th>
+          <th scope="col" class="left">Telefon</th>
+          <th scope="col" class="left">Dyrektor</th>
+          <th scope="col" class="right">Akcje</th>
         </tr>
       </thead>
       <tbody>
@@ -45,7 +45,7 @@
               <% end %>
             </td>
             <td class="schools-page__actions">
-              <button type="button" aria-label="Edit school" data-action="edit-school" 
+              <button type="button" aria-label="Edytuj szkołę" data-action="edit-school" 
                       data-school-id="<%= school.id %>" 
                       data-school-name="<%= h(school.name&.to_s || '') %>" 
                       data-school-slug="<%= h(school.slug&.to_s || '') %>"
@@ -59,7 +59,7 @@
                       data-school-logo-url="<%= school.logo.present? && school.logo.url.present? ? h(school.logo.url.to_s) : '' %>">
                 <%= image_tag "icons/social/S/edit.svg", alt: "" %>
               </button>
-              <button type="button" aria-label="Delete school" data-action="delete-school" data-school-id="<%= school.id %>" data-school-name="<%= h(school.name&.to_s || '') %>">
+              <button type="button" aria-label="Usuń szkołę" data-action="delete-school" data-school-id="<%= school.id %>" data-school-name="<%= h(school.name&.to_s || '') %>">
                 <%= image_tag "icons/social/S/delete.svg", alt: "" %>
               </button>
             </td>
@@ -67,7 +67,7 @@
         <% end %>
             <% if @records.empty? %>
               <tr>
-                <td colspan="5" class="text-center" style="padding: 40px; color: var(--content-secondary);">No schools yet</td>
+                <td colspan="5" class="text-center" style="padding: 40px; color: var(--content-secondary);">Brak szkół</td>
               </tr>
             <% end %>
       </tbody>
@@ -79,48 +79,48 @@
   <div class="schools-modal__overlay"></div>
   <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="add-school-title">
     <header class="schools-modal__header">
-      <h3 id="add-school-title">Add school</h3>
-      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="add-school-modal">
+      <h3 id="add-school-title">Dodaj szkołę</h3>
+      <button class="schools-modal__close" type="button" aria-label="Zamknij" data-close-modal="add-school-modal">
         <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
       </button>
     </header>
     <form class="schools-modal__form" id="add-school-form">
       <label>
-        <span>School name<sup style="color: var(--content-secondary);">*</sup></span>
-        <input type="text" name="school[name]" id="add-school-name" placeholder="School name" required>
+        <span>Nazwa szkoły<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="school[name]" id="add-school-name" placeholder="Nazwa szkoły" required>
       </label>
       <label>
-        <span>Address</span>
-        <input type="text" name="school[address]" id="add-school-address" placeholder="Street address">
+        <span>Adres</span>
+        <input type="text" name="school[address]" id="add-school-address" placeholder="Ulica i numer">
       </label>
       <label>
-        <span>City<sup style="color: var(--content-secondary);">*</sup></span>
-        <input type="text" name="school[city]" id="add-school-city" placeholder="City" value="Gdynia" required>
+        <span>Miasto<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="school[city]" id="add-school-city" placeholder="Miasto" value="Gdynia" required>
       </label>
       <label>
-        <span>Postcode</span>
+        <span>Kod pocztowy</span>
         <input type="text" name="school[postcode]" id="add-school-postcode" placeholder="00-000">
       </label>
       <label>
-        <span>Phone</span>
+        <span>Telefon</span>
         <input type="text" name="school[phone]" id="add-school-phone" placeholder="+48 XXX XXX XXX">
       </label>
       <label>
         <span>Email</span>
-        <input type="email" name="school[email]" id="add-school-email" placeholder="school@example.com">
+        <input type="email" name="school[email]" id="add-school-email" placeholder="szkola@example.com">
       </label>
       <label>
-        <span>Homepage</span>
-        <input type="url" name="school[homepage]" id="add-school-homepage" placeholder="https://school.example.com">
+        <span>Strona WWW</span>
+        <input type="url" name="school[homepage]" id="add-school-homepage" placeholder="https://szkola.example.com">
       </label>
       <label>
         <span>Logo</span>
         <input type="file" name="school[logo]" id="add-school-logo" accept="image/*">
-        <small style="color: var(--content-secondary); font-size: 12px; margin-top: 4px; display: block;">Accepted formats: JPG, PNG, SVG</small>
+        <small style="color: var(--content-secondary); font-size: 12px; margin-top: 4px; display: block;">Akceptowane formaty: JPG, PNG, SVG</small>
       </label>
       <div class="schools-modal__actions">
-        <button type="submit" class="schools-modal__primary">Add</button>
-        <button type="button" class="schools-modal__secondary" data-close-modal="add-school-modal">Cancel</button>
+        <button type="submit" class="schools-modal__primary">Dodaj</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="add-school-modal">Anuluj</button>
       </div>
     </form>
   </div>
@@ -130,52 +130,52 @@
   <div class="schools-modal__overlay"></div>
   <div class="schools-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="edit-school-title">
     <header class="schools-modal__header">
-      <h3 id="edit-school-title">Edit school</h3>
-      <button class="schools-modal__close" type="button" aria-label="Close modal" data-close-modal="edit-school-modal">
+      <h3 id="edit-school-title">Edytuj szkołę</h3>
+      <button class="schools-modal__close" type="button" aria-label="Zamknij" data-close-modal="edit-school-modal">
         <%= image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true %>
       </button>
     </header>
     <form class="schools-modal__form" id="edit-school-form">
       <input type="hidden" id="edit-school-id" value="">
       <label>
-        <span>School name<sup style="color: var(--content-secondary);">*</sup></span>
-        <input type="text" name="school[name]" id="edit-school-name" placeholder="School name" required>
+        <span>Nazwa szkoły<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="school[name]" id="edit-school-name" placeholder="Nazwa szkoły" required>
       </label>
       <label>
-        <span>Address</span>
-        <input type="text" name="school[address]" id="edit-school-address" placeholder="Street address">
+        <span>Adres</span>
+        <input type="text" name="school[address]" id="edit-school-address" placeholder="Ulica i numer">
       </label>
       <label>
-        <span>City<sup style="color: var(--content-secondary);">*</sup></span>
-        <input type="text" name="school[city]" id="edit-school-city" placeholder="City" required>
+        <span>Miasto<sup style="color: var(--content-secondary);">*</sup></span>
+        <input type="text" name="school[city]" id="edit-school-city" placeholder="Miasto" required>
       </label>
       <label>
-        <span>Postcode</span>
+        <span>Kod pocztowy</span>
         <input type="text" name="school[postcode]" id="edit-school-postcode" placeholder="00-000">
       </label>
       <label>
-        <span>Phone</span>
+        <span>Telefon</span>
         <input type="text" name="school[phone]" id="edit-school-phone" placeholder="+48 XXX XXX XXX">
       </label>
       <label>
         <span>Email</span>
-        <input type="email" name="school[email]" id="edit-school-email" placeholder="school@example.com">
+        <input type="email" name="school[email]" id="edit-school-email" placeholder="szkola@example.com">
       </label>
       <label>
-        <span>Homepage</span>
-        <input type="url" name="school[homepage]" id="edit-school-homepage" placeholder="https://school.example.com">
+        <span>Strona WWW</span>
+        <input type="url" name="school[homepage]" id="edit-school-homepage" placeholder="https://szkola.example.com">
       </label>
       <label>
         <span>Logo</span>
         <div id="edit-school-logo-preview" style="margin-bottom: 8px;">
-          <img id="edit-school-logo-img" src="" alt="Current logo" style="max-width: 200px; max-height: 100px; display: none; border-radius: 4px; border: 1px solid var(--border-contrast);">
+          <img id="edit-school-logo-img" src="" alt="Aktualne logo" style="max-width: 200px; max-height: 100px; display: none; border-radius: 4px; border: 1px solid var(--border-contrast);">
         </div>
         <input type="file" name="school[logo]" id="edit-school-logo" accept="image/*">
-        <small style="color: var(--content-secondary); font-size: 12px; margin-top: 4px; display: block;">Accepted formats: JPG, PNG, SVG. Leave empty to keep current logo.</small>
+        <small style="color: var(--content-secondary); font-size: 12px; margin-top: 4px; display: block;">Akceptowane formaty: JPG, PNG, SVG. Pozostaw puste, aby zachować aktualne logo.</small>
       </label>
       <div class="schools-modal__actions">
-        <button type="submit" class="schools-modal__primary" id="edit-school-save-btn">Save</button>
-        <button type="button" class="schools-modal__secondary" data-close-modal="edit-school-modal">Cancel</button>
+        <button type="submit" class="schools-modal__primary" id="edit-school-save-btn">Zapisz</button>
+        <button type="button" class="schools-modal__secondary" data-close-modal="edit-school-modal">Anuluj</button>
       </div>
     </form>
   </div>

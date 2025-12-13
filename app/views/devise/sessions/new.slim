@@ -43,33 +43,33 @@
                 pattern: "[0-9]*",
                 autocomplete: "off"
               / 4 separate PIN digit inputs
-              .login-pin-inputs role="group" aria-label="PIN code"
+              .login-pin-inputs role="group" aria-label="Kod PIN"
                 = password_field_tag :pin1, nil,
                   maxlength: 1,
                   inputmode: "numeric",
                   class: 'login-pin-digit',
-                  aria: { label: "PIN digit 1" },
+                  aria: { label: "Cyfra PIN 1" },
                   data: { pin_index: "0" },
                   autocomplete: "off"
                 = password_field_tag :pin2, nil,
                   maxlength: 1,
                   inputmode: "numeric",
                   class: 'login-pin-digit',
-                  aria: { label: "PIN digit 2" },
+                  aria: { label: "Cyfra PIN 2" },
                   data: { pin_index: "1" },
                   autocomplete: "off"
                 = password_field_tag :pin3, nil,
                   maxlength: 1,
                   inputmode: "numeric",
                   class: 'login-pin-digit',
-                  aria: { label: "PIN digit 3" },
+                  aria: { label: "Cyfra PIN 3" },
                   data: { pin_index: "2" },
                   autocomplete: "off"
                 = password_field_tag :pin4, nil,
                   maxlength: 1,
                   inputmode: "numeric",
                   class: 'login-pin-digit',
-                  aria: { label: "PIN digit 4" },
+                  aria: { label: "Cyfra PIN 4" },
                   data: { pin_index: "3" },
                   autocomplete: "off"
         - else
