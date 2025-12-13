@@ -34,11 +34,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	const deleteButtons = document.querySelectorAll('.js-delete-video');
 	const videoButtons = document.querySelectorAll('.js-open-video');
 
-	const approvePupilNode = document.querySelector('.video-approve-modal__pupil');
+	const approveStudentNode = document.querySelector('.video-approve-modal__student');
 	const approveVideoNode = document.querySelector('.video-approve-modal__video');
-	const rejectPupilNode = document.querySelector('.video-reject-modal__pupil');
+	const rejectStudentNode = document.querySelector('.video-reject-modal__student');
 	const rejectVideoNode = document.querySelector('.video-reject-modal__video');
-	const deletePupilNode = document.querySelector('.video-delete-modal__pupil');
+	const deleteStudentNode = document.querySelector('.video-delete-modal__student');
 	const deleteVideoNode = document.querySelector('.video-delete-modal__video');
 	const videoTitleNode = document.querySelector('.video-player-modal__title');
 	let updateSubmitState = () => {};
@@ -71,8 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	approveButtons.forEach((button) => {
 		button.addEventListener('click', () => {
 			if (!approveModalController) return;
-			if (approvePupilNode) {
-				approvePupilNode.textContent = button.dataset.pupil || 'this pupil';
+			if (approveStudentNode) {
+				approveStudentNode.textContent = button.dataset.student || 'this student';
 			}
 			if (approveVideoNode) {
 				approveVideoNode.textContent = button.dataset.video || 'this video';
@@ -84,8 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	rejectButtons.forEach((button) => {
 		button.addEventListener('click', () => {
 			if (!rejectModalController) return;
-			if (rejectPupilNode) {
-				rejectPupilNode.textContent = button.dataset.pupil || 'this pupil';
+			if (rejectStudentNode) {
+				rejectStudentNode.textContent = button.dataset.student || 'this student';
 			}
 			if (rejectVideoNode) {
 				rejectVideoNode.textContent = button.dataset.video || 'this video';
@@ -97,8 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	deleteButtons.forEach((button) => {
 		button.addEventListener('click', () => {
 			if (!deleteModalController) return;
-			if (deletePupilNode) {
-				deletePupilNode.textContent = button.dataset.pupil || 'this pupil';
+			if (deleteStudentNode) {
+				deleteStudentNode.textContent = button.dataset.student || 'this student';
 			}
 			if (deleteVideoNode) {
 				deleteVideoNode.textContent = button.dataset.video || 'this video';
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (!videoPlayerController || !playerIframe) return;
 			const embedUrl = getEmbedUrl(button.dataset.videoUrl);
 			if (videoTitleNode) {
-				videoTitleNode.textContent = button.dataset.videoTitle || 'Pupil video';
+				videoTitleNode.textContent = button.dataset.videoTitle || 'Student video';
 			}
 			playerIframe.src = embedUrl;
 			videoPlayerController.openModal();

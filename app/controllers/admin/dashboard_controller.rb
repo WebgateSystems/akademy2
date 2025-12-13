@@ -3,7 +3,7 @@ class Admin::DashboardController < Admin::BaseController
     @schools_count = School.count
     @headmasters_count = User.joins(:roles).where(roles: { key: 'principal' }).distinct.count
     @teachers_count = User.joins(:roles).where(roles: { key: 'teacher' }).distinct.count
-    @pupils_count = User.joins(:roles).where(roles: { key: 'student' }).distinct.count
+    @students_count = User.joins(:roles).where(roles: { key: 'student' }).distinct.count
 
     # Activity log statistics
     @logins_count = Event.where(event_type: 'user_login').count

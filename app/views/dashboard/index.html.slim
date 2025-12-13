@@ -21,26 +21,26 @@
             .school-profile-hero__stats aria-labelledby="teacher-stats-heading"
               h3#teacher-stats-heading.visually-hidden = t('dashboard.stats.teachers_heading')
 
-              = link_to dashboard_students_path(class_id: @current_class&.id), class: "school-profile-hero__stat-card school-profile-hero__stat-card--clickable", data: { entity: "pupils" } do
+              = link_to dashboard_students_path(class_id: @current_class&.id), class: "school-profile-hero__stat-card school-profile-hero__stat-card--clickable", data: { entity: "students" } do
                 .school-profile-hero__stat-label
-                  h4.stat-label = t('dashboard.stats.pupils')
+                  h4.stat-label = t('dashboard.stats.students')
                 .school-profile-hero__stat-value
                   span.stat-value.stat-value--empty 0
                   span.stat-value.stat-value--filled = @students_count || 0
                   - if @students_awaiting && @students_awaiting > 0
                     span.stat-awaiting = t('dashboard.stats.awaiting', count: @students_awaiting)
 
-              = link_to dashboard_pupil_videos_path(class_id: @current_class&.id), class: "school-profile-hero__stat-card school-profile-hero__stat-card--clickable", data: { entity: "videos" } do
+              = link_to dashboard_student_videos_path(class_id: @current_class&.id), class: "school-profile-hero__stat-card school-profile-hero__stat-card--clickable", data: { entity: "videos" } do
                 .school-profile-hero__stat-label
-                  h4.stat-label = t('dashboard.stats.pupil_videos')
+                  h4.stat-label = t('dashboard.stats.student_videos')
                 .school-profile-hero__stat-value
                   span.stat-value.stat-value--empty 0
                   span.stat-value.stat-value--filled = @videos_pending_count || 0
                   - if @videos_pending_count && @videos_pending_count > 0
                     span.stat-awaiting = t('dashboard.stats.pending_approval', count: @videos_pending_count)
 
-        section.class-results aria-label=t('dashboard.sections.pupil_results')
-          h2 = t('dashboard.sections.pupil_results')
+        section.class-results aria-label=t('dashboard.sections.student_results')
+          h2 = t('dashboard.sections.student_results')
           .class-results__grid data-subjects-grid=""
             - if @subjects.any?
               - colors = %w[blue green yellow pink orange purple lime]

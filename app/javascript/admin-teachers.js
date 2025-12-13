@@ -12,8 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	const deleteModalController = window.ModalUtils?.initModal({
 		modalId: 'teachers-delete-modal',
 	});
-	const pupilDetailsController = window.ModalUtils?.initModal({
-		modalId: 'pupil-details-modal',
+	const studentDetailsController = window.ModalUtils?.initModal({
+		modalId: 'student-details-modal',
 	});
 
 	const nameInput = document.getElementById('teacher-name');
@@ -21,12 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	const emailInput = document.getElementById('teacher-email');
 	const phoneInput = document.getElementById('teacher-phone');
 	const subjectsInput = document.getElementById('teacher-subjects');
-	const editButtons = document.querySelectorAll('.js-edit-pupil, .js-edit-teacher');
-	const approveButtons = document.querySelectorAll('.js-approve-pupil, .js-approve-teacher');
+	const editButtons = document.querySelectorAll('.js-edit-student, .js-edit-teacher');
+	const approveButtons = document.querySelectorAll('.js-approve-student, .js-approve-teacher');
 	const approveNameNode = document.querySelector('.teachers-approve-modal__name');
-	const rejectButtons = document.querySelectorAll('.js-reject-pupil, .js-reject-teacher');
+	const rejectButtons = document.querySelectorAll('.js-reject-student, .js-reject-teacher');
 	const rejectNameNode = document.querySelector('.teachers-reject-modal__name');
-	const deleteButtons = document.querySelectorAll('.js-delete-pupil, .js-delete-teacher');
+	const deleteButtons = document.querySelectorAll('.js-delete-student, .js-delete-teacher');
 	const deleteNameNode = document.querySelector('.teachers-delete-modal__name');
 
 	const editForm = document.getElementById('teacher-edit-form');
@@ -35,15 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	document.querySelectorAll('[data-error-for]').forEach((node) => {
 		errorNodes[node.dataset.errorFor] = node;
 	});
-	const pupilRows = document.querySelectorAll('.js-pupil-row');
+	const studentRows = document.querySelectorAll('.js-student-row');
 	const detailsNodes = {
-		name: document.querySelector('.pupil-details-modal__name'),
-		birth: document.querySelector('.pupil-details-modal__birth'),
-		email: document.querySelector('.pupil-details-modal__email'),
-		phone: document.querySelector('.pupil-details-modal__phone'),
-		subjects: document.querySelector('.pupil-details-modal__subjects'),
-		address: document.querySelector('.pupil-details-modal__address'),
-		parent: document.querySelector('.pupil-details-modal__parent'),
+		name: document.querySelector('.student-details-modal__name'),
+		birth: document.querySelector('.student-details-modal__birth'),
+		email: document.querySelector('.student-details-modal__email'),
+		phone: document.querySelector('.student-details-modal__phone'),
+		subjects: document.querySelector('.student-details-modal__subjects'),
+		address: document.querySelector('.student-details-modal__address'),
+		parent: document.querySelector('.student-details-modal__parent'),
 	};
 
 	const validators = {
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		button.addEventListener('click', () => {
 			if (!approvalModalController) return;
 			if (approveNameNode) {
-				approveNameNode.textContent = button.dataset.pupil || button.dataset.teacher || 'this pupil';
+				approveNameNode.textContent = button.dataset.student || button.dataset.teacher || 'this student';
 			}
 			approvalModalController.openModal();
 		});
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		button.addEventListener('click', () => {
 			if (!rejectModalController) return;
 			if (rejectNameNode) {
-				rejectNameNode.textContent = button.dataset.pupil || button.dataset.teacher || 'this pupil';
+				rejectNameNode.textContent = button.dataset.student || button.dataset.teacher || 'this student';
 			}
 			rejectModalController.openModal();
 		});
@@ -157,24 +157,24 @@ document.addEventListener('DOMContentLoaded', () => {
 		button.addEventListener('click', () => {
 			if (!deleteModalController) return;
 			if (deleteNameNode) {
-				deleteNameNode.textContent = button.dataset.pupil || button.dataset.teacher || 'this pupil';
+				deleteNameNode.textContent = button.dataset.student || button.dataset.teacher || 'this student';
 			}
 			deleteModalController.openModal();
 		});
 	});
 
-	pupilRows.forEach((row) => {
+	studentRows.forEach((row) => {
 		row.addEventListener('click', (event) => {
 			if (event.target.closest('.teachers-actions')) return;
-			if (!pupilDetailsController) return;
+			if (!studentDetailsController) return;
 			Object.entries(detailsNodes).forEach(([key, node]) => {
 				if (!node) return;
-				const value = row.dataset[`pupil${key.charAt(0).toUpperCase()}${key.slice(1)}`] || row.dataset[`pupil-${key}`];
+				const value = row.dataset[`student${key.charAt(0).toUpperCase()}${key.slice(1)}`] || row.dataset[`student-${key}`];
 				if (value) {
 					node.textContent = value;
 				}
 			});
-			pupilDetailsController.openModal();
+			studentDetailsController.openModal();
 		});
 	});
 });

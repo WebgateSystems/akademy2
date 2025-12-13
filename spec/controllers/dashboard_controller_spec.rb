@@ -627,11 +627,11 @@ RSpec.describe DashboardController, type: :request do
     end
   end
 
-  describe 'GET #pupil_videos' do
+  describe 'GET #student_videos' do
     before { sign_in teacher }
 
     it 'returns http success' do
-      get dashboard_pupil_videos_path(class_id: school_class.id)
+      get dashboard_student_videos_path(class_id: school_class.id)
       expect(response).to have_http_status(:success)
     end
 
@@ -658,7 +658,7 @@ RSpec.describe DashboardController, type: :request do
       end
 
       it 'displays pending videos' do
-        get dashboard_pupil_videos_path(class_id: school_class.id)
+        get dashboard_student_videos_path(class_id: school_class.id)
         expect(response.body).to include('Test Video')
       end
     end

@@ -24,7 +24,7 @@ import "./superadmin-headmasters"
 // Temporarily disabled for /admin/schools page - handled by inline script
 // import "./superadmin-schools"
 import "./teacher-dashboard"
-import "./teacher-pupils-video"
+import "./teacher-students-video"
 import "./login-tabs"
 import "./login-pin"
 import "./management-administrations"

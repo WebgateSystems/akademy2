@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		tooltip.innerHTML = `
 			<strong>${question}</strong>
 			<p>${questionText}</p>
-			<span>Pupil answer:</span>
+			<span>Student answer:</span>
 			<p>${answer}</p>
 		`;
 

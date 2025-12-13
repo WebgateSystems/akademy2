@@ -157,9 +157,9 @@ class DashboardController < ApplicationController
     render json: { success: true, marked_count: marked_count }
   end
 
-  # GET /dashboard/pupil_videos
+  # GET /dashboard/student_videos
   # Moderate student videos
-  def pupil_videos
+  def student_videos
     @school = current_user.school
     @classes = current_user.assigned_classes
                            .where(school_id: @school&.id)

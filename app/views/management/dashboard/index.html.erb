@@ -18,7 +18,7 @@
           data: { theme_icon: true } %>
       </div>
       <div class="school-profile-hero__stats" aria-labelledby="school-stats-heading">
-        <h3 id="school-stats-heading" class="visually-hidden">Teacher and pupil counters</h3>
+        <h3 id="school-stats-heading" class="visually-hidden">Teacher and student counters</h3>
         <%= link_to management_teachers_path, class: 'school-profile-hero__stat-card school-profile-hero__stat-card--link', data: { entity: 'teachers' } do %>
           <div class="school-profile-hero__stat-label">
             <h4 class="stat-label">Teachers</h4>
@@ -31,9 +31,9 @@
             <% end %>
           </div>
         <% end %>
-               <%= link_to management_students_path, class: 'school-profile-hero__stat-card school-profile-hero__stat-card--link', data: { entity: 'pupils' } do %>
+               <%= link_to management_students_path, class: 'school-profile-hero__stat-card school-profile-hero__stat-card--link', data: { entity: 'students' } do %>
           <div class="school-profile-hero__stat-label">
-            <h4 class="stat-label">Pupils</h4>
+            <h4 class="stat-label">Students</h4>
           </div>
           <div class="school-profile-hero__stat-value">
             <span class="stat-value stat-value--empty">0</span>

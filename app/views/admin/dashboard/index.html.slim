@@ -11,8 +11,8 @@ section.dashboard-stats aria-label="Key statistics"
     h3.stat-label.text-body-2 Teachers
     p.stat-value = @teachers_count
   = link_to admin_resource_collection_path(resource: 'students'), class: 'stat-card stat-card--link' do
-    h3.stat-label.text-body-2 Pupils
-    p.stat-value = number_with_delimiter(@pupils_count)
+    h3.stat-label.text-body-2 Students
+    p.stat-value = number_with_delimiter(@students_count)
 
 section.panel.panel--chart aria-label="User growth chart"
   .panel__header

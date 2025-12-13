@@ -49,7 +49,7 @@
           <% end %>
           <%= link_to management_students_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/students')}" do %>
             <i class="bi bi-people" aria-hidden="true"></i>
-            <span class="dashboard-nav__label"><%= t('navigation.pupils') %></span>
+            <span class="dashboard-nav__label"><%= t('navigation.students') %></span>
             <% if @students_notifications_count && @students_notifications_count > 0 %>
               <span class="notification-counter" aria-hidden="true"><%= @students_notifications_count %></span>
             <% end %>

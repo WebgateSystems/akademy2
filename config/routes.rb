@@ -136,7 +136,7 @@ Rails.application.routes.draw do
                                                         as: :export_quiz_results_csv
   get '/dashboard/quiz_results/:subject_id/export.pdf', to: 'dashboard#export_quiz_results_pdf',
                                                         as: :export_quiz_results_pdf
-  get '/dashboard/pupil_videos', to: 'dashboard#pupil_videos', as: :dashboard_pupil_videos
+  get '/dashboard/student_videos', to: 'dashboard#student_videos', as: :dashboard_student_videos
   get '/dashboard/class_qr.svg', to: 'dashboard#class_qr_svg', as: :dashboard_class_qr_svg
   get '/dashboard/class_qr.png', to: 'dashboard#class_qr_png', as: :dashboard_class_qr_png
 

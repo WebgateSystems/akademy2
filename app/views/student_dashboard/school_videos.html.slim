@@ -84,14 +84,14 @@
                   - duration_str = video.duration_sec.present? && video.duration_sec > 0 ? "#{video.duration_sec / 60}:#{format('%02d', video.duration_sec % 60)}" : '—'
                   tr.teachers-table__row.js-video-row data-video-url="#{video.youtube_url || video.file&.url}" data-video-title="#{video.title}" data-video-author="#{video.author_name}" data-video-school="#{video.school_name || '—'}" data-video-subject="#{video.subject&.title || '—'}" data-video-date="#{video.created_at.strftime('%d.%m.%Y')}" data-video-duration="#{duration_str}" data-video-description="#{video.description}"
                     td.teachers-table__cell
-                      .pupil-video-cell
-                        .pupil-video-cell__thumb
+                      .student-video-cell
+                        .student-video-cell__thumb
                           - if video.thumbnail.present?
-                            = image_tag video.thumbnail.url, alt: video.title, class: 'pupil-video-cell__thumb-img'
+                            = image_tag video.thumbnail.url, alt: video.title, class: 'student-video-cell__thumb-img'
                           - else
                             = image_tag 'icons/social/L/video.svg', alt: ''
-                        .pupil-video-cell__details
-                          span.pupil-video-cell__title = video.title
+                        .student-video-cell__details
+                          span.student-video-cell__title = video.title
                     td.teachers-table__cell = video.author_name
                     td.teachers-table__cell = video.subject&.title || '—'
                     td.teachers-table__cell = video.created_at.strftime('%d.%m.%Y')

@@ -80,7 +80,7 @@
 }
 
 /* Card colors matching .class-result--* */
-.enter-card--pupil {
+.enter-card--student {
   background: var(--card-green, #22c55e);
 }
 
@@ -93,8 +93,8 @@
   color: var(--content-primary);
 }
 
-/* Light theme: Pupil and Teacher cards should have black text */
-[data-theme="light"] .enter-card--pupil,
+/* Light theme: Student and Teacher cards should have black text */
+[data-theme="light"] .enter-card--student,
 [data-theme="light"] .enter-card--teacher {
   color: var(--content-primary);
 }

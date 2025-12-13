@@ -2,15 +2,15 @@ pl:
   enter:
     title: "Akademy - Kim jesteś?"
     heading: "Kim jesteś?"
-    pupil: "Uczeń"
+    student: "Uczeń"
     teacher: "Nauczyciel"
     administration: "Administracja"
 
   roles:
-    pupil: "Uczeń"
+    student: "Uczeń"
     teacher: "Nauczyciel"
     administration: "Administracja"
-    pupils: "Uczniowie"
+    students: "Uczniowie"
     teachers: "Nauczyciele"
 
   navigation:
@@ -18,7 +18,7 @@ pl:
     teacher_view: "Widok nauczyciela"
     administration: "Administracja"
     teachers: "Nauczyciele"
-    pupils: "Uczniowie"
+    students: "Uczniowie"
     students: "Uczniowie"
     parents: "Rodzice"
     classes: "Klasy"
@@ -42,17 +42,17 @@ pl:
       download: "Pobierz"
       copy_code: "Skopiuj kod"
     stats:
-      pupils: "Uczniowie"
-      pupil_videos: "Filmy uczniów"
+      students: "Uczniowie"
+      student_videos: "Filmy uczniów"
       teachers_heading: "Statystyki nauczycieli i uczniów"
       awaiting: "%{count} oczekuje"
       pending_approval: "%{count} do akceptacji"
     sections:
-      pupil_results: "Wyniki uczniów"
+      student_results: "Wyniki uczniów"
       no_subjects: "Brak dostępnych przedmiotów"
     quiz_results:
       section_title: "Wyniki quizów uczniów"
-      pupil_name: "Imię i nazwisko ucznia"
+      student_name: "Imię i nazwisko ucznia"
     empty:
       no_classes: "Brak przypisanych klas"
       contact_admin: "Skontaktuj się z administracją szkoły, aby zostać przypisanym do klasy."

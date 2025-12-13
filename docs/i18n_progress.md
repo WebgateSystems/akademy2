@@ -15,7 +15,7 @@ Ten dokument śledzi postęp prac nad internacjonalizacją aplikacji AKAdemy.
 
 ### Layouts
 - [x] `app/views/layouts/enter.html.slim` - tytuł strony
-- [x] `app/views/layouts/management.html.erb` - nawigacja boczna (School profile, Administration, Teachers, Pupils, Parents, Classes, Years)
+- [x] `app/views/layouts/management.html.erb` - nawigacja boczna (School profile, Administration, Teachers, Students, Parents, Classes, Years)
 - [x] `app/views/layouts/admin.html.slim` - nawigacja boczna (Schools, Headmasters, Teachers, Students, Activity log, Subjects, Units, Modules, Content)
 
 ### Widoki - Enter (strona główna wyboru roli)
@@ -75,7 +75,7 @@ Ten dokument śledzi postęp prac nad internacjonalizacją aplikacji AKAdemy.
 - [ ] `app/views/dashboard/students.html.slim` - lista uczniów, statusy
 - [ ] `app/views/dashboard/show_student.html.slim` - szczegóły ucznia
 - [ ] `app/views/dashboard/notifications.html.slim` - powiadomienia
-- [ ] `app/views/dashboard/pupil_videos.html.slim` - filmy uczniów
+- [ ] `app/views/dashboard/student_videos.html.slim` - filmy uczniów
 - [ ] `app/views/dashboard/pending_school_enrollment.html.slim` - oczekiwanie na zatwierdzenie
 - [ ] `app/views/dashboard/no_school.html.slim` - brak szkoły
 

@@ -54,7 +54,7 @@ RSpec.describe Admin::DashboardController, type: :controller do
       expect(assigns(:teachers_count)).to eq(1)
     end
 
-    it 'loads pupils count' do
+    it 'loads students count' do
       student_role = Role.find_or_create_by!(key: 'student') { |r| r.name = 'Student' }
       school = create(:school)
       student = create(:user, school: school)
@@ -62,7 +62,7 @@ RSpec.describe Admin::DashboardController, type: :controller do
 
       login_as_admin(admin)
       get :index
-      expect(assigns(:pupils_count)).to eq(1)
+      expect(assigns(:students_count)).to eq(1)
     end
 
     it 'loads activity log statistics' do

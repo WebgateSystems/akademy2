@@ -85,7 +85,7 @@ W panelu nauczyciela:
 - lista i wybór klasy: `/dashboard` (param `class_id`)
 - lista uczniów: `/dashboard/students`
 - wyniki quizów po przedmiocie: `/dashboard/quiz_results/:subject_id`
-- moderacja wideo uczniów: `/dashboard/pupil_videos`
+- moderacja wideo uczniów: `/dashboard/student_videos`
 
 QR do dołączenia ucznia do klasy:
 
