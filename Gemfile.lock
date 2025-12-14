@@ -790,6 +790,7 @@ DEPENDENCIES
   sidekiq-cron (~> 1.0)
   sidekiq-scheduler
   simplecov
+  simplecov_json_formatter
   slim-rails
   solid_cable
   solid_cache

@@ -1,4 +1,5 @@
 require 'simplecov'
+require 'simplecov_json_formatter'
 
 # Only start SimpleCov if not already running (prevents double initialization)
 unless SimpleCov.running
@@ -34,6 +35,12 @@ unless SimpleCov.running
 
     # Command name for merging
     command_name 'RSpec'
+
+    # Formatters - HTML + JSON for badge generation
+    formatter SimpleCov::Formatter::MultiFormatter.new([
+                                                         SimpleCov::Formatter::HTMLFormatter,
+                                                         SimpleCov::Formatter::JSONFormatter
+                                                       ])
 
     # Minimum coverage threshold (can be adjusted)
     minimum_coverage(90)
