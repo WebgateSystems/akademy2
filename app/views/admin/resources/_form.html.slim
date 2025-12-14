@@ -1,0 +1,22 @@
+= form_with model: @record, url: request.path, method: (@record.persisted? ? :patch : :post), class: 'needs-validation' do |f|
+  .row.g-3
+    - (@resource_class.columns.map(&:name) - %w[id created_at updated_at]).each do |col|
+      .col-12.col-md-6
+        .form-group
+          = f.label col, col.titleize, class: 'form-label'
+          - if col.ends_with?('_id')
+            = f.number_field col, class: 'form-control'
+          - else
+            = f.text_field col, class: 'form-control'
+    - if @resource_class == User
+      .col-12.col-md-6
+        .form-group
+          = f.label :password, t('admin.form.password'), class: 'form-label'
+          = f.password_field :password, class: 'form-control', autocomplete: 'new-password'
+      .col-12.col-md-6
+        .form-group
+          = f.label :password_confirmation, t('admin.form.password_confirmation'), class: 'form-label'
+          = f.password_field :password_confirmation, class: 'form-control', autocomplete: 'new-password'
+  .mt-3
+    = f.submit (@record.persisted? ? t('common.save') : t('admin.form.create')), class: 'btn btn-primary'
+

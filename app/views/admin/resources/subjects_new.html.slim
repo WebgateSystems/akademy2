@@ -1,0 +1,92 @@
+- content_for :page_title, t('admin.resources.subjects.list')
+
+section aria-label=(t('admin.resources.subjects.new'))
+  header.schools-page__header
+    h2 style="margin: 0; font-size: 24px; font-weight: 600;"
+      = t('admin.resources.subjects.new')
+    .d-flex style="gap: 12px;"
+      = link_to admin_resource_collection_path(resource: 'subjects'), class: "schools-page__add", style: "text-decoration: none; background: var(--surface-secondary); color: var(--content-primary);" do
+        = t('common.cancel')
+
+  .schools-card style="margin-top: 24px;"
+    = form_with model: @record, url: admin_create_resource_path(resource: 'subjects'), method: :post, local: true, multipart: true do |f|
+      - if @record.errors.any?
+        div style="padding: 16px; margin: 24px; background: var(--surface-error); border-radius: 8px; color: var(--content-error);"
+          strong = t('admin.form.errors') + ":"
+          ul style="margin: 8px 0 0 0; padding-left: 20px;"
+            - @record.errors.full_messages.each do |message|
+              li = message
+
+      table.schools-page__table
+        tbody
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.subjects.form.title') + ":"
+            td.left
+              = f.text_field :title, required: true, style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+              small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;"
+                = t('admin.resources.subjects.form.slug_hint')
+
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.subjects.form.icon') + ":"
+            td.left
+              div style="display: flex; flex-direction: column; gap: 8px;"
+                #subject-icon-preview style="margin-bottom: 8px; display: none;"
+                  img#subject-icon-img src="" alt=(t('admin.resources.subjects.form.icon_preview')) style="max-width: 64px; max-height: 64px; background: transparent;"
+                = f.file_field :icon, accept: "image/*", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;", onchange: "previewIcon(this)"
+                small style="color: var(--content-secondary); font-size: 12px;"
+                  = t('admin.resources.subjects.form.icon_formats')
+
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.subjects.form.color_light') + ":"
+            td.left
+              div style="display: flex; align-items: center; gap: 8px;"
+                = f.text_field :color_light, type: "color", value: "#FF6B6B", style: "padding: 4px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; width: 60px; height: 40px; cursor: pointer;"
+                code#color-light-value style="font-size: 12px; color: var(--content-secondary);" #FF6B6B
+
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.subjects.form.color_dark') + ":"
+            td.left
+              div style="display: flex; align-items: center; gap: 8px;"
+                = f.text_field :color_dark, type: "color", value: "#C92A2A", style: "padding: 4px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; width: 60px; height: 40px; cursor: pointer;"
+                code#color-dark-value style="font-size: 12px; color: var(--content-secondary);" #C92A2A
+
+      div style="padding: 24px; display: flex; gap: 12px; border-top: 1px solid var(--border-primary);"
+        = f.submit t('admin.form.create'), class: "schools-page__add", style: "cursor: pointer; border: none;"
+        = link_to t('common.cancel'), admin_resource_collection_path(resource: 'subjects'), class: "schools-page__add", style: "text-decoration: none; background: var(--surface-secondary); color: var(--content-primary); text-align: center;"
+
+javascript:
+  function previewIcon(input) {
+    const preview = document.getElementById('subject-icon-preview');
+    const img = document.getElementById('subject-icon-img');
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        img.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const colorLightInput = document.querySelector('input[name="subject[color_light]"][type="color"]');
+    const colorDarkInput = document.querySelector('input[name="subject[color_dark]"][type="color"]');
+    const colorLightValue = document.getElementById('color-light-value');
+    const colorDarkValue = document.getElementById('color-dark-value');
+
+    if (colorLightInput && colorLightValue) {
+      colorLightInput.addEventListener('input', function() {
+        colorLightValue.textContent = this.value;
+      });
+    }
+    if (colorDarkInput && colorDarkValue) {
+      colorDarkInput.addEventListener('input', function() {
+        colorDarkValue.textContent = this.value;
+      });
+    }
+  });
+

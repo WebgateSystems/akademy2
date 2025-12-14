@@ -1,0 +1,247 @@
+- content_for :page_title, t('admin.resources.learning_modules.list')
+
+section aria-label=(t('admin.resources.learning_modules.edit'))
+  header.schools-page__header
+    h2 style="margin: 0; font-size: 24px; font-weight: 600;"
+      = "#{t('common.edit')}: #{@record.title}"
+    .d-flex style="gap: 12px;"
+      button type="submit" form="learning-module-form" class="schools-page__add" style="cursor: pointer; border: none;"
+        = t('admin.form.update')
+      = link_to admin_resource_path(resource: 'learning_modules', id: @record.id), class: "schools-page__add", style: "text-decoration: none; background: var(--surface-secondary); color: var(--content-primary);" do
+        = t('common.cancel')
+
+  .schools-card style="margin-top: 24px;"
+    = form_with model: @record, url: admin_update_resource_path(resource: 'learning_modules', id: @record.id), method: :patch, local: true, id: 'learning-module-form' do |f|
+      - if @record.errors.any?
+        div style="padding: 16px; margin: 24px; background: var(--surface-error); border-radius: 8px; color: var(--content-error);"
+          strong = t('admin.form.errors') + ":"
+          ul style="margin: 8px 0 0 0; padding-left: 20px;"
+            - @record.errors.full_messages.each do |message|
+              li = message
+
+      table.schools-page__table
+        tbody
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.learning_modules.form.title') + ":"
+            td.left
+              = f.text_field :title, style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.learning_modules.form.unit') + ":"
+            td.left
+              = f.collection_select :unit_id, Unit.includes(:subject).order('subjects.order_index ASC, units.order_index ASC'), :id, :title_with_subject, { prompt: t('admin.resources.learning_modules.form.select_unit') }, { style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" }
+
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.learning_modules.form.published') + ":"
+            td.left
+              label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--content-primary); cursor: pointer;"
+                = f.check_box :published
+                span = t('admin.resources.learning_modules.form.published')
+
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.learning_modules.form.single_flow') + ":"
+            td.left
+              label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--content-primary); cursor: pointer;"
+                = f.check_box :single_flow
+                span = t('admin.resources.learning_modules.form.single_flow')
+              small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;"
+                = t('admin.resources.learning_modules.form.single_flow_hint_checked')
+                br
+                = t('admin.resources.learning_modules.form.single_flow_hint_unchecked')
+
+  /! Contents Management Section
+  .schools-card#contents-management-section style="margin-top: 24px;" data-single-flow=@record.single_flow?
+    h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: var(--content-primary);"
+      = t('admin.resources.learning_modules.manage_contents')
+      - if @record.single_flow?
+        small style="font-size: 14px; font-weight: normal; color: var(--content-secondary); display: block; margin-top: 4px;"
+          = t('admin.resources.learning_modules.single_flow_contents_note')
+      - else
+        small style="font-size: 14px; font-weight: normal; color: var(--content-secondary); display: block; margin-top: 4px;"
+          = t('admin.resources.learning_modules.flexible_contents_note')
+
+    - if @record.contents.any?
+      table.schools-page__table
+        thead
+          tr
+            th.left scope="col" = t('admin.resources.learning_modules.table.order')
+            th.left scope="col" = t('admin.resources.learning_modules.table.title')
+            th.left scope="col" = t('admin.resources.learning_modules.table.type')
+            th.right scope="col" = t('admin.resources.learning_modules.table.actions')
+        tbody#learning-module-contents-tbody data-learning-module-id=@record.id
+          - @record.contents.order(:order_index).each do |content|
+            tr data-content-id=content.id class=('sortable-row' unless @record.single_flow?) draggable=(!@record.single_flow? ? 'true' : nil)
+              td class=('sortable-handle' unless @record.single_flow?) style=('cursor: move; user-select: none;' unless @record.single_flow?)
+                span.order-index = content.order_index
+              td.left
+                strong = content.title
+              td.left
+                span style="display: inline-block; padding: 4px 8px; background: var(--surface-secondary); border-radius: 4px; font-size: 12px; color: var(--content-primary);"
+                  = content.content_type
+              td.schools-page__actions
+                = link_to admin_resource_path(resource: 'contents', id: content.id), "aria-label": t('common.view') do
+                  = image_tag "icons/social/S/search.svg", alt: ""
+                = link_to admin_edit_resource_path(resource: 'contents', id: content.id), "aria-label": t('common.edit') do
+                  = image_tag "icons/social/S/edit.svg", alt: ""
+    - else
+      p style="padding: 24px; color: var(--content-secondary); text-align: center;"
+        = t('admin.resources.learning_modules.no_contents')
+        = " "
+        = link_to t('admin.resources.learning_modules.add_content'), admin_new_resource_path(resource: 'contents'), style: "color: var(--button-primary); text-decoration: underline;"
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    const contentsSection = document.getElementById('contents-management-section');
+    const isSingleFlow = contentsSection?.getAttribute('data-single-flow') === 'true';
+    const tbody = document.getElementById('learning-module-contents-tbody');
+    const MSG_SAVE_FAILED = '#{j t('admin.resources.learning_modules.js.save_order_failed')}';
+
+    if (!isSingleFlow && tbody) {
+      let draggedRow = null;
+      let dropIndicator = null;
+
+      function createDropIndicator() {
+        if (!dropIndicator) {
+          dropIndicator = document.createElement('div');
+          dropIndicator.className = 'drop-indicator';
+          dropIndicator.style.display = 'none';
+          const cardContainer = tbody.closest('.schools-card');
+          if (cardContainer) {
+            cardContainer.appendChild(dropIndicator);
+          } else {
+            tbody.parentElement.appendChild(dropIndicator);
+          }
+        }
+        return dropIndicator;
+      }
+
+      function showDropIndicator(element, position) {
+        const indicator = createDropIndicator();
+        const rect = element.getBoundingClientRect();
+        const cardContainer = tbody.closest('.schools-card') || tbody.parentElement;
+        const cardRect = cardContainer.getBoundingClientRect();
+
+        if (position === 'top') {
+          indicator.style.top = (rect.top - cardRect.top + cardContainer.scrollTop) + 'px';
+        } else {
+          indicator.style.top = (rect.bottom - cardRect.top + cardContainer.scrollTop) + 'px';
+        }
+        indicator.style.left = (rect.left - cardRect.left) + 'px';
+        indicator.style.width = rect.width + 'px';
+        indicator.style.display = 'block';
+      }
+
+      function hideDropIndicator() {
+        if (dropIndicator) dropIndicator.style.display = 'none';
+      }
+
+      const rows = tbody.querySelectorAll('tr[data-content-id]');
+      rows.forEach((row) => {
+        row.draggable = true;
+
+        row.addEventListener('dragstart', function(e) {
+          draggedRow = this;
+          this.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/html', this.innerHTML);
+          this.style.opacity = '0.5';
+        });
+
+        row.addEventListener('dragend', function() {
+          this.classList.remove('dragging');
+          this.style.opacity = '';
+          rows.forEach(r => r.classList.remove('drag-over-top', 'drag-over-bottom'));
+          hideDropIndicator();
+        });
+
+        row.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          if (draggedRow === this) { hideDropIndicator(); return false; }
+
+          const rect = this.getBoundingClientRect();
+          const mouseY = e.clientY;
+          const rowMiddle = rect.top + rect.height / 2;
+
+          if (mouseY < rowMiddle) {
+            this.classList.remove('drag-over-bottom');
+            this.classList.add('drag-over-top');
+            showDropIndicator(this, 'top');
+          } else {
+            this.classList.remove('drag-over-top');
+            this.classList.add('drag-over-bottom');
+            showDropIndicator(this, 'bottom');
+          }
+          return false;
+        });
+
+        row.addEventListener('dragleave', function(e) {
+          this.classList.remove('drag-over-top', 'drag-over-bottom');
+          const rect = this.getBoundingClientRect();
+          if (e.clientY < rect.top || e.clientY > rect.bottom) hideDropIndicator();
+        });
+
+        row.addEventListener('drop', function(e) {
+          e.stopPropagation();
+          if (draggedRow !== this) {
+            const rect = this.getBoundingClientRect();
+            const insertBefore = e.clientY < rect.top + rect.height / 2;
+            if (insertBefore) {
+              tbody.insertBefore(draggedRow, this);
+            } else {
+              tbody.insertBefore(draggedRow, this.nextSibling);
+            }
+            updateOrderIndices();
+            saveOrder();
+          }
+          this.classList.remove('drag-over-top', 'drag-over-bottom');
+          hideDropIndicator();
+          return false;
+        });
+      });
+
+      function updateOrderIndices() {
+        const rows = tbody.querySelectorAll('tr[data-content-id]');
+        rows.forEach((row, index) => {
+          const orderCell = row.querySelector('.order-index');
+          if (orderCell) orderCell.textContent = index + 1;
+        });
+      }
+
+      async function saveOrder() {
+        const rows = tbody.querySelectorAll('tr[data-content-id]');
+        const contentIds = Array.from(rows).map(row => row.getAttribute('data-content-id'));
+        const learningModuleId = tbody.getAttribute('data-learning-module-id');
+
+        try {
+          const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+          const response = await fetch(`/admin/learning_modules/${learningModuleId}/reorder_contents`, {
+            method: 'POST',
+            headers: { 'X-CSRF-Token': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ content_ids: contentIds })
+          });
+          if (!response.ok) throw new Error('Failed to save order');
+        } catch (error) {
+          console.error('Error saving order:', error);
+          alert(MSG_SAVE_FAILED);
+          window.location.reload();
+        }
+      }
+    }
+  });
+
+css:
+  .sortable-row { transition: background-color 0.2s ease; position: relative; }
+  .sortable-row.dragging { opacity: 0.3; background-color: var(--surface-hover, #f5f5f5); }
+  .sortable-row.drag-over-top { border-top: 2px solid transparent; }
+  .sortable-row.drag-over-bottom { border-bottom: 2px solid transparent; }
+  .sortable-handle { cursor: move; user-select: none; }
+  .sortable-handle:hover { color: var(--content-primary, #000); }
+  .drop-indicator { position: absolute; height: 3px; background: var(--button-primary, #0066cc); border-radius: 2px; pointer-events: none; z-index: 1000; box-shadow: 0 0 4px rgba(0, 102, 204, 0.5); transition: opacity 0.1s ease; }
+  .schools-card { position: relative; }
+

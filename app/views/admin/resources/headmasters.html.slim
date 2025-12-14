@@ -1,0 +1,467 @@
+- content_for :page_title, t('admin.resources.headmasters.list')
+
+section aria-label=(t('admin.resources.headmasters.list'))
+  header.schools-page__header
+    label.schools-search.schools-search--half
+      span.visually-hidden = t('admin.resources.headmasters.search')
+      input type="search" placeholder="#{t('admin.resources.headmasters.search_placeholder')}..." id="headmasters-search-input"
+      = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true", "data-theme-icon": true
+    button.schools-page__add type="button" data-open-modal="add-headmaster-modal" = t('admin.resources.headmasters.add')
+  .schools-page__controls
+
+  .schools-card.headmasters-table
+    table.schools-page__table
+      thead
+        tr
+          th.left scope="col" = t('admin.resources.headmasters.form.name')
+          th.left scope="col" = t('admin.resources.headmasters.school')
+          th.left scope="col" = t('common.email')
+          th.left scope="col" = t('admin.resources.headmasters.form.phone')
+          th.left scope="col" = t('admin.resources.headmasters.joined')
+          th.left scope="col" = t('common.status')
+          th.right scope="col" = t('common.actions')
+      tbody
+        - @records.each do |headmaster|
+          tr
+            td = [headmaster.first_name, headmaster.last_name].compact.join(' ').presence || headmaster.email
+            td = headmaster.school&.name || '—'
+            td = headmaster.email
+            td = headmaster.metadata['phone'] || '—'
+            td = headmaster.created_at.strftime('%d.%m.%Y')
+            td
+              - if headmaster.locked_at.present?
+                span style="color: var(--state-error); font-weight: 500;" = t('common.inactive')
+              - else
+                span style="color: var(--state-success); font-weight: 500;" = t('common.active')
+            td.schools-page__actions
+              .headmasters-actions
+                details.headmasters-menu
+                  summary aria-label=(t('admin.resources.headmasters.open_menu'))
+                    = image_tag "icons/social/S/button-3.svg", alt: "", "data-theme-icon": true
+                  ul
+                    li
+                      button type="button" data-action="edit-headmaster" data-headmaster-id=headmaster.id data-headmaster-first-name=h(headmaster.first_name&.to_s || '') data-headmaster-last-name=h(headmaster.last_name&.to_s || '') data-headmaster-school-id=headmaster.school_id data-headmaster-email=h(headmaster.email&.to_s || '') data-headmaster-phone=h(headmaster.metadata&.dig('phone')&.to_s || '')
+                        = t('common.edit')
+                    li
+                      button type="button" data-action="resend-invite" data-headmaster-id=headmaster.id data-headmaster-email=h(headmaster.email&.to_s || '')
+                        = t('admin.resources.headmasters.resend_invite')
+                    li
+                      button type="button" data-action="deactivate-headmaster" data-headmaster-id=headmaster.id data-headmaster-name=h([headmaster.first_name, headmaster.last_name].compact.join(' ').presence || headmaster.email) data-headmaster-is-locked=(headmaster.locked_at.present? ? 'true' : 'false')
+                        = headmaster.locked_at.present? ? t('admin.resources.headmasters.activate') : t('admin.resources.headmasters.deactivate')
+        - if @records.empty?
+          tr
+            td.text-center colspan="7" style="padding: 40px; color: var(--content-secondary);" = t('admin.resources.headmasters.empty')
+
+/ Add Modal
+.schools-modal#add-headmaster-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="add-headmaster-title"
+    header.schools-modal__header
+      h3#add-headmaster-title = t('admin.resources.headmasters.add')
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="add-headmaster-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    form.schools-modal__form.headmaster-form#add-headmaster-form
+      label
+        span
+          = t('admin.resources.headmasters.school')
+          sup style="color: var(--content-secondary);" *
+        select name="headmaster[school_id]" id="add-headmaster-school" required=""
+          option value="" = t('admin.resources.headmasters.select_school')
+          - School.all.each do |school|
+            option value=school.id = school.name
+      label
+        span
+          = t('admin.resources.headmasters.form.first_name')
+          sup style="color: var(--content-secondary);" *
+        input type="text" name="headmaster[first_name]" id="add-headmaster-first-name" placeholder=(t('admin.resources.headmasters.form.first_name')) required=""
+      label
+        span
+          = t('admin.resources.headmasters.form.last_name')
+          sup style="color: var(--content-secondary);" *
+        input type="text" name="headmaster[last_name]" id="add-headmaster-last-name" placeholder=(t('admin.resources.headmasters.form.last_name')) required=""
+      label
+        span
+          = t('common.email')
+          sup style="color: var(--content-secondary);" *
+        input type="email" name="headmaster[email]" id="add-headmaster-email" placeholder="dyrektor@szkola.pl" required=""
+      label
+        span = t('admin.resources.headmasters.form.phone')
+        input type="text" name="headmaster[metadata][phone]" id="add-headmaster-phone" placeholder="+48 XXX XXX XXX"
+      .schools-modal__actions
+        button.schools-modal__primary type="submit" = t('admin.resources.headmasters.add_btn')
+        button.schools-modal__secondary type="button" data-close-modal="add-headmaster-modal" = t('common.cancel')
+
+/ Edit Modal
+.schools-modal#edit-headmaster-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="edit-headmaster-title"
+    header.schools-modal__header
+      h3#edit-headmaster-title = t('admin.resources.headmasters.edit')
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="edit-headmaster-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    form.schools-modal__form.headmaster-form#edit-headmaster-form
+      input type="hidden" id="edit-headmaster-id" value=""
+      label
+        span
+          = t('admin.resources.headmasters.school')
+          sup style="color: var(--content-secondary);" *
+        select name="headmaster[school_id]" id="edit-headmaster-school" required=""
+          option value="" = t('admin.resources.headmasters.select_school')
+          - School.all.each do |school|
+            option value=school.id = school.name
+      label
+        span
+          = t('admin.resources.headmasters.form.first_name')
+          sup style="color: var(--content-secondary);" *
+        input type="text" name="headmaster[first_name]" id="edit-headmaster-first-name" placeholder=(t('admin.resources.headmasters.form.first_name')) required=""
+      label
+        span
+          = t('admin.resources.headmasters.form.last_name')
+          sup style="color: var(--content-secondary);" *
+        input type="text" name="headmaster[last_name]" id="edit-headmaster-last-name" placeholder=(t('admin.resources.headmasters.form.last_name')) required=""
+      label
+        span
+          = t('common.email')
+          sup style="color: var(--content-secondary);" *
+        input type="email" name="headmaster[email]" id="edit-headmaster-email" placeholder="dyrektor@szkola.pl" required=""
+      label
+        span = t('admin.resources.headmasters.form.phone')
+        input type="text" name="headmaster[metadata][phone]" id="edit-headmaster-phone" placeholder="+48 XXX XXX XXX"
+      .schools-modal__actions
+        button.schools-modal__primary#edit-headmaster-save-btn type="submit" = t('common.save')
+        button.schools-modal__secondary type="button" data-close-modal="edit-headmaster-modal" = t('common.cancel')
+
+/ Deactivate Modal
+.schools-modal#deactivate-headmaster-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="deactivate-headmaster-title"
+    header.schools-modal__header
+      h3#deactivate-headmaster-title = t('admin.resources.headmasters.deactivate_title')
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="deactivate-headmaster-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p#deactivate-headmaster-message
+    .schools-modal__actions
+      button#deactivate-headmaster-confirm-btn.schools-modal__primary.schools-modal__primary--danger type="button" = t('admin.resources.headmasters.deactivate')
+      button.schools-modal__secondary type="button" data-close-modal="deactivate-headmaster-modal" = t('common.cancel')
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    // I18n messages
+    const MSG = {
+      adding: '#{j t('admin.resources.headmasters.js.adding')}',
+      saving: '#{j t('admin.resources.headmasters.js.saving')}',
+      sending: '#{j t('admin.resources.headmasters.js.sending')}',
+      sent: '#{j t('admin.resources.headmasters.js.sent')}',
+      processing: '#{j t('admin.resources.headmasters.js.processing')}',
+      error: '#{j t('admin.resources.headmasters.js.error')}',
+      error_create: '#{j t('admin.resources.headmasters.js.error_create')}',
+      error_update: '#{j t('admin.resources.headmasters.js.error_update')}',
+      error_id: '#{j t('admin.resources.headmasters.js.error_id')}',
+      deactivate: '#{j t('admin.resources.headmasters.deactivate')}',
+      activate: '#{j t('admin.resources.headmasters.activate')}',
+      deactivate_title: '#{j t('admin.resources.headmasters.deactivate_title')}',
+      activate_title: '#{j t('admin.resources.headmasters.activate_title')}',
+      deactivate_confirm: '#{j t('admin.resources.headmasters.deactivate_confirm')}',
+      activate_confirm: '#{j t('admin.resources.headmasters.activate_confirm')}',
+      active: '#{j t('common.active')}',
+      inactive: '#{j t('common.inactive')}'
+    };
+
+    // Menu positioning
+    function setupHeadmasterMenus() {
+      const menus = document.querySelectorAll('.headmasters-menu');
+      const tbody = document.querySelector('.headmasters-table tbody');
+      if (!tbody) return;
+
+      menus.forEach((menu) => {
+        const summary = menu.querySelector('summary');
+        if (!summary) return;
+
+        menu.addEventListener('toggle', function() {
+          if (menu.open) {
+            menus.forEach(m => { if (m !== menu && m.open) m.open = false; });
+            requestAnimationFrame(() => {
+              const summaryRect = summary.getBoundingClientRect();
+              const ul = menu.querySelector('ul');
+              if (!ul) return;
+              const ulHeight = ul.offsetHeight || 150;
+              const spaceBelow = window.innerHeight - summaryRect.bottom;
+              const spaceAbove = summaryRect.top;
+              const row = menu.closest('tr');
+              const rows = Array.from(tbody.querySelectorAll('tr'));
+              const rowIndex = rows.indexOf(row);
+              const totalRows = rows.length;
+
+              ul.style.position = 'fixed';
+              ul.style.zIndex = '999999';
+              ul.style.isolation = 'isolate';
+              ul.style.transform = 'translateZ(0)';
+              ul.style.willChange = 'transform';
+              
+              if (totalRows === 1 || !(spaceBelow < ulHeight + 20 && spaceAbove > ulHeight + 20 && rowIndex >= totalRows - 2)) {
+                menu.removeAttribute('data-menu-align');
+                ul.style.top = (summaryRect.bottom + 10) + 'px';
+                ul.style.right = (window.innerWidth - summaryRect.right) + 'px';
+                ul.style.bottom = 'auto';
+              } else {
+                menu.setAttribute('data-menu-align', 'top');
+                ul.style.bottom = (window.innerHeight - summaryRect.top + 10) + 'px';
+                ul.style.right = (window.innerWidth - summaryRect.right) + 'px';
+                ul.style.top = 'auto';
+              }
+            });
+          }
+        });
+
+        const ul = menu.querySelector('ul');
+        if (ul) ul.addEventListener('click', e => e.stopPropagation());
+      });
+
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.headmasters-menu')) {
+          menus.forEach(m => { if (m.open) m.open = false; });
+        }
+      }, true);
+    }
+
+    setupHeadmasterMenus();
+
+    // Modal handlers
+    document.querySelectorAll('[data-open-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById(btn.getAttribute('data-open-modal'));
+        if (modal) { modal.setAttribute('aria-hidden', 'false'); modal.classList.add('is-open'); }
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById(btn.getAttribute('data-close-modal'));
+        if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+      });
+    });
+
+    document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+      overlay.addEventListener('click', function() {
+        const modal = this.closest('.schools-modal');
+        if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+      });
+    });
+
+    // Edit headmaster
+    document.querySelectorAll('[data-action="edit-headmaster"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById('edit-headmaster-modal');
+        if (!modal) return;
+
+        document.getElementById('edit-headmaster-id').value = btn.dataset.headmasterId || '';
+        document.getElementById('edit-headmaster-school').value = btn.dataset.headmasterSchoolId || '';
+        document.getElementById('edit-headmaster-first-name').value = btn.dataset.headmasterFirstName || '';
+        document.getElementById('edit-headmaster-last-name').value = btn.dataset.headmasterLastName || '';
+        document.getElementById('edit-headmaster-email').value = btn.dataset.headmasterEmail || '';
+        document.getElementById('edit-headmaster-phone').value = btn.dataset.headmasterPhone || '';
+
+        modal.setAttribute('aria-hidden', 'false');
+        modal.classList.add('is-open');
+      });
+    });
+
+    // API calls
+    if (typeof window.ApiClient === 'undefined') {
+      console.error('ApiClient not available');
+      return;
+    }
+
+    const api = new window.ApiClient();
+
+    // Add headmaster form
+    const addForm = document.getElementById('add-headmaster-form');
+    if (addForm) {
+      addForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = addForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = MSG.adding;
+
+        try {
+          const formData = new FormData(addForm);
+          const data = {
+            headmaster: {
+              school_id: formData.get('headmaster[school_id]'),
+              first_name: formData.get('headmaster[first_name]'),
+              last_name: formData.get('headmaster[last_name]'),
+              email: formData.get('headmaster[email]'),
+              metadata: { phone: formData.get('headmaster[metadata][phone]') || '' }
+            }
+          };
+
+          const result = await api.post('/headmasters', data);
+          if (result.success) {
+            document.getElementById('add-headmaster-modal').classList.remove('is-open');
+            window.location.reload();
+          } else {
+            alert(MSG.error_create + ': ' + (result.error || ''));
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        } catch (error) {
+          alert(MSG.error + ': ' + error.message);
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      });
+    }
+
+    // Edit headmaster form
+    const editForm = document.getElementById('edit-headmaster-form');
+    if (editForm) {
+      editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = editForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        const headmasterId = document.getElementById('edit-headmaster-id').value;
+        
+        if (!headmasterId) { alert(MSG.error_id); return; }
+        
+        submitBtn.disabled = true;
+        submitBtn.textContent = MSG.saving;
+
+        try {
+          const formData = new FormData(editForm);
+          const data = {
+            headmaster: {
+              school_id: formData.get('headmaster[school_id]'),
+              first_name: formData.get('headmaster[first_name]'),
+              last_name: formData.get('headmaster[last_name]'),
+              email: formData.get('headmaster[email]'),
+              metadata: { phone: formData.get('headmaster[metadata][phone]') || '' }
+            }
+          };
+
+          const result = await api.patch(`/headmasters/${headmasterId}`, data);
+          if (result.success) {
+            document.getElementById('edit-headmaster-modal').classList.remove('is-open');
+            window.location.reload();
+          } else {
+            alert(MSG.error_update + ': ' + (result.error || ''));
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        } catch (error) {
+          alert(MSG.error + ': ' + error.message);
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      });
+    }
+
+    // Resend invite
+    document.querySelectorAll('[data-action="resend-invite"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const headmasterId = btn.dataset.headmasterId;
+        if (!headmasterId) return;
+        
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = MSG.sending;
+        
+        try {
+          const result = await api.post(`/headmasters/${headmasterId}/resend_invite`, {});
+          if (result.success) {
+            btn.textContent = MSG.sent;
+            btn.style.color = 'var(--state-success)';
+            setTimeout(() => { btn.disabled = false; btn.textContent = originalText; btn.style.color = ''; }, 2000);
+          } else {
+            btn.disabled = false;
+            btn.textContent = originalText;
+          }
+        } catch (error) {
+          btn.disabled = false;
+          btn.textContent = originalText;
+        }
+      });
+    });
+
+    // Deactivate/Activate headmaster
+    let deactivateHeadmasterId = null;
+    document.querySelectorAll('[data-action="deactivate-headmaster"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        deactivateHeadmasterId = btn.dataset.headmasterId;
+        const name = btn.dataset.headmasterName || '';
+        const isLocked = btn.dataset.headmasterIsLocked === 'true';
+        
+        const modalTitle = document.getElementById('deactivate-headmaster-title');
+        const modalMessage = document.getElementById('deactivate-headmaster-message');
+        const confirmBtn = document.getElementById('deactivate-headmaster-confirm-btn');
+        
+        if (confirmBtn) { confirmBtn.disabled = false; }
+        
+        if (isLocked) {
+          if (modalTitle) modalTitle.textContent = MSG.activate_title;
+          if (modalMessage) modalMessage.textContent = MSG.activate_confirm.replace('%{name}', name);
+          if (confirmBtn) { confirmBtn.textContent = MSG.activate; confirmBtn.classList.remove('schools-modal__primary--danger'); }
+        } else {
+          if (modalTitle) modalTitle.textContent = MSG.deactivate_title;
+          if (modalMessage) modalMessage.textContent = MSG.deactivate_confirm.replace('%{name}', name);
+          if (confirmBtn) { confirmBtn.textContent = MSG.deactivate; confirmBtn.classList.add('schools-modal__primary--danger'); }
+        }
+        
+        const modal = document.getElementById('deactivate-headmaster-modal');
+        if (modal) { modal.setAttribute('aria-hidden', 'false'); modal.classList.add('is-open'); }
+      });
+    });
+
+    const deactivateBtn = document.getElementById('deactivate-headmaster-confirm-btn');
+    if (deactivateBtn) {
+      deactivateBtn.addEventListener('click', async () => {
+        if (!deactivateHeadmasterId) return;
+        
+        const originalText = deactivateBtn.textContent;
+        deactivateBtn.disabled = true;
+        deactivateBtn.textContent = MSG.processing;
+
+        try {
+          const result = await api.post(`/headmasters/${deactivateHeadmasterId}/lock`, {});
+          if (result.success) {
+            document.getElementById('deactivate-headmaster-modal').classList.remove('is-open');
+            window.location.reload();
+          } else {
+            alert(MSG.error + ': ' + (result.error || ''));
+            deactivateBtn.disabled = false;
+            deactivateBtn.textContent = originalText;
+          }
+        } catch (error) {
+          alert(MSG.error + ': ' + error.message);
+          deactivateBtn.disabled = false;
+          deactivateBtn.textContent = originalText;
+        }
+      });
+    }
+
+    // Search
+    const searchInput = document.getElementById('headmasters-search-input');
+    const headmastersTable = document.querySelector('.headmasters-table tbody');
+    
+    if (searchInput && headmastersTable) {
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        const rows = headmastersTable.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+          if (row.querySelector('td[colspan]')) { row.style.display = ''; return; }
+          const cells = row.querySelectorAll('td');
+          if (cells.length < 6) return;
+          
+          const nameText = cells[0].textContent.toLowerCase();
+          const schoolText = cells[1].textContent.toLowerCase();
+          const emailText = cells[2].textContent.toLowerCase();
+          const phoneText = cells[3].textContent.toLowerCase();
+          
+          row.style.display = (nameText.includes(searchTerm) || schoolText.includes(searchTerm) || emailText.includes(searchTerm) || phoneText.includes(searchTerm)) ? '' : 'none';
+        });
+      });
+    }
+  });
+

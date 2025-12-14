@@ -1,0 +1,124 @@
+- content_for :page_title, t('admin.notifications.title')
+
+section.notifications-board aria-label=(t('admin.notifications.timeline'))
+  .notifications-board__filters
+    label
+      span = t('admin.notifications.filters.type')
+      select#notification-type-filter
+        option value="all" selected=(@type_filter == 'all') = t('admin.notifications.types.all')
+        option value="teacher_awaiting_approval" selected=(@type_filter == 'teacher_awaiting_approval') = t('admin.notifications.types.teacher_invitations')
+        option value="student_awaiting_approval" selected=(@type_filter == 'student_awaiting_approval') = t('admin.notifications.types.student_invitations')
+        option value="report_ready" selected=(@type_filter == 'report_ready') = t('admin.notifications.types.reports')
+        option value="reminder" selected=(@type_filter == 'reminder') = t('admin.notifications.types.reminders')
+        option value="alert" selected=(@type_filter == 'alert') = t('admin.notifications.types.alerts')
+    label
+      span = t('admin.notifications.filters.status')
+      select#notification-status-filter
+        option value="unread" selected=(@status_filter == 'unread') = t('admin.notifications.status.unread')
+        option value="archived" selected=(@status_filter == 'archived') = t('admin.notifications.status.archived')
+
+  #notifications-list.notifications-board__list
+    - if @notifications.any?
+      - @notifications.each do |notification|
+        article.notification-card data-notification-type=notification[:type] data-notification-id=notification[:id]
+          header.notification-card__header
+            div
+              h3 = notification[:title]
+              p = notification[:message]
+            span.notification-card__badge = t('admin.notifications.time_ago', time: notification[:time_ago])
+          .notification-card__actions
+            - notification[:actions].each do |action|
+              - if action[:url]
+                = link_to action[:label], action[:url], class: "notification-card__action #{'notification-card__action--primary' if action[:primary]}"
+              - elsif action[:action]
+                button.notification-card__action type="button" data-action=action[:action] data-notification-id=(action[:data][:notification_id] if action[:data]&.dig(:notification_id))
+                  = action[:label]
+    - else
+      .notifications-empty
+        p = t('admin.notifications.empty')
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    const typeFilter = document.getElementById('notification-type-filter');
+    const statusFilter = document.getElementById('notification-status-filter');
+    const notificationsList = document.getElementById('notifications-list');
+    const notificationCards = notificationsList.querySelectorAll('.notification-card');
+    
+    const MSG_PROCESSING = '#{j t("common.loading")}';
+    const MSG_ERROR = '#{j t("admin.notifications.errors.mark_read_failed")}';
+
+    if (typeFilter) {
+      typeFilter.addEventListener('change', function() {
+        const selectedType = this.value;
+        const url = new URL(window.location);
+        url.searchParams.set('type', selectedType);
+        window.location.href = url.toString();
+      });
+    }
+
+    if (statusFilter) {
+      statusFilter.addEventListener('change', function() {
+        const selectedStatus = this.value;
+        const url = new URL(window.location);
+        url.searchParams.set('status', selectedStatus);
+        window.location.href = url.toString();
+      });
+    }
+
+    notificationsList.addEventListener('click', async function(e) {
+      const button = e.target.closest('[data-action="mark_read"]');
+      if (!button) return;
+
+      const notificationId = button.getAttribute('data-notification-id');
+      const card = button.closest('.notification-card');
+      
+      if (!notificationId || !card) return;
+
+      button.disabled = true;
+      const originalText = button.textContent;
+      button.textContent = MSG_PROCESSING;
+
+      try {
+        const formData = new FormData();
+        formData.append('notification_id', notificationId);
+        formData.append('authenticity_token', document.querySelector('meta[name="csrf-token"]').content);
+
+        const response = await fetch('/admin/notifications/mark_as_read', {
+          method: 'POST',
+          body: formData,
+          credentials: 'same-origin',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          card.style.display = 'none';
+          
+          const headerCounter = document.querySelector('.dashboard-top-actions .notification-counter');
+          if (headerCounter) {
+            const currentCount = parseInt(headerCounter.textContent) || 0;
+            const newCount = Math.max(0, currentCount - 1);
+            if (newCount > 0) {
+              headerCounter.textContent = newCount;
+              headerCounter.style.display = '';
+            } else {
+              headerCounter.style.display = 'none';
+            }
+          }
+        } else {
+          alert(MSG_ERROR + ': ' + (result.error || ''));
+          button.disabled = false;
+          button.textContent = originalText;
+        }
+      } catch (error) {
+        console.error('Failed to mark notification as read:', error);
+        alert(MSG_ERROR);
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    });
+  });
+

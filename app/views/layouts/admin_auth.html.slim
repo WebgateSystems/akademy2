@@ -1,0 +1,21 @@
+doctype html
+html
+  head
+    title = t('admin.sessions.title') + " | Akademy"
+    meta name="viewport" content="width=device-width, initial-scale=1"
+    = csrf_meta_tags
+    = csp_meta_tag
+    = render 'shared/favicons'
+    = stylesheet_link_tag "application", "data-turbo-track": "reload"
+  body.bg-light.d-flex.justify-content-center.align-items-center style="height: 100vh;"
+    div
+      main.col-12.col-md-9.col-lg-10.p-4
+
+    .p-4.rounded.shadow.bg-white style="width: 360px;"
+      - if notice
+        .alert.alert-success = notice
+      - if alert
+        .alert.alert-danger = alert
+
+      = yield
+

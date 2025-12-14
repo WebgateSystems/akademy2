@@ -1,0 +1,195 @@
+- content_for :page_title, t('admin.resources.subjects.list')
+
+section aria-label=(t('admin.resources.subjects.list'))
+  header.schools-page__header
+    label.schools-search.schools-search--half
+      span.visually-hidden = t('common.search')
+      input type="search" placeholder="#{t('common.search')}..." id="subjects-search-input"
+      = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true"
+    = link_to admin_new_resource_path(resource: 'subjects'), class: "schools-page__add", style: "text-decoration: none;" do
+      = t('admin.resources.subjects.add')
+  .schools-page__controls
+  .schools-card
+    table.schools-page__table
+      thead
+        tr
+          th.left scope="col" Lp.
+          th.left scope="col" = t('admin.resources.subjects.form.icon')
+          th.left scope="col" = t('admin.resources.subjects.form.title')
+          th.left scope="col" = t('admin.resources.subjects.form.slug')
+          th.left scope="col" Kolory
+          th.right scope="col" = t('common.actions')
+      tbody#subjects-tbody
+        - @records.each do |subject|
+          tr.sortable-row data-subject-id=subject.id draggable="true"
+            td.sortable-handle style="cursor: move; user-select: none;"
+              span.order-index = subject.order_index
+            td
+              - if subject.icon.present? && subject.icon.url.present?
+                img src=subject.icon.url alt="#{subject.title}" style="max-width: 32px; max-height: 32px; vertical-align: middle; background: transparent;"
+              - else
+                span style="color: var(--content-secondary);" —
+            td
+              strong = subject.title
+            td
+              code style="font-size: 12px; color: #666;" = subject.slug
+            td
+              div style="display: flex; gap: 8px; align-items: center;"
+                span style="display: inline-block; width: 24px; height: 24px; border-radius: 4px; background-color: #{subject.color_light || '#ccc'}; border: 1px solid #ddd;" title=(t('admin.resources.subjects.form.color_light'))
+                span style="display: inline-block; width: 24px; height: 24px; border-radius: 4px; background-color: #{subject.color_dark || '#333'}; border: 1px solid #ddd;" title=(t('admin.resources.subjects.form.color_dark'))
+            td.schools-page__actions
+              = link_to admin_resource_path(resource: 'subjects', id: subject.id), "aria-label": t('common.view') do
+                = image_tag "icons/social/S/search.svg", alt: ""
+              = link_to admin_edit_resource_path(resource: 'subjects', id: subject.id), "aria-label": t('common.edit') do
+                = image_tag "icons/social/S/edit.svg", alt: ""
+              button type="button" aria-label=(t('common.delete')) data-action="delete-subject" data-subject-id=subject.id data-subject-title=h(subject.title&.to_s || '')
+                = image_tag "icons/social/S/delete.svg", alt: ""
+        - if @records.empty?
+          tr
+            td.text-center colspan="6" style="padding: 40px; color: var(--content-secondary);" Brak przedmiotów
+
+.schools-modal#delete-subject-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="delete-subject-modal-title"
+    header.schools-modal__header
+      h3#delete-subject-modal-title = t('admin.resources.subjects.delete')
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="delete-subject-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p
+        = t('admin.resources.subjects.delete_confirm')
+        strong data-subject-delete-title
+        | ?
+        = " " + t('admin.resources.subjects.delete_warning')
+    .schools-modal__actions
+      button#delete-subject-confirm-btn.schools-modal__primary.schools-modal__primary--danger type="button" = t('common.delete')
+      button.schools-modal__secondary type="button" data-close-modal="delete-subject-modal" = t('common.cancel')
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('subjects-search-input');
+    const tbody = document.getElementById('subjects-tbody');
+    const MSG_SAVE_FAILED = '#{j t('admin.resources.subjects.js.error')}';
+    const MSG_DELETING = '#{j t('admin.resources.subjects.js.deleting')}';
+    const MSG_DELETE_ERROR = '#{j t('admin.resources.subjects.js.error_delete')}';
+
+    if (searchInput && tbody) {
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(row => {
+          if (row.querySelector('td[colspan]')) { row.style.display = ''; return; }
+          const cells = row.querySelectorAll('td');
+          if (cells.length < 6) return;
+          const titleText = cells[2].textContent.toLowerCase();
+          const slugText = cells[3].textContent.toLowerCase();
+          row.style.display = (titleText.includes(searchTerm) || slugText.includes(searchTerm)) ? '' : 'none';
+        });
+      });
+    }
+
+    let deleteSubjectId = null;
+    document.querySelectorAll('[data-action="delete-subject"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        deleteSubjectId = btn.getAttribute('data-subject-id');
+        const title = btn.getAttribute('data-subject-title') || '';
+        const deleteTitleEl = document.querySelector('[data-subject-delete-title]');
+        if (deleteTitleEl) deleteTitleEl.textContent = title;
+        const modal = document.getElementById('delete-subject-modal');
+        if (modal) { modal.setAttribute('aria-hidden', 'false'); modal.classList.add('is-open'); }
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal="delete-subject-modal"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById('delete-subject-modal');
+        if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+      });
+    });
+
+    const overlay = document.querySelector('#delete-subject-modal .schools-modal__overlay');
+    if (overlay) {
+      overlay.addEventListener('click', function() {
+        const modal = document.getElementById('delete-subject-modal');
+        if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+      });
+    }
+
+    const deleteBtn = document.getElementById('delete-subject-confirm-btn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async () => {
+        if (!deleteSubjectId) return;
+        const originalText = deleteBtn.textContent;
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = MSG_DELETING;
+        try {
+          const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+          const formData = new URLSearchParams();
+          formData.append('_method', 'delete');
+          formData.append('authenticity_token', csrfToken);
+          const response = await fetch(`/admin/subjects/${deleteSubjectId}`, {
+            method: 'POST', headers: { 'X-CSRF-Token': csrfToken, 'Accept': 'text/html', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData.toString(), credentials: 'same-origin'
+          });
+          const modal = document.getElementById('delete-subject-modal');
+          if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+          if (response.status === 303 || response.status === 302 || response.ok) { window.location.reload(); }
+          else { alert(MSG_DELETE_ERROR); deleteBtn.disabled = false; deleteBtn.textContent = originalText; }
+        } catch (error) {
+          alert(MSG_DELETE_ERROR + ': ' + error.message);
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = originalText;
+        }
+      });
+    }
+
+    // Drag and drop
+    if (tbody) {
+      let draggedRow = null;
+      const rows = tbody.querySelectorAll('tr[data-subject-id]');
+      rows.forEach(row => {
+        row.draggable = true;
+        row.addEventListener('dragstart', function(e) { draggedRow = this; this.classList.add('dragging'); this.style.opacity = '0.5'; });
+        row.addEventListener('dragend', function() { this.classList.remove('dragging'); this.style.opacity = ''; rows.forEach(r => r.classList.remove('drag-over')); });
+        row.addEventListener('dragover', function(e) { e.preventDefault(); if (draggedRow !== this) this.classList.add('drag-over'); });
+        row.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
+        row.addEventListener('drop', function(e) {
+          e.stopPropagation();
+          if (draggedRow !== this) {
+            const rect = this.getBoundingClientRect();
+            const insertBefore = e.clientY < rect.top + rect.height / 2;
+            if (insertBefore) tbody.insertBefore(draggedRow, this);
+            else tbody.insertBefore(draggedRow, this.nextSibling);
+            updateOrderIndices(); saveOrder();
+          }
+          this.classList.remove('drag-over');
+        });
+      });
+
+      function updateOrderIndices() {
+        tbody.querySelectorAll('tr[data-subject-id]').forEach((row, idx) => {
+          const cell = row.querySelector('.order-index');
+          if (cell) cell.textContent = idx + 1;
+        });
+      }
+
+      async function saveOrder() {
+        const subjectIds = Array.from(tbody.querySelectorAll('tr[data-subject-id]')).map(r => r.dataset.subjectId);
+        try {
+          const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+          const response = await fetch('/admin/subjects/reorder', {
+            method: 'POST', headers: { 'X-CSRF-Token': csrfToken, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ subject_ids: subjectIds }), credentials: 'same-origin'
+          });
+          if (!response.ok) throw new Error();
+        } catch (e) { alert(MSG_SAVE_FAILED); window.location.reload(); }
+      }
+    }
+  });
+
+css:
+  .sortable-row { transition: background-color 0.2s ease; }
+  .sortable-row.dragging { opacity: 0.3; background-color: var(--surface-hover, #f5f5f5); }
+  .sortable-row.drag-over { background-color: var(--surface-hover, #f0f0f0); }
+  .sortable-handle { cursor: move; user-select: none; }
+

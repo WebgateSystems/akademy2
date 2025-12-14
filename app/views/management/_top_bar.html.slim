@@ -1,17 +1,20 @@
 header.dashboard-top-bar
   button.dashboard-sidebar-toggle type="button" aria-label=(t('actions.toggle_navigation')) data-sidebar-toggle=""
     = image_tag "icons/social/M/burger.svg", alt: "", width: "24", height: "24", "data-theme-icon": true
-  h1 = content_for(:page_title) || t('navigation.dashboard')
+  h1 = content_for(:page_title) || t('management.top_bar.default_title')
   .dashboard-top-actions
-    = link_to admin_notifications_path, class: "icon-pill", "aria-label": t('aria.notifications') do
+    - if current_user&.roles&.pluck(:key)&.include?('teacher')
+      = link_to dashboard_path, class: "icon-pill", "aria-label": t('navigation.teacher_view') do
+        i.bi.bi-person-workspace aria-hidden="true"
+    = link_to management_notifications_path, class: "icon-pill", "aria-label": t('navigation.notifications') do
       - if @notifications_count && @notifications_count > 0
         span.notification-counter aria-hidden="true" = @notifications_count
       - else
         span.notification-counter aria-hidden="true" style="display: none;" 0
       = image_tag "icons/social/M/notifications.svg", alt: "", "data-theme-icon": true
     = render 'shared/theme_toggle'
-    - if current_admin
+    - if current_user
       .settings-control
-        = button_to destroy_admin_session_path, method: :delete, class: "icon-pill", "aria-label": t('actions.logout'), form: { class: "m-0 p-0" } do
+        = button_to destroy_user_session_path, method: :delete, class: "icon-pill", "aria-label": t('actions.logout'), form: { class: "m-0 p-0" } do
           = image_tag "icons/social/M/logout.svg", alt: "", "data-theme-icon": true
 

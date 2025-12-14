@@ -1,0 +1,144 @@
+- content_for :page_title, t('admin.resources.contents.list')
+
+section aria-label=(t('admin.resources.contents.list'))
+  header.schools-page__header
+    label.schools-search.schools-search--half
+      span.visually-hidden = t('common.search')
+      input type="search" placeholder="#{t('common.search')}..." id="contents-search-input"
+      = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true"
+    = link_to admin_new_resource_path(resource: 'contents'), class: "schools-page__add", style: "text-decoration: none;" do
+      = t('admin.resources.contents.add')
+  .schools-page__controls
+  .schools-card
+    table.schools-page__table
+      thead
+        tr
+          th.left scope="col" Lp.
+          th.left scope="col" = t('admin.resources.contents.form.title')
+          th.left scope="col" = t('admin.resources.contents.type')
+          th.left scope="col" = t('admin.resources.contents.module')
+          th.left scope="col" = t('admin.resources.learning_modules.unit')
+          th.left scope="col" = t('admin.resources.subjects.form.title')
+          th.right scope="col" = t('common.actions')
+      tbody#contents-tbody
+        - @records.each do |content|
+          tr.sortable-row data-content-id=content.id draggable="true"
+            td.sortable-handle style="cursor: move; user-select: none;"
+              span.order-index = content.order_index
+            td
+              strong = content.title
+            td
+              span style="display: inline-block; padding: 4px 8px; background: var(--surface-secondary); border-radius: 4px; font-size: 12px; color: var(--content-primary);"
+                = content.content_type
+            td = content.learning_module&.title || '—'
+            td = content.learning_module&.unit&.title || '—'
+            td = content.learning_module&.unit&.subject&.title || '—'
+            td.schools-page__actions
+              = link_to admin_resource_path(resource: 'contents', id: content.id), "aria-label": t('common.view') do
+                = image_tag "icons/social/S/search.svg", alt: ""
+              = link_to admin_edit_resource_path(resource: 'contents', id: content.id), "aria-label": t('common.edit') do
+                = image_tag "icons/social/S/edit.svg", alt: ""
+              button type="button" aria-label=(t('common.delete')) data-action="delete-content" data-content-id=content.id data-content-title=h(content.title&.to_s || '')
+                = image_tag "icons/social/S/delete.svg", alt: ""
+        - if @records.empty?
+          tr
+            td.text-center colspan="7" style="padding: 40px; color: var(--content-secondary);" Brak treści
+
+.schools-modal#delete-content-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="delete-content-modal-title"
+    header.schools-modal__header
+      h3#delete-content-modal-title = t('admin.resources.contents.delete')
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="delete-content-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p
+        = t('admin.resources.contents.delete_confirm')
+        |  
+        strong data-content-delete-title
+        | ?
+        |  
+        = t('admin.resources.contents.delete_warning')
+    .schools-modal__actions
+      button#delete-content-confirm-btn.schools-modal__primary.schools-modal__primary--danger type="button" = t('common.delete')
+      button.schools-modal__secondary type="button" data-close-modal="delete-content-modal" = t('common.cancel')
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('contents-search-input');
+    const tbody = document.getElementById('contents-tbody');
+    const MSG_DELETING = '#{j t('admin.resources.contents.js.deleting')}';
+    const MSG_DELETE_ERROR = '#{j t('admin.resources.contents.js.error_delete')}';
+
+    if (searchInput && tbody) {
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(row => {
+          if (row.querySelector('td[colspan]')) { row.style.display = ''; return; }
+          const cells = row.querySelectorAll('td');
+          if (cells.length < 7) return;
+          const titleText = cells[1].textContent.toLowerCase();
+          const typeText = cells[2].textContent.toLowerCase();
+          const moduleText = cells[3].textContent.toLowerCase();
+          row.style.display = (titleText.includes(searchTerm) || typeText.includes(searchTerm) || moduleText.includes(searchTerm)) ? '' : 'none';
+        });
+      });
+    }
+
+    let deleteContentId = null;
+    document.querySelectorAll('[data-action="delete-content"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        deleteContentId = btn.getAttribute('data-content-id');
+        const title = btn.getAttribute('data-content-title') || '';
+        const deleteTitleEl = document.querySelector('[data-content-delete-title]');
+        if (deleteTitleEl) deleteTitleEl.textContent = title;
+        const modal = document.getElementById('delete-content-modal');
+        if (modal) { modal.setAttribute('aria-hidden', 'false'); modal.classList.add('is-open'); }
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal="delete-content-modal"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById('delete-content-modal');
+        if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+      });
+    });
+
+    const overlay = document.querySelector('#delete-content-modal .schools-modal__overlay');
+    if (overlay) {
+      overlay.addEventListener('click', function() {
+        const modal = document.getElementById('delete-content-modal');
+        if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+      });
+    }
+
+    const deleteBtn = document.getElementById('delete-content-confirm-btn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async () => {
+        if (!deleteContentId) return;
+        const originalText = deleteBtn.textContent;
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = MSG_DELETING;
+        try {
+          const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+          const formData = new URLSearchParams();
+          formData.append('_method', 'delete');
+          formData.append('authenticity_token', csrfToken);
+          const response = await fetch(`/admin/contents/${deleteContentId}`, {
+            method: 'POST', headers: { 'X-CSRF-Token': csrfToken, 'Accept': 'text/html', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData.toString(), credentials: 'same-origin'
+          });
+          const modal = document.getElementById('delete-content-modal');
+          if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+          if (response.status === 303 || response.status === 302 || response.ok) { window.location.reload(); }
+          else { alert(MSG_DELETE_ERROR); deleteBtn.disabled = false; deleteBtn.textContent = originalText; }
+        } catch (error) {
+          alert(MSG_DELETE_ERROR + ': ' + error.message);
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = originalText;
+        }
+      });
+    }
+  });
+

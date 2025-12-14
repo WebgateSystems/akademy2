@@ -29,6 +29,66 @@
 
 en:
   hello: "Hello world"
+
+  navigation:
+    dashboard: "Dashboard"
+    schools: "Schools"
+    headmasters: "Headmasters"
+    teachers: "Teachers"
+    students: "Students"
+    activity_log: "Activity Log"
+    subjects: "Subjects"
+    units: "Units"
+    modules: "Modules"
+    content: "Content"
+
+  actions:
+    collapse_sidebar: "Collapse sidebar"
+    toggle_navigation: "Toggle navigation"
+    toggle_theme: "Toggle theme"
+    logout: "Logout"
+    close: "Close"
+
+  aria:
+    notifications: "Notifications"
+
+  common:
+    loading: "Loading..."
+    name: "Name"
+    email: "Email"
+    save: "Save"
+    cancel: "Cancel"
+    delete: "Delete"
+    search: "Search"
+    actions: "Actions"
+    close: "Close"
+
+  admin:
+    dashboard:
+      title: "Superadmin Dashboard"
+      description: "Manage schools, headmasters, and monitor Academy 2.0 platform health."
+    sessions:
+      welcome: "Welcome to admin panel!"
+    notifications:
+      title: "Notifications Center"
+      timeline: "Notifications timeline"
+      empty: "No notifications"
+      time_ago: "%{time} ago"
+      filters:
+        type: "Type"
+        status: "Status"
+      types:
+        all: "All types"
+        teacher_invitations: "Teacher invitations"
+        student_invitations: "Student invitations"
+        reports: "Reports"
+        reminders: "Reminders"
+        alerts: "Alerts"
+      status:
+        unread: "Unread"
+        archived: "Archived"
+      errors:
+        mark_read_failed: "Failed to mark as read"
   api:
     student:
       account:

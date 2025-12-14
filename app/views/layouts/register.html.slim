@@ -1,0 +1,21 @@
+doctype html
+html
+  head
+    title = t('register.page_title') + " | Akademy"
+    meta name="viewport" content="width=device-width, initial-scale=1"
+    = csrf_meta_tags
+    = csp_meta_tag
+    = render 'shared/favicons'
+    = javascript_include_tag "application", type: "module"
+    = stylesheet_link_tag "register"
+  body.auth-body
+    div
+      - if alert.present?
+        .auth-alert.auth-alert--error = alert
+      - if notice.present?
+        .auth-alert.auth-alert--success = notice
+      .auth-layout
+        = yield
+      footer style="text-align: center; padding: 1rem; color: #64748b; font-size: 0.875rem; margin-top: 2rem;"
+        = link_to t('register.privacy_policy'), privacy_policy_path, style: 'color: #6366f1; text-decoration: underline;'
+

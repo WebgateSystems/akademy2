@@ -1,0 +1,259 @@
+- content_for :page_title, t('admin.resources.contents.list')
+
+section aria-label=(t('admin.resources.contents.new'))
+  header.schools-page__header
+    h2 style="margin: 0; font-size: 24px; font-weight: 600;"
+      = t('admin.resources.contents.new')
+    .d-flex style="gap: 12px;"
+      = link_to admin_resource_collection_path(resource: 'contents'), class: "schools-page__add", style: "text-decoration: none; background: var(--surface-secondary); color: var(--content-primary);" do
+        = t('common.cancel')
+
+  .schools-card style="margin-top: 24px;"
+    = form_with model: @record, url: admin_create_resource_path(resource: 'contents'), method: :post, local: true, multipart: true, id: 'content-form' do |f|
+      - if @record.errors.any?
+        div style="padding: 16px; margin: 24px; background: var(--surface-error); border-radius: 8px; color: var(--content-error);"
+          strong = t('admin.form.errors') + ":"
+          ul style="margin: 8px 0 0 0; padding-left: 20px;"
+            - @record.errors.full_messages.each do |message|
+              li = message
+
+      table.schools-page__table
+        tbody
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.content_type') + ":"
+            td.left
+              = f.select :content_type, options_for_select([[t('admin.resources.contents.types.video'), 'video'], [t('admin.resources.contents.types.infographic'), 'infographic'], [t('admin.resources.contents.types.quiz'), 'quiz'], [t('admin.resources.contents.types.pdf'), 'pdf'], [t('admin.resources.contents.types.webinar'), 'webinar'], [t('admin.resources.contents.types.asset'), 'asset']]), {}, { required: true, id: 'content-type-select', style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" }
+              small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;"
+                = t('admin.resources.contents.form.content_type_hint')
+
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.title') + ":"
+            td.left
+              = f.text_field :title, required: true, style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.learning_module') + ":"
+            td.left
+              = f.collection_select :learning_module_id, LearningModule.includes(unit: :subject).order('subjects.order_index ASC, units.order_index ASC, learning_modules.order_index ASC'), :id, :title_with_unit_and_subject, { prompt: t('admin.resources.contents.form.select_module'), required: true }, { style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;" }
+
+          /! Video-specific fields
+          tr.content-type-fields data-content-type="video"
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.youtube_url') + ":"
+            td.left
+              = f.text_field :youtube_url, placeholder: t('admin.resources.contents.form.youtube_url_placeholder'), style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+
+          tr.content-type-fields data-content-type="video"
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.duration_sec') + ":"
+            td.left
+              = f.number_field :duration_sec, min: 0, style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+
+          tr.content-type-fields data-content-type="video"
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.video_file') + ":"
+            td.left
+              = f.file_field :file, accept: "video/*", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+              small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;"
+                = t('admin.resources.contents.form.video_file_hint')
+
+          tr.content-type-fields data-content-type="video"
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.poster') + ":"
+            td.left
+              = f.file_field :poster, accept: "image/*", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+              small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;"
+                = t('admin.resources.contents.form.poster_hint')
+
+          tr.content-type-fields data-content-type="video"
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.subtitles') + ":"
+            td.left
+              = f.file_field :subtitles, accept: ".srt,.vtt", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+              small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;"
+                = t('admin.resources.contents.form.subtitles_hint')
+
+          tr.content-type-fields data-content-type="video"
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.subtitles_lang') + ":"
+            td.left
+              = f.text_field :payload_subtitles_lang, value: @record.payload&.dig('subtitles_lang') || 'pl', placeholder: "pl", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+              small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;"
+                = t('admin.resources.contents.form.subtitles_lang_hint')
+
+          /! Infographic-specific fields
+          tr.content-type-fields data-content-type="infographic"
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.infographic_file') + ":"
+            td.left
+              = f.file_field :file, accept: "image/*,.svg,.pdf", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+              small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;"
+                = t('admin.resources.contents.form.infographic_file_hint')
+
+          /! Quiz-specific fields
+          tr.content-type-fields data-content-type="quiz"
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.quiz_payload') + ":"
+            td.left
+              = f.text_area :payload_json, value: '', rows: 15, placeholder: '{\n  "questions": [\n    {\n      "id": "q1",\n      "type": "single",\n      "text": "Treść pytania?",\n      "options": [\n        { "id": "a", "text": "Opcja A" },\n        { "id": "b", "text": "Opcja B" }\n      ],\n      "correct": ["a"],\n      "points": 1\n    }\n  ],\n  "pass_threshold": 80\n}', style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 13px; width: 100%; max-width: 800px; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace; line-height: 1.5; white-space: pre; overflow-wrap: normal; overflow-x: auto;"
+              small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;"
+                = t('admin.resources.contents.form.quiz_payload_hint')
+
+          /! PDF-specific fields
+          tr.content-type-fields data-content-type="pdf"
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.pdf_file') + ":"
+            td.left
+              = f.file_field :file, accept: ".pdf", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+              small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;"
+                = t('admin.resources.contents.form.pdf_file_hint')
+
+          /! Webinar-specific fields
+          tr.content-type-fields data-content-type="webinar"
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.webinar_url') + ":"
+            td.left
+              = f.text_field :youtube_url, placeholder: "https://...", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+
+          tr.content-type-fields data-content-type="webinar"
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.duration_sec') + ":"
+            td.left
+              = f.number_field :duration_sec, min: 0, style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+
+          /! Asset-specific fields
+          tr.content-type-fields data-content-type="asset"
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.asset_file') + ":"
+            td.left
+              = f.file_field :file, accept: "*/*", style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 300px;"
+              small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;"
+                = t('admin.resources.contents.form.asset_file_hint')
+
+      div style="padding: 24px; display: flex; gap: 12px; border-top: 1px solid var(--border-primary);"
+        = f.submit t('admin.form.create'), class: "schools-page__add", style: "cursor: pointer; border: none;"
+        = link_to t('common.cancel'), admin_resource_collection_path(resource: 'contents'), class: "schools-page__add", style: "text-decoration: none; background: var(--surface-secondary); color: var(--content-primary); text-align: center;"
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    const contentTypeSelect = document.getElementById('content-type-select');
+    const contentForm = document.getElementById('content-form');
+    const contentTypeFields = document.querySelectorAll('.content-type-fields');
+
+    const MSG_JSON_ERROR = '#{j t('admin.resources.contents.js.json_validation_error')}';
+
+    function toggleFieldsForContentType(contentType) {
+      contentTypeFields.forEach(row => {
+        const rowContentType = row.getAttribute('data-content-type');
+        if (rowContentType === contentType) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+          const inputs = row.querySelectorAll('input, textarea, select');
+          inputs.forEach(input => {
+            input.value = '';
+          });
+        }
+      });
+    }
+
+    toggleFieldsForContentType('');
+
+    if (contentTypeSelect) {
+      contentTypeSelect.addEventListener('change', function() {
+        toggleFieldsForContentType(this.value);
+      });
+    }
+
+    function setupJsonFormatting() {
+      const payloadJsonField = document.querySelector('textarea[name="content[payload_json]"]');
+      if (payloadJsonField && !payloadJsonField.dataset.formatterAttached) {
+        payloadJsonField.dataset.formatterAttached = 'true';
+        payloadJsonField.addEventListener('blur', function() {
+          const value = this.value.trim();
+          if (value) {
+            try {
+              const parsed = JSON.parse(value);
+              this.value = JSON.stringify(parsed, null, 2);
+            } catch (e) { }
+          }
+        });
+      }
+    }
+
+    if (contentTypeSelect) {
+      contentTypeSelect.addEventListener('change', function() {
+        setTimeout(setupJsonFormatting, 100);
+      });
+    }
+    setupJsonFormatting();
+
+    function showErrorMessage(message) {
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger';
+      alertDiv.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 10000; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); max-width: 500px; word-wrap: break-word; background-color: var(--surface-error, #f8d7da); color: var(--content-error, #721c24); border: 1px solid var(--border-error, #f5c6cb);';
+      alertDiv.innerHTML = '<strong style="display: block; margin-bottom: 8px;">' + MSG_JSON_ERROR + ':</strong>' + message;
+      document.body.appendChild(alertDiv);
+
+      const payloadJsonField = document.querySelector('textarea[name="content[payload_json]"]');
+      if (payloadJsonField) {
+        payloadJsonField.focus();
+        payloadJsonField.style.borderColor = 'var(--content-error, #dc3545)';
+        payloadJsonField.style.borderWidth = '2px';
+        payloadJsonField.addEventListener('input', function() {
+          this.style.borderColor = '';
+          this.style.borderWidth = '';
+        }, { once: true });
+      }
+
+      setTimeout(() => {
+        alertDiv.style.opacity = '0';
+        alertDiv.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => alertDiv.remove(), 300);
+      }, 8000);
+    }
+
+    if (contentForm) {
+      contentForm.addEventListener('submit', function(e) {
+        const contentType = contentTypeSelect?.value;
+        const payloadJsonField = document.querySelector('textarea[name="content[payload_json]"]');
+
+        if (contentType === 'quiz' && payloadJsonField) {
+          try {
+            const jsonValue = payloadJsonField.value.trim();
+            if (jsonValue) {
+              const parsed = JSON.parse(jsonValue);
+              let payloadInput = document.querySelector('input[name="content[payload]"]');
+              if (!payloadInput) {
+                payloadInput = document.createElement('input');
+                payloadInput.type = 'hidden';
+                payloadInput.name = 'content[payload]';
+                contentForm.appendChild(payloadInput);
+              }
+              payloadInput.value = JSON.stringify(parsed);
+            }
+          } catch (error) {
+            e.preventDefault();
+            showErrorMessage(error.message);
+            return false;
+          }
+        } else if (contentType === 'video') {
+          const subtitlesLangField = document.querySelector('input[name="content[payload_subtitles_lang]"]');
+          if (subtitlesLangField && subtitlesLangField.value) {
+            let payloadInput = document.querySelector('input[name="content[payload]"]');
+            if (!payloadInput) {
+              payloadInput = document.createElement('input');
+              payloadInput.type = 'hidden';
+              payloadInput.name = 'content[payload]';
+              contentForm.appendChild(payloadInput);
+            }
+            payloadInput.value = JSON.stringify({ subtitles_lang: subtitlesLangField.value });
+          }
+        }
+      });
+    }
+  });
+

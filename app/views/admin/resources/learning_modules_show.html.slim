@@ -1,0 +1,177 @@
+- content_for :page_title, t('admin.resources.learning_modules.list')
+
+section#learning-module-section aria-label=(t('admin.resources.learning_modules.show'))
+  header.schools-page__header
+    h2#module-title style="margin: 0; font-size: 24px; font-weight: 600;"
+      = @record.title
+    .d-flex style="gap: 12px;"
+      = link_to admin_edit_resource_path(resource: 'learning_modules', id: @record.id), class: "schools-page__add", style: "text-decoration: none;" do
+        = t('common.edit')
+      = link_to admin_resource_collection_path(resource: 'learning_modules'), class: "schools-page__add", style: "text-decoration: none; background: var(--surface-secondary); color: var(--content-primary);" do
+        = t('common.back')
+
+  .schools-card style="margin-top: 24px;"
+    table.schools-page__table
+      tbody
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('admin.resources.learning_modules.form.title') + ":"
+          td.left = @record.title
+
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('admin.resources.learning_modules.form.unit') + ":"
+          td.left = @record.unit&.title || '—'
+
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('admin.resources.subjects.form.title') + ":"
+          td.left = @record.unit&.subject&.title || '—'
+
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('admin.resources.learning_modules.form.published') + ":"
+          td.left
+            - if @record.published?
+              span style="color: var(--content-success);" = "✓ #{t('common.yes')}"
+            - else
+              span style="color: var(--content-secondary);" = t('common.no')
+
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('admin.resources.learning_modules.form.single_flow') + ":"
+          td.left
+            - if @record.single_flow?
+              span style="color: var(--content-success);" = "✓ #{t('common.yes')}"
+            - else
+              span style="color: var(--content-secondary);" = t('common.no')
+
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('common.created_at') + ":"
+          td.left = @record.created_at&.strftime('%Y-%m-%d %H:%M:%S')
+
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('common.updated_at') + ":"
+          td.left = @record.updated_at&.strftime('%Y-%m-%d %H:%M:%S')
+
+  /! Contents Section
+  .schools-card#contents-management-section style="margin-top: 24px;" data-single-flow=@record.single_flow?
+    h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: var(--content-primary);"
+      = "#{t('admin.resources.learning_modules.manage_contents')} ("
+      span#contents-count = @record.contents.count
+      | )
+
+    - if @record.contents.any?
+      table.schools-page__table
+        thead
+          tr
+            th.left scope="col" = t('admin.resources.learning_modules.table.order')
+            th.left scope="col" = t('admin.resources.learning_modules.table.title')
+            th.left scope="col" = t('admin.resources.learning_modules.table.type')
+            th.right scope="col" = t('admin.resources.learning_modules.table.actions')
+        tbody#learning-module-contents-tbody data-learning-module-id=@record.id
+          - @record.contents.order(:order_index).each do |content|
+            tr data-content-id=content.id class=('sortable-row' unless @record.single_flow?) draggable=(!@record.single_flow? ? 'true' : nil)
+              td class=('sortable-handle' unless @record.single_flow?) style=('cursor: move; user-select: none;' unless @record.single_flow?)
+                span.order-index = content.order_index
+              td.left
+                strong = content.title
+              td.left
+                span style="display: inline-block; padding: 4px 8px; background: var(--surface-secondary); border-radius: 4px; font-size: 12px; color: var(--content-primary);"
+                  = content.content_type
+              td.schools-page__actions
+                = link_to admin_resource_path(resource: 'contents', id: content.id), "aria-label": t('common.view') do
+                  = image_tag "icons/social/S/search.svg", alt: ""
+                = link_to admin_edit_resource_path(resource: 'contents', id: content.id), "aria-label": t('common.edit') do
+                  = image_tag "icons/social/S/edit.svg", alt: ""
+    - else
+      p style="padding: 24px; color: var(--content-secondary); text-align: center;"
+        = t('admin.resources.learning_modules.no_contents')
+        = " "
+        = link_to t('admin.resources.learning_modules.add_content'), admin_new_resource_path(resource: 'contents'), style: "color: var(--button-primary); text-decoration: underline;"
+
+- unless @record.single_flow?
+  javascript:
+    document.addEventListener('DOMContentLoaded', function() {
+      const tbody = document.getElementById('learning-module-contents-tbody');
+      const MSG_SAVE_FAILED = '#{j t('admin.resources.learning_modules.js.save_order_failed')}';
+
+      if (tbody) {
+        let draggedRow = null;
+
+        const rows = tbody.querySelectorAll('tr[data-content-id]');
+        rows.forEach((row) => {
+          row.draggable = true;
+
+          row.addEventListener('dragstart', function(e) {
+            draggedRow = this;
+            this.classList.add('dragging');
+            this.style.opacity = '0.5';
+          });
+
+          row.addEventListener('dragend', function() {
+            this.classList.remove('dragging');
+            this.style.opacity = '';
+            rows.forEach(r => r.classList.remove('drag-over'));
+          });
+
+          row.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            if (draggedRow !== this) this.classList.add('drag-over');
+          });
+
+          row.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+          });
+
+          row.addEventListener('drop', function(e) {
+            e.stopPropagation();
+            if (draggedRow !== this) {
+              const rect = this.getBoundingClientRect();
+              const insertBefore = e.clientY < rect.top + rect.height / 2;
+              if (insertBefore) {
+                tbody.insertBefore(draggedRow, this);
+              } else {
+                tbody.insertBefore(draggedRow, this.nextSibling);
+              }
+              updateOrderIndices();
+              saveOrder();
+            }
+            this.classList.remove('drag-over');
+          });
+        });
+
+        function updateOrderIndices() {
+          tbody.querySelectorAll('tr[data-content-id]').forEach((row, index) => {
+            const cell = row.querySelector('.order-index');
+            if (cell) cell.textContent = index + 1;
+          });
+        }
+
+        async function saveOrder() {
+          const contentIds = Array.from(tbody.querySelectorAll('tr[data-content-id]')).map(r => r.dataset.contentId);
+          const learningModuleId = tbody.dataset.learningModuleId;
+          try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+            const response = await fetch(`/admin/learning_modules/${learningModuleId}/reorder_contents`, {
+              method: 'POST',
+              headers: { 'X-CSRF-Token': csrfToken, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ content_ids: contentIds })
+            });
+            if (!response.ok) throw new Error();
+          } catch (e) {
+            alert(MSG_SAVE_FAILED);
+            window.location.reload();
+          }
+        }
+      }
+    });
+
+  css:
+    .sortable-row { transition: background-color 0.2s ease; }
+    .sortable-row.dragging { opacity: 0.3; background-color: var(--surface-hover, #f5f5f5); }
+    .sortable-row.drag-over { background-color: var(--surface-hover, #f0f0f0); }
+    .sortable-handle { cursor: move; user-select: none; }
+

@@ -1,0 +1,100 @@
+- content_for :page_title, t('admin.resources.contents.list')
+
+section aria-label=(t('admin.resources.contents.show'))
+  header.schools-page__header
+    h2 style="margin: 0; font-size: 24px; font-weight: 600;"
+      = @record.title
+    .d-flex style="gap: 12px;"
+      = link_to admin_edit_resource_path(resource: 'contents', id: @record.id), class: "schools-page__add", style: "text-decoration: none;" do
+        = t('common.edit')
+      = link_to admin_resource_collection_path(resource: 'contents'), class: "schools-page__add", style: "text-decoration: none; background: var(--surface-secondary); color: var(--content-primary);" do
+        = t('common.back')
+
+  .schools-card style="margin-top: 24px;"
+    table.schools-page__table
+      tbody
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('admin.resources.contents.form.title') + ":"
+          td.left = @record.title
+
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('admin.resources.contents.form.content_type') + ":"
+          td.left
+            span style="display: inline-block; padding: 4px 8px; background: var(--surface-secondary); border-radius: 4px; font-size: 12px; color: var(--content-primary);"
+              = @record.content_type
+
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('admin.resources.contents.form.learning_module') + ":"
+          td.left = @record.learning_module&.title || '—'
+
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('admin.resources.units.form.unit') + ":"
+          td.left = @record.learning_module&.unit&.title || '—'
+
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('admin.resources.subjects.form.title') + ":"
+          td.left = @record.learning_module&.unit&.subject&.title || '—'
+
+        - if @record.youtube_url.present?
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.youtube_url') + ":"
+            td.left
+              a href=@record.youtube_url target="_blank" rel="noopener noreferrer" style="color: var(--button-primary); text-decoration: underline;"
+                = @record.youtube_url
+
+        - if @record.duration_sec.present?
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.duration_sec') + ":"
+            td.left = @record.duration_sec
+
+        - if @record.file.present? && @record.file.url.present?
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.current_file') + ":"
+            td.left
+              a href=@record.file.url target="_blank" rel="noopener noreferrer" style="color: var(--button-primary); text-decoration: underline;"
+                = @record.file.url.split('/').last
+
+        - if @record.poster.present? && @record.poster.url.present?
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.poster') + ":"
+            td.left
+              div style="margin-top: 8px;"
+                img src=@record.poster.url alt=(t('admin.resources.contents.form.current_poster')) style="max-width: 200px; max-height: 200px; border-radius: 4px;"
+              a href=@record.poster.url target="_blank" rel="noopener noreferrer" style="color: var(--button-primary); text-decoration: underline; font-size: 12px;"
+                = @record.poster.url.split('/').last
+
+        - if @record.subtitles.present? && @record.subtitles.url.present?
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.subtitles') + ":"
+            td.left
+              a href=@record.subtitles.url target="_blank" rel="noopener noreferrer" style="color: var(--button-primary); text-decoration: underline;"
+                = @record.subtitles.url.split('/').last
+
+        - if @record.content_type == 'quiz' && @record.payload.present?
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.contents.form.quiz_payload') + ":"
+            td.left
+              pre style="background: var(--surface-secondary); padding: 12px; border-radius: 4px; overflow-x: auto; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace; font-size: 13px; line-height: 1.5; color: var(--content-primary); max-width: 800px; white-space: pre-wrap; word-wrap: break-word;"
+                code = JSON.pretty_generate(@record.payload)
+
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('common.created_at') + ":"
+          td.left = @record.created_at&.strftime('%Y-%m-%d %H:%M:%S')
+
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('common.updated_at') + ":"
+          td.left = @record.updated_at&.strftime('%Y-%m-%d %H:%M:%S')
+

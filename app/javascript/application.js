@@ -7,6 +7,7 @@ import "./api_client"
 // Shared utilities
 import "./modal"
 import "./theme-switcher"
+import "./alerts"
 
 // Page-specific scripts
 import "./activity-log"

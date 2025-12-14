@@ -1,0 +1,395 @@
+- content_for :page_title, t('navigation.schools')
+
+section aria-label=(t('admin.resources.schools.list'))
+  header.schools-page__header
+    label.schools-search.schools-search--half
+      span.visually-hidden = t('admin.dashboard.actions.search_schools')
+      input#schools-search-input type="search" placeholder=(t('common.search'))
+      = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true"
+    button.schools-page__add type="button" data-open-modal="add-school-modal" = t('admin.resources.schools.add')
+  .schools-page__controls
+  .schools-card
+    table.schools-page__table
+      thead
+        tr
+          th.left scope="col" = t('common.name')
+          th.left scope="col" = t('admin.resources.schools.address')
+          th.left scope="col" = t('admin.resources.schools.phone')
+          th.left scope="col" = t('admin.resources.schools.headmaster')
+          th.right scope="col" = t('common.actions')
+      tbody
+        - @records.each do |school|
+          tr
+            td
+              - if school.homepage.present?
+                = link_to school.name, school.homepage, target: "_blank", rel: "noopener noreferrer", class: "school-name-link"
+              - else
+                = school.name
+            td
+              - address_parts = [school.address, school.postcode, school.city].compact.reject(&:blank?)
+              = address_parts.join(', ')
+            td = school.phone || '—'
+            td
+              - headmaster = User.joins(:roles).where(roles: { key: 'principal' }, school: school).first
+              - if headmaster
+                = [headmaster.first_name, headmaster.last_name].compact.join(' ') || headmaster.email
+              - else
+                | —
+            td.schools-page__actions
+              button type="button" aria-label=(t('admin.resources.schools.edit')) data-action="edit-school" data-school-id=school.id data-school-name=h(school.name&.to_s || '') data-school-slug=h(school.slug&.to_s || '') data-school-address=h(school.address&.to_s || '') data-school-city=h(school.city&.to_s || '') data-school-postcode=h(school.postcode&.to_s || '') data-school-country=h(school.country&.to_s || '') data-school-phone=h(school.phone&.to_s || '') data-school-email=h(school.email&.to_s || '') data-school-homepage=h(school.homepage&.to_s || '') data-school-logo-url=(school.logo.present? && school.logo.url.present? ? h(school.logo.url.to_s) : '')
+                = image_tag "icons/social/S/edit.svg", alt: ""
+              button type="button" aria-label=(t('admin.resources.schools.delete')) data-action="delete-school" data-school-id=school.id data-school-name=h(school.name&.to_s || '')
+                = image_tag "icons/social/S/delete.svg", alt: ""
+        - if @records.empty?
+          tr
+            td.text-center colspan="5" style="padding: 40px; color: var(--content-secondary);" = t('admin.dashboard.empty.no_schools')
+
+/ Add School Modal
+#add-school-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="add-school-title"
+    header.schools-modal__header
+      h3#add-school-title = t('admin.resources.schools.add')
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="add-school-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    form#add-school-form.schools-modal__form
+      label
+        span
+          = t('admin.resources.schools.form.name')
+          sup style="color: var(--content-secondary);" *
+        input#add-school-name type="text" name="school[name]" placeholder=(t('admin.resources.schools.form.name')) required=""
+      label
+        span = t('admin.resources.schools.form.address')
+        input#add-school-address type="text" name="school[address]" placeholder=(t('admin.resources.schools.form.street_number'))
+      label
+        span
+          = t('admin.resources.schools.form.city')
+          sup style="color: var(--content-secondary);" *
+        input#add-school-city type="text" name="school[city]" placeholder=(t('admin.resources.schools.form.city')) value="Gdynia" required=""
+      label
+        span = t('admin.resources.schools.form.postcode')
+        input#add-school-postcode type="text" name="school[postcode]" placeholder="00-000"
+      label
+        span = t('admin.resources.schools.form.phone')
+        input#add-school-phone type="text" name="school[phone]" placeholder="+48 XXX XXX XXX"
+      label
+        span = t('common.email')
+        input#add-school-email type="email" name="school[email]" placeholder="szkola@example.com"
+      label
+        span = t('admin.resources.schools.form.homepage')
+        input#add-school-homepage type="url" name="school[homepage]" placeholder="https://szkola.example.com"
+      label
+        span = t('admin.resources.schools.form.logo')
+        input#add-school-logo type="file" name="school[logo]" accept="image/*"
+        small style="color: var(--content-secondary); font-size: 12px; margin-top: 4px; display: block;" = t('admin.resources.schools.form.logo_formats')
+      .schools-modal__actions
+        button.schools-modal__primary type="submit" = t('admin.resources.schools.add_btn')
+        button.schools-modal__secondary type="button" data-close-modal="add-school-modal" = t('common.cancel')
+
+/ Edit School Modal
+#edit-school-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="edit-school-title"
+    header.schools-modal__header
+      h3#edit-school-title = t('admin.resources.schools.edit')
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="edit-school-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    form#edit-school-form.schools-modal__form
+      input#edit-school-id type="hidden" value=""
+      label
+        span
+          = t('admin.resources.schools.form.name')
+          sup style="color: var(--content-secondary);" *
+        input#edit-school-name type="text" name="school[name]" placeholder=(t('admin.resources.schools.form.name')) required=""
+      label
+        span = t('admin.resources.schools.form.address')
+        input#edit-school-address type="text" name="school[address]" placeholder=(t('admin.resources.schools.form.street_number'))
+      label
+        span
+          = t('admin.resources.schools.form.city')
+          sup style="color: var(--content-secondary);" *
+        input#edit-school-city type="text" name="school[city]" placeholder=(t('admin.resources.schools.form.city')) required=""
+      label
+        span = t('admin.resources.schools.form.postcode')
+        input#edit-school-postcode type="text" name="school[postcode]" placeholder="00-000"
+      label
+        span = t('admin.resources.schools.form.phone')
+        input#edit-school-phone type="text" name="school[phone]" placeholder="+48 XXX XXX XXX"
+      label
+        span = t('common.email')
+        input#edit-school-email type="email" name="school[email]" placeholder="szkola@example.com"
+      label
+        span = t('admin.resources.schools.form.homepage')
+        input#edit-school-homepage type="url" name="school[homepage]" placeholder="https://szkola.example.com"
+      label
+        span = t('admin.resources.schools.form.logo')
+        #edit-school-logo-preview style="margin-bottom: 8px;"
+          img#edit-school-logo-img src="" alt=(t('admin.resources.schools.form.current_logo')) style="max-width: 200px; max-height: 100px; display: none; border-radius: 4px; border: 1px solid var(--border-contrast);"
+        input#edit-school-logo type="file" name="school[logo]" accept="image/*"
+        small style="color: var(--content-secondary); font-size: 12px; margin-top: 4px; display: block;" = t('admin.resources.schools.form.logo_formats_keep')
+      .schools-modal__actions
+        button#edit-school-save-btn.schools-modal__primary type="submit" = t('common.save')
+        button.schools-modal__secondary type="button" data-close-modal="edit-school-modal" = t('common.cancel')
+
+/ Delete School Modal
+#delete-school-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="delete-school-modal-title"
+    header.schools-modal__header
+      h3#delete-school-modal-title = t('admin.resources.schools.delete')
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="delete-school-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p
+        = t('admin.resources.schools.delete_confirm')
+        strong data-school-delete-name = t('admin.resources.schools.this_school')
+        | ?
+        = t('admin.resources.schools.delete_warning')
+    .schools-modal__actions
+      button#delete-school-confirm-btn.schools-modal__primary.schools-modal__primary--danger type="button" = t('common.delete')
+      button.schools-modal__secondary type="button" data-close-modal="delete-school-modal" = t('common.cancel')
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    const MSG_ADDING = '#{j t("admin.resources.schools.js.adding")}';
+    const MSG_SAVING = '#{j t("admin.resources.schools.js.saving")}';
+    const MSG_DELETING = '#{j t("admin.resources.schools.js.deleting")}';
+    const MSG_ERROR = '#{j t("admin.resources.schools.js.error")}';
+    const MSG_ERROR_CREATE = '#{j t("admin.resources.schools.js.error_create")}';
+    const MSG_ERROR_UPDATE = '#{j t("admin.resources.schools.js.error_update")}';
+    const MSG_ERROR_DELETE = '#{j t("admin.resources.schools.js.error_delete")}';
+    const MSG_ERROR_ID = '#{j t("admin.resources.schools.js.error_id")}';
+    const MSG_DELETE = '#{j t("common.delete")}';
+
+    // Open modal handlers
+    document.querySelectorAll('[data-open-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-open-modal');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('is-open');
+        }
+      });
+    });
+
+    // Close modal handlers
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-close-modal');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          const focusedElement = modal.querySelector(':focus');
+          if (focusedElement) focusedElement.blur();
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    // Close on overlay click
+    document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+      overlay.addEventListener('click', function() {
+        const modal = this.closest('.schools-modal');
+        if (modal) {
+          const focusedElement = modal.querySelector(':focus');
+          if (focusedElement) focusedElement.blur();
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    // Edit school button handler
+    document.querySelectorAll('[data-action="edit-school"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById('edit-school-modal');
+        if (!modal) return;
+
+        const schoolId = btn.getAttribute('data-school-id');
+        document.getElementById('edit-school-id').value = schoolId || '';
+        document.getElementById('edit-school-name').value = btn.getAttribute('data-school-name') || '';
+        document.getElementById('edit-school-address').value = btn.getAttribute('data-school-address') || '';
+        document.getElementById('edit-school-city').value = btn.getAttribute('data-school-city') || '';
+        document.getElementById('edit-school-postcode').value = btn.getAttribute('data-school-postcode') || '';
+        document.getElementById('edit-school-phone').value = btn.getAttribute('data-school-phone') || '';
+        document.getElementById('edit-school-email').value = btn.getAttribute('data-school-email') || '';
+        document.getElementById('edit-school-homepage').value = btn.getAttribute('data-school-homepage') || '';
+
+        const logoUrl = btn.getAttribute('data-school-logo-url') || '';
+        const logoImg = document.getElementById('edit-school-logo-img');
+        if (logoImg) {
+          logoImg.src = logoUrl;
+          logoImg.style.display = logoUrl ? 'block' : 'none';
+        }
+        document.getElementById('edit-school-logo').value = '';
+
+        modal.setAttribute('aria-hidden', 'false');
+        modal.classList.add('is-open');
+      });
+    });
+
+    // API handlers
+    if (typeof window.ApiClient !== 'undefined') {
+      const api = new window.ApiClient();
+
+      // Add school form
+      const addForm = document.getElementById('add-school-form');
+      if (addForm) {
+        addForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = addForm.querySelector('button[type="submit"]');
+          const originalText = submitBtn.textContent;
+          submitBtn.disabled = true;
+          submitBtn.textContent = MSG_ADDING;
+
+          try {
+            const formData = new FormData(addForm);
+            formData.append('school[country]', 'PL');
+            const result = await api.post('/schools', formData);
+            
+            if (result.success) {
+              const modal = document.getElementById('add-school-modal');
+              if (modal) {
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+              }
+              window.location.reload();
+            } else {
+              alert(MSG_ERROR + ': ' + (result.error || MSG_ERROR_CREATE));
+              submitBtn.disabled = false;
+              submitBtn.textContent = originalText;
+            }
+          } catch (error) {
+            alert(MSG_ERROR + ': ' + (error.message || MSG_ERROR_CREATE));
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        });
+      }
+
+      // Edit school form
+      const editForm = document.getElementById('edit-school-form');
+      if (editForm) {
+        editForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = editForm.querySelector('button[type="submit"]');
+          const originalText = submitBtn.textContent;
+          const schoolId = document.getElementById('edit-school-id').value;
+          
+          if (!schoolId) {
+            alert(MSG_ERROR_ID);
+            return;
+          }
+          
+          submitBtn.disabled = true;
+          submitBtn.textContent = MSG_SAVING;
+
+          try {
+            const formData = new FormData(editForm);
+            formData.append('school[country]', 'PL');
+            const result = await api.patch(`/schools/${schoolId}`, formData);
+            
+            if (result.success) {
+              const modal = document.getElementById('edit-school-modal');
+              if (modal) {
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+              }
+              window.location.reload();
+            } else {
+              alert(MSG_ERROR + ': ' + (result.error || MSG_ERROR_UPDATE));
+              submitBtn.disabled = false;
+              submitBtn.textContent = originalText;
+            }
+          } catch (error) {
+            alert(MSG_ERROR + ': ' + (error.message || MSG_ERROR_UPDATE));
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        });
+      }
+
+      // Delete school handler
+      let deleteSchoolId = null;
+      document.querySelectorAll('[data-action="delete-school"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          deleteSchoolId = btn.getAttribute('data-school-id');
+          const name = btn.getAttribute('data-school-name') || '';
+          const deleteNameEl = document.querySelector('[data-school-delete-name]');
+          if (deleteNameEl) deleteNameEl.textContent = name;
+          const deleteModal = document.getElementById('delete-school-modal');
+          if (deleteModal) {
+            deleteModal.setAttribute('aria-hidden', 'false');
+            deleteModal.classList.add('is-open');
+          }
+        });
+      });
+
+      const deleteBtn = document.getElementById('delete-school-confirm-btn');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', async () => {
+          if (!deleteSchoolId) return;
+          
+          deleteBtn.disabled = true;
+          deleteBtn.textContent = MSG_DELETING;
+
+          try {
+            const result = await api.delete(`/schools/${deleteSchoolId}`);
+            
+            if (result.success) {
+              const modal = document.getElementById('delete-school-modal');
+              if (modal) {
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('is-open');
+              }
+              window.location.reload();
+            } else {
+              alert(MSG_ERROR + ': ' + (result.error || MSG_ERROR_DELETE));
+              deleteBtn.disabled = false;
+              deleteBtn.textContent = MSG_DELETE;
+            }
+          } catch (error) {
+            alert(MSG_ERROR + ': ' + (error.message || MSG_ERROR_DELETE));
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = MSG_DELETE;
+          }
+        });
+      }
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById('schools-search-input');
+    const schoolsTable = document.querySelector('.schools-page__table tbody');
+    
+    if (searchInput && schoolsTable) {
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        const rows = schoolsTable.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+          if (row.querySelector('td[colspan]')) {
+            row.style.display = '';
+            return;
+          }
+          
+          const cells = row.querySelectorAll('td');
+          if (cells.length < 4) return;
+          
+          const nameText = cells[0].textContent.toLowerCase();
+          const addressText = cells[1].textContent.toLowerCase();
+          const headmasterText = cells[3].textContent.toLowerCase();
+          
+          const matches = nameText.includes(searchTerm) || addressText.includes(searchTerm) || headmasterText.includes(searchTerm);
+          row.style.display = matches ? '' : 'none';
+        });
+        
+        const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none' && !row.querySelector('td[colspan]'));
+        const emptyRow = schoolsTable.querySelector('tr td[colspan]');
+        if (emptyRow) {
+          emptyRow.closest('tr').style.display = visibleRows.length === 0 ? '' : 'none';
+        }
+      });
+    }
+  });
+
