@@ -1,0 +1,135 @@
+- content_for :page_title, t('admin.resources.units.list')
+
+section aria-label=(t('admin.resources.units.list'))
+  header.schools-page__header
+    label.schools-search.schools-search--half
+      span.visually-hidden = t('common.search')
+      input type="search" placeholder="#{t('common.search')}..." id="units-search-input"
+      = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true"
+    = link_to admin_new_resource_path(resource: 'units'), class: "schools-page__add", style: "text-decoration: none;" do
+      = t('admin.resources.units.add')
+  .schools-page__controls
+  .schools-card
+    table.schools-page__table
+      thead
+        tr
+          th.left scope="col" Lp.
+          th.left scope="col" = t('admin.resources.units.form.title')
+          th.left scope="col" = t('admin.resources.units.form.subject')
+          th.right scope="col" = t('common.actions')
+      tbody#units-tbody
+        - @records.each do |unit|
+          tr.sortable-row data-unit-id=unit.id draggable="true"
+            td.sortable-handle style="cursor: move; user-select: none;"
+              span.order-index = unit.order_index
+            td
+              strong = unit.title
+            td = unit.subject&.title || '—'
+            td.schools-page__actions
+              = link_to admin_resource_path(resource: 'units', id: unit.id), "aria-label": t('common.view') do
+                = image_tag "icons/social/S/search.svg", alt: ""
+              = link_to admin_edit_resource_path(resource: 'units', id: unit.id), "aria-label": t('common.edit') do
+                = image_tag "icons/social/S/edit.svg", alt: ""
+              button type="button" aria-label=(t('common.delete')) data-action="delete-unit" data-unit-id=unit.id data-unit-title=h(unit.title&.to_s || '')
+                = image_tag "icons/social/S/delete.svg", alt: ""
+        - if @records.empty?
+          tr
+            td.text-center colspan="4" style="padding: 40px; color: var(--content-secondary);" Brak jednostek
+
+.schools-modal#delete-unit-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="delete-unit-modal-title"
+    header.schools-modal__header
+      h3#delete-unit-modal-title = t('admin.resources.units.delete')
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="delete-unit-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p
+        = t('admin.resources.units.delete_confirm')
+        |  
+        strong data-unit-delete-title
+        | ?
+        |  
+        = t('admin.resources.units.delete_warning')
+    .schools-modal__actions
+      button#delete-unit-confirm-btn.schools-modal__primary.schools-modal__primary--danger type="button" = t('common.delete')
+      button.schools-modal__secondary type="button" data-close-modal="delete-unit-modal" = t('common.cancel')
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('units-search-input');
+    const tbody = document.getElementById('units-tbody');
+    const MSG_DELETING = '#{j t('admin.resources.units.js.deleting')}';
+    const MSG_DELETE_ERROR = '#{j t('admin.resources.units.js.error_delete')}';
+
+    if (searchInput && tbody) {
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(row => {
+          if (row.querySelector('td[colspan]')) { row.style.display = ''; return; }
+          const cells = row.querySelectorAll('td');
+          if (cells.length < 4) return;
+          const titleText = cells[1].textContent.toLowerCase();
+          const subjectText = cells[2].textContent.toLowerCase();
+          row.style.display = (titleText.includes(searchTerm) || subjectText.includes(searchTerm)) ? '' : 'none';
+        });
+      });
+    }
+
+    let deleteUnitId = null;
+    document.querySelectorAll('[data-action="delete-unit"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        deleteUnitId = btn.getAttribute('data-unit-id');
+        const title = btn.getAttribute('data-unit-title') || '';
+        const deleteTitleEl = document.querySelector('[data-unit-delete-title]');
+        if (deleteTitleEl) deleteTitleEl.textContent = title;
+        const modal = document.getElementById('delete-unit-modal');
+        if (modal) { modal.setAttribute('aria-hidden', 'false'); modal.classList.add('is-open'); }
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal="delete-unit-modal"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById('delete-unit-modal');
+        if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+      });
+    });
+
+    const overlay = document.querySelector('#delete-unit-modal .schools-modal__overlay');
+    if (overlay) {
+      overlay.addEventListener('click', function() {
+        const modal = document.getElementById('delete-unit-modal');
+        if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+      });
+    }
+
+    const deleteBtn = document.getElementById('delete-unit-confirm-btn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async () => {
+        if (!deleteUnitId) return;
+        const originalText = deleteBtn.textContent;
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = MSG_DELETING;
+        try {
+          const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+          const formData = new URLSearchParams();
+          formData.append('_method', 'delete');
+          formData.append('authenticity_token', csrfToken);
+          const response = await fetch(`/admin/units/${deleteUnitId}`, {
+            method: 'POST', headers: { 'X-CSRF-Token': csrfToken, 'Accept': 'text/html', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData.toString(), credentials: 'same-origin'
+          });
+          const modal = document.getElementById('delete-unit-modal');
+          if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+          if (response.status === 303 || response.status === 302 || response.ok) { window.location.reload(); }
+          else { alert(MSG_DELETE_ERROR); deleteBtn.disabled = false; deleteBtn.textContent = originalText; }
+        } catch (error) {
+          alert(MSG_DELETE_ERROR + ': ' + error.message);
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = originalText;
+        }
+      });
+    }
+  });
+

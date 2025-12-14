@@ -1,0 +1,32 @@
+- content_for :page_title, t('admin.resources.units.list')
+
+section aria-label=(t('admin.resources.units.show'))
+  header.schools-page__header
+    h2 style="margin: 0; font-size: 24px; font-weight: 600;"
+      = @record.title
+    .d-flex style="gap: 12px;"
+      = link_to admin_edit_resource_path(resource: 'units', id: @record.id), class: "schools-page__add", style: "text-decoration: none;" do
+        = t('common.edit')
+      = link_to admin_resource_collection_path(resource: 'units'), class: "schools-page__add", style: "text-decoration: none; background: var(--surface-secondary); color: var(--content-primary);" do
+        = t('common.back')
+
+  .schools-card style="margin-top: 24px;"
+    table.schools-page__table
+      tbody
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('admin.resources.units.form.title') + ":"
+          td.left = @record.title
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('admin.resources.units.form.subject') + ":"
+          td.left = @record.subject&.title || '—'
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('common.created_at') + ":"
+          td.left = @record.created_at&.strftime('%Y-%m-%d %H:%M:%S')
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('common.updated_at') + ":"
+          td.left = @record.updated_at&.strftime('%Y-%m-%d %H:%M:%S')
+

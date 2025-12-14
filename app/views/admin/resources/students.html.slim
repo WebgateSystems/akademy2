@@ -1,0 +1,602 @@
+- content_for :page_title, t('admin.resources.students.list')
+
+javascript:
+  window.STUDENTS_ASSET_PATHS = { buttonIcon: '#{asset_path("icons/social/S/button-3.svg")}' };
+
+section aria-label=(t('admin.resources.students.list'))
+  header.schools-page__header
+    label.schools-search.schools-search--half
+      span.visually-hidden = t('admin.resources.students.search')
+      input type="search" placeholder="#{t('admin.resources.students.search_placeholder')}..." id="students-search-input"
+      = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true", "data-theme-icon": true
+    button.schools-page__add type="button" data-open-modal="add-student-modal" = t('admin.resources.students.add')
+  .schools-page__controls
+
+  .students-panel
+    table.students-table
+      thead.students-table__head
+        tr
+          th.students-table__heading scope="col" = t('admin.resources.students.form.name')
+          th.students-table__heading scope="col" = t('admin.resources.students.form.birth_date')
+          th.students-table__heading scope="col" = t('common.email')
+          th.students-table__heading scope="col" = t('admin.resources.students.form.phone')
+          th.students-table__heading scope="col" = t('admin.resources.students.school')
+          th.students-table__heading scope="col" = t('common.status')
+          th.students-table__heading.students-table__heading--actions scope="col" = t('common.actions')
+      tbody.students-table__body#students-table-body
+        / Students will be loaded via API
+    #students-loading-indicator.students-loading style="display: none; padding: 20px; text-align: center;"
+      .spinner style="display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--content-primary); border-radius: 50%; animation: spin 0.8s linear infinite;"
+      span style="margin-left: 12px; color: var(--content-secondary);" = t('admin.resources.students.loading')
+    #students-empty-message.text-center style="padding: 40px; color: var(--content-secondary); display: none;" = t('admin.resources.students.empty')
+
+css:
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+/ Add Modal
+.schools-modal#add-student-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="add-student-title"
+    header.schools-modal__header
+      h3#add-student-title = t('admin.resources.students.add')
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="add-student-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    form.schools-modal__form.headmaster-form#add-student-form
+      label
+        span
+          = t('admin.resources.students.school')
+          sup style="color: var(--content-secondary);" *
+        select name="student[school_id]" id="add-student-school" required=""
+          option value="" = t('admin.resources.students.select_school')
+          - School.all.each do |school|
+            option value=school.id = school.name
+      label
+        span
+          = t('admin.resources.students.form.first_name')
+          sup style="color: var(--content-secondary);" *
+        input type="text" name="student[first_name]" id="add-student-first-name" placeholder=(t('admin.resources.students.form.first_name')) required=""
+      label
+        span
+          = t('admin.resources.students.form.last_name')
+          sup style="color: var(--content-secondary);" *
+        input type="text" name="student[last_name]" id="add-student-last-name" placeholder=(t('admin.resources.students.form.last_name')) required=""
+      label
+        span
+          = t('common.email')
+          sup style="color: var(--content-secondary);" *
+        input type="email" name="student[email]" id="add-student-email" placeholder="uczen@szkola.pl" required=""
+      label
+        span = t('admin.resources.students.form.phone')
+        input type="text" name="student[metadata][phone]" id="add-student-phone" placeholder="+48 XXX XXX XXX"
+      label
+        span = t('admin.resources.students.form.birth_date')
+        input type="date" name="student[metadata][birth_date]" id="add-student-birth-date"
+      .schools-modal__actions
+        button.schools-modal__primary type="submit" = t('admin.resources.students.add_btn')
+        button.schools-modal__secondary type="button" data-close-modal="add-student-modal" = t('common.cancel')
+
+/ Edit Modal
+.schools-modal#edit-student-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="edit-student-title"
+    header.schools-modal__header
+      h3#edit-student-title = t('admin.resources.students.edit')
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="edit-student-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    form.schools-modal__form.headmaster-form#edit-student-form
+      input type="hidden" id="edit-student-id" value=""
+      label
+        span
+          = t('admin.resources.students.school')
+          sup style="color: var(--content-secondary);" *
+        select name="student[school_id]" id="edit-student-school" required=""
+          option value="" = t('admin.resources.students.select_school')
+          - School.all.each do |school|
+            option value=school.id = school.name
+      label
+        span
+          = t('admin.resources.students.form.first_name')
+          sup style="color: var(--content-secondary);" *
+        input type="text" name="student[first_name]" id="edit-student-first-name" placeholder=(t('admin.resources.students.form.first_name')) required=""
+      label
+        span
+          = t('admin.resources.students.form.last_name')
+          sup style="color: var(--content-secondary);" *
+        input type="text" name="student[last_name]" id="edit-student-last-name" placeholder=(t('admin.resources.students.form.last_name')) required=""
+      label
+        span
+          = t('common.email')
+          sup style="color: var(--content-secondary);" *
+        input type="email" name="student[email]" id="edit-student-email" placeholder="uczen@szkola.pl" required=""
+      label
+        span = t('admin.resources.students.form.phone')
+        input type="text" name="student[metadata][phone]" id="edit-student-phone" placeholder="+48 XXX XXX XXX"
+      label
+        span = t('admin.resources.students.form.birth_date')
+        input type="date" name="student[metadata][birth_date]" id="edit-student-birth-date"
+      .schools-modal__actions
+        button.schools-modal__primary#edit-student-save-btn type="submit" = t('common.save')
+        button.schools-modal__secondary type="button" data-close-modal="edit-student-modal" = t('common.cancel')
+
+/ Deactivate Modal
+.schools-modal#deactivate-student-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="deactivate-student-title"
+    header.schools-modal__header
+      h3#deactivate-student-title = t('admin.resources.students.deactivate_title')
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="deactivate-student-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p#deactivate-student-message
+    .schools-modal__actions
+      button#deactivate-student-confirm-btn.schools-modal__primary.schools-modal__primary--danger type="button" = t('admin.resources.students.deactivate')
+      button.schools-modal__secondary type="button" data-close-modal="deactivate-student-modal" = t('common.cancel')
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    // I18n messages
+    const MSG = {
+      adding: '#{j t('admin.resources.students.js.adding')}',
+      saving: '#{j t('admin.resources.students.js.saving')}',
+      sending: '#{j t('admin.resources.students.js.sending')}',
+      sent: '#{j t('admin.resources.students.js.sent')}',
+      processing: '#{j t('admin.resources.students.js.processing')}',
+      error: '#{j t('admin.resources.students.js.error')}',
+      error_create: '#{j t('admin.resources.students.js.error_create')}',
+      error_update: '#{j t('admin.resources.students.js.error_update')}',
+      error_id: '#{j t('admin.resources.students.js.error_id')}',
+      deactivate: '#{j t('admin.resources.students.deactivate')}',
+      activate: '#{j t('admin.resources.students.activate')}',
+      deactivate_title: '#{j t('admin.resources.students.deactivate_title')}',
+      activate_title: '#{j t('admin.resources.students.activate_title')}',
+      deactivate_confirm: '#{j t('admin.resources.students.deactivate_confirm')}',
+      activate_confirm: '#{j t('admin.resources.students.activate_confirm')}',
+      active: '#{j t('common.active')}',
+      inactive: '#{j t('common.inactive')}',
+      edit: '#{j t('common.edit')}',
+      resend_invite: '#{j t('admin.resources.students.resend_invite')}',
+      open_menu: '#{j t('admin.resources.students.open_menu')}'
+    };
+
+    let currentPage = 1;
+    let isLoading = false;
+    let hasMore = true;
+    let allStudents = [];
+    let currentSearchTerm = '';
+    let searchTimeout = null;
+    const perPage = 20;
+    const SEARCH_MIN_LENGTH = 3;
+    const tbody = document.getElementById('students-table-body');
+    const loadingIndicator = document.getElementById('students-loading-indicator');
+    const emptyMessage = document.getElementById('students-empty-message');
+    const searchInput = document.getElementById('students-search-input');
+
+    if (typeof window.ApiClient === 'undefined') { console.error('ApiClient not available'); return; }
+    const api = new window.ApiClient();
+
+    function renderStudentRow(student) {
+      const attrs = student.attributes || student;
+      const name = [attrs.first_name, attrs.last_name].filter(Boolean).join(' ') || attrs.email;
+      const birthDate = attrs.birth_date || '—';
+      const email = attrs.email || '—';
+      const phone = attrs.phone || '—';
+      const schoolName = attrs.school_name || '—';
+      const studentId = student.id || attrs.id;
+      const isLocked = attrs.is_locked || attrs.locked_at;
+
+      const row = document.createElement('tr');
+      row.className = 'students-table__row';
+      
+      const cells = [name, birthDate, email, phone, schoolName].map(text => {
+        const cell = document.createElement('td');
+        cell.className = 'students-table__cell';
+        cell.textContent = text;
+        return cell;
+      });
+      
+      const statusCell = document.createElement('td');
+      statusCell.className = 'students-table__cell';
+      const statusBadge = document.createElement('span');
+      statusBadge.textContent = isLocked ? MSG.inactive : MSG.active;
+      statusBadge.style.color = isLocked ? 'var(--state-error)' : 'var(--state-success)';
+      statusBadge.style.fontWeight = '500';
+      statusCell.appendChild(statusBadge);
+      
+      const actionsCell = document.createElement('td');
+      actionsCell.className = 'students-table__cell students-table__cell--actions';
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'headmasters-actions';
+      
+      const details = document.createElement('details');
+      details.className = 'headmasters-menu';
+      
+      const summary = document.createElement('summary');
+      summary.setAttribute('aria-label', MSG.open_menu);
+      const img = document.createElement('img');
+      img.src = window.STUDENTS_ASSET_PATHS?.buttonIcon || '/assets/icons/social/S/button-3.svg';
+      img.alt = '';
+      img.setAttribute('data-theme-icon', 'true');
+      summary.appendChild(img);
+      
+      const ul = document.createElement('ul');
+      
+      // Edit button
+      const editLi = document.createElement('li');
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.setAttribute('data-action', 'edit-student');
+      editBtn.setAttribute('data-student-id', studentId);
+      editBtn.setAttribute('data-student-first-name', attrs.first_name || '');
+      editBtn.setAttribute('data-student-last-name', attrs.last_name || '');
+      editBtn.setAttribute('data-student-school-id', attrs.school_id || '');
+      editBtn.setAttribute('data-student-email', attrs.email || '');
+      editBtn.setAttribute('data-student-phone', attrs.phone || '');
+      editBtn.setAttribute('data-student-birth-date', attrs.birth_date || '');
+      editBtn.textContent = MSG.edit;
+      editLi.appendChild(editBtn);
+      
+      // Resend invite
+      const resendLi = document.createElement('li');
+      const resendBtn = document.createElement('button');
+      resendBtn.type = 'button';
+      resendBtn.setAttribute('data-action', 'resend-invite');
+      resendBtn.setAttribute('data-student-id', studentId);
+      resendBtn.textContent = MSG.resend_invite;
+      resendLi.appendChild(resendBtn);
+      
+      // Deactivate/Activate
+      const deactivateLi = document.createElement('li');
+      const deactivateBtn = document.createElement('button');
+      deactivateBtn.type = 'button';
+      deactivateBtn.setAttribute('data-action', 'deactivate-student');
+      deactivateBtn.setAttribute('data-student-id', studentId);
+      deactivateBtn.setAttribute('data-student-name', name);
+      deactivateBtn.setAttribute('data-student-is-locked', isLocked ? 'true' : 'false');
+      deactivateBtn.textContent = isLocked ? MSG.activate : MSG.deactivate;
+      deactivateLi.appendChild(deactivateBtn);
+      
+      ul.appendChild(editLi);
+      ul.appendChild(resendLi);
+      ul.appendChild(deactivateLi);
+      
+      details.appendChild(summary);
+      details.appendChild(ul);
+      actionsDiv.appendChild(details);
+      actionsCell.appendChild(actionsDiv);
+      
+      cells.forEach(cell => row.appendChild(cell));
+      row.appendChild(statusCell);
+      row.appendChild(actionsCell);
+      
+      return row;
+    }
+
+    async function loadStudents(page = 1, searchTerm = '') {
+      if (isLoading || (!hasMore && page > 1)) return;
+      isLoading = true;
+      loadingIndicator.style.display = 'block';
+
+      try {
+        let url = `/students?page=${page}&per_page=${perPage}`;
+        if (searchTerm && searchTerm.length >= SEARCH_MIN_LENGTH) {
+          url += `&search=${encodeURIComponent(searchTerm)}`;
+        }
+        const result = await api.get(url);
+        
+        if (result.success && result.data) {
+          const responseData = result.data;
+          let students = responseData.data && Array.isArray(responseData.data) ? responseData.data : (Array.isArray(responseData) ? responseData : []);
+          const pagination = responseData.pagination || {};
+
+          if (page === 1) { allStudents = []; tbody.innerHTML = ''; }
+          allStudents = allStudents.concat(students);
+          students.forEach(student => tbody.appendChild(renderStudentRow(student)));
+          hasMore = pagination.has_more || false;
+          currentPage = page;
+
+          emptyMessage.style.display = allStudents.length === 0 ? 'block' : 'none';
+          setupMenus();
+          setupEditHandler();
+          setupResendHandler();
+          setupDeactivateHandler();
+        }
+      } catch (error) { console.error('Error loading students:', error); }
+      finally { isLoading = false; loadingIndicator.style.display = 'none'; }
+    }
+
+    // Infinite scroll
+    let scrollTimeout;
+    window.addEventListener('scroll', function() {
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        if (isLoading || !hasMore) return;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        if (scrollTop + window.innerHeight >= document.documentElement.scrollHeight - 200) {
+          loadStudents(currentPage + 1, currentSearchTerm);
+        }
+      }, 100);
+    });
+
+    // Search
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim();
+        currentSearchTerm = searchTerm;
+        if (searchTimeout) clearTimeout(searchTimeout);
+        if (!searchTerm) { currentPage = 1; hasMore = true; allStudents = []; loadStudents(1); return; }
+        if (searchTerm.length >= SEARCH_MIN_LENGTH) {
+          searchTimeout = setTimeout(() => { currentPage = 1; hasMore = true; allStudents = []; loadStudents(1, searchTerm); }, 300);
+        }
+      });
+    }
+
+    loadStudents(1);
+
+    function setupMenus() {
+      const menus = document.querySelectorAll('.headmasters-menu');
+      menus.forEach(menu => {
+        const summary = menu.querySelector('summary');
+        if (!summary) return;
+        menu.addEventListener('toggle', function() {
+          if (menu.open) {
+            menus.forEach(m => { if (m !== menu && m.open) m.open = false; });
+            const summaryRect = summary.getBoundingClientRect();
+            const ul = menu.querySelector('ul');
+            if (ul) {
+              ul.style.position = 'fixed';
+              ul.style.zIndex = '999999';
+              ul.style.top = (summaryRect.bottom + 10) + 'px';
+              ul.style.right = (window.innerWidth - summaryRect.right) + 'px';
+            }
+          }
+        });
+      });
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.headmasters-menu')) menus.forEach(m => { if (m.open) m.open = false; });
+      }, true);
+    }
+
+    // Modal handlers
+    document.querySelectorAll('[data-open-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById(btn.getAttribute('data-open-modal'));
+        if (modal) { modal.setAttribute('aria-hidden', 'false'); modal.classList.add('is-open'); }
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById(btn.getAttribute('data-close-modal'));
+        if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+      });
+    });
+
+    document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+      overlay.addEventListener('click', function() {
+        const modal = this.closest('.schools-modal');
+        if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+      });
+    });
+
+    // Edit student handler
+    function setupEditHandler() {
+      tbody.removeEventListener('click', handleEditClick, true);
+      tbody.addEventListener('click', handleEditClick, true);
+    }
+
+    async function handleEditClick(e) {
+      const btn = e.target.closest('[data-action="edit-student"]');
+      if (!btn) return;
+      e.preventDefault(); e.stopPropagation();
+
+      document.getElementById('edit-student-id').value = btn.dataset.studentId || '';
+      document.getElementById('edit-student-school').value = btn.dataset.studentSchoolId || '';
+      document.getElementById('edit-student-first-name').value = btn.dataset.studentFirstName || '';
+      document.getElementById('edit-student-last-name').value = btn.dataset.studentLastName || '';
+      document.getElementById('edit-student-email').value = btn.dataset.studentEmail || '';
+      document.getElementById('edit-student-phone').value = btn.dataset.studentPhone || '';
+      
+      const birthDate = btn.dataset.studentBirthDate || '';
+      if (birthDate) {
+        const parts = birthDate.split('.');
+        if (parts.length === 3) {
+          document.getElementById('edit-student-birth-date').value = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+        }
+      }
+
+      const modal = document.getElementById('edit-student-modal');
+      modal.setAttribute('aria-hidden', 'false');
+      modal.classList.add('is-open');
+      
+      const menu = btn.closest('.headmasters-menu');
+      if (menu) menu.open = false;
+    }
+
+    // Add student form
+    const addForm = document.getElementById('add-student-form');
+    if (addForm) {
+      addForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = addForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = MSG.adding;
+
+        try {
+          const formData = new FormData(addForm);
+          const birthDateRaw = formData.get('student[metadata][birth_date]') || '';
+          let birthDate = '';
+          if (birthDateRaw) {
+            const dateParts = birthDateRaw.split('-');
+            if (dateParts.length === 3) birthDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+          }
+          
+          const data = {
+            student: {
+              school_id: formData.get('student[school_id]'),
+              first_name: formData.get('student[first_name]'),
+              last_name: formData.get('student[last_name]'),
+              email: formData.get('student[email]'),
+              metadata: { phone: formData.get('student[metadata][phone]') || '', birth_date: birthDate }
+            }
+          };
+
+          const result = await api.post('/students', data);
+          if (result.success) {
+            document.getElementById('add-student-modal').classList.remove('is-open');
+            currentPage = 1; hasMore = true; allStudents = []; loadStudents(1);
+          } else {
+            alert(MSG.error_create + ': ' + (result.error || ''));
+            submitBtn.disabled = false; submitBtn.textContent = originalText;
+          }
+        } catch (error) {
+          alert(MSG.error + ': ' + error.message);
+          submitBtn.disabled = false; submitBtn.textContent = originalText;
+        }
+      });
+    }
+
+    // Edit student form
+    const editForm = document.getElementById('edit-student-form');
+    if (editForm) {
+      editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = editForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        const studentId = document.getElementById('edit-student-id').value;
+        
+        if (!studentId) { alert(MSG.error_id); return; }
+        
+        submitBtn.disabled = true;
+        submitBtn.textContent = MSG.saving;
+
+        try {
+          const formData = new FormData(editForm);
+          const birthDateRaw = formData.get('student[metadata][birth_date]') || '';
+          let birthDate = '';
+          if (birthDateRaw) {
+            const dateParts = birthDateRaw.split('-');
+            if (dateParts.length === 3) birthDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+          }
+          
+          const data = {
+            student: {
+              school_id: formData.get('student[school_id]'),
+              first_name: formData.get('student[first_name]'),
+              last_name: formData.get('student[last_name]'),
+              email: formData.get('student[email]'),
+              metadata: { phone: formData.get('student[metadata][phone]') || '', birth_date: birthDate }
+            }
+          };
+
+          const result = await api.patch(`/students/${studentId}`, data);
+          if (result.success) {
+            document.getElementById('edit-student-modal').classList.remove('is-open');
+            currentPage = 1; hasMore = true; allStudents = []; loadStudents(1);
+          } else {
+            alert(MSG.error_update + ': ' + (result.error || ''));
+            submitBtn.disabled = false; submitBtn.textContent = originalText;
+          }
+        } catch (error) {
+          alert(MSG.error + ': ' + error.message);
+          submitBtn.disabled = false; submitBtn.textContent = originalText;
+        }
+      });
+    }
+
+    // Resend invite handler
+    function setupResendHandler() {
+      tbody.removeEventListener('click', handleResendClick, true);
+      tbody.addEventListener('click', handleResendClick, true);
+    }
+
+    async function handleResendClick(e) {
+      const btn = e.target.closest('[data-action="resend-invite"]');
+      if (!btn) return;
+      e.preventDefault(); e.stopPropagation();
+      
+      const studentId = btn.dataset.studentId;
+      if (!studentId) return;
+      
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = MSG.sending;
+      
+      try {
+        const result = await api.post(`/students/${studentId}/resend_invite`, {});
+        if (result.success) {
+          btn.textContent = MSG.sent;
+          btn.style.color = 'var(--state-success)';
+          setTimeout(() => { btn.disabled = false; btn.textContent = originalText; btn.style.color = ''; }, 2000);
+        } else { btn.disabled = false; btn.textContent = originalText; }
+      } catch (error) { btn.disabled = false; btn.textContent = originalText; }
+      
+      const menu = btn.closest('.headmasters-menu');
+      if (menu) menu.open = false;
+    }
+
+    // Deactivate handler
+    let deactivateStudentId = null;
+    function setupDeactivateHandler() {
+      tbody.removeEventListener('click', handleDeactivateClick, true);
+      tbody.addEventListener('click', handleDeactivateClick, true);
+    }
+
+    function handleDeactivateClick(e) {
+      const btn = e.target.closest('[data-action="deactivate-student"]');
+      if (!btn) return;
+      e.preventDefault(); e.stopPropagation();
+
+      deactivateStudentId = btn.dataset.studentId;
+      const name = btn.dataset.studentName || '';
+      const isLocked = btn.dataset.studentIsLocked === 'true';
+      
+      const modalTitle = document.getElementById('deactivate-student-title');
+      const modalMessage = document.getElementById('deactivate-student-message');
+      const confirmBtn = document.getElementById('deactivate-student-confirm-btn');
+      
+      if (confirmBtn) confirmBtn.disabled = false;
+      
+      if (isLocked) {
+        if (modalTitle) modalTitle.textContent = MSG.activate_title;
+        if (modalMessage) modalMessage.textContent = MSG.activate_confirm.replace('%{name}', name);
+        if (confirmBtn) { confirmBtn.textContent = MSG.activate; confirmBtn.classList.remove('schools-modal__primary--danger'); }
+      } else {
+        if (modalTitle) modalTitle.textContent = MSG.deactivate_title;
+        if (modalMessage) modalMessage.textContent = MSG.deactivate_confirm.replace('%{name}', name);
+        if (confirmBtn) { confirmBtn.textContent = MSG.deactivate; confirmBtn.classList.add('schools-modal__primary--danger'); }
+      }
+      
+      const modal = document.getElementById('deactivate-student-modal');
+      if (modal) { modal.setAttribute('aria-hidden', 'false'); modal.classList.add('is-open'); }
+      
+      const menu = btn.closest('.headmasters-menu');
+      if (menu) menu.open = false;
+    }
+
+    const deactivateBtn = document.getElementById('deactivate-student-confirm-btn');
+    if (deactivateBtn) {
+      deactivateBtn.addEventListener('click', async () => {
+        if (!deactivateStudentId) return;
+        
+        const originalText = deactivateBtn.textContent;
+        deactivateBtn.disabled = true;
+        deactivateBtn.textContent = MSG.processing;
+
+        try {
+          const result = await api.post(`/students/${deactivateStudentId}/lock`, {});
+          if (result.success) {
+            document.getElementById('deactivate-student-modal').classList.remove('is-open');
+            currentPage = 1; hasMore = true; allStudents = []; loadStudents(1);
+          } else {
+            alert(MSG.error + ': ' + (result.error || ''));
+            deactivateBtn.disabled = false; deactivateBtn.textContent = originalText;
+          }
+        } catch (error) {
+          alert(MSG.error + ': ' + error.message);
+          deactivateBtn.disabled = false; deactivateBtn.textContent = originalText;
+        }
+      });
+    }
+  });
+

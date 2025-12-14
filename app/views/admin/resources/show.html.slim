@@ -1,0 +1,13 @@
+.d-flex.justify-content-between.align-items-center.mb-3
+  h2 = "#{params[:resource].to_s.titleize} ##{@record.id}"
+  div
+    = link_to t('common.edit'), admin_edit_resource_path(resource: params[:resource], id: @record.id), class: 'btn btn-primary'
+    = link_to t('common.back'), admin_resource_collection_path(resource: params[:resource]), class: 'btn btn-secondary'
+
+.card
+  .card-body
+    dl.row
+      - @resource_class.columns.each do |col|
+        dt.col-sm-3 = col.name.titleize
+        dd.col-sm-9 = @record.public_send(col.name)
+

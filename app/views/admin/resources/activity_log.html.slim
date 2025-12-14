@@ -1,0 +1,370 @@
+- content_for :page_title, t('admin.resources.activity_log.title')
+
+section.activity-log aria-label=(t('admin.resources.activity_log.title'))
+  .activity-log__filters
+    .activity-filter.activity-filter--date
+      label.activity-filter__label for="activity-date-from" = t('admin.resources.activity_log.from')
+      .activity-date-picker data-date-role="from"
+        input#activity-date-from.activity-date-picker__display type="text" aria-label=(t('admin.resources.activity_log.date_from') placeholder="DD.MM.YYYY HH:MM"
+        input.activity-date-picker__native type="datetime-local" aria-hidden="true" tabindex="-1"
+        button.activity-date-picker__clear type="button" aria-label=(t('admin.resources.activity_log.clear_date_from'))
+          = image_tag "icons/social/XS/Close.svg", alt: ""
+        button.activity-date-picker__calendar type="button" aria-label=(t('admin.resources.activity_log.select_date_from'))
+          = image_tag "icons/social/M/calendar.svg", alt: "", "data-theme-icon": true
+    .activity-filter.activity-filter--date
+      label.activity-filter__label for="activity-date-to" = t('admin.resources.activity_log.to')
+      .activity-date-picker data-date-role="to"
+        input#activity-date-to.activity-date-picker__display type="text" aria-label=(t('admin.resources.activity_log.date_to') placeholder="DD.MM.YYYY HH:MM"
+        input.activity-date-picker__native type="datetime-local" aria-hidden="true" tabindex="-1"
+        button.activity-date-picker__clear type="button" aria-label=(t('admin.resources.activity_log.clear_date_to'))
+          = image_tag "icons/social/XS/Close.svg", alt: ""
+        button.activity-date-picker__calendar type="button" aria-label=(t('admin.resources.activity_log.select_date_to'))
+          = image_tag "icons/social/M/calendar.svg", alt: "", "data-theme-icon": true
+
+  .activity-log__table
+    .activity-log__head
+      span = t('admin.resources.activity_log.date')
+      span = t('admin.resources.activity_log.source')
+      span = t('admin.resources.activity_log.action')
+      span = t('admin.resources.activity_log.subject')
+      span = t('admin.resources.activity_log.subject_id')
+    #activity-log-body.activity-log__body
+      / Events will be loaded via API
+    #activity-loading-indicator.activity-loading style="display: none; padding: 20px; text-align: center;"
+      .spinner style="display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--content-primary); border-radius: 50%; animation: spin 0.8s linear infinite;"
+      span style="margin-left: 12px; color: var(--content-secondary);" = t('admin.resources.activity_log.loading')
+    #activity-empty-message.activity-log__empty style="display: none;"
+      p = t('admin.resources.activity_log.empty')
+    #activity-error-message.activity-log__empty style="display: none; color: var(--state-error);"
+      p#activity-error-text = t('admin.resources.activity_log.error')
+
+css:
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    const MSG = {
+      date: '#{j t('admin.resources.activity_log.date')}',
+      source: '#{j t('admin.resources.activity_log.source')}',
+      action: '#{j t('admin.resources.activity_log.action')}',
+      subject: '#{j t('admin.resources.activity_log.subject')}',
+      subject_id: '#{j t('admin.resources.activity_log.subject_id')}',
+      subject_owner_id: '#{j t('admin.resources.activity_log.subject_owner_id')}',
+      details: '#{j t('admin.resources.activity_log.details')}',
+      copy: '#{j t('admin.resources.activity_log.copy')}',
+      error_loading: '#{j t('admin.resources.activity_log.error_loading')}'
+    };
+
+    const ASSET_PATHS = {
+      dropdown: '#{asset_path("icons/social/XS/dropdown.svg")}',
+      copy: '#{asset_path("icons/social/XS/copy.svg")}'
+    };
+
+    let currentPage = 1;
+    let isLoading = false;
+    let hasMore = true;
+    let allEvents = [];
+    const perPage = 20;
+    const body = document.getElementById('activity-log-body');
+    const loadingIndicator = document.getElementById('activity-loading-indicator');
+    const emptyMessage = document.getElementById('activity-empty-message');
+    const errorMessage = document.getElementById('activity-error-message');
+    const errorText = document.getElementById('activity-error-text');
+    const dateFromInput = document.getElementById('activity-date-from');
+    const dateToInput = document.getElementById('activity-date-to');
+
+    if (typeof window.ApiClient === 'undefined') { console.error('ApiClient not available'); return; }
+    const api = new window.ApiClient();
+
+    function formatDate(dateString) {
+      if (!dateString) return '—';
+      const date = new Date(dateString);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      return { date: `${day}.${month}.${year}`, time: `${hours}:${minutes}:${seconds}` };
+    }
+
+    function renderEventEntry(event) {
+      const attrs = event.attributes || event;
+      const occurredAt = attrs.occurred_at || attrs.created_at;
+      const dateFormatted = formatDate(occurredAt);
+      const userName = attrs.user_name || '—';
+      const eventType = attrs.event_type || '—';
+      const subjectType = attrs.subject_type || '—';
+      const subjectId = attrs.subject_id || attrs.id || '—';
+      const subjectOwnerId = attrs.subject_owner_id;
+      const eventData = attrs.data || {};
+
+      const details = document.createElement('details');
+      details.className = 'activity-entry';
+
+      const summary = document.createElement('summary');
+      
+      const dateCell = document.createElement('span');
+      dateCell.className = 'activity-cell activity-cell--date';
+      const chevron = document.createElement('img');
+      chevron.src = ASSET_PATHS.dropdown;
+      chevron.className = 'activity-entry__chevron';
+      chevron.alt = '';
+      chevron.width = '8';
+      chevron.height = '8';
+      chevron.setAttribute('aria-hidden', 'true');
+      
+      const datetimeSpan = document.createElement('span');
+      datetimeSpan.className = 'activity-entry__datetime';
+      const dateSpan = document.createElement('span');
+      dateSpan.textContent = dateFormatted.date;
+      const timeSpan = document.createElement('span');
+      timeSpan.textContent = dateFormatted.time;
+      datetimeSpan.appendChild(dateSpan);
+      datetimeSpan.appendChild(timeSpan);
+      
+      dateCell.appendChild(chevron);
+      dateCell.appendChild(datetimeSpan);
+      
+      const userCell = document.createElement('span');
+      userCell.className = 'activity-cell';
+      userCell.textContent = userName;
+      
+      const actionCell = document.createElement('span');
+      actionCell.className = 'activity-cell';
+      actionCell.textContent = eventType;
+      
+      const subjectCell = document.createElement('span');
+      subjectCell.className = 'activity-cell';
+      subjectCell.textContent = subjectType;
+      
+      const subjectIdCell = document.createElement('span');
+      subjectIdCell.className = 'activity-cell';
+      subjectIdCell.textContent = subjectId;
+      
+      summary.appendChild(dateCell);
+      summary.appendChild(userCell);
+      summary.appendChild(actionCell);
+      summary.appendChild(subjectCell);
+      summary.appendChild(subjectIdCell);
+      
+      const detailsDiv = document.createElement('div');
+      detailsDiv.className = 'activity-entry__details';
+      
+      const dl = document.createElement('dl');
+      
+      function createDetailRow(label, value, copyValue = null) {
+        const div = document.createElement('div');
+        const dt = document.createElement('dt');
+        dt.textContent = label + ':';
+        const dd = document.createElement('dd');
+        
+        if (copyValue) {
+          const span = document.createElement('span');
+          span.className = 'activity-entry__value';
+          span.textContent = value;
+          dd.appendChild(span);
+          
+          const copyBtn = document.createElement('button');
+          copyBtn.className = 'activity-copy-btn';
+          copyBtn.type = 'button';
+          copyBtn.setAttribute('aria-label', MSG.copy);
+          copyBtn.setAttribute('data-copy-value', copyValue);
+          
+          const copyIcon = document.createElement('img');
+          copyIcon.src = ASSET_PATHS.copy;
+          copyIcon.className = 'activity-copy-btn__icon activity-copy-btn__icon--copy';
+          copyIcon.alt = '';
+          
+          const successIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          successIcon.setAttribute('class', 'activity-copy-btn__icon activity-copy-btn__icon--success');
+          successIcon.setAttribute('viewBox', '0 0 16 16');
+          successIcon.setAttribute('aria-hidden', 'true');
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', 'M3 8.5l3 3L13 5');
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', 'currentColor');
+          path.setAttribute('stroke-width', '1.6');
+          path.setAttribute('stroke-linecap', 'round');
+          path.setAttribute('stroke-linejoin', 'round');
+          successIcon.appendChild(path);
+          
+          copyBtn.appendChild(copyIcon);
+          copyBtn.appendChild(successIcon);
+          dd.appendChild(copyBtn);
+        } else {
+          dd.innerHTML = value;
+        }
+        
+        div.appendChild(dt);
+        div.appendChild(dd);
+        return div;
+      }
+      
+      dl.appendChild(createDetailRow(MSG.date, `${dateFormatted.date} &nbsp; ${dateFormatted.time}`));
+      dl.appendChild(createDetailRow(MSG.source, userName));
+      dl.appendChild(createDetailRow(MSG.action, eventType));
+      dl.appendChild(createDetailRow(MSG.subject, subjectType));
+      
+      if (subjectId && subjectId !== '—') {
+        dl.appendChild(createDetailRow(MSG.subject_id, subjectId, subjectId));
+      } else {
+        dl.appendChild(createDetailRow(MSG.subject_id, subjectId));
+      }
+      
+      if (subjectOwnerId) {
+        dl.appendChild(createDetailRow(MSG.subject_owner_id, subjectOwnerId, subjectOwnerId));
+      }
+      
+      detailsDiv.appendChild(dl);
+      
+      if (eventData && Object.keys(eventData).length > 0) {
+        const jsonDiv = document.createElement('div');
+        jsonDiv.className = 'activity-entry__json';
+        
+        const jsonHeader = document.createElement('div');
+        jsonHeader.className = 'activity-entry__json-header';
+        const jsonHeaderSpan = document.createElement('span');
+        jsonHeaderSpan.textContent = MSG.details + ':';
+        
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'activity-copy-btn';
+        copyBtn.type = 'button';
+        copyBtn.setAttribute('aria-label', MSG.copy);
+        copyBtn.setAttribute('data-copy-json', 'true');
+        
+        const copyIcon = document.createElement('img');
+        copyIcon.src = ASSET_PATHS.copy;
+        copyIcon.className = 'activity-copy-btn__icon activity-copy-btn__icon--copy';
+        copyIcon.alt = '';
+        
+        const successIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        successIcon.setAttribute('class', 'activity-copy-btn__icon activity-copy-btn__icon--success');
+        successIcon.setAttribute('viewBox', '0 0 16 16');
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M3 8.5l3 3L13 5');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', 'currentColor');
+        path.setAttribute('stroke-width', '1.6');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+        successIcon.appendChild(path);
+        
+        copyBtn.appendChild(copyIcon);
+        copyBtn.appendChild(successIcon);
+        
+        jsonHeader.appendChild(jsonHeaderSpan);
+        jsonHeader.appendChild(copyBtn);
+        
+        const pre = document.createElement('pre');
+        pre.textContent = JSON.stringify(eventData, null, 2);
+        
+        jsonDiv.appendChild(jsonHeader);
+        jsonDiv.appendChild(pre);
+        detailsDiv.insertBefore(jsonDiv, detailsDiv.firstChild);
+      }
+      
+      details.appendChild(summary);
+      details.appendChild(detailsDiv);
+      
+      return details;
+    }
+
+    async function loadEvents(page = 1) {
+      if (isLoading || (!hasMore && page > 1)) return;
+      isLoading = true;
+      loadingIndicator.style.display = 'block';
+
+      try {
+        let url = `/events?page=${page}&per_page=${perPage}`;
+        if (dateFromInput && dateFromInput.value) url += `&from=${encodeURIComponent(dateFromInput.value)}`;
+        if (dateToInput && dateToInput.value) url += `&to=${encodeURIComponent(dateToInput.value)}`;
+        
+        const result = await api.get(url);
+        
+        if (result.success && result.data) {
+          const responseData = result.data;
+          let events = responseData.data && Array.isArray(responseData.data) ? responseData.data : (Array.isArray(responseData) ? responseData : []);
+          const pagination = responseData.pagination || {};
+
+          if (page === 1) { allEvents = []; body.innerHTML = ''; }
+          allEvents = allEvents.concat(events);
+          events.forEach(event => body.appendChild(renderEventEntry(event)));
+          hasMore = pagination.has_more || false;
+          currentPage = page;
+
+          emptyMessage.style.display = allEvents.length === 0 ? 'block' : 'none';
+          errorMessage.style.display = 'none';
+          setupCopyButtons();
+        } else {
+          errorText.textContent = result.error || MSG.error_loading;
+          errorMessage.style.display = 'block';
+          if (allEvents.length === 0) emptyMessage.style.display = 'none';
+        }
+      } catch (error) {
+        errorText.textContent = `${MSG.error_loading}: ${error.message}`;
+        errorMessage.style.display = 'block';
+        if (allEvents.length === 0) emptyMessage.style.display = 'none';
+      } finally {
+        isLoading = false;
+        loadingIndicator.style.display = 'none';
+      }
+    }
+
+    let scrollTimeout;
+    window.addEventListener('scroll', function() {
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        if (isLoading || !hasMore) return;
+        if (window.pageYOffset + window.innerHeight >= document.documentElement.scrollHeight - 200) {
+          loadEvents(currentPage + 1);
+        }
+      }, 100);
+    });
+
+    function setupCopyButtons() {
+      document.querySelectorAll('[data-copy-value]').forEach(btn => {
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        newBtn.addEventListener('click', async function() {
+          const value = this.getAttribute('data-copy-value');
+          try {
+            await navigator.clipboard.writeText(value);
+            const copyIcon = this.querySelector('.activity-copy-btn__icon--copy');
+            const successIcon = this.querySelector('.activity-copy-btn__icon--success');
+            if (copyIcon && successIcon) {
+              copyIcon.style.display = 'none';
+              successIcon.style.display = 'block';
+              setTimeout(() => { copyIcon.style.display = 'block'; successIcon.style.display = 'none'; }, 2000);
+            }
+          } catch (err) { console.error('Failed to copy:', err); }
+        });
+      });
+
+      document.querySelectorAll('[data-copy-json]').forEach(btn => {
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        newBtn.addEventListener('click', async function() {
+          const pre = this.closest('.activity-entry__json').querySelector('pre');
+          if (pre) {
+            try {
+              await navigator.clipboard.writeText(pre.textContent);
+              const copyIcon = this.querySelector('.activity-copy-btn__icon--copy');
+              const successIcon = this.querySelector('.activity-copy-btn__icon--success');
+              if (copyIcon && successIcon) {
+                copyIcon.style.display = 'none';
+                successIcon.style.display = 'block';
+                setTimeout(() => { copyIcon.style.display = 'block'; successIcon.style.display = 'none'; }, 2000);
+              }
+            } catch (err) { console.error('Failed to copy:', err); }
+          }
+        });
+      });
+    }
+
+    if (dateFromInput) dateFromInput.addEventListener('change', () => { currentPage = 1; hasMore = true; allEvents = []; loadEvents(1); });
+    if (dateToInput) dateToInput.addEventListener('change', () => { currentPage = 1; hasMore = true; allEvents = []; loadEvents(1); });
+
+    loadEvents(1);
+  });
+

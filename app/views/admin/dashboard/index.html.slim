@@ -1,43 +1,43 @@
-- content_for :page_title, "Dashboard"
+- content_for :page_title, t('admin.dashboard.title')
 
-section.dashboard-stats aria-label="Key statistics"
+section.dashboard-stats aria-label=(t('admin.dashboard.stats.key_statistics'))
   = link_to admin_resource_collection_path(resource: 'schools'), class: 'stat-card stat-card--link' do
-    h3.stat-label.text-body-2 Schools
+    h3.stat-label.text-body-2 = t('navigation.schools')
     p.stat-value = @schools_count
   = link_to admin_resource_collection_path(resource: 'users'), class: 'stat-card stat-card--link' do
-    h3.stat-label.text-body-2 Headmasters
+    h3.stat-label.text-body-2 = t('navigation.headmasters')
     p.stat-value = @headmasters_count
   = link_to admin_resource_collection_path(resource: 'teachers'), class: 'stat-card stat-card--link' do
-    h3.stat-label.text-body-2 Teachers
+    h3.stat-label.text-body-2 = t('navigation.teachers')
     p.stat-value = @teachers_count
   = link_to admin_resource_collection_path(resource: 'students'), class: 'stat-card stat-card--link' do
-    h3.stat-label.text-body-2 Students
+    h3.stat-label.text-body-2 = t('navigation.students')
     p.stat-value = number_with_delimiter(@students_count)
 
-section.panel.panel--chart aria-label="User growth chart"
+section.panel.panel--chart aria-label=(t('admin.dashboard.stats.user_growth_chart'))
   .panel__header
     div
-      p.stat-label.text-body-2 User growth
+      p.stat-label.text-body-2 = t('admin.dashboard.stats.user_growth')
   .chart.chart--line.js-line-chart data-chart-id="user-growth"
     .chart__grid aria-hidden="true"
-    .chart__canvas role="img" aria-live="polite" aria-label="User growth through the year"
+    .chart__canvas role="img" aria-live="polite" aria-label=(t('admin.dashboard.stats.user_growth_aria'))
       svg.chart__svg viewBox="0 0 960 240" preserveAspectRatio="none" role="presentation"
     .chart__axis.chart__axis--y aria-hidden="true"
     .chart__axis.chart__axis--x aria-hidden="true"
 
-section.content-grid aria-label="Top performing schools and platform metrics"
+section.content-grid aria-label=(t('admin.dashboard.stats.top_schools_metrics'))
   article.panel
     .panel__header.panel__header--schools
-      h3.stat-label.text-body-2 Top performing schools
+      h3.stat-label.text-body-2 = t('admin.dashboard.stats.top_schools')
       label.schools-search.schools-search--wide
-        span.visually-hidden Search schools
-        input type="search" name="top_schools_search" id="top-schools-search-input" placeholder="Search schools"
+        span.visually-hidden = t('admin.dashboard.actions.search_schools')
+        input type="search" name="top_schools_search" id="top-schools-search-input" placeholder=(t('admin.dashboard.actions.search_schools'))
         = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true"
     table.schools-table id="top-schools-table"
       thead
         tr
-          th scope="col" Name
-          th.average scope="col" Average completion rate
+          th scope="col" = t('common.name')
+          th.average scope="col" = t('admin.dashboard.stats.avg_completion_rate')
       tbody id="top-schools-table-body"
         - @top_schools.each do |school|
           tr data-school-name=school.name.downcase
@@ -45,21 +45,21 @@ section.content-grid aria-label="Top performing schools and platform metrics"
             td.rate —
         - if @top_schools.empty?
           tr id="top-schools-empty-message"
-            td.text-center.text-muted colspan="2" No schools yet
+            td.text-center.text-muted colspan="2" = t('admin.dashboard.empty.no_schools')
 
   .content-aside
     .mini-grid
       article.mini-card
-        h3.stat-label.text-body-2 Completion rate
+        h3.stat-label.text-body-2 = t('admin.dashboard.stats.completion_rate')
         p.mini-card__value —
       = link_to admin_resource_collection_path(resource: 'events'), class: 'mini-card mini-card--link' do
-        h3.stat-label.text-body-2 Logins
+        h3.stat-label.text-body-2 = t('admin.dashboard.stats.logins')
         p.mini-card__value = number_with_delimiter(@logins_count)
       article.mini-card
-        h3.stat-label.text-body-2 Videos viewed
+        h3.stat-label.text-body-2 = t('admin.dashboard.stats.videos_viewed')
         p.mini-card__value = number_with_delimiter(@videos_viewed_count)
       article.mini-card
-        h3.stat-label.text-body-2 Quizzes completed
+        h3.stat-label.text-body-2 = t('admin.dashboard.stats.quizzes_completed')
         p.mini-card__value = number_with_delimiter(@quizzes_completed_count)
 
 javascript:
@@ -68,6 +68,9 @@ javascript:
     const topSchoolsSearchInput = document.getElementById('top-schools-search-input');
     const topSchoolsTableBody = document.getElementById('top-schools-table-body');
     const topSchoolsEmptyMessage = document.getElementById('top-schools-empty-message');
+    
+    const MSG_NO_SCHOOLS_FOUND = '#{j t("admin.dashboard.empty.no_schools_found")}';
+    const MSG_NO_SCHOOLS_YET = '#{j t("admin.dashboard.empty.no_schools")}';
     
     if (topSchoolsSearchInput && topSchoolsTableBody) {
       topSchoolsSearchInput.addEventListener('input', function() {
@@ -97,13 +100,13 @@ javascript:
             topSchoolsEmptyMessage.style.display = '';
             const emptyCell = topSchoolsEmptyMessage.querySelector('td');
             if (emptyCell) {
-              emptyCell.textContent = 'No schools found';
+              emptyCell.textContent = MSG_NO_SCHOOLS_FOUND;
             }
           } else if (visibleCount === 0 && searchTerm === '') {
             topSchoolsEmptyMessage.style.display = '';
             const emptyCell = topSchoolsEmptyMessage.querySelector('td');
             if (emptyCell) {
-              emptyCell.textContent = 'No schools yet';
+              emptyCell.textContent = MSG_NO_SCHOOLS_YET;
             }
           } else {
             topSchoolsEmptyMessage.style.display = 'none';

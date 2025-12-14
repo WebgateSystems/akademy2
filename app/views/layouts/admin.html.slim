@@ -3,8 +3,8 @@ html lang="pl" class="no-js" data-theme="auto"
   head
     meta charset="utf-8"
     meta name="viewport" content="width=device-width,initial-scale=1"
-    title = (content_for(:title) || "Superadmin · Dashboard") + " | Akademy"
-    meta name="description" content="Track schools, headmasters, and platform health from the Academy 2.0 superadmin dashboard."
+    title = (content_for(:title) || t('admin.dashboard.title')) + " | Akademy"
+    meta name="description" content=(t('admin.dashboard.description'))
     link rel="preconnect" href="https://fonts.googleapis.com"
     link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""
     link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet"
@@ -22,14 +22,14 @@ html lang="pl" class="no-js" data-theme="auto"
         .dashboard-logo
           .dashboard-logo__brand
             = image_tag "icons/logo/Akademy_logo.svg", class: "dashboard-logo__icon", alt: "", width: "32", height: "32", "aria-hidden": "true", "data-theme-icon": true
-            = image_tag "icons/logo/Akademy_logo_full.svg", class: "dashboard-logo__full", alt: "Academy 2.0", "aria-hidden": "false", "data-theme-icon": true
-          button.dashboard-collapse-toggle type="button" aria-label="Collapse sidebar" aria-expanded="true" data-sidebar-collapse-toggle=""
+            = image_tag "icons/logo/Akademy_logo_full.svg", class: "dashboard-logo__full", alt: "Akademy 2.0", "aria-hidden": "false", "data-theme-icon": true
+          button.dashboard-collapse-toggle type="button" aria-label=(t('actions.collapse_sidebar')) aria-expanded="true" data-sidebar-collapse-toggle=""
             = image_tag "icons/social/M/close-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--collapse", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
             = image_tag "icons/social/M/open-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
         nav.dashboard-nav
           = link_to admin_root_path, class: "dashboard-nav__button #{'is-active' if request.path == admin_root_path}", "aria-current": (request.path == admin_root_path ? "page" : nil) do
             i.bi.bi-speedometer2 aria-hidden="true"
-            span.dashboard-nav__label Dashboard
+            span.dashboard-nav__label = t('navigation.dashboard')
           = link_to admin_resource_collection_path(resource: 'schools'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/schools')}" do
             i.bi.bi-building aria-hidden="true"
             span.dashboard-nav__label = t('navigation.schools')
@@ -63,9 +63,15 @@ html lang="pl" class="no-js" data-theme="auto"
         = render 'admin/top_bar'
 
         - if notice
-          .alert.alert-success = notice
+          .alert.alert-success role="alert"
+            = notice
+            button.alert-close type="button" aria-label=(t('common.close')) data-dismiss-alert=""
+              i.bi.bi-x
         - if alert
-          .alert.alert-danger = alert
+          .alert.alert-danger role="alert"
+            = alert
+            button.alert-close type="button" aria-label=(t('common.close')) data-dismiss-alert=""
+              i.bi.bi-x
 
         = yield
 

@@ -6,7 +6,7 @@
 
     - if @classes.any?
       .school-profile data-state="filled"
-        section.school-profile-hero aria-label=t('dashboard.hero.title')
+        section.school-profile-hero aria-label=(t('dashboard.hero.title'))
           .school-profile-hero__text
             h2 = t('dashboard.hero.title')
             p = t('dashboard.hero.description')
@@ -39,7 +39,7 @@
                   - if @videos_pending_count && @videos_pending_count > 0
                     span.stat-awaiting = t('dashboard.stats.pending_approval', count: @videos_pending_count)
 
-        section.class-results aria-label=t('dashboard.sections.student_results')
+        section.class-results aria-label=(t('dashboard.sections.student_results'))
           h2 = t('dashboard.sections.student_results')
           .class-results__grid data-subjects-grid=""
             - if @subjects.any?

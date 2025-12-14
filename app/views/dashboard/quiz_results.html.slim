@@ -67,7 +67,7 @@
           .school-profile-hero__stat-value
             span.stat-value.stat-value--filled = "#{@distribution&.dig(:great_results) || 0}%"
 
-    section.quiz-results aria-label=t('dashboard.quiz_results.section_title')
+    section.quiz-results aria-label=(t('dashboard.quiz_results.section_title'))
       table.quiz-results-table
         thead
           tr

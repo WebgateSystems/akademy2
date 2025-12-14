@@ -1,0 +1,14 @@
+h2.text-center.mb-4 = t('admin.sessions.title')
+
+= form_with url: admin_session_path, method: :post, class: "admin-login-form" do |f|
+  .mb-3
+    = f.label :email, t('admin.sessions.email'), class: "form-label"
+    = f.email_field :email, class: "form-control", autofocus: true
+
+  .mb-3
+    = f.label :password, t('admin.sessions.password'), class: "form-label"
+    = f.password_field :password, class: "form-control"
+
+  .d-grid
+    = f.submit t('admin.sessions.submit'), class: "btn btn-primary"
+

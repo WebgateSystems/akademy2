@@ -1,0 +1,175 @@
+.school-profile data-state=(@school.present? ? 'filled' : 'empty')
+  section.school-profile-hero aria-label=(t('management.school_profile.invite_teachers'))
+    .school-profile-hero__text
+      h2 = t('management.school_profile.hero_title')
+      p = t('management.school_profile.hero_description')
+      .school-profile-hero__actions
+        button.school-profile-hero__button.school-profile-hero__button--primary#download-qr-btn type="button"
+          = t('management.school_profile.download')
+        button.school-profile-hero__button#copy-code-btn type="button"
+          = t('management.school_profile.copy_code')
+    .school-profile-hero__visuals
+      .school-profile-hero__qr#qr-code-container
+        = image_tag "icons/social/L/QR-code.svg", width: 250, height: 250, alt: "", id: "qr-code-image", data: { theme_icon: true }
+      .school-profile-hero__stats aria-labelledby="school-stats-heading"
+        h3#school-stats-heading.visually-hidden = t('management.school_profile.stats_heading')
+        = link_to management_teachers_path, class: 'school-profile-hero__stat-card school-profile-hero__stat-card--link', data: { entity: 'teachers' } do
+          .school-profile-hero__stat-label
+            h4.stat-label = t('navigation.teachers')
+          .school-profile-hero__stat-value
+            span.stat-value.stat-value--empty 0
+            span.stat-value.stat-value--filled = @teachers_count || 0
+            - if @teachers_awaiting && @teachers_awaiting > 0
+              span.stat-awaiting = t('management.school_profile.awaiting', count: @teachers_awaiting)
+        = link_to management_students_path, class: 'school-profile-hero__stat-card school-profile-hero__stat-card--link', data: { entity: 'students' } do
+          .school-profile-hero__stat-label
+            h4.stat-label = t('navigation.students')
+          .school-profile-hero__stat-value
+            span.stat-value.stat-value--empty 0
+            span.stat-value.stat-value--filled = @students_count || 0
+            - if @students_awaiting && @students_awaiting > 0
+              span.stat-awaiting = "(#{t('management.school_profile.awaiting', count: @students_awaiting)})"
+
+  section.school-profile-info aria-label=(t('management.school_profile.info_title'))
+    h2 = t('management.school_profile.info_title')
+    .school-profile-info__grid
+      article.school-profile-logo-card aria-label=(t('management.school_profile.logo_placeholder'))
+        - if @school&.logo.present?
+          = image_tag @school.logo.url, class: "school-profile-logo-card__image", alt: t('management.school_profile.school_emblem'), loading: "lazy"
+        - else
+          .school-profile-logo-card__empty aria-hidden="true"
+            = image_tag "icons/social/L/insert_photo.png", alt: ""
+      article.school-profile-details
+        .school-profile-details__header
+          div
+            h3 = @school&.name || '—'
+            p = @school&.address || '—'
+          button.icon-pill.js-open-school-modal type="button" aria-label=(t('management.school_profile.edit_school'))
+            = image_tag "icons/social/S/edit.svg", alt: ""
+        dl.school-profile-details__list
+          .school-profile-details__row
+            dt = "#{t('management.school_profile.phone')}:"
+            dd
+              - if @school&.phone.present?
+                span.details-value.details-value--filled = @school.phone
+              - else
+                span.details-value.details-value--empty —
+          .school-profile-details__row
+            dt = "#{t('common.email')}:"
+            dd
+              - if @school&.email.present?
+                span.details-value.details-value--filled = @school.email
+              - else
+                span.details-value.details-value--empty —
+          .school-profile-details__row
+            dt = "#{t('management.school_profile.headmaster')}:"
+            dd
+              - if @headmaster.present?
+                span.details-value.details-value--filled = [@headmaster.first_name, @headmaster.last_name].compact.join(' ')
+              - else
+                span.details-value.details-value--empty —
+          .school-profile-details__row
+            dt = "#{t('management.school_profile.deputy')}:"
+            dd
+              - if @deputy_headmaster.present?
+                span.details-value.details-value--filled = [@deputy_headmaster.first_name, @deputy_headmaster.last_name].compact.join(' ')
+              - else
+                span.details-value.details-value--empty —
+
+/ MODAL
+#edit-school-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="edit-school-modal-title"
+    header.schools-modal__header
+      h3#edit-school-modal-title = t('management.school_profile.edit_title')
+      button.schools-modal__close type="button" data-close-modal="edit-school-modal" aria-label=(t('common.close'))
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    form.schools-modal__form#edit-school-form novalidate=""
+      .school-edit-upload
+        - if @school&.logo.present?
+          = image_tag @school.logo.url, class: "school-edit-upload__preview", alt: t('management.school_profile.current_logo'), id: "school-logo-preview", data: { default_src: @school.logo.url }
+        - else
+          = image_tag "icons/logo/school-emblem.png", class: "school-edit-upload__preview", alt: t('management.school_profile.current_logo'), id: "school-logo-preview", data: { default_src: asset_path("icons/logo/school-emblem.png") }
+        input.school-edit-upload__input#school-logo-upload type="file" accept="image/*" hidden=""
+        button.school-edit-upload__button type="button"
+          = image_tag "icons/social/S/upload.svg", alt: "", aria: { hidden: true }
+          span = t('management.school_profile.upload')
+      label
+        span = t('management.school_profile.school_name')
+        input#school-name-input type="text" name="school_name" value=(@school&.name || '') required=""
+        span.form-field-error data-error-for="school-name-input"
+      label
+        span = t('management.school_profile.school_address')
+        input#school-address-input type="text" name="school_address" value=(@school&.address || '') required=""
+        span.form-field-error data-error-for="school-address-input"
+      .school-edit-form__row
+        label
+          span = t('management.school_profile.phone')
+          input#school-phone-input type="tel" name="phone" value=(@school&.phone || '') required=""
+          span.form-field-error data-error-for="school-phone-input"
+        label
+          span = t('common.email')
+          input#school-email-input type="email" name="email" value=(@school&.email || '') required=""
+          span.form-field-error data-error-for="school-email-input"
+      label
+        span = t('management.school_profile.headmaster')
+        input#school-headmaster-input type="text" name="headmaster" value=(@headmaster ? [@headmaster.first_name, @headmaster.last_name].compact.join(' ') : '') required=""
+        span.form-field-error data-error-for="school-headmaster-input"
+      label
+        span = t('management.school_profile.deputy')
+        input#school-deputy-input type="text" name="deputy_headmaster" value=(@deputy_headmaster ? [@deputy_headmaster.first_name, @deputy_headmaster.last_name].compact.join(' ') : '')
+        span.form-field-error data-error-for="school-deputy-input"
+      .schools-modal__actions
+        button.schools-modal__primary.is-disabled type="submit" disabled="" = t('common.save')
+        button.schools-modal__secondary type="button" = t('common.cancel')
+
+javascript:
+  // QR Code URL for teachers to join this school
+  const joinSchoolUrl = '#{join_school_url(token: @school&.join_token)}';
+  const schoolSlug = '#{@school&.slug}';
+  const MSG_COPIED = '#{j t('management.school_profile.copied')}';
+  const MSG_COPY_CODE = '#{j t('management.school_profile.copy_code')}';
+
+  // Load QR code based on theme
+  function loadQRCode() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+                   (document.documentElement.getAttribute('data-theme') === 'auto' &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    const qrImage = document.getElementById('qr-code-image');
+    if (qrImage) {
+      const theme = isDark ? 'dark' : 'light';
+      const qrSvgUrl = '#{management_qr_code_svg_path}' + '?theme=' + theme + '&t=' + Date.now();
+      qrImage.src = qrSvgUrl;
+      qrImage.style.display = 'block';
+    }
+  }
+
+  // Download QR code
+  document.getElementById('download-qr-btn')?.addEventListener('click', function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+                   (document.documentElement.getAttribute('data-theme') === 'auto' &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const qrPngUrl = '#{management_qr_code_png_path}' + '?theme=' + (isDark ? 'dark' : 'light');
+    const link = document.createElement('a');
+    link.href = qrPngUrl;
+    link.download = 'qr-school-#{@school&.slug}.png';
+    link.click();
+  });
+
+  // Copy code
+  document.getElementById('copy-code-btn')?.addEventListener('click', function() {
+    navigator.clipboard.writeText(joinSchoolUrl).then(() => {
+      const btn = this;
+      btn.textContent = MSG_COPIED;
+      setTimeout(() => { btn.textContent = MSG_COPY_CODE; }, 2000);
+    });
+  });
+
+  // Load QR code on page load
+  loadQRCode();
+
+  // Reload QR code on theme change
+  const themeObserver = new MutationObserver(() => { loadQRCode(); });
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+

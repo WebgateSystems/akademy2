@@ -1,0 +1,67 @@
+doctype html
+html lang="pl" class="no-js" data-theme="auto"
+  head
+    meta charset="utf-8"
+    meta name="viewport" content="width=device-width,initial-scale=1"
+    title = "#{content_for(:title) || t('management.dashboard.title')} | Akademy"
+    meta name="description" content=(t('management.dashboard.description'))
+    link rel="preconnect" href="https://fonts.googleapis.com"
+    link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""
+    link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet"
+    link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
+    = render 'shared/favicons'
+    = csrf_meta_tags
+    = csp_meta_tag
+    - if @management_token
+      meta name="management-token" content=@management_token
+    = stylesheet_link_tag "application", "data-turbo-track": "reload"
+    = javascript_include_tag "application", type: "module"
+  body
+    .dashboard-app data-dashboard-app=""
+      aside.dashboard-sidebar
+        .dashboard-logo
+          .dashboard-logo__brand
+            = image_tag "icons/logo/Akademy_logo.svg", class: "dashboard-logo__icon", alt: "", width: "32", height: "32", "aria-hidden": "true", "data-theme-icon": true
+            = image_tag "icons/logo/Akademy_logo_full.svg", class: "dashboard-logo__full", alt: "AKAdemy 2.0", "aria-hidden": "false", "data-theme-icon": true
+          button.dashboard-collapse-toggle type="button" aria-label=(t('actions.collapse_sidebar')) aria-expanded="true" data-sidebar-collapse-toggle=""
+            = image_tag "icons/social/M/close-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--collapse", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
+            = image_tag "icons/social/M/open-sidebar.svg", class: "dashboard-collapse-toggle__icon dashboard-collapse-toggle__icon--expand", alt: "", width: "24", height: "24", "aria-hidden": "true", "data-theme-icon": true
+        nav.dashboard-nav
+          = link_to management_root_path, class: "dashboard-nav__button #{'is-active' if request.path == management_root_path}", "aria-current": (request.path == management_root_path ? "page" : nil) do
+            i.bi.bi-building aria-hidden="true"
+            span.dashboard-nav__label = t('navigation.school_profile')
+          = link_to management_administration_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/administration')}" do
+            i.bi.bi-shield-check aria-hidden="true"
+            span.dashboard-nav__label = t('navigation.administration')
+          = link_to management_teachers_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/teachers')}" do
+            i.bi.bi-person-workspace aria-hidden="true"
+            span.dashboard-nav__label = t('navigation.teachers')
+            - if @teachers_notifications_count && @teachers_notifications_count > 0
+              span.notification-counter aria-hidden="true" = @teachers_notifications_count
+          = link_to management_students_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/students')}" do
+            i.bi.bi-people aria-hidden="true"
+            span.dashboard-nav__label = t('navigation.students')
+            - if @students_notifications_count && @students_notifications_count > 0
+              span.notification-counter aria-hidden="true" = @students_notifications_count
+          = link_to management_parents_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/parents')}" do
+            i.bi.bi-person-heart aria-hidden="true"
+            span.dashboard-nav__label = t('navigation.parents')
+          = link_to management_classes_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/classes') && !request.path.include?('/years')}" do
+            i.bi.bi-people-fill aria-hidden="true"
+            span.dashboard-nav__label = t('navigation.classes')
+          = link_to management_years_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/years')}" do
+            i.bi.bi-calendar3 aria-hidden="true"
+            span.dashboard-nav__label = t('navigation.years')
+      .dashboard-sidebar-overlay data-sidebar-overlay="" aria-hidden="true"
+      main.dashboard-main
+        = render 'management/top_bar'
+
+        - if notice
+          .alert.alert-success = notice
+        - if alert
+          .alert.alert-danger = alert
+
+        = yield
+
+        = render 'shared/app_version'
+

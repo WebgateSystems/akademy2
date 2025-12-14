@@ -44,6 +44,7 @@ pl:
       updated: "Konto zostało pomyślnie zaktualizowane."
       updated_but_not_signed_in: "Konto zostało zaktualizowane, ale ponieważ zmieniłeś hasło, musisz zalogować się ponownie."
     sessions:
+      page_title: "Logowanie"
       signed_in: "Zalogowano pomyślnie."
       signed_out: "Wylogowano pomyślnie."
       already_signed_out: "Wylogowano pomyślnie."

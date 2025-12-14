@@ -42,9 +42,9 @@ class Admin::SessionsController < ApplicationController
     if stored_location.present? && stored_location.start_with?('/admin')
       session.delete(:return_to)
       session.delete(:user_return_to)
-      redirect_to stored_location, notice: 'Welcome!'
+      redirect_to stored_location, notice: t('admin.sessions.welcome')
     else
-      redirect_to admin_root_path, notice: 'Welcome!'
+      redirect_to admin_root_path, notice: t('admin.sessions.welcome')
     end
   end
 
