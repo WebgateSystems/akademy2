@@ -1,7 +1,7 @@
 # AKAdemy 2.0
 
 [![CI](https://github.com/WebgateSystems/akademy2/actions/workflows/ci.yml/badge.svg)](https://github.com/WebgateSystems/akademy2/actions/workflows/ci.yml)
-![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey)
+![Coverage](https://img.shields.io/badge/coverage-91.3%25-brightgreen)
 [![Ruby](https://img.shields.io/badge/Ruby-3.4.6-CC342D?logo=ruby&logoColor=white)](https://www.ruby-lang.org/)
 [![Rails](https://img.shields.io/badge/Rails-8.1.1-D30001?logo=rubyonrails&logoColor=white)](https://rubyonrails.org/)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
