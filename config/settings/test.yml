@@ -5,12 +5,12 @@ secret_key_base: 5efa44e98a8be9dcdf6e56c88e7bc1ed3a8fb2a6c3cbf12806d098137799216
 elasticsearch:
   enabled: false # ES disabled in test environment by default
 
-twilio:
-  phone_number: "+10000000000"
-  account_sid: "test_sid"
-  auth_token: "test_token"
-
-youtube:
-  client_id: 'test_id'
-  client_secret: 'test_secret'
-  refresh_token: 'Test_token'
+services:
+  twilio:
+    phone_number: "+10000000000"
+    account_sid: "test_sid"
+    auth_token: "test_token"
+  youtube:
+    client_id: 'test_id'
+    client_secret: 'test_secret'
+    refresh_token: 'test_token'

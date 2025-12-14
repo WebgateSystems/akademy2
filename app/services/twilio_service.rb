@@ -67,7 +67,7 @@ class TwilioService
   # HELPERS
   # --------------------------
   def default_from_number
-    Settings.twilio.phone_number
+    Settings.services.twilio.phone_number
   end
 
   def normalize_phone(phone)
@@ -78,8 +78,8 @@ class TwilioService
   end
 
   def build_client(account_sid, auth_token)
-    sid   = account_sid.presence || Settings.twilio.account_sid
-    token = auth_token.presence  || Settings.twilio.auth_token
+    sid   = account_sid.presence || Settings.services.twilio.account_sid
+    token = auth_token.presence  || Settings.services.twilio.auth_token
 
     Twilio::REST::Client.new(sid, token)
   end
