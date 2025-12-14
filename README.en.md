@@ -1,20 +1,10 @@
 # AKAdemy 2.0
 
 [![CI](https://github.com/WebgateSystems/akademy2/actions/workflows/ci.yml/badge.svg)](https://github.com/WebgateSystems/akademy2/actions/workflows/ci.yml)
+![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey)
 [![Ruby](https://img.shields.io/badge/Ruby-3.4.6-CC342D?logo=ruby&logoColor=white)](https://www.ruby-lang.org/)
 [![Rails](https://img.shields.io/badge/Rails-8.1.1-D30001?logo=rubyonrails&logoColor=white)](https://rubyonrails.org/)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-
-<!-- Optional badges (require external service configuration):
-
-[![codecov](https://codecov.io/gh/WebgateSystems/akademy2/graph/badge.svg)](https://codecov.io/gh/WebgateSystems/akademy2)
-[![Maintainability](https://api.codeclimate.com/v1/badges/XXXXXX/maintainability)](https://codeclimate.com/github/WebgateSystems/akademy2/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/XXXXXX/test_coverage)](https://codeclimate.com/github/WebgateSystems/akademy2/test_coverage)
-
-To activate:
-- Codecov: https://codecov.io - connect repo and add CODECOV_TOKEN to GitHub Secrets
-- Code Climate: https://codeclimate.com - connect repo and replace XXXXXX with your badge token
--->
 
 ---
 

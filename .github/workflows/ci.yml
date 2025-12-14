@@ -26,3 +26,31 @@ jobs:
       - run: bin/rails db:create db:schema:load
       - run: bundle exec rubocop
       - run: bundle exec rspec
+
+      - name: Update coverage badge
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          COVERAGE=$(ruby -rjson -e "puts JSON.parse(File.read('coverage/coverage.json'))['metrics']['covered_percent'].round(1)")
+          echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
+          if [ $(echo "$COVERAGE >= 90" | bc -l) -eq 1 ]; then
+            COLOR="brightgreen"
+          elif [ $(echo "$COVERAGE >= 80" | bc -l) -eq 1 ]; then
+            COLOR="green"
+          elif [ $(echo "$COVERAGE >= 70" | bc -l) -eq 1 ]; then
+            COLOR="yellow"
+          elif [ $(echo "$COVERAGE >= 60" | bc -l) -eq 1 ]; then
+            COLOR="orange"
+          else
+            COLOR="red"
+          fi
+          sed -i "s|!\[Coverage\]([^)]*)|![Coverage](https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR})|g" README.md
+          sed -i "s|!\[Coverage\]([^)]*)|![Coverage](https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR})|g" README.en.md
+
+      - name: Commit coverage badge
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md README.en.md
+          git diff --staged --quiet || git commit -m "📊 Update coverage to ${{ env.COVERAGE }}% [skip ci]"
+          git push
