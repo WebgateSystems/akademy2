@@ -1,0 +1,147 @@
+- content_for :page_title, t('management.notifications.title')
+
+section.notifications-board aria-label=t('management.notifications.list_label')
+  .notifications-board__filters
+    label
+      span = t('management.notifications.filter_type')
+      select#notification-type-filter
+        option value="all" selected=(@type_filter == 'all') = t('management.notifications.all_types')
+        option value="teacher_awaiting_approval" selected=(@type_filter == 'teacher_awaiting_approval') = t('management.notifications.teacher_invitations')
+        option value="teacher_enrollment_request" selected=(@type_filter == 'teacher_enrollment_request') = t('management.notifications.teacher_enrollment_requests')
+        option value="student_awaiting_approval" selected=(@type_filter == 'student_awaiting_approval') = t('management.notifications.student_invitations')
+        option value="account_deletion_request" selected=(@type_filter == 'account_deletion_request') = t('management.notifications.account_deletion_requests')
+        option value="report_ready" selected=(@type_filter == 'report_ready') = t('management.notifications.reports')
+        option value="reminder" selected=(@type_filter == 'reminder') = t('management.notifications.reminders')
+        option value="alert" selected=(@type_filter == 'alert') = t('management.notifications.alerts')
+    label
+      span = t('management.notifications.filter_status')
+      select#notification-status-filter
+        option value="unread" selected=(@status_filter == 'unread') = t('management.notifications.unread')
+        option value="archived" selected=(@status_filter == 'archived') = t('management.notifications.archived')
+
+  #notifications-list.notifications-board__list
+    - if @notifications.any?
+      - @notifications.each do |notification|
+        article.notification-card data-notification-type=notification[:type] data-notification-id=notification[:id]
+          header.notification-card__header
+            div
+              h3 = notification[:title]
+              p = notification[:message]
+            span.notification-card__badge = t('management.notifications.time_ago', time: notification[:time_ago])
+          .notification-card__actions
+            - notification[:actions].each do |action|
+              - if action[:url] && action[:method] == :post
+                = button_to action[:label], action[:url], method: :post, class: "notification-card__action #{'notification-card__action--primary' if action[:primary]} #{'notification-card__action--danger' if action[:danger]}", data: { confirm: action[:danger] ? t('management.notifications.confirm_delete') : nil }.compact
+              - elsif action[:url]
+                = link_to action[:label], action[:url], class: "notification-card__action #{'notification-card__action--primary' if action[:primary]}"
+              - elsif action[:action]
+                button.notification-card__action type="button" data-action=action[:action] data-notification-id=(action[:data][:notification_id] if action[:data]&.dig(:notification_id))
+                  = action[:label]
+    - else
+      .notifications-empty
+        p = t('management.notifications.empty')
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    const typeFilter = document.getElementById('notification-type-filter');
+    const statusFilter = document.getElementById('notification-status-filter');
+    const notificationsList = document.getElementById('notifications-list');
+    const notificationCards = notificationsList.querySelectorAll('.notification-card');
+
+    function filterNotifications() {
+      const selectedType = typeFilter.value;
+      const selectedStatus = statusFilter.value;
+
+      notificationCards.forEach(card => {
+        const cardType = card.getAttribute('data-notification-type');
+        let showCard = true;
+
+        if (selectedType !== 'all' && cardType !== selectedType) {
+          showCard = false;
+        }
+
+        if (selectedStatus === 'archived') {
+          showCard = false;
+        }
+
+        card.style.display = showCard ? '' : 'none';
+      });
+    }
+
+    if (typeFilter) {
+      typeFilter.addEventListener('change', function() {
+        const selectedType = this.value;
+        const url = new URL(window.location);
+        url.searchParams.set('type', selectedType);
+        window.location.href = url.toString();
+      });
+    }
+
+    if (statusFilter) {
+      statusFilter.addEventListener('change', function() {
+        const selectedStatus = this.value;
+        const url = new URL(window.location);
+        url.searchParams.set('status', selectedStatus);
+        window.location.href = url.toString();
+      });
+    }
+
+    notificationsList.addEventListener('click', async function(e) {
+      const button = e.target.closest('[data-action="mark_read"]');
+      if (!button) return;
+
+      const notificationId = button.getAttribute('data-notification-id');
+      const card = button.closest('.notification-card');
+      
+      if (!notificationId || !card) return;
+
+      button.disabled = true;
+      const originalText = button.textContent;
+      button.textContent = '#{j t('common.loading')}';
+
+      try {
+        const api = new ApiClient();
+        const result = await api.post('/management/notifications/mark_as_read', {
+          notification_id: notificationId
+        });
+
+        if (result.success) {
+          card.style.display = 'none';
+          
+          const headerCounter = document.querySelector('.dashboard-top-actions .notification-counter');
+          if (headerCounter) {
+            const currentCount = parseInt(headerCounter.textContent) || 0;
+            const newCount = Math.max(0, currentCount - 1);
+            if (newCount > 0) {
+              headerCounter.textContent = newCount;
+              headerCounter.style.display = '';
+            } else {
+              headerCounter.style.display = 'none';
+            }
+          }
+
+          const sidebarCounter = document.querySelector('.dashboard-nav__button[href*="teachers"] .notification-counter');
+          if (sidebarCounter) {
+            const currentCount = parseInt(sidebarCounter.textContent) || 0;
+            const newCount = Math.max(0, currentCount - 1);
+            if (newCount > 0) {
+              sidebarCounter.textContent = newCount;
+              sidebarCounter.style.display = '';
+            } else {
+              sidebarCounter.style.display = 'none';
+            }
+          }
+        } else {
+          alert('Error: ' + (result.error || '#{j t('management.notifications.error_mark_read')}'));
+          button.disabled = false;
+          button.textContent = originalText;
+        }
+      } catch (error) {
+        console.error('Failed to mark notification as read:', error);
+        alert('Error: ' + (error.message || '#{j t('errors.unknown')}'));
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    });
+  });
+

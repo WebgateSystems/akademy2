@@ -1,0 +1,131 @@
+/ Add Student Modal
+#add-student-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="add-student-title"
+    header.schools-modal__header
+      h3#add-student-title = t('management.students.add_student')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="add-student-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    form#add-student-form.schools-modal__form.headmaster-form
+      input#add-student-school type="hidden" name="student[school_id]" value=@school&.id
+      label
+        span
+          = t('management.students.first_name')
+          sup style="color: var(--content-secondary);" *
+        input#add-student-first-name type="text" name="student[first_name]" placeholder=t('management.students.first_name') required=""
+      label
+        span
+          = t('management.students.last_name')
+          sup style="color: var(--content-secondary);" *
+        input#add-student-last-name type="text" name="student[last_name]" placeholder=t('management.students.last_name') required=""
+      label
+        span
+          = t('common.email')
+          sup style="color: var(--content-secondary);" *
+        input#add-student-email type="email" name="student[email]" placeholder=t('management.students.email_placeholder') required=""
+      label
+        span = t('management.students.class')
+        select#add-student-class name="student[school_class_id]"
+          option value="" = t('management.students.select_class')
+          - @school_classes.each do |school_class|
+            option value=school_class.id = school_class.name
+      label
+        span = t('management.students.phone')
+        input#add-student-phone type="text" name="student[metadata][phone]" placeholder=t('management.students.phone_placeholder')
+      label
+        span = t('management.students.birth_date')
+        input#add-student-birth-date type="date" name="student[metadata][birth_date]"
+      .schools-modal__actions
+        button.schools-modal__primary type="submit" = t('common.save')
+        button.schools-modal__secondary type="button" data-close-modal="add-student-modal" = t('common.cancel')
+
+/ Edit Student Modal
+#edit-student-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="edit-student-title"
+    header.schools-modal__header
+      h3#edit-student-title = t('management.students.edit_student')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="edit-student-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    form#edit-student-form.schools-modal__form.headmaster-form
+      input#edit-student-id type="hidden" value=""
+      input#edit-student-school type="hidden" name="student[school_id]" value=@school&.id
+      label
+        span
+          = t('management.students.first_name')
+          sup style="color: var(--content-secondary);" *
+        input#edit-student-first-name type="text" name="student[first_name]" placeholder=t('management.students.first_name') required=""
+      label
+        span
+          = t('management.students.last_name')
+          sup style="color: var(--content-secondary);" *
+        input#edit-student-last-name type="text" name="student[last_name]" placeholder=t('management.students.last_name') required=""
+      label
+        span
+          = t('common.email')
+          sup style="color: var(--content-secondary);" *
+        input#edit-student-email type="email" name="student[email]" placeholder=t('management.students.email_placeholder') required=""
+      label
+        span = t('management.students.class')
+        select#edit-student-class name="student[school_class_id]"
+          option value="" = t('management.students.select_class')
+          - @school_classes.each do |school_class|
+            option value=school_class.id = school_class.name
+      label
+        span = t('management.students.phone')
+        input#edit-student-phone type="text" name="student[metadata][phone]" placeholder=t('management.students.phone_placeholder')
+      label
+        span = t('management.students.birth_date')
+        input#edit-student-birth-date type="date" name="student[metadata][birth_date]"
+      .schools-modal__actions
+        button#edit-student-save-btn.schools-modal__primary type="submit" = t('common.save')
+        button.schools-modal__secondary type="button" data-close-modal="edit-student-modal" = t('common.cancel')
+
+/ Deactivate Student Modal
+#deactivate-student-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="deactivate-student-title"
+    header.schools-modal__header
+      h3#deactivate-student-title = t('management.students.deactivate')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="deactivate-student-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p#deactivate-student-message
+        = t('management.students.deactivate_confirm')
+        |  
+        strong data-deactivate-name=""
+        | ?
+        |  
+        = t('management.students.deactivate_warning')
+    .schools-modal__actions
+      button#deactivate-student-confirm-btn.schools-modal__primary.schools-modal__primary--danger type="button" = t('management.students.deactivate')
+      button.schools-modal__secondary type="button" data-close-modal="deactivate-student-modal" = t('common.cancel')
+
+/ Approve Student Modal
+#approve-student-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="approve-student-title"
+    header.schools-modal__header
+      h3#approve-student-title = t('management.students.approve')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="approve-student-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p#approve-student-message = t('management.students.approve_confirm')
+    .schools-modal__actions
+      button#approve-student-confirm-btn.schools-modal__primary type="button" = t('management.students.approve')
+      button.schools-modal__secondary type="button" data-close-modal="approve-student-modal" = t('common.cancel')
+
+/ Decline Student Modal
+#decline-student-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="decline-student-title"
+    header.schools-modal__header
+      h3#decline-student-title = t('management.students.decline')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="decline-student-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p#decline-student-message = t('management.students.decline_confirm')
+    .schools-modal__actions
+      button#decline-student-confirm-btn.schools-modal__primary.schools-modal__primary--danger type="button" = t('management.students.decline')
+      button.schools-modal__secondary type="button" data-close-modal="decline-student-modal" = t('common.cancel')
+

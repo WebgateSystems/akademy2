@@ -1,0 +1,60 @@
+- content_for :page_title, t('management.students.title')
+
+javascript:
+  window.STUDENTS_ASSET_PATHS = {
+    buttonIcon: '#{asset_path("icons/social/S/button-3.svg")}',
+    approveIcon: '#{asset_path("icons/social/S/done.svg")}',
+    declineIcon: '#{asset_path("icons/social/S/close_red.svg")}'
+  };
+  window.MANAGEMENT_SCHOOL_ID = '#{@school&.id}';
+  window.SCHOOL_CLASSES = #{@school_classes.to_json};
+  window.STUDENTS_I18N = {
+    status_awaiting: '#{j t('management.students.status_awaiting')}',
+    status_inactive: '#{j t('management.students.status_inactive')}',
+    status_active: '#{j t('management.students.status_active')}',
+    edit: '#{j t('common.edit')}',
+    resend_invite: '#{j t('management.students.resend_invite')}',
+    activate: '#{j t('management.students.activate')}',
+    deactivate: '#{j t('management.students.deactivate')}',
+    processing: '#{j t('common.loading')}',
+    adding: '#{j t('management.students.adding')}',
+    saving: '#{j t('management.students.saving')}',
+    sending: '#{j t('management.students.sending')}',
+    sent: '#{j t('management.students.sent')}',
+    error_create: '#{j t('management.students.error_create')}',
+    error_update: '#{j t('management.students.error_update')}',
+    error_unknown: '#{j t('errors.unknown')}'
+  };
+
+section aria-label=t('management.students.list_label')
+  header.schools-page__header
+    label.schools-search.schools-search--half
+      span.visually-hidden = t('management.students.search')
+      input#students-search-input type="search" placeholder=t('management.students.search_placeholder')
+      = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true", "data-theme-icon": true
+    button.schools-page__add type="button" data-open-modal="add-student-modal" = t('management.students.add_student')
+  .schools-page__controls
+
+  .students-panel
+    table.students-table
+      thead.students-table__head
+        tr
+          th.students-table__heading scope="col" = t('management.students.name')
+          th.students-table__heading scope="col" = t('management.students.birth_date')
+          th.students-table__heading scope="col" = t('common.email')
+          th.students-table__heading scope="col" = t('management.students.phone')
+          th.students-table__heading scope="col" = t('management.students.class')
+          th.students-table__heading scope="col" = t('common.status')
+          th.students-table__heading.students-table__heading--actions scope="col" = t('common.actions')
+      tbody#students-table-body.students-table__body
+    #students-loading-indicator.students-loading style="display: none; padding: 20px; text-align: center;"
+      .spinner style="display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--content-primary); border-radius: 50%; animation: spin 0.8s linear infinite;"
+      span style="margin-left: 12px; color: var(--content-secondary);" = t('management.students.loading')
+    #students-empty-message.text-center style="padding: 40px; color: var(--content-secondary); display: none;"
+      = t('management.students.empty')
+
+css:
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+= render 'management/students/modals'
+

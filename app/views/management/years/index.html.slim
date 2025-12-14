@@ -1,0 +1,494 @@
+- content_for :page_title, t('management.years.title')
+
+section aria-label=t('management.years.list_label')
+  header.schools-page__header
+    .schools-page__title-group
+      h1 = t('management.years.title')
+    .schools-page__actions
+      span.classes-count = @academic_years.count
+
+  .classes-panel
+    - if @academic_years.any?
+      .classes-grid
+        - @academic_years.each do |academic_year|
+          .class-card class=('class-card--current' if academic_year.is_current)
+            .class-card__header
+              h3.class-card__name = academic_year.year
+              .class-card__actions
+                button.class-card__edit type="button" data-action="edit-year" data-year-id=academic_year.id data-year-value=academic_year.year
+                  i.bi.bi-pencil aria-hidden="true"
+                  span.visually-hidden = t('management.years.edit')
+            .class-card__content
+              .class-card__teacher
+                span.class-card__label = "#{t('management.years.status')}:"
+                - if academic_year.is_current
+                  span.class-card__value style="color: var(--state-success); font-weight: 600;" = t('management.years.current')
+                - else
+                  span.class-card__value style="color: var(--content-secondary);" = t('management.years.archived')
+              - classes_count = SchoolClass.where(school: @school, year: academic_year.year).count
+              .class-card__students
+                span.class-card__label = "#{t('management.years.classes_count')}:"
+                span.class-card__value = classes_count
+              - if academic_year.started_at
+                .class-card__teacher
+                  span.class-card__label = "#{t('management.years.started')}:"
+                  span.class-card__value = academic_year.started_at.strftime('%d.%m.%Y')
+              - if academic_year.ended_at
+                .class-card__teacher
+                  span.class-card__label = "#{t('management.years.ended')}:"
+                  span.class-card__value = academic_year.ended_at.strftime('%d.%m.%Y')
+            .class-card__footer style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;"
+              - unless academic_year.is_current
+                button.btn.btn--primary.btn--small type="button" data-action="set-current-year" data-year-id=academic_year.id
+                  = t('management.years.actions.set_as_current')
+              - if classes_count == 0
+                button.class-card__delete type="button" data-action="delete-year" data-year-id=academic_year.id data-year-value=academic_year.year title=t('management.years.actions.delete')
+                  i.bi.bi-trash aria-hidden="true"
+                  span.visually-hidden = t('management.years.actions.delete')
+        .class-card.class-card--add
+          button.class-card__add-button type="button" data-open-modal="add-year-modal"
+            i.bi.bi-plus-lg aria-hidden="true"
+            span = t('management.years.add')
+    - else
+      .classes-empty
+        p = t('management.years.empty')
+        button.schools-page__add type="button" data-open-modal="add-year-modal" = t('management.years.add_first')
+
+/ Add Year Modal
+#add-year-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="add-year-title"
+    header.schools-modal__header
+      h3#add-year-title = t('management.years.add_title')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="add-year-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    form#add-year-form.schools-modal__form
+      input type="hidden" name="academic_year[school_id]" value=@school&.id
+      label
+        span
+          = t('management.years.year')
+          sup style="color: var(--content-secondary);" *
+        input#add-year-year type="text" name="academic_year[year]" placeholder="2025/2026" required="" pattern="\\d{4}/\\d{4}"
+        small style="color: var(--content-secondary); font-size: 12px;" = t('management.years.year_format_hint')
+      label style="display: flex; flex-direction: row; align-items: center; gap: 8px; cursor: pointer;"
+        input#add-year-is-current type="checkbox" name="academic_year[is_current]" value="1" style="width: auto; height: auto; padding: 0; margin: 0; cursor: pointer;"
+        span style="margin: 0; padding: 0;" = t('management.years.set_as_current_checkbox')
+      .schools-modal__actions
+        button.schools-modal__primary type="submit" = t('common.save')
+        button.schools-modal__secondary type="button" data-close-modal="add-year-modal" = t('common.cancel')
+
+/ Set Current Year Confirmation Modal
+#set-current-year-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="set-current-year-title"
+    header.schools-modal__header
+      h3#set-current-year-title = t('management.years.actions.set_as_current')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="set-current-year-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p#set-current-year-message
+        = t('management.years.confirm.set_current')
+        |  
+        strong data-year-name=""
+        |  
+        = t('management.years.confirm.as_current')
+        |  
+        = t('management.years.confirm.current_will_be_archived')
+    .schools-modal__actions
+      button#set-current-year-confirm-btn.schools-modal__primary type="button" = t('management.years.actions.set_as_current')
+      button.schools-modal__secondary type="button" data-close-modal="set-current-year-modal" = t('common.cancel')
+
+/ Delete Year Confirmation Modal
+#delete-year-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="delete-year-title"
+    header.schools-modal__header
+      h3#delete-year-title = t('management.years.actions.delete')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="delete-year-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p#delete-year-message
+        = t('management.years.confirm.delete')
+        |  
+        strong data-year-name=""
+        | ?
+        |  
+        = t('management.years.confirm.delete_warning')
+    .schools-modal__actions
+      button#delete-year-confirm-btn.schools-modal__primary.schools-modal__primary--danger type="button" = t('management.years.actions.delete')
+      button.schools-modal__secondary type="button" data-close-modal="delete-year-modal" = t('common.cancel')
+
+/ Edit Year Modal
+#edit-year-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="edit-year-title"
+    header.schools-modal__header
+      h3#edit-year-title = t('management.years.edit_title')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="edit-year-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    form#edit-year-form.schools-modal__form
+      input#edit-year-id type="hidden" value=""
+      input type="hidden" name="academic_year[school_id]" value=@school&.id
+      label
+        span
+          = t('management.years.year')
+          sup style="color: var(--content-secondary);" *
+        input#edit-year-year type="text" name="academic_year[year]" placeholder="2025/2026" required="" pattern="\\d{4}/\\d{4}"
+        small style="color: var(--content-secondary); font-size: 12px;" = t('management.years.year_format_hint')
+      label style="display: flex; flex-direction: row; align-items: center; gap: 8px; cursor: pointer;"
+        input#edit-year-is-current type="checkbox" name="academic_year[is_current]" value="1" style="width: auto; height: auto; padding: 0; margin: 0; cursor: pointer;"
+        span style="margin: 0; padding: 0;" = t('management.years.set_as_current_checkbox')
+      .schools-modal__actions
+        button.schools-modal__primary type="submit" = t('common.save')
+        button.schools-modal__secondary type="button" data-close-modal="edit-year-modal" = t('common.cancel')
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    const API_BASE = '/management/academic_years';
+    const api = typeof window.ApiClient !== 'undefined' ? new window.ApiClient() : null;
+    
+    const MSG_PROCESSING = '#{j t('management.years.processing')}';
+    const MSG_SUCCESS_CREATED = '#{j t('management.years.success.created')}';
+    const MSG_SUCCESS_UPDATED = '#{j t('management.years.success.updated')}';
+    const MSG_SUCCESS_SET_CURRENT = '#{j t('management.years.success.set_current')}';
+    const MSG_SUCCESS_DELETED = '#{j t('management.years.success.deleted')}';
+    const MSG_ERROR_CREATE = '#{j t('management.years.errors.create_failed')}';
+    const MSG_ERROR_UPDATE = '#{j t('management.years.errors.update_failed')}';
+    const MSG_ERROR_SET_CURRENT = '#{j t('management.years.errors.set_current_failed')}';
+    const MSG_ERROR_DELETE = '#{j t('management.years.errors.delete_failed')}';
+    const MSG_ERROR_UNKNOWN = '#{j t('management.years.errors.unknown_error')}';
+    const MSG_VALIDATION_EMPTY = '#{j t('management.years.validation.empty')}';
+    const MSG_VALIDATION_FORMAT = '#{j t('management.years.validation.format')}';
+    const MSG_VALIDATION_NUMBERS = '#{j t('management.years.validation.numbers')}';
+    const MSG_VALIDATION_CONSECUTIVE = '#{j t('management.years.validation.consecutive')}';
+
+    if (!api) {
+      console.error('ApiClient not available');
+      return;
+    }
+
+    function showErrorMessage(message) {
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger';
+      alertDiv.textContent = message;
+      alertDiv.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 10000; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); max-width: 400px;';
+      document.body.appendChild(alertDiv);
+      setTimeout(() => {
+        alertDiv.style.opacity = '0';
+        alertDiv.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => alertDiv.remove(), 300);
+      }, 5000);
+    }
+
+    function showSuccessMessage(message) {
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-success';
+      alertDiv.textContent = message;
+      alertDiv.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 10000; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); max-width: 400px;';
+      document.body.appendChild(alertDiv);
+      setTimeout(() => {
+        alertDiv.style.opacity = '0';
+        alertDiv.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => alertDiv.remove(), 300);
+      }, 3000);
+    }
+
+    // Modal handlers
+    document.querySelectorAll('[data-open-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById(btn.getAttribute('data-open-modal'));
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('is-open');
+        }
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const modal = document.getElementById(this.getAttribute('data-close-modal'));
+        if (modal) {
+          if (document.activeElement === this) this.blur();
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+      overlay.addEventListener('click', function() {
+        const modal = this.closest('.schools-modal');
+        if (modal) {
+          const focused = modal.querySelector(':focus');
+          if (focused) focused.blur();
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    // Edit year handler
+    document.querySelectorAll('[data-action="edit-year"]').forEach(btn => {
+      btn.addEventListener('click', async function(e) {
+        e.stopPropagation();
+        const yearId = this.getAttribute('data-year-id');
+        const yearValue = this.getAttribute('data-year-value');
+        
+        document.getElementById('edit-year-id').value = yearId;
+        document.getElementById('edit-year-year').value = yearValue;
+        
+        const editModal = document.getElementById('edit-year-modal');
+        if (editModal) {
+          editModal.setAttribute('aria-hidden', 'false');
+          editModal.classList.add('is-open');
+        }
+        
+        try {
+          const result = await api.get(`${API_BASE}/${yearId}`);
+          if (result.success && result.data) {
+            let attributes = result.data.data?.data?.attributes;
+            if (!attributes && result.data.data?.data) attributes = result.data.data.data;
+            if (!attributes) return;
+            
+            document.getElementById('edit-year-year').value = attributes.year || yearValue;
+            document.getElementById('edit-year-is-current').checked = attributes.is_current || false;
+          }
+        } catch (error) {
+          console.error('Error loading year data:', error);
+        }
+      });
+    });
+
+    // Set current year handler
+    let setCurrentYearId = null;
+    document.querySelectorAll('[data-action="set-current-year"]').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        setCurrentYearId = this.getAttribute('data-year-id');
+        const yearValue = this.closest('.class-card').querySelector('.class-card__name').textContent;
+        
+        const yearNameEl = document.querySelector('[data-year-name]');
+        if (yearNameEl) yearNameEl.textContent = yearValue;
+        
+        const modal = document.getElementById('set-current-year-modal');
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('is-open');
+        }
+      });
+    });
+
+    const setCurrentYearConfirmBtn = document.getElementById('set-current-year-confirm-btn');
+    if (setCurrentYearConfirmBtn) {
+      setCurrentYearConfirmBtn.addEventListener('click', async function() {
+        if (!setCurrentYearId) return;
+        
+        this.disabled = true;
+        const originalText = this.textContent;
+        this.textContent = MSG_PROCESSING;
+        
+        try {
+          const result = await api.patch(`${API_BASE}/${setCurrentYearId}`, { academic_year: { is_current: true } });
+          if (result.success) {
+            const modal = document.getElementById('set-current-year-modal');
+            if (modal) {
+              const focused = modal.querySelector(':focus');
+              if (focused) focused.blur();
+              modal.setAttribute('aria-hidden', 'true');
+              modal.classList.remove('is-open');
+            }
+            showSuccessMessage(MSG_SUCCESS_SET_CURRENT);
+            setTimeout(() => window.location.reload(), 1000);
+          } else {
+            let errorMsg = result.error || result.errors || MSG_ERROR_SET_CURRENT;
+            if (Array.isArray(errorMsg)) errorMsg = errorMsg.join(', ');
+            showErrorMessage(errorMsg);
+            this.disabled = false;
+            this.textContent = originalText;
+          }
+        } catch (error) {
+          showErrorMessage(error.message || MSG_ERROR_UNKNOWN);
+          this.disabled = false;
+          this.textContent = originalText;
+        }
+      });
+    }
+
+    // Delete year handler
+    let deleteYearId = null;
+    document.querySelectorAll('[data-action="delete-year"]').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        deleteYearId = this.getAttribute('data-year-id');
+        const yearValue = this.getAttribute('data-year-value');
+        
+        const yearNameEl = document.querySelector('#delete-year-modal [data-year-name]');
+        if (yearNameEl) yearNameEl.textContent = yearValue;
+        
+        const modal = document.getElementById('delete-year-modal');
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('is-open');
+        }
+      });
+    });
+
+    const deleteYearConfirmBtn = document.getElementById('delete-year-confirm-btn');
+    if (deleteYearConfirmBtn) {
+      deleteYearConfirmBtn.addEventListener('click', async function() {
+        if (!deleteYearId) return;
+        
+        this.disabled = true;
+        const originalText = this.textContent;
+        this.textContent = MSG_PROCESSING;
+        
+        try {
+          const result = await api.delete(`${API_BASE}/${deleteYearId}`);
+          if (result.success) {
+            const modal = document.getElementById('delete-year-modal');
+            if (modal) {
+              const focused = modal.querySelector(':focus');
+              if (focused) focused.blur();
+              modal.setAttribute('aria-hidden', 'true');
+              modal.classList.remove('is-open');
+            }
+            showSuccessMessage(MSG_SUCCESS_DELETED);
+            setTimeout(() => window.location.reload(), 1000);
+          } else {
+            let errorMsg = result.error || result.errors || MSG_ERROR_DELETE;
+            if (Array.isArray(errorMsg)) errorMsg = errorMsg.join(', ');
+            showErrorMessage(errorMsg);
+            this.disabled = false;
+            this.textContent = originalText;
+          }
+        } catch (error) {
+          showErrorMessage(error.message || MSG_ERROR_UNKNOWN);
+          this.disabled = false;
+          this.textContent = originalText;
+        }
+      });
+    }
+
+    // Validate year format
+    function validateYearFormat(yearValue) {
+      if (!yearValue) return { valid: false, message: MSG_VALIDATION_EMPTY };
+      
+      const parts = yearValue.split('/');
+      if (parts.length !== 2) return { valid: false, message: MSG_VALIDATION_FORMAT };
+      
+      const startYear = parseInt(parts[0], 10);
+      const endYear = parseInt(parts[1], 10);
+      
+      if (isNaN(startYear) || isNaN(endYear) || startYear === 0 || endYear === 0) {
+        return { valid: false, message: MSG_VALIDATION_NUMBERS };
+      }
+      
+      if (endYear !== startYear + 1) {
+        return { valid: false, message: MSG_VALIDATION_CONSECUTIVE };
+      }
+      
+      return { valid: true };
+    }
+
+    // Add year form
+    const addForm = document.getElementById('add-year-form');
+    if (addForm) {
+      addForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(addForm);
+        const yearValue = formData.get('academic_year[year]');
+        
+        const validation = validateYearFormat(yearValue);
+        if (!validation.valid) {
+          showErrorMessage(validation.message);
+          return;
+        }
+        
+        const yearParts = yearValue.split('/');
+        const startedAt = `${yearParts[0]}-09-01`;
+        
+        const data = {
+          academic_year: {
+            school_id: formData.get('academic_year[school_id]'),
+            year: yearValue,
+            started_at: startedAt,
+            is_current: formData.get('academic_year[is_current]') === '1'
+          }
+        };
+
+        try {
+          const result = await api.post(API_BASE, data);
+          if (result.success) {
+            const modal = document.getElementById('add-year-modal');
+            if (modal) {
+              const focused = modal.querySelector(':focus');
+              if (focused) focused.blur();
+              modal.setAttribute('aria-hidden', 'true');
+              modal.classList.remove('is-open');
+              addForm.reset();
+            }
+            showSuccessMessage(MSG_SUCCESS_CREATED);
+            setTimeout(() => window.location.reload(), 1000);
+          } else {
+            let errorMsg = result.error || result.errors || MSG_ERROR_CREATE;
+            if (Array.isArray(errorMsg)) errorMsg = errorMsg.join(', ');
+            showErrorMessage(errorMsg);
+          }
+        } catch (error) {
+          showErrorMessage(error.message || MSG_ERROR_UNKNOWN);
+        }
+      });
+    }
+
+    // Edit year form
+    const editForm = document.getElementById('edit-year-form');
+    if (editForm) {
+      editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const yearId = document.getElementById('edit-year-id').value;
+        const formData = new FormData(editForm);
+        const yearValue = formData.get('academic_year[year]');
+        
+        const validation = validateYearFormat(yearValue);
+        if (!validation.valid) {
+          showErrorMessage(validation.message);
+          return;
+        }
+        
+        const yearParts = yearValue.split('/');
+        const startedAt = `${yearParts[0]}-09-01`;
+        
+        const data = {
+          academic_year: {
+            school_id: formData.get('academic_year[school_id]'),
+            year: yearValue,
+            started_at: startedAt,
+            is_current: formData.get('academic_year[is_current]') === '1'
+          }
+        };
+
+        try {
+          const result = await api.patch(`${API_BASE}/${yearId}`, data);
+          if (result.success) {
+            const modal = document.getElementById('edit-year-modal');
+            if (modal) {
+              const focused = modal.querySelector(':focus');
+              if (focused) focused.blur();
+              modal.setAttribute('aria-hidden', 'true');
+              modal.classList.remove('is-open');
+            }
+            showSuccessMessage(MSG_SUCCESS_UPDATED);
+            setTimeout(() => window.location.reload(), 1000);
+          } else {
+            let errorMsg = result.error || result.errors || MSG_ERROR_UPDATE;
+            if (Array.isArray(errorMsg)) errorMsg = errorMsg.join(', ');
+            showErrorMessage(errorMsg);
+          }
+        } catch (error) {
+          showErrorMessage(error.message || MSG_ERROR_UNKNOWN);
+        }
+      });
+    }
+  });
+

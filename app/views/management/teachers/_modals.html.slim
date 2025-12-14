@@ -1,0 +1,119 @@
+/ Add Teacher Modal
+#add-teacher-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="add-teacher-title"
+    header.schools-modal__header
+      h3#add-teacher-title = t('management.teachers.add_teacher')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="add-teacher-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    form#add-teacher-form.schools-modal__form.headmaster-form
+      input#add-teacher-school type="hidden" name="teacher[school_id]" value=@school&.id
+      label
+        span
+          = t('management.teachers.first_name')
+          sup style="color: var(--content-secondary);" *
+        input#add-teacher-first-name type="text" name="teacher[first_name]" placeholder=t('management.teachers.first_name') required=""
+      label
+        span
+          = t('management.teachers.last_name')
+          sup style="color: var(--content-secondary);" *
+        input#add-teacher-last-name type="text" name="teacher[last_name]" placeholder=t('management.teachers.last_name') required=""
+      label
+        span
+          = t('common.email')
+          sup style="color: var(--content-secondary);" *
+        input#add-teacher-email type="email" name="teacher[email]" placeholder=t('management.teachers.email_placeholder') required=""
+      label
+        span = t('management.teachers.phone')
+        input#add-teacher-phone type="text" name="teacher[metadata][phone]" placeholder=t('management.teachers.phone_placeholder')
+      label
+        span = t('management.teachers.birth_date')
+        input#add-teacher-birth-date type="date" name="teacher[metadata][birth_date]"
+      .schools-modal__actions
+        button.schools-modal__primary type="submit" = t('common.save')
+        button.schools-modal__secondary type="button" data-close-modal="add-teacher-modal" = t('common.cancel')
+
+/ Edit Teacher Modal
+#edit-teacher-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="edit-teacher-title"
+    header.schools-modal__header
+      h3#edit-teacher-title = t('management.teachers.edit_teacher')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="edit-teacher-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    form#edit-teacher-form.schools-modal__form.headmaster-form
+      input#edit-teacher-id type="hidden" value=""
+      input#edit-teacher-school type="hidden" name="teacher[school_id]" value=@school&.id
+      label
+        span
+          = t('management.teachers.first_name')
+          sup style="color: var(--content-secondary);" *
+        input#edit-teacher-first-name type="text" name="teacher[first_name]" placeholder=t('management.teachers.first_name') required=""
+      label
+        span
+          = t('management.teachers.last_name')
+          sup style="color: var(--content-secondary);" *
+        input#edit-teacher-last-name type="text" name="teacher[last_name]" placeholder=t('management.teachers.last_name') required=""
+      label
+        span
+          = t('common.email')
+          sup style="color: var(--content-secondary);" *
+        input#edit-teacher-email type="email" name="teacher[email]" placeholder=t('management.teachers.email_placeholder') required=""
+      label
+        span = t('management.teachers.phone')
+        input#edit-teacher-phone type="text" name="teacher[metadata][phone]" placeholder=t('management.teachers.phone_placeholder')
+      label
+        span = t('management.teachers.birth_date')
+        input#edit-teacher-birth-date type="date" name="teacher[metadata][birth_date]"
+      .schools-modal__actions
+        button#edit-teacher-save-btn.schools-modal__primary type="submit" = t('common.save')
+        button.schools-modal__secondary type="button" data-close-modal="edit-teacher-modal" = t('common.cancel')
+
+/ Deactivate Teacher Modal
+#deactivate-teacher-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="deactivate-teacher-title"
+    header.schools-modal__header
+      h3#deactivate-teacher-title = t('management.teachers.deactivate')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="deactivate-teacher-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p#deactivate-teacher-message
+        = t('management.teachers.deactivate_confirm')
+        |  
+        strong data-deactivate-name=""
+        | ?
+        |  
+        = t('management.teachers.deactivate_warning')
+    .schools-modal__actions
+      button#deactivate-teacher-confirm-btn.schools-modal__primary.schools-modal__primary--danger type="button" = t('management.teachers.deactivate')
+      button.schools-modal__secondary type="button" data-close-modal="deactivate-teacher-modal" = t('common.cancel')
+
+/ Approve Teacher Modal
+#approve-teacher-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="approve-teacher-title"
+    header.schools-modal__header
+      h3#approve-teacher-title = t('management.teachers.approve')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="approve-teacher-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p#approve-teacher-message = t('management.teachers.approve_confirm')
+    .schools-modal__actions
+      button#approve-teacher-confirm-btn.schools-modal__primary type="button" = t('management.teachers.approve')
+      button.schools-modal__secondary type="button" data-close-modal="approve-teacher-modal" = t('common.cancel')
+
+/ Decline Teacher Modal
+#decline-teacher-modal.schools-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="decline-teacher-title"
+    header.schools-modal__header
+      h3#decline-teacher-title = t('management.teachers.decline')
+      button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="decline-teacher-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__body
+      p#decline-teacher-message = t('management.teachers.decline_confirm')
+    .schools-modal__actions
+      button#decline-teacher-confirm-btn.schools-modal__primary.schools-modal__primary--danger type="button" = t('management.teachers.decline')
+      button.schools-modal__secondary type="button" data-close-modal="decline-teacher-modal" = t('common.cancel')
+

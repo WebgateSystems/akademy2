@@ -1,0 +1,58 @@
+- content_for :page_title, t('management.teachers.title')
+
+javascript:
+  window.TEACHERS_ASSET_PATHS = {
+    buttonIcon: '#{asset_path("icons/social/S/button-3.svg")}',
+    approveIcon: '#{asset_path("icons/social/S/done.svg")}',
+    declineIcon: '#{asset_path("icons/social/S/close_red.svg")}'
+  };
+  window.MANAGEMENT_SCHOOL_ID = '#{@school&.id}';
+  window.TEACHERS_I18N = {
+    status_awaiting: '#{j t('management.teachers.status_awaiting')}',
+    status_inactive: '#{j t('management.teachers.status_inactive')}',
+    status_active: '#{j t('management.teachers.status_active')}',
+    edit: '#{j t('common.edit')}',
+    resend_invite: '#{j t('management.teachers.resend_invite')}',
+    activate: '#{j t('management.teachers.activate')}',
+    deactivate: '#{j t('management.teachers.deactivate')}',
+    processing: '#{j t('common.loading')}',
+    adding: '#{j t('management.teachers.adding')}',
+    saving: '#{j t('management.teachers.saving')}',
+    sending: '#{j t('management.teachers.sending')}',
+    sent: '#{j t('management.teachers.sent')}',
+    error_create: '#{j t('management.teachers.error_create')}',
+    error_update: '#{j t('management.teachers.error_update')}',
+    error_unknown: '#{j t('errors.unknown')}'
+  };
+
+section aria-label=t('management.teachers.list_label')
+  header.schools-page__header
+    label.schools-search.schools-search--half
+      span.visually-hidden = t('management.teachers.search')
+      input#teachers-search-input type="search" placeholder=t('management.teachers.search_placeholder')
+      = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true", "data-theme-icon": true
+    button.schools-page__add type="button" data-open-modal="add-teacher-modal" = t('management.teachers.add_teacher')
+  .schools-page__controls
+
+  .teachers-panel
+    table.teachers-table
+      thead.teachers-table__head
+        tr
+          th.teachers-table__heading scope="col" = t('management.teachers.name')
+          th.teachers-table__heading scope="col" = t('management.teachers.birth_date')
+          th.teachers-table__heading scope="col" = t('common.email')
+          th.teachers-table__heading scope="col" = t('management.teachers.phone')
+          th.teachers-table__heading scope="col" = t('common.status')
+          th.teachers-table__heading.teachers-table__heading--actions scope="col" = t('common.actions')
+      tbody#teachers-table-body.teachers-table__body
+    #teachers-loading-indicator.teachers-loading style="display: none; padding: 20px; text-align: center;"
+      .spinner style="display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--content-primary); border-radius: 50%; animation: spin 0.8s linear infinite;"
+      span style="margin-left: 12px; color: var(--content-secondary);" = t('management.teachers.loading')
+    #teachers-empty-message.text-center style="padding: 40px; color: var(--content-secondary); display: none;"
+      = t('management.teachers.empty')
+
+css:
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+= render 'management/teachers/modals'
+

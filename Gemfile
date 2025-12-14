@@ -88,17 +88,17 @@ group :development do
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
 
-  gem 'web-console'
-
   gem 'fasterer', require: false
+  gem 'i18n-tasks'
   gem 'lefthook', require: false
   gem 'reek', require: false
   gem 'rubocop', '~> 1.64', require: false
   gem 'rubocop-factory_bot', require: false
-  gem 'rubocop-rails', '~> 2.25', require: false
-  gem 'rubocop-rspec_rails', require: false
-
   gem 'rubocop-i18n', require: false
   gem 'rubocop-performance', require: false
+  gem 'rubocop-rails', '~> 2.25', require: false
   gem 'rubocop-rspec', require: false
+  gem 'rubocop-rspec_rails', require: false
+
+  gem 'web-console'
 end

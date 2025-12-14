@@ -2,42 +2,44 @@
   = render 'dashboard/sidebar', nav_path_helper: ->(school_class) { dashboard_quiz_results_path(@subject, class_id: school_class.id) }
 
   main.dashboard-main
-    = render 'dashboard/top_bar', title: @subject.title, back_path: dashboard_path(class_id: @current_class&.id)
+    = render 'dashboard/top_bar', title: @subject.title
 
-    / Export dropdown
-    .d-flex.justify-content-end.mb-3
+    / Actions row: Export and Back
+    .d-flex.justify-content-end.align-items-center.gap-3.mb-3
       .dropdown
         button.btn.btn-outline-secondary.btn-sm.dropdown-toggle type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false"
           i.bi.bi-download.me-1
-          | Export
+          = t('dashboard.quiz_results.export')
         ul.dropdown-menu.dropdown-menu-end aria-labelledby="exportDropdown"
           li
             = link_to export_quiz_results_csv_path(@subject, class_id: @current_class&.id), class: 'dropdown-item' do
               i.bi.bi-filetype-csv.me-2
-              | CSV (Excel)
+              = t('dashboard.quiz_results.csv_excel')
           li
             = link_to export_quiz_results_pdf_path(@subject, class_id: @current_class&.id), class: 'dropdown-item', target: '_blank' do
               i.bi.bi-file-earmark-pdf.me-2
-              | PDF
+              = t('dashboard.quiz_results.pdf')
+      = link_to dashboard_path(class_id: @current_class&.id), class: "schools-page__add" do
+        = t('common.back')
 
-    section.classes-archive aria-label="Quiz statistics"
+    section.classes-archive aria-label=(t('dashboard.quiz_results.statistics_label'))
       / Top row: 3 cards
       .classes-archive__grid
         article.school-profile-hero__stat-card data-entity="completion"
           .school-profile-hero__stat-label
-            h3.stat-label.text-body-2 style="margin: 0;" Completion rate
+            h3.stat-label.text-body-2 style="margin: 0;" = t('dashboard.quiz_results.completion_rate')
           .school-profile-hero__stat-value
             span.stat-value.stat-value--filled = "#{@completion_rate}%"
 
         article.school-profile-hero__stat-card data-entity="performance"
           .school-profile-hero__stat-label
-            h3.stat-label.text-body-2 style="margin: 0;" Average performance
+            h3.stat-label.text-body-2 style="margin: 0;" = t('dashboard.quiz_results.average_performance')
           .school-profile-hero__stat-value
             span.stat-value.stat-value--filled = "#{@average_score} pkt"
 
         article.school-profile-hero__stat-card data-entity="completion2"
           .school-profile-hero__stat-label
-            h3.stat-label.text-body-2 style="margin: 0;" Completion rate
+            h3.stat-label.text-body-2 style="margin: 0;" = t('dashboard.quiz_results.completion_rate')
           .school-profile-hero__stat-value
             span.stat-value.stat-value--filled = "#{@completion_rate}%"
 
@@ -45,25 +47,25 @@
       .classes-archive__grid.classes-archive__grid--wide
         article.school-profile-hero__stat-card data-entity="no-results"
           .school-profile-hero__stat-label
-            h3.stat-label.text-body-2 style="margin: 0;" No results
+            h3.stat-label.text-body-2 style="margin: 0;" = t('dashboard.quiz_results.no_results')
           .school-profile-hero__stat-value
             span.stat-value.stat-value--filled = "#{@distribution&.dig(:no_results) || 0}%"
 
         article.school-profile-hero__stat-card data-entity="bad-results"
           .school-profile-hero__stat-label
-            h3.stat-label.text-body-2 style="margin: 0;" Bad results
+            h3.stat-label.text-body-2 style="margin: 0;" = t('dashboard.quiz_results.bad_results')
           .school-profile-hero__stat-value
             span.stat-value.stat-value--filled = "#{@distribution&.dig(:bad_results) || 0}%"
 
         article.school-profile-hero__stat-card data-entity="average-results"
           .school-profile-hero__stat-label
-            h3.stat-label.text-body-2 style="margin: 0;" Average results
+            h3.stat-label.text-body-2 style="margin: 0;" = t('dashboard.quiz_results.average_results')
           .school-profile-hero__stat-value
             span.stat-value.stat-value--filled = "#{@distribution&.dig(:average_results) || 0}%"
 
         article.school-profile-hero__stat-card data-entity="great-results"
           .school-profile-hero__stat-label
-            h3.stat-label.text-body-2 style="margin: 0;" Great results
+            h3.stat-label.text-body-2 style="margin: 0;" = t('dashboard.quiz_results.great_results')
           .school-profile-hero__stat-value
             span.stat-value.stat-value--filled = "#{@distribution&.dig(:great_results) || 0}%"
 
@@ -74,7 +76,7 @@
             th.name scope="col" = t('dashboard.quiz_results.student_name')
             - (1..10).each do |num|
               th scope="col" = num
-            th.score-col scope="col" Results
+            th.score-col scope="col" = t('dashboard.quiz_results.results_column')
         tbody
           - @students.each do |student|
             tr
@@ -84,14 +86,15 @@
                 - dot_class = answer_data[:status]
                 - question_text = answer_data[:question_text]
                 - answer_text = answer_data[:answer]
+                - status_text = dot_class == 'is-good' ? t('dashboard.quiz_results.correct') : (dot_class == 'is-bad' ? t('dashboard.quiz_results.incorrect') : t('dashboard.quiz_results.no_answer'))
                 td
-                  span.quiz-result-dot.js-quiz-tooltip class=dot_class data-question="Question #{question_num}" data-question-text=question_text data-answer=answer_text
-                    span.visually-hidden = dot_class == 'is-good' ? 'Correct' : (dot_class == 'is-bad' ? 'Incorrect' : 'No answer')
+                  span.quiz-result-dot.js-quiz-tooltip class=dot_class data-question=(t('dashboard.quiz_results.question', number: question_num)) data-question-text=question_text data-answer=answer_text
+                    span.visually-hidden = status_text
               td
                 span.quiz-results-score = "#{calculate_student_score(student.id)} pkt"
 
 / Quiz tooltip
-#quiz-tooltip.quiz-tooltip style="display: none;"
+#quiz-tooltip.quiz-tooltip style="display: none;" data-no-question=(t('dashboard.quiz_results.no_question')) data-answer-prefix=(t('dashboard.quiz_results.answer_prefix')) data-no-answer=(t('dashboard.quiz_results.no_answer'))
   .quiz-tooltip__question
   .quiz-tooltip__text
   .quiz-tooltip__answer
@@ -100,6 +103,9 @@ javascript:
   document.addEventListener('DOMContentLoaded', function() {
     const tooltip = document.getElementById('quiz-tooltip');
     const dots = document.querySelectorAll('.js-quiz-tooltip');
+    const noQuestionText = tooltip.dataset.noQuestion;
+    const answerPrefix = tooltip.dataset.answerPrefix;
+    const noAnswerText = tooltip.dataset.noAnswer;
     
     dots.forEach(dot => {
       dot.addEventListener('mouseenter', function(e) {
@@ -108,8 +114,8 @@ javascript:
         const answer = this.dataset.answer;
         
         tooltip.querySelector('.quiz-tooltip__question').textContent = question;
-        tooltip.querySelector('.quiz-tooltip__text').textContent = questionText || 'Brak pytania';
-        tooltip.querySelector('.quiz-tooltip__answer').textContent = answer ? 'Odpowiedź: ' + answer : 'Brak odpowiedzi';
+        tooltip.querySelector('.quiz-tooltip__text').textContent = questionText || noQuestionText;
+        tooltip.querySelector('.quiz-tooltip__answer').textContent = answer ? answerPrefix + ': ' + answer : noAnswerText;
         
         const rect = this.getBoundingClientRect();
         tooltip.style.display = 'block';
