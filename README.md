@@ -1,5 +1,23 @@
 # AKAdemy 2.0
 
+[![CI](https://github.com/WebgateSystems/akademy2/actions/workflows/ci.yml/badge.svg)](https://github.com/WebgateSystems/akademy2/actions/workflows/ci.yml)
+[![Ruby](https://img.shields.io/badge/Ruby-3.4.6-CC342D?logo=ruby&logoColor=white)](https://www.ruby-lang.org/)
+[![Rails](https://img.shields.io/badge/Rails-8.1.1-D30001?logo=rubyonrails&logoColor=white)](https://rubyonrails.org/)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+
+<!-- Opcjonalne badges (wymagają konfiguracji zewnętrznych serwisów):
+
+[![codecov](https://codecov.io/gh/WebgateSystems/akademy2/graph/badge.svg)](https://codecov.io/gh/WebgateSystems/akademy2)
+[![Maintainability](https://api.codeclimate.com/v1/badges/XXXXXX/maintainability)](https://codeclimate.com/github/WebgateSystems/akademy2/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/XXXXXX/test_coverage)](https://codeclimate.com/github/WebgateSystems/akademy2/test_coverage)
+
+Aby aktywować:
+- Codecov: https://codecov.io - połącz repo i dodaj CODECOV_TOKEN do GitHub Secrets
+- Code Climate: https://codeclimate.com - połącz repo i zamień XXXXXX na swój badge token
+-->
+
+---
+
 Języki: Polski (domyślny) · [English](README.en.md)
 
 Platforma edukacyjna dla szkół (panel WWW + API dla aplikacji mobilnej).
