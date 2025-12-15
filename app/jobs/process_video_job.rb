@@ -2,7 +2,7 @@
 
 # Background job for processing uploaded videos
 # Extracts duration and generates thumbnail
-class ProcessVideoJob < ApplicationJob
+class ProcessVideoJob < BaseSidekiqJob
   queue_as :default
 
   def perform(video_id)

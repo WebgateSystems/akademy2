@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
-class UploadVideoToYoutubeJob < ApplicationJob
-  queue_as :default
-
-  retry_on StandardError, wait: :polynomially_longer, attempts: 5
-
+class UploadVideoToYoutubeJob < BaseSidekiqJob
   def perform(student_video_id)
     @video = StudentVideo.find_by(id: student_video_id)
 

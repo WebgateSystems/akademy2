@@ -92,7 +92,7 @@ class StudentVideo < ApplicationRecord
     NotificationService.create_student_video_approved(video: self, moderator: moderator)
 
     # Enqueue YouTube upload job
-    UploadVideoToYoutubeJob.perform_later(id) if youtube_url.blank?
+    UploadVideoToYoutubeJob.perform_async(id) if youtube_url.blank?
   end
 
   def reject!(moderator, reason = nil)
@@ -188,7 +188,7 @@ class StudentVideo < ApplicationRecord
 
   def process_video
     # Enqueue background job to extract duration and generate thumbnail
-    ProcessVideoJob.perform_later(id)
+    ProcessVideoJob.perform_async(id)
   end
 
   def remove_file_from_disk

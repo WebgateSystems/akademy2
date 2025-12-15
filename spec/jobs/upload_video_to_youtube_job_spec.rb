@@ -134,18 +134,12 @@ RSpec.describe UploadVideoToYoutubeJob, type: :job do
     end
   end
 
-  describe 'queue' do
-    it 'uses default queue' do
-      expect(described_class.queue_name).to eq('default')
-    end
-  end
+  describe 'sidekiq configuration' do
+    it 'uses default queue and 5 retries' do
+      options = described_class.get_sidekiq_options
 
-  describe 'retry configuration' do
-    it 'retries on StandardError with 5 attempts' do
-      handler = described_class.rescue_handlers
-                               .find { |h| h.first == 'StandardError' }
-
-      expect(handler).to be_present
+      expect(options['queue']).to eq('default')
+      expect(options['retry']).to eq(5)
     end
   end
 end
