@@ -90,6 +90,7 @@ RSpec.describe 'Student Dashboard API', type: :request do
                            id: { type: :string, format: :uuid },
                            title: { type: :string },
                            slug: { type: :string },
+                           description: { type: :string, nullable: true },
                            icon_url: { type: :string, nullable: true },
                            color_light: { type: :string, nullable: true },
                            color_dark: { type: :string, nullable: true },
@@ -153,6 +154,7 @@ RSpec.describe 'Student Dashboard API', type: :request do
                          id: { type: :string, format: :uuid },
                          title: { type: :string },
                          slug: { type: :string },
+                         description: { type: :string, nullable: true },
                          icon_url: { type: :string, nullable: true },
                          color_light: { type: :string, nullable: true },
                          color_dark: { type: :string, nullable: true }

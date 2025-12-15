@@ -33,40 +33,41 @@ FileUtils.mkdir_p(ICONS_DIR) unless Dir.exist?(ICONS_DIR)
 
 # === Zahardkodowane UUID dla spójności ===
 SUBJECT_UUIDS = {
-  'polska-i-swiat' => '11111111-1111-1111-1111-111111111111',
-  'kryzys-klimatyczny' => '22222222-2222-2222-2222-222222222222',
+  'polska-i-geopolityka' => '11111111-1111-1111-1111-111111111111',
+  'zagrozenia-i-kryzysy' => '22222222-2222-2222-2222-222222222222',
   'reakcja-na-alarmy' => '33333333-3333-3333-3333-333333333333',
   'ewakuacja' => '44444444-4444-4444-4444-444444444444',
   'pierwsza-pomoc' => '55555555-5555-5555-5555-555555555555',
-  'cyber-bezpieczenstwo' => '66666666-6666-6666-6666-666666666666',
+  'bezpieczenstwo-cyfrowe' => '66666666-6666-6666-6666-666666666666',
   'bezpieczne-zachowanie' => '77777777-7777-7777-7777-777777777777'
 }.freeze
 
 UNIT_UUIDS = {
-  'polska-i-swiat' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-  'kryzys-klimatyczny' => 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+  'polska-i-geopolityka' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+  'zagrozenia-i-kryzysy' => 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
   'reakcja-na-alarmy' => 'cccccccc-cccc-cccc-cccc-cccccccccccc',
   'ewakuacja' => 'dddddddd-dddd-dddd-dddd-dddddddddddd',
   'pierwsza-pomoc' => 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
-  'cyber-bezpieczenstwo' => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+  'bezpieczenstwo-cyfrowe' => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
   'bezpieczne-zachowanie' => '10101010-1010-1010-1010-101010101010'
 }.freeze
 
 MODULE_UUIDS = {
-  'polska-i-swiat' => 'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1',
-  'kryzys-klimatyczny' => 'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2',
+  'polska-i-geopolityka' => 'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1',
+  'zagrozenia-i-kryzysy' => 'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2',
   'reakcja-na-alarmy' => 'c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3',
   'ewakuacja' => 'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4',
   'pierwsza-pomoc' => 'e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5',
-  'cyber-bezpieczenstwo' => 'f6f6f6f6-f6f6-f6f6-f6f6-f6f6f6f6f6f6',
+  'bezpieczenstwo-cyfrowe' => 'f6f6f6f6-f6f6-f6f6-f6f6-f6f6f6f6f6f6',
   'bezpieczne-zachowanie' => '17171717-1717-1717-1717-171717171717'
 }.freeze
 
 # === Definicje 7 modułów ===
 MODULES = [
   {
-    slug: 'polska-i-swiat',
-    title: 'Polska i świat',
+    slug: 'polska-i-geopolityka',
+    title: 'Polska i geopolityka',
+    description: 'Otoczenie międzynarodowe, służby i łańcuch decyzyjny państwa a bezpieczeństwo obywatela.',
     icon: '🇵🇱',
     color_light: '#4A90E2',
     color_dark: '#206EC9',
@@ -116,8 +117,9 @@ MODULES = [
     }
   },
   {
-    slug: 'kryzys-klimatyczny',
-    title: 'Kryzys klimatyczny',
+    slug: 'zagrozenia-i-kryzysy',
+    title: 'Zagrożenia i kryzysy',
+    description: 'Upał, wichury, podtopienia; bezpieczne zachowania i prewencja.',
     icon: '🌍',
     color_light: '#6CC24A',
     color_dark: '#529C35',
@@ -156,6 +158,7 @@ MODULES = [
   {
     slug: 'reakcja-na-alarmy',
     title: 'Reakcja na alarmy',
+    description: 'Syreny, SMS RCB, komunikaty Zello, RGB i inne. Jak działać w zależności od rodzaju alertu.',
     icon: '🔔',
     color_light: '#FFD74B',
     color_dark: '#F4B400',
@@ -194,6 +197,7 @@ MODULES = [
   {
     slug: 'ewakuacja',
     title: 'Ewakuacja',
+    description: 'Drogi ewakuacyjne, zasada „nisko–kryj–oddychaj", punkty zbiórki, liczenie osób.',
     icon: '🏃‍♂️',
     color_light: '#F56CA0',
     color_dark: '#C9356A',
@@ -232,6 +236,7 @@ MODULES = [
   {
     slug: 'pierwsza-pomoc',
     title: 'Pierwsza pomoc',
+    description: 'Numer 112, informacje dla dyspozytora, podstawy RKO/AED, pozycja boczna.',
     icon: '❤️‍🩹',
     color_light: '#FF9B42',
     color_dark: '#EF6C00',
@@ -268,8 +273,9 @@ MODULES = [
     }
   },
   {
-    slug: 'cyber-bezpieczenstwo',
-    title: 'Cyber-bezpieczeństwo',
+    slug: 'bezpieczenstwo-cyfrowe',
+    title: 'Bezpieczeństwo cyfrowe',
+    description: 'Higiena haseł, phishing, deepfake/fake news, odpowiedzialność online.',
     icon: '💻',
     color_light: '#4A90E2',
     color_dark: '#206EC9',
@@ -308,6 +314,7 @@ MODULES = [
   {
     slug: 'bezpieczne-zachowanie',
     title: 'Bezpieczne zachowanie',
+    description: 'Pożar, zadymienie, agresja w tłumie, panika, zagrożenie terrorystyczne.',
     icon: '🛡️',
     color_light: '#6CC24A',
     color_dark: '#529C35',
@@ -403,6 +410,7 @@ MODULES.each do |module_data|
       school_id: nil, # Global subject
       title: module_data[:title],
       slug: module_data[:slug],
+      description: module_data[:description],
       order_index: module_data[:order_index],
       color_light: module_data[:color_light],
       color_dark: module_data[:color_dark]
@@ -412,6 +420,7 @@ MODULES.each do |module_data|
     subject.update!(
       title: module_data[:title],
       slug: module_data[:slug],
+      description: module_data[:description],
       order_index: module_data[:order_index],
       color_light: module_data[:color_light],
       color_dark: module_data[:color_dark]

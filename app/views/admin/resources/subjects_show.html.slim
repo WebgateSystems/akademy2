@@ -32,6 +32,14 @@ section aria-label=(t('admin.resources.subjects.show'))
             code style="font-size: 12px; color: var(--content-secondary);" = @record.slug
         tr
           td.left style="font-weight: 500; color: var(--content-secondary);"
+            = t('admin.resources.subjects.form.description') + ":"
+          td.left
+            - if @record.description.present?
+              = @record.description
+            - else
+              span style="color: var(--content-tertiary); font-style: italic;" = t('admin.resources.subjects.show.no_description')
+        tr
+          td.left style="font-weight: 500; color: var(--content-secondary);"
             = t('admin.resources.subjects.form.color_light') + ":"
           td.left
             div style="display: flex; align-items: center; gap: 8px;"

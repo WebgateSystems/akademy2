@@ -3131,6 +3131,9 @@ paths:
                               type: string
                             slug:
                               type: string
+                            description:
+                              type: string
+                              nullable: true
                             icon_url:
                               type: string
                               nullable: true
@@ -3191,6 +3194,9 @@ paths:
                             type: string
                           slug:
                             type: string
+                          description:
+                            type: string
+                            nullable: true
                           icon_url:
                             type: string
                             nullable: true
@@ -4589,6 +4595,9 @@ paths:
                               type: string
                             slug:
                               type: string
+                            description:
+                              type: string
+                              nullable: true
                             order_index:
                               type: integer
                             icon_url:
@@ -4643,6 +4652,9 @@ paths:
                               type: string
                             slug:
                               type: string
+                            description:
+                              type: string
+                              nullable: true
                             order_index:
                               type: integer
                             icon_url:
@@ -4762,6 +4774,9 @@ paths:
                             type: string
                           slug:
                             type: string
+                          description:
+                            type: string
+                            nullable: true
                           order_index:
                             type: integer
                           icon_url:

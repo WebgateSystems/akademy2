@@ -6,9 +6,12 @@
       button.dashboard-sidebar-toggle type="button" aria-label="Przełącz nawigację" data-sidebar-toggle=""
         = image_tag 'icons/social/M/burger.svg', width: 24, height: 24, data: { theme_icon: true }
       .dashboard-top-heading
-        = link_to student_subject_path(@subject), class: 'dashboard-back-link', aria: { label: 'Powrót do modułów' }
+        = link_to public_home_path, class: 'dashboard-back-link', aria: { label: 'Powrót do kursów' }
           = image_tag 'icons/social/M/back.svg', width: 24, height: 24, data: { theme_icon: true }
-        h1 = @learning_module.title
+        .dashboard-top-title-block
+          h1 = @subject.title
+          - if @subject.description.present?
+            p.dashboard-top-description = @subject.description
       .dashboard-top-actions
         = render 'student_dashboard/top_actions'
 
@@ -289,6 +292,27 @@ css:
 
   .content-like-text {
     font-weight: 400;
+  }
+
+  .dashboard-top-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .dashboard-top-title-block h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  .dashboard-top-description {
+    margin: 0;
+    font-size: 14px;
+    color: var(--content-secondary);
+    font-weight: 400;
+    line-height: 1.4;
   }
 
 javascript:

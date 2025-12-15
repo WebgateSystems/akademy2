@@ -29,6 +29,14 @@ section aria-label=(t('admin.resources.subjects.new'))
 
           tr
             td.left style="font-weight: 500; color: var(--content-secondary);"
+              = t('admin.resources.subjects.form.description') + ":"
+            td.left
+              = f.text_area :description, rows: 3, style: "padding: 8px 12px; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--content-primary); font-size: 14px; width: 100%; max-width: 400px; resize: vertical;"
+              small style="color: var(--content-secondary); font-size: 12px; display: block; margin-top: 4px;"
+                = t('admin.resources.subjects.form.description_hint')
+
+          tr
+            td.left style="font-weight: 500; color: var(--content-secondary);"
               = t('admin.resources.subjects.form.icon') + ":"
             td.left
               div style="display: flex; flex-direction: column; gap: 8px;"

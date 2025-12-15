@@ -127,6 +127,7 @@ module Api
               id: subject.id,
               title: subject.title,
               slug: subject.slug,
+              description: subject.description,
               icon_url: subject.icon&.url,
               color_light: subject.color_light,
               color_dark: subject.color_dark,
@@ -143,6 +144,7 @@ module Api
             id: subject.id,
             title: subject.title,
             slug: subject.slug,
+            description: subject.description,
             icon_url: subject.icon&.url,
             color_light: subject.color_light,
             color_dark: subject.color_dark

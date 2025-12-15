@@ -5,7 +5,7 @@ section.activity-log aria-label=(t('admin.resources.activity_log.title'))
     .activity-filter.activity-filter--date
       label.activity-filter__label for="activity-date-from" = t('admin.resources.activity_log.from')
       .activity-date-picker data-date-role="from"
-        input#activity-date-from.activity-date-picker__display type="text" aria-label=(t('admin.resources.activity_log.date_from') placeholder="DD.MM.YYYY HH:MM"
+        input#activity-date-from.activity-date-picker__display type="text" aria-label=t('admin.resources.activity_log.date_from') placeholder="DD.MM.YYYY HH:MM"
         input.activity-date-picker__native type="datetime-local" aria-hidden="true" tabindex="-1"
         button.activity-date-picker__clear type="button" aria-label=(t('admin.resources.activity_log.clear_date_from'))
           = image_tag "icons/social/XS/Close.svg", alt: ""
@@ -14,7 +14,7 @@ section.activity-log aria-label=(t('admin.resources.activity_log.title'))
     .activity-filter.activity-filter--date
       label.activity-filter__label for="activity-date-to" = t('admin.resources.activity_log.to')
       .activity-date-picker data-date-role="to"
-        input#activity-date-to.activity-date-picker__display type="text" aria-label=(t('admin.resources.activity_log.date_to') placeholder="DD.MM.YYYY HH:MM"
+        input#activity-date-to.activity-date-picker__display type="text" aria-label=t('admin.resources.activity_log.date_to') placeholder="DD.MM.YYYY HH:MM"
         input.activity-date-picker__native type="datetime-local" aria-hidden="true" tabindex="-1"
         button.activity-date-picker__clear type="button" aria-label=(t('admin.resources.activity_log.clear_date_to'))
           = image_tag "icons/social/XS/Close.svg", alt: ""

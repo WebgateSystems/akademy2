@@ -351,6 +351,7 @@ pl:
           title: "Tytuł"
           slug_hint: "Slug zostanie wygenerowany automatycznie z tytułu"
           description: "Opis"
+          description_hint: "Krótki opis przedmiotu wyświetlany uczniom"
           order_index: "Kolejność"
           order_index_hint: "Liczba całkowita określająca kolejność wyświetlania"
           icon: "Ikona"
@@ -364,6 +365,7 @@ pl:
           remove_icon: "Usuń ikonę"
         show:
           no_icon: "Brak ikony"
+          no_description: "Brak opisu"
         js:
           adding: "Dodawanie..."
           saving: "Zapisywanie..."

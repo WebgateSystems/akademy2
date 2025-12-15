@@ -1,5 +1,5 @@
 doctype html
-html
+html.no-js data-theme="auto" lang="pl"
   head
     title = t('admin.sessions.title') + " | Akademy"
     meta name="viewport" content="width=device-width, initial-scale=1"
@@ -8,11 +8,8 @@ html
     = render 'shared/favicons'
     = stylesheet_link_tag "application", "data-turbo-track": "reload"
     = javascript_include_tag "application", type: "module"
-  body.bg-light.d-flex.justify-content-center.align-items-center style="height: 100vh;"
-    div
-      main.col-12.col-md-9.col-lg-10.p-4
-
-    .p-4.rounded.shadow.bg-white style="width: 360px;"
+  body.admin-auth-body
+    .admin-auth-container
       - if notice
         .alert.alert-success role="alert"
           = notice
@@ -25,4 +22,55 @@ html
             i.bi.bi-x
 
       = yield
+
+css:
+  .admin-auth-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--surface-secondary, #f8f9fa);
+    transition: background 0.2s ease;
+  }
+
+  .admin-auth-container {
+    width: 360px;
+    padding: 2rem;
+    background: var(--surface-primary, #ffffff);
+    border-radius: 12px;
+    box-shadow: 0 4px 24px var(--shadow-medium, rgba(0, 0, 0, 0.1));
+  }
+
+  .admin-auth-container h2 {
+    color: var(--content-primary, #1a1a1a);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .admin-auth-container .form-label {
+    color: var(--content-primary, #1a1a1a);
+  }
+
+  .admin-auth-container .form-control {
+    background: var(--surface-primary, #ffffff);
+    border-color: var(--border-primary, #dee2e6);
+    color: var(--content-primary, #1a1a1a);
+  }
+
+  .admin-auth-container .form-control:focus {
+    background: var(--surface-primary, #ffffff);
+    border-color: var(--surface-accent, #6366f1);
+    color: var(--content-primary, #1a1a1a);
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+  }
+
+  .admin-auth-container .btn-primary {
+    background: var(--button-primary, #6366f1);
+    border-color: var(--button-primary, #6366f1);
+  }
+
+  .admin-auth-container .btn-primary:hover {
+    background: var(--button-primary-hover, #4f46e5);
+    border-color: var(--button-primary-hover, #4f46e5);
+  }
 

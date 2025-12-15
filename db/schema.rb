@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_05_220000) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_15_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -289,6 +289,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_05_220000) do
     t.string "color_dark"
     t.string "color_light"
     t.datetime "created_at", null: false
+    t.string "description"
     t.string "icon"
     t.integer "order_index", default: 0, null: false
     t.uuid "school_id"
