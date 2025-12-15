@@ -90,7 +90,6 @@ group :development do
 
   gem 'fasterer', require: false
   gem 'i18n-tasks'
-  gem 'lefthook', require: false
   gem 'reek', require: false
   gem 'rubocop', '~> 1.64', require: false
   gem 'rubocop-factory_bot', require: false
