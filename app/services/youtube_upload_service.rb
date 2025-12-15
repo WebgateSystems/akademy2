@@ -39,10 +39,10 @@ class YoutubeUploadService
 
   def authorization
     Signet::OAuth2::Client.new(
-      client_id: Settings.youtube.client_id,
-      client_secret: Settings.youtube.client_secret,
+      client_id: Settings.services.youtube.client_id,
+      client_secret: Settings.services.youtube.client_secret,
       token_credential_uri: token_uri,
-      refresh_token: Settings.youtube.refresh_token,
+      refresh_token: Settings.services.youtube.refresh_token,
       scope: YOUTUBE_SCOPE
     )
   end
