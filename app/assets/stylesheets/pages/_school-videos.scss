@@ -486,6 +486,73 @@
   }
 }
 
+// Upload progress indicator
+.upload-progress-info {
+  animation: fadeIn 0.3s ease;
+}
+
+.upload-progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-progress-fill {
+  animation: progressPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes progressPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Spinner in submit button
+.btn-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+}
+
+.spinner-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Button with loading state
+.schools-modal__primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
 @media (max-width: 768px) {
   .school-videos-section {
     padding: 16px;

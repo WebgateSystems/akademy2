@@ -154,8 +154,18 @@
               = file_field_tag :file, accept: 'video/*', required: true, id: 'video-file-input'
               span#selected-filename.file-input-filename Nie wybrano pliku
           .schools-modal__actions
-            button.schools-modal__primary type="submit" Prześlij
+            button.schools-modal__primary#add-video-submit-btn type="submit"
+              span.btn-text Prześlij
+              span.btn-spinner style="display: none;"
+                svg.spinner-icon width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="32" stroke-linecap="round"
+                    animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"
             button.schools-modal__secondary type="button" data-close-modal="add-video-modal" Anuluj
+          .upload-progress-info#upload-progress-info style="display: none; margin-top: 16px; text-align: center;"
+            p.upload-progress-text style="margin: 0; color: var(--content-secondary); font-size: 14px;"
+              | Przesyłanie pliku... To może chwilę potrwać.
+            .upload-progress-bar style="margin-top: 8px; height: 4px; background: var(--surface-tertiary); border-radius: 2px; overflow: hidden;"
+              .upload-progress-fill style="width: 0%; height: 100%; background: var(--surface-accent); transition: width 0.3s ease;"
 
     / Video player modal
     .schools-modal.video-player-modal#video-player-modal aria-hidden="true"
@@ -289,17 +299,124 @@ javascript:
           if (listBtn) listBtn.click();
         }
         
-        // File input display
+        // File input display with size validation
         const fileInput = document.getElementById('video-file-input');
         const filenameDisplay = document.getElementById('selected-filename');
+        const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500 MB in bytes
+        const ALLOWED_EXTENSIONS = ['mp4', 'webm', 'mov', 'avi', 'mkv', 'm4v'];
+        
+        // Format file size for display
+        function formatFileSize(bytes) {
+          if (bytes === 0) return '0 B';
+          const k = 1024;
+          const sizes = ['B', 'KB', 'MB', 'GB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
         
         if (fileInput && filenameDisplay) {
           fileInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-              filenameDisplay.textContent = this.files[0].name;
-            } else {
+            const submitBtn = document.getElementById('add-video-submit-btn');
+            const file = this.files && this.files[0];
+            
+            // Clear any previous error
+            const existingError = document.getElementById('file-size-error');
+            if (existingError) existingError.remove();
+            
+            if (!file) {
               filenameDisplay.textContent = 'Nie wybrano pliku';
+              if (submitBtn) submitBtn.disabled = false;
+              return;
             }
+            
+            // Get file extension
+            const ext = file.name.split('.').pop().toLowerCase();
+            
+            // Check file extension
+            if (!ALLOWED_EXTENSIONS.includes(ext)) {
+              filenameDisplay.innerHTML = '<span style="color: var(--state-error);">⚠️ Niedozwolony format</span>';
+              this.value = ''; // Clear the input
+              if (submitBtn) submitBtn.disabled = true;
+              
+              // Show error message
+              const errorDiv = document.createElement('div');
+              errorDiv.id = 'file-size-error';
+              errorDiv.style.cssText = 'margin-top: 8px; padding: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--state-error); border-radius: 8px; color: var(--state-error); font-size: 13px;';
+              errorDiv.innerHTML = '<strong>Niedozwolony format pliku!</strong><br>Dozwolone formaty: ' + ALLOWED_EXTENSIONS.join(', ').toUpperCase();
+              this.parentNode.parentNode.appendChild(errorDiv);
+              return;
+            }
+            
+            // Check file size
+            if (file.size > MAX_FILE_SIZE) {
+              const fileSize = formatFileSize(file.size);
+              const maxSize = formatFileSize(MAX_FILE_SIZE);
+              filenameDisplay.innerHTML = '<span style="color: var(--state-error);">⚠️ Plik za duży (' + fileSize + ')</span>';
+              this.value = ''; // Clear the input
+              if (submitBtn) submitBtn.disabled = true;
+              
+              // Show error message
+              const errorDiv = document.createElement('div');
+              errorDiv.id = 'file-size-error';
+              errorDiv.style.cssText = 'margin-top: 8px; padding: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--state-error); border-radius: 8px; color: var(--state-error); font-size: 13px;';
+              errorDiv.innerHTML = '<strong>Plik jest za duży!</strong><br>Maksymalny rozmiar: ' + maxSize + '<br>Rozmiar wybranego pliku: ' + fileSize;
+              this.parentNode.parentNode.appendChild(errorDiv);
+              return;
+            }
+            
+            // File is valid - show name and size
+            const fileSize = formatFileSize(file.size);
+            filenameDisplay.innerHTML = file.name + ' <span style="color: var(--content-secondary);">(' + fileSize + ')</span>';
+            if (submitBtn) submitBtn.disabled = false;
+          });
+        }
+        
+        // Handle video upload form submission with progress indicator
+        const addVideoForm = document.getElementById('add-video-form');
+        const submitBtn = document.getElementById('add-video-submit-btn');
+        const progressInfo = document.getElementById('upload-progress-info');
+        
+        if (addVideoForm && submitBtn) {
+          addVideoForm.addEventListener('submit', function(e) {
+            // Show loading state immediately
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnSpinner = submitBtn.querySelector('.btn-spinner');
+            
+            if (btnText) btnText.textContent = 'Przesyłanie...';
+            if (btnSpinner) btnSpinner.style.display = 'inline-block';
+            
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+            submitBtn.style.cursor = 'not-allowed';
+            
+            // Show progress info
+            if (progressInfo) {
+              progressInfo.style.display = 'block';
+            }
+            
+            // Disable cancel button to prevent accidental close
+            const cancelBtn = addVideoForm.querySelector('[data-close-modal]');
+            if (cancelBtn) {
+              cancelBtn.disabled = true;
+              cancelBtn.style.opacity = '0.5';
+            }
+            
+            // Simulate progress for better UX (since we can't track real progress with standard form submit)
+            const progressFill = progressInfo?.querySelector('.upload-progress-fill');
+            if (progressFill) {
+              let progress = 0;
+              const progressInterval = setInterval(() => {
+                // Slowly increase progress, never reaching 100% (that happens on actual completion)
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+              }, 500);
+              
+              // Store interval ID in case we need to clear it
+              addVideoForm.dataset.progressInterval = progressInterval;
+            }
+            
+            // Form will submit normally - no e.preventDefault()
           });
         }
         

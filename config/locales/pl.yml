@@ -540,6 +540,11 @@ pl:
     not_found: "Nie znaleziono"
     unauthorized: "Brak uprawnień"
     forbidden: "Dostęp zabroniony"
+    messages:
+      max_size_error: "Plik jest za duży. Maksymalny rozmiar to 500 MB."
+      min_size_error: "Plik nie może być pusty"
+      extension_allowlist_error: "Niedozwolony format pliku. Dozwolone: %{allowed_types}"
+      content_type_allowlist_error: "Niedozwolony typ pliku. Dozwolone tylko pliki wideo."
 
   register:
     page_title: "Rejestracja"

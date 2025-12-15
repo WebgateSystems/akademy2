@@ -21,9 +21,9 @@ class StudentVideoUploader < CarrierWave::Uploader::Base
     %w[mp4 webm mov avi mkv m4v]
   end
 
-  # Max file size (100 MB by default, can be configured)
+  # Max file size (500 MB)
   def size_range
-    0..100.megabytes
+    1.byte..500.megabytes
   end
 
   # Content type validation

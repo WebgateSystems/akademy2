@@ -133,6 +133,11 @@ en:
     not_found: "Not found"
     unauthorized: "Unauthorized"
     forbidden: "Access forbidden"
+    messages:
+      max_size_error: "File is too large. Maximum size is 500 MB."
+      min_size_error: "File cannot be empty"
+      extension_allowlist_error: "File format not allowed. Allowed: %{allowed_types}"
+      content_type_allowlist_error: "File type not allowed. Only video files are accepted."
 
   management:
     notifications:
