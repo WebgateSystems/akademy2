@@ -14,8 +14,9 @@ female_names = %w[Aleksandra Alicja Amelia Anna Antonina Barbara Blanka Dagmara 
 # Polish last names
 last_names = %w[Nowak Kowalski Wiśniewski Wójcik Kowalczyk Kamiński Lewandowski Zieliński Szymański Woźniak Dąbrowski Kozłowski Jabłoński Mazur Krawczyk Piotrowski Grabowski Nowakowski Pawłowski Michalski Nowicki Adamczyk Dudek Zając Wieczorek Jabłoński Król Majewski Olszewski Stępień Jaworski Malinowski Pawlak Witkowski Walczak Stepień Górski Rutkowski Michalak Sikora Ostrowski Baran Duda Szewczyk Turek Pietrzak Wróbel Marciniak Jasiński Zawadzki Bąk Jakubowski Sadowski Dudek Bednarek Włodarczyk Błaszczyk Lis]
 
-# Get all classes for both schools
-classes = SchoolClass.all
+# Get classes only for SP53, SP18 and GIS (exclude SP51, SP35, SP12 - they don't have generated students)
+excluded_school_slugs = %w[sp51-gdynia sp35-gdynia sp12-gdynia]
+classes = SchoolClass.joins(:school).where.not(schools: { slug: excluded_school_slugs })
 
 classes.each do |school_class|
   # Random number of students between 16 and 26

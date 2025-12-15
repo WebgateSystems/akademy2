@@ -102,11 +102,26 @@ document.addEventListener('DOMContentLoaded', function() {
       const details = document.createElement('details');
       details.className = 'headmasters-menu';
       const summary = document.createElement('summary');
-      const img = document.createElement('img');
-      img.src = window.TEACHERS_ASSET_PATHS?.buttonIcon || '/assets/icons/social/S/button-3.svg';
-      img.alt = '';
-      img.setAttribute('data-theme-icon', 'true');
-      summary.appendChild(img);
+      summary.setAttribute('aria-label', 'Open actions menu');
+      
+      // Use icon from asset path, fallback to text ellipsis if image fails
+      const buttonIconPath = window.TEACHERS_ASSET_PATHS?.buttonIcon;
+      if (buttonIconPath) {
+        const img = document.createElement('img');
+        img.src = buttonIconPath;
+        img.alt = '';
+        img.width = 18;
+        img.height = 18;
+        img.setAttribute('data-theme-icon', 'true');
+        img.onerror = function() {
+          // Replace with text if image fails to load
+          summary.innerHTML = '<span style="font-size: 20px; font-weight: bold;">⋮</span>';
+        };
+        summary.appendChild(img);
+      } else {
+        // No icon path available, use text
+        summary.innerHTML = '<span style="font-size: 20px; font-weight: bold;">⋮</span>';
+      }
       
       const ul = document.createElement('ul');
       

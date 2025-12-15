@@ -1,4 +1,4 @@
-- content_for :page_title, "Administracja"
+- content_for :page_title, t('management.administrations.title')
 
 / Store asset paths and IDs for JavaScript
 javascript:
@@ -7,33 +7,80 @@ javascript:
   };
   window.MANAGEMENT_SCHOOL_ID = '#{@school&.id}';
   window.CURRENT_USER_ID = '#{current_user&.id}';
+  window.ADMINISTRATIONS_I18N = {
+    loading: #{t('management.administrations.loading').to_json},
+    empty: #{t('management.administrations.empty').to_json},
+    confirmDeactivate: #{t('management.administrations.confirm_deactivate').to_json},
+    roles: {
+      principal: #{t('management.administrations.roles.principal').to_json},
+      school_manager: #{t('management.administrations.roles.school_manager').to_json},
+      teacher: #{t('management.administrations.roles.teacher').to_json}
+    },
+    status: {
+      active: #{t('management.administrations.status.active').to_json},
+      pending: #{t('management.administrations.status.pending').to_json},
+      locked: #{t('management.administrations.status.locked').to_json}
+    },
+    modal: {
+      deactivateTitle: #{t('management.administrations.modal.deactivate_title').to_json},
+      activateTitle: #{t('management.administrations.modal.activate_title').to_json},
+      deactivateMessagePrefix: #{t('management.administrations.modal.deactivate_message_prefix').to_json},
+      activateMessagePrefix: #{t('management.administrations.modal.activate_message_prefix').to_json},
+      deactivateMessageSuffix: #{t('management.administrations.modal.deactivate_message_suffix').to_json},
+      activateMessageSuffix: #{t('management.administrations.modal.activate_message_suffix').to_json},
+      deactivateConfirm: #{t('management.administrations.modal.deactivate_confirm').to_json},
+      activateConfirm: #{t('management.administrations.modal.activate_confirm').to_json},
+      deleteConfirm: #{t('management.administrations.modal.delete_confirm').to_json}
+    },
+    actions: {
+      edit: #{t('management.administrations.actions.edit').to_json},
+      resendInvite: #{t('management.administrations.actions.resend_invite').to_json},
+      deactivate: #{t('management.administrations.actions.deactivate').to_json},
+      activate: #{t('management.administrations.actions.activate').to_json},
+      delete: #{t('management.administrations.actions.delete').to_json},
+      adding: #{t('management.administrations.actions.adding').to_json},
+      saving: #{t('management.administrations.actions.saving').to_json},
+      sending: #{t('management.administrations.actions.sending').to_json},
+      sent: #{t('management.administrations.actions.sent').to_json},
+      deleting: #{t('management.administrations.actions.deleting').to_json},
+      processing: #{t('management.administrations.actions.processing').to_json}
+    },
+    messages: {
+      you: #{t('management.administrations.messages.you').to_json},
+      cannotDeactivateSelf: #{t('management.administrations.messages.cannot_deactivate_self').to_json},
+      cannotDeleteSelf: #{t('management.administrations.messages.cannot_delete_self').to_json},
+      cannotChangeOwnRoles: #{t('management.administrations.messages.cannot_change_own_roles').to_json}
+    }
+  };
 
-section aria-label="Lista administracji"
+section aria-label=t('management.administrations.list_label')
   header.schools-page__header
     label.schools-search.schools-search--half
-      span.visually-hidden Szukaj administracji
-      input type="search" placeholder="Szukaj administracji..." id="administrations-search-input"
+      span.visually-hidden = t('management.administrations.search_label')
+      input type="search" placeholder=t('management.administrations.search_placeholder') id="administrations-search-input"
       = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true", "data-theme-icon": true
-    button.schools-page__add type="button" data-open-modal="add-administration-modal" Dodaj administratora
+    button.schools-page__add type="button" data-open-modal="add-administration-modal"
+      = t('management.administrations.add_button')
   .schools-page__controls
 
   .teachers-panel
     table.teachers-table
       thead.teachers-table__head
         tr
-          th.teachers-table__heading scope="col" Imię i nazwisko
-          th.teachers-table__heading scope="col" Role
-          th.teachers-table__heading scope="col" Email
-          th.teachers-table__heading scope="col" Telefon
-          th.teachers-table__heading scope="col" Status
-          th.teachers-table__heading.teachers-table__heading--actions scope="col" Akcje
+          th.teachers-table__heading scope="col" = t('management.administrations.table.name')
+          th.teachers-table__heading scope="col" = t('management.administrations.table.roles')
+          th.teachers-table__heading scope="col" = t('management.administrations.table.email')
+          th.teachers-table__heading scope="col" = t('management.administrations.table.phone')
+          th.teachers-table__heading scope="col" = t('management.administrations.table.status')
+          th.teachers-table__heading.teachers-table__heading--actions scope="col" = t('management.administrations.table.actions')
       tbody.teachers-table__body id="administrations-table-body"
         / Administrations will be loaded via API
     #administrations-loading-indicator.teachers-loading style="display: none; padding: 20px; text-align: center;"
       .spinner style="display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--content-primary); border-radius: 50%; animation: spin 0.8s linear infinite;"
-      span style="margin-left: 12px; color: var(--content-secondary);" Ładowanie administracji...
+      span style="margin-left: 12px; color: var(--content-secondary);"
+        = t('management.administrations.loading')
     #administrations-empty-message.text-center style="padding: 40px; color: var(--content-secondary); display: none;"
-      | Brak administratorów
+      = t('management.administrations.empty')
 
 style
   | @keyframes spin {
@@ -44,107 +91,109 @@ style
   .schools-modal__overlay
   .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="add-administration-title"
     header.schools-modal__header
-      h3#add-administration-title Dodaj administratora
-      button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="add-administration-modal"
+      h3#add-administration-title = t('management.administrations.modal.add_title')
+      button.schools-modal__close type="button" aria-label=t('common.close') data-close-modal="add-administration-modal"
         = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
     form.schools-modal__form.headmaster-form id="add-administration-form"
       input type="hidden" name="administration[school_id]" id="add-administration-school" value="#{@school&.id}"
       label
         span
-          | Imię
+          = t('management.administrations.form.first_name')
           sup style="color: var(--content-secondary);" *
-        input type="text" name="administration[first_name]" id="add-administration-first-name" placeholder="Imię" required=""
+        input type="text" name="administration[first_name]" id="add-administration-first-name" placeholder=t('management.administrations.form.first_name') required=""
       label
         span
-          | Nazwisko
+          = t('management.administrations.form.last_name')
           sup style="color: var(--content-secondary);" *
-        input type="text" name="administration[last_name]" id="add-administration-last-name" placeholder="Nazwisko" required=""
+        input type="text" name="administration[last_name]" id="add-administration-last-name" placeholder=t('management.administrations.form.last_name') required=""
       label
         span
-          | Email
+          = t('management.administrations.form.email')
           sup style="color: var(--content-secondary);" *
-        input type="email" name="administration[email]" id="add-administration-email" placeholder="admin@szkola.pl" required=""
+        input type="email" name="administration[email]" id="add-administration-email" placeholder=t('management.administrations.form.email_placeholder') required=""
       label
-        span Telefon
-        input type="text" name="administration[metadata][phone]" id="add-administration-phone" placeholder="+48 XXX XXX XXX"
+        span = t('management.administrations.form.phone')
+        input type="text" name="administration[metadata][phone]" id="add-administration-phone" placeholder=t('management.administrations.form.phone_placeholder')
       label
         span
-          | Role
+          = t('management.administrations.form.roles')
           sup style="color: var(--content-secondary);" *
         .role-select-wrapper
           .role-options
             label.role-checkbox-label
               input type="checkbox" name="administration[roles][]" value="principal" id="add-administration-role-principal"
-              span Dyrektor
+              span = t('management.administrations.roles.principal')
             label.role-checkbox-label
               input type="checkbox" name="administration[roles][]" value="school_manager" id="add-administration-role-school-manager"
-              span Kierownik szkoły
+              span = t('management.administrations.roles.school_manager')
             label.role-checkbox-label
               input type="checkbox" name="administration[roles][]" value="teacher" id="add-administration-role-teacher"
-              span Nauczyciel
+              span = t('management.administrations.roles.teacher')
       .schools-modal__actions
-        button.schools-modal__primary type="submit" Dodaj
-        button.schools-modal__secondary type="button" data-close-modal="add-administration-modal" Anuluj
+        button.schools-modal__primary type="submit" = t('management.administrations.form.add')
+        button.schools-modal__secondary type="button" data-close-modal="add-administration-modal" = t('common.cancel')
 
 .schools-modal id="edit-administration-modal" aria-hidden="true"
   .schools-modal__overlay
   .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="edit-administration-title"
     header.schools-modal__header
-      h3#edit-administration-title Edytuj administratora
-      button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="edit-administration-modal"
+      h3#edit-administration-title = t('management.administrations.modal.edit_title')
+      button.schools-modal__close type="button" aria-label=t('common.close') data-close-modal="edit-administration-modal"
         = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
     form.schools-modal__form.headmaster-form id="edit-administration-form"
       input type="hidden" id="edit-administration-id" value=""
       input type="hidden" name="administration[school_id]" id="edit-administration-school" value="#{@school&.id}"
       label
         span
-          | Imię
+          = t('management.administrations.form.first_name')
           sup style="color: var(--content-secondary);" *
-        input type="text" name="administration[first_name]" id="edit-administration-first-name" placeholder="Imię" required=""
+        input type="text" name="administration[first_name]" id="edit-administration-first-name" placeholder=t('management.administrations.form.first_name') required=""
       label
         span
-          | Nazwisko
+          = t('management.administrations.form.last_name')
           sup style="color: var(--content-secondary);" *
-        input type="text" name="administration[last_name]" id="edit-administration-last-name" placeholder="Nazwisko" required=""
+        input type="text" name="administration[last_name]" id="edit-administration-last-name" placeholder=t('management.administrations.form.last_name') required=""
       label
         span
-          | Email
+          = t('management.administrations.form.email')
           sup style="color: var(--content-secondary);" *
-        input type="email" name="administration[email]" id="edit-administration-email" placeholder="admin@szkola.pl" required=""
+        input type="email" name="administration[email]" id="edit-administration-email" placeholder=t('management.administrations.form.email_placeholder') required=""
       label
-        span Telefon
-        input type="text" name="administration[metadata][phone]" id="edit-administration-phone" placeholder="+48 XXX XXX XXX"
+        span = t('management.administrations.form.phone')
+        input type="text" name="administration[metadata][phone]" id="edit-administration-phone" placeholder=t('management.administrations.form.phone_placeholder')
       label
         span
-          | Role
+          = t('management.administrations.form.roles')
           sup style="color: var(--content-secondary);" *
         .role-select-wrapper
           .role-options
             label.role-checkbox-label
               input type="checkbox" name="administration[roles][]" value="principal" id="edit-administration-role-principal"
-              span Dyrektor
+              span = t('management.administrations.roles.principal')
             label.role-checkbox-label
               input type="checkbox" name="administration[roles][]" value="school_manager" id="edit-administration-role-school-manager"
-              span Kierownik szkoły
+              span = t('management.administrations.roles.school_manager')
             label.role-checkbox-label
               input type="checkbox" name="administration[roles][]" value="teacher" id="edit-administration-role-teacher"
-              span Nauczyciel
+              span = t('management.administrations.roles.teacher')
       .schools-modal__actions
-        button.schools-modal__primary type="submit" id="edit-administration-save-btn" Zapisz
-        button.schools-modal__secondary type="button" data-close-modal="edit-administration-modal" Anuluj
+        button.schools-modal__primary type="submit" id="edit-administration-save-btn" = t('common.save')
+        button.schools-modal__secondary type="button" data-close-modal="edit-administration-modal" = t('common.cancel')
 
 .schools-modal id="deactivate-administration-modal" aria-hidden="true"
   .schools-modal__overlay
   .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="deactivate-administration-title"
     header.schools-modal__header
-      h3#deactivate-administration-title Dezaktywuj administratora
-      button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="deactivate-administration-modal"
+      h3#deactivate-administration-title = t('management.administrations.modal.deactivate_title')
+      button.schools-modal__close type="button" aria-label=t('common.close') data-close-modal="deactivate-administration-modal"
         = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
     .schools-modal__body
       p#deactivate-administration-message
-        | Czy na pewno chcesz dezaktywować 
-        strong(data-deactivate-name="") tego administratora
-        | ? Straci natychmiastowy dostęp do systemu.
+        = t('management.administrations.modal.deactivate_message_prefix')
+        strong data-deactivate-name=""
+          = t('management.administrations.modal.deactivate_default_name')
+        = t('management.administrations.modal.deactivate_message_suffix')
     .schools-modal__actions
-      button.schools-modal__primary.schools-modal__primary--danger type="button" id="deactivate-administration-confirm-btn" Dezaktywuj
-      button.schools-modal__secondary type="button" data-close-modal="deactivate-administration-modal" Anuluj
+      button.schools-modal__primary.schools-modal__primary--danger type="button" id="deactivate-administration-confirm-btn"
+        = t('management.administrations.modal.deactivate_confirm')
+      button.schools-modal__secondary type="button" data-close-modal="deactivate-administration-modal" = t('common.cancel')

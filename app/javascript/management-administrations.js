@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const api = new window.ApiClient();
   const API_BASE = '/management/administrations';
+  const I18N = window.ADMINISTRATIONS_I18N || {};
 
   // Function to render an administration row
   function renderAdministrationRow(administration) {
@@ -54,7 +55,8 @@ document.addEventListener('DOMContentLoaded', function() {
     nameCell.className = 'teachers-table__cell';
     nameCell.textContent = name;
     if (isCurrentUser) {
-      nameCell.innerHTML = name + ' <span style="color: var(--content-secondary); font-size: 0.9em;">(You)</span>';
+      const youLabel = (I18N.messages && I18N.messages.you) || '(You)';
+      nameCell.innerHTML = name + ' <span style="color: var(--content-secondary); font-size: 0.9em;">' + youLabel + '</span>';
     }
     
     // Roles cell
@@ -70,11 +72,13 @@ document.addEventListener('DOMContentLoaded', function() {
         roleTag.className = 'selected-teacher';
         roleTag.style.fontSize = '12px';
         roleTag.style.padding = '4px 8px';
-        let roleName = 'Unknown';
-        if (role === 'principal') {
+        let roleName = role;
+        if (I18N.roles && I18N.roles[role]) {
+          roleName = I18N.roles[role];
+        } else if (role === 'principal') {
           roleName = 'Principal';
         } else if (role === 'school_manager') {
-          roleName = 'School Manager';
+          roleName = 'Manager';
         } else if (role === 'teacher') {
           roleName = 'Teacher';
         }
@@ -103,11 +107,11 @@ document.addEventListener('DOMContentLoaded', function() {
     statusCell.className = 'teachers-table__cell';
     const statusBadge = document.createElement('span');
     if (isLocked) {
-      statusBadge.textContent = 'Inactive';
+      statusBadge.textContent = (I18N.status && I18N.status.locked) || 'Inactive';
       statusBadge.style.color = 'var(--state-error)';
       statusBadge.style.fontWeight = '500';
     } else {
-      statusBadge.textContent = 'Active';
+      statusBadge.textContent = (I18N.status && I18N.status.active) || 'Active';
       statusBadge.style.color = 'var(--state-success)';
       statusBadge.style.fontWeight = '500';
     }
@@ -128,12 +132,25 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const summary = document.createElement('summary');
     summary.setAttribute('aria-label', 'Open actions menu');
-    const img = document.createElement('img');
-    const buttonIconPath = (typeof window.ADMINISTRATIONS_ASSET_PATHS !== 'undefined' && window.ADMINISTRATIONS_ASSET_PATHS.buttonIcon) || '/assets/icons/social/S/button-3.svg';
-    img.src = buttonIconPath;
-    img.alt = '';
-    img.setAttribute('data-theme-icon', 'true');
-    summary.appendChild(img);
+    
+    // Use icon from asset path, fallback to text ellipsis if image fails
+    const buttonIconPath = window.ADMINISTRATIONS_ASSET_PATHS?.buttonIcon;
+    if (buttonIconPath) {
+      const img = document.createElement('img');
+      img.src = buttonIconPath;
+      img.alt = '';
+      img.width = 18;
+      img.height = 18;
+      img.setAttribute('data-theme-icon', 'true');
+      img.onerror = function() {
+        // Replace with text if image fails to load
+        summary.innerHTML = '<span style="font-size: 20px; font-weight: bold;">⋮</span>';
+      };
+      summary.appendChild(img);
+    } else {
+      // No icon path available, use text
+      summary.innerHTML = '<span style="font-size: 20px; font-weight: bold;">⋮</span>';
+    }
     
     const ul = document.createElement('ul');
     
@@ -148,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
     editBtn.setAttribute('data-administration-email', attrs.email || '');
     editBtn.setAttribute('data-administration-phone', attrs.phone || '');
     editBtn.setAttribute('data-administration-roles', JSON.stringify(roles));
-    editBtn.textContent = 'Edit';
+    editBtn.textContent = (I18N.actions && I18N.actions.edit) || 'Edit';
     editLi.appendChild(editBtn);
     
     // Resend invite button
@@ -158,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
     resendBtn.setAttribute('data-action', 'resend-invite');
     resendBtn.setAttribute('data-administration-id', administrationId);
     resendBtn.setAttribute('data-administration-email', attrs.email || '');
-    resendBtn.textContent = 'Resend invite';
+    resendBtn.textContent = (I18N.actions && I18N.actions.resendInvite) || 'Resend invite';
     resendLi.appendChild(resendBtn);
     
     // Deactivate/Activate button (disabled for current user)
@@ -169,12 +186,14 @@ document.addEventListener('DOMContentLoaded', function() {
     deactivateBtn.setAttribute('data-administration-id', administrationId);
     deactivateBtn.setAttribute('data-administration-name', name);
     deactivateBtn.setAttribute('data-administration-is-locked', isLocked ? 'true' : 'false');
-    deactivateBtn.textContent = isLocked ? 'Activate' : 'Deactivate';
+    const activateLabel = (I18N.actions && I18N.actions.activate) || 'Activate';
+    const deactivateLabel = (I18N.actions && I18N.actions.deactivate) || 'Deactivate';
+    deactivateBtn.textContent = isLocked ? activateLabel : deactivateLabel;
     if (isCurrentUser) {
       deactivateBtn.disabled = true;
       deactivateBtn.style.opacity = '0.5';
       deactivateBtn.style.cursor = 'not-allowed';
-      deactivateBtn.title = 'You cannot deactivate your own account';
+      deactivateBtn.title = (I18N.messages && I18N.messages.cannotDeactivateSelf) || 'You cannot deactivate your own account';
     }
     deactivateLi.appendChild(deactivateBtn);
     
@@ -185,13 +204,13 @@ document.addEventListener('DOMContentLoaded', function() {
     deleteBtn.setAttribute('data-action', 'delete-administration');
     deleteBtn.setAttribute('data-administration-id', administrationId);
     deleteBtn.setAttribute('data-administration-name', name);
-    deleteBtn.textContent = 'Delete';
+    deleteBtn.textContent = (I18N.actions && I18N.actions.delete) || 'Delete';
     deleteBtn.style.color = 'var(--state-error)';
     if (isCurrentUser) {
       deleteBtn.disabled = true;
       deleteBtn.style.opacity = '0.5';
       deleteBtn.style.cursor = 'not-allowed';
-      deleteBtn.title = 'You cannot delete your own account';
+      deleteBtn.title = (I18N.messages && I18N.messages.cannotDeleteSelf) || 'You cannot delete your own account';
     }
     deleteLi.appendChild(deleteBtn);
     
@@ -397,13 +416,15 @@ document.addEventListener('DOMContentLoaded', function() {
     deleteAdministrationId = btn.getAttribute('data-administration-id');
     const name = btn.getAttribute('data-administration-name') || '';
     
-    if (!confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
+    let confirmMsg = (I18N.modal && I18N.modal.deleteConfirm) || 'Are you sure you want to delete %{name}? This action cannot be undone.';
+    confirmMsg = confirmMsg.replace('%{name}', name);
+    if (!confirm(confirmMsg)) {
       return;
     }
 
     const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = 'Deleting...';
+    btn.textContent = (I18N.actions && I18N.actions.deleting) || 'Deleting...';
 
     (async () => {
       try {
@@ -549,7 +570,7 @@ document.addEventListener('DOMContentLoaded', function() {
           if (confirmBtn) {
             confirmBtn.disabled = false;
             confirmBtn.removeAttribute('aria-disabled');
-            confirmBtn.textContent = 'Deactivate';
+            confirmBtn.textContent = (I18N.modal && I18N.modal.deactivateConfirm) || 'Deactivate';
           }
           deactivateAdministrationId = null;
         }
@@ -574,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function() {
           if (confirmBtn) {
             confirmBtn.disabled = false;
             confirmBtn.removeAttribute('aria-disabled');
-            confirmBtn.textContent = 'Deactivate';
+            confirmBtn.textContent = (I18N.modal && I18N.modal.deactivateConfirm) || 'Deactivate';
           }
           deactivateAdministrationId = null;
         }
@@ -654,17 +675,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if editing own account - disable role checkboxes
     const isCurrentUser = String(administrationId) === String(CURRENT_USER_ID);
     if (isCurrentUser) {
+      const cannotChangeRolesMsg = (I18N.messages && I18N.messages.cannotChangeOwnRoles) || 'You cannot change your own roles';
       if (principalCheckbox) {
         principalCheckbox.disabled = true;
-        principalCheckbox.setAttribute('aria-label', 'Nie możesz zmieniać własnych uprawnień');
+        principalCheckbox.setAttribute('aria-label', cannotChangeRolesMsg);
       }
       if (schoolManagerCheckbox) {
         schoolManagerCheckbox.disabled = true;
-        schoolManagerCheckbox.setAttribute('aria-label', 'Nie możesz zmieniać własnych uprawnień');
+        schoolManagerCheckbox.setAttribute('aria-label', cannotChangeRolesMsg);
       }
       if (teacherCheckbox) {
         teacherCheckbox.disabled = true;
-        teacherCheckbox.setAttribute('aria-label', 'Nie możesz zmieniać własnych uprawnień');
+        teacherCheckbox.setAttribute('aria-label', cannotChangeRolesMsg);
       }
       
       // Add visual indicator
@@ -673,7 +695,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const warningMsg = document.createElement('div');
         warningMsg.className = 'role-warning';
         warningMsg.style.cssText = 'color: var(--state-warning, #f59e0b); font-size: 12px; margin-top: 8px; font-style: italic;';
-        warningMsg.textContent = 'Nie możesz zmieniać własnych uprawnień';
+        warningMsg.textContent = cannotChangeRolesMsg;
         roleSelectWrapper.appendChild(warningMsg);
       }
     } else {
@@ -837,7 +859,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const submitBtn = addForm.querySelector('button[type="submit"]');
       const originalText = submitBtn.textContent;
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Adding...';
+      submitBtn.textContent = (I18N.actions && I18N.actions.adding) || 'Adding...';
 
       try {
         const formData = new FormData(addForm);
@@ -911,7 +933,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const administrationId = administrationIdField.value;
       
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Saving...';
+      submitBtn.textContent = (I18N.actions && I18N.actions.saving) || 'Saving...';
 
       try {
         const formData = new FormData(editForm);
@@ -998,13 +1020,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = 'Sending...';
+    btn.textContent = (I18N.actions && I18N.actions.sending) || 'Sending...';
     
     try {
       const result = await api.post(`${API_BASE}/${administrationId}/resend_invite`, {});
       
       if (result.success) {
-        btn.textContent = 'Sent!';
+        btn.textContent = (I18N.actions && I18N.actions.sent) || 'Sent!';
         btn.style.color = 'var(--state-success)';
         
         const menu = btn.closest('.headmasters-menu');
@@ -1066,17 +1088,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (isLocked) {
-      if (modalTitle) modalTitle.textContent = 'Activate administration';
-      if (modalMessage) modalMessage.textContent = `Are you sure you want to activate ${name}? They will regain access immediately.`;
+      const activateTitle = (I18N.modal && I18N.modal.activateTitle) || 'Activate administrator';
+      const activateMsgPrefix = (I18N.modal && I18N.modal.activateMessagePrefix) || 'Are you sure you want to activate ';
+      const activateMsgSuffix = (I18N.modal && I18N.modal.activateMessageSuffix) || '? They will regain access immediately.';
+      const activateConfirmLabel = (I18N.modal && I18N.modal.activateConfirm) || 'Activate';
+      if (modalTitle) modalTitle.textContent = activateTitle;
+      if (modalMessage) modalMessage.textContent = activateMsgPrefix + name + activateMsgSuffix;
       if (confirmBtn) {
-        confirmBtn.textContent = 'Activate';
+        confirmBtn.textContent = activateConfirmLabel;
         confirmBtn.classList.remove('schools-modal__primary--danger');
       }
     } else {
-      if (modalTitle) modalTitle.textContent = 'Deactivate administration';
-      if (modalMessage) modalMessage.textContent = `Are you sure you want to deactivate ${name}? They will lose access immediately.`;
+      const deactivateTitle = (I18N.modal && I18N.modal.deactivateTitle) || 'Deactivate administrator';
+      const deactivateMsgPrefix = (I18N.modal && I18N.modal.deactivateMessagePrefix) || 'Are you sure you want to deactivate ';
+      const deactivateMsgSuffix = (I18N.modal && I18N.modal.deactivateMessageSuffix) || '? They will lose access immediately.';
+      const deactivateConfirmLabel = (I18N.modal && I18N.modal.deactivateConfirm) || 'Deactivate';
+      if (modalTitle) modalTitle.textContent = deactivateTitle;
+      if (modalMessage) modalMessage.textContent = deactivateMsgPrefix + name + deactivateMsgSuffix;
       if (confirmBtn) {
-        confirmBtn.textContent = 'Deactivate';
+        confirmBtn.textContent = deactivateConfirmLabel;
         confirmBtn.classList.add('schools-modal__primary--danger');
       }
     }
@@ -1101,7 +1131,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       const originalText = deactivateBtn.textContent;
       deactivateBtn.disabled = true;
-      deactivateBtn.textContent = 'Processing...';
+      deactivateBtn.textContent = (I18N.actions && I18N.actions.processing) || 'Processing...';
 
       try {
         const result = await api.post(`${API_BASE}/${deactivateAdministrationId}/lock`, {});
@@ -1129,16 +1159,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 const statusBadge = statusCell.querySelector('span');
                 if (statusBadge) {
                   if (newLockedStatus) {
-                    statusBadge.textContent = 'Inactive';
+                    statusBadge.textContent = (I18N.status && I18N.status.locked) || 'Inactive';
                     statusBadge.style.color = 'var(--state-error)';
                   } else {
-                    statusBadge.textContent = 'Active';
+                    statusBadge.textContent = (I18N.status && I18N.status.active) || 'Active';
                     statusBadge.style.color = 'var(--state-success)';
                   }
                 }
               }
               
-              triggerBtn.textContent = newLockedStatus ? 'Activate' : 'Deactivate';
+              const activateBtnLabel = (I18N.actions && I18N.actions.activate) || 'Activate';
+              const deactivateBtnLabel = (I18N.actions && I18N.actions.deactivate) || 'Deactivate';
+              triggerBtn.textContent = newLockedStatus ? activateBtnLabel : deactivateBtnLabel;
               triggerBtn.setAttribute('data-administration-is-locked', newLockedStatus ? 'true' : 'false');
             }
             
