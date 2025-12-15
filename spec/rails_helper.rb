@@ -7,6 +7,7 @@ require 'spec_helper'
 require 'json_matchers/rspec'
 require 'shoulda/matchers'
 require 'webmock/rspec'
+require 'sidekiq/testing'
 require_relative 'support/helpers/application_test_helper'
 
 require_relative '../config/environment'
@@ -21,6 +22,8 @@ begin
 rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
+
+Sidekiq::Testing.fake!
 
 JsonMatchers.schema_root = 'spec/support/api/schemas'
 
