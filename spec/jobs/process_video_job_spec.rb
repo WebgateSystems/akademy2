@@ -154,7 +154,7 @@ RSpec.describe ProcessVideoJob, type: :job do
 
   describe 'queue' do
     it 'uses default queue' do
-      expect(described_class.new.queue_name).to eq('default')
+      expect(described_class.sidekiq_options['queue']).to eq('default')
     end
   end
 end
