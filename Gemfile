@@ -34,7 +34,7 @@ gem 'rack-attack', '~> 6.7'
 gem 'rqrcode', '~> 3.1'
 gem 'rswag'
 gem 'searchkick' # Elasticsearch integration for full-text search
-gem 'sidekiq', '~> 8.0'
+gem 'sidekiq', '~> 8.1'
 gem 'sidekiq-cron', '~> 1.0'
 gem 'sidekiq-scheduler'
 gem 'slim-rails'
