@@ -1,4 +1,4 @@
-.dashboard-app data-dashboard-app="" data-student-dashboard="true"
+.dashboard-app data-dashboard-app="" data-student-dashboard="true" data-i18n-default-class-name=t('student_dashboard.index.default_class_name') data-i18n-cancel-confirmation-message=t('student_dashboard.index.cancel_confirmation_message_with_class') data-i18n-canceling=t('student_dashboard.index.canceling') data-i18n-error-occurred=t('student_dashboard.index.error_occurred') data-i18n-connection-error=t('student_dashboard.index.connection_error') data-i18n-sending=t('student_dashboard.index.sending') data-i18n-sent=t('student_dashboard.index.sent') data-i18n-enrollment-sent=t('student_dashboard.index.enrollment_sent') data-i18n-enrollment-sent-suffix=t('student_dashboard.index.enrollment_sent_suffix') data-i18n-enrollment-error=t('student_dashboard.index.enrollment_error') data-i18n-connection-error-retry=t('student_dashboard.index.connection_error_retry') data-i18n-valid-format=t('student_dashboard.index.valid_format') data-i18n-invalid-format=t('student_dashboard.index.invalid_format')
   = render 'student_dashboard/sidebar'
 
   main.dashboard-main
@@ -6,30 +6,33 @@
 
     - if @classes.any?
       / Student has approved classes - show learning content
-      section.class-results aria-label="Twoje przedmioty"
-        h2 Twoje przedmioty
+      section.class-results aria-label=t('student_dashboard.index.subjects_section')
+        h2 = t('student_dashboard.index.subjects_section')
         .class-results__grid data-subjects-grid=""
           - if @subjects.any?
-            - colors = %w[blue green yellow pink orange purple lime]
-            - @subjects.each_with_index do |subject, index|
+            - @subjects.each do |subject|
               - stats = @subject_results&.dig(subject.id) || {}
               - best_score = stats[:best_score] || 0
               - is_passed = stats[:passed] || false
-              - color_class = colors[index % colors.length]
-              - subject_color = subject.color_light.presence || '#6366f1'
+              - subject_color_light = subject.color_light.presence || '#6366f1'
+              - subject_color_dark = subject.color_dark.presence || '#4f46e5'
               / Card turns grey only if quiz passed (score >= threshold from quiz JSON)
-              - card_class = is_passed ? 'class-result--completed' : "class-result--#{color_class}"
-              = link_to student_subject_path(subject), class: "class-result #{card_class}", data: { subject_id: subject.id }
+              - card_style = is_passed ? '' : "background: #{subject_color_light};"
+              - card_class = is_passed ? 'class-result--completed' : ''
+              = link_to student_subject_path(subject), class: "class-result #{card_class}", data: { subject_id: subject.id }, style: card_style
                 - if is_passed
                   / Show score only if passed
-                  span.class-result__progress.class-result__progress--colored data-subject-progress=subject.id style="background: #{subject_color}; border-color: #{subject_color};"
+                  span.class-result__progress.class-result__progress--colored data-subject-progress=subject.id style="background: #{subject_color_light}; border-color: #{subject_color_light};"
                     = "#{best_score}%"
                 .class-result__icon aria-hidden="true"
-                  - icons = %w[🇵🇱 🌍 🔔 🏃‍♂️ ❤️‍🩹 💻 🛡️]
-                  = icons[index % icons.length]
+                  - if subject.icon.present? && subject.icon.url.present?
+                    img src=subject.icon.url alt=subject.title style="width: 32px; height: 32px; object-fit: contain;"
+                  - else
+                    / Fallback icon if subject has no icon
+                    span style="font-size: 32px;" 📚
                 h3 = subject.title
           - else
-            p.class-results__empty Brak dostępnych przedmiotów
+            p.class-results__empty = t('student_dashboard.index.no_subjects')
 
     - elsif @pending_enrollments.any?
       / Student has pending enrollment - waiting for approval
@@ -39,9 +42,9 @@
             svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
               circle cx="12" cy="12" r="10"
               polyline points="12 6 12 12 16 14"
-          h2 Oczekiwanie na akceptację
+          h2 = t('student_dashboard.index.waiting_for_approval')
           p
-            | Teraz zostało tylko poczekać na akceptację nauczyciela, możesz przypomnieć mu o tym jeżeli uważasz, że czekasz zbyt długo :)
+            = t('student_dashboard.index.waiting_message')
 
           .pending-enrollments-list
             - @pending_enrollments.each do |enrollment|
@@ -49,9 +52,9 @@
                 .pending-enrollment-info
                   strong = enrollment.school_class.name
                   span.pending-enrollment-school = enrollment.school_class.school.name
-                  span.pending-enrollment-date = "Wysłano: #{enrollment.created_at.strftime('%d.%m.%Y %H:%M')}"
+                  span.pending-enrollment-date = "#{t('student_dashboard.index.sent_at')} #{enrollment.created_at.strftime('%d.%m.%Y %H:%M')}"
                 button.btn.btn-danger.btn-sm.cancel-enrollment-btn type="button" data-enrollment-id=enrollment.id data-class-name=enrollment.school_class.name
-                  | Zrezygnować
+                  = t('student_dashboard.index.cancel')
 
     - else
       / No classes and no pending enrollments - show join form
@@ -63,17 +66,17 @@
               circle cx="9" cy="7" r="4"
               path d="M23 21v-2a4 4 0 0 0-3-3.87"
               path d="M16 3.13a4 4 0 0 1 0 7.75"
-          h2 Brak przypisanych klas
+          h2 = t('student_dashboard.index.no_classes')
           p
-            | Nie masz jeszcze przypisanej żadnej klasy.
+            = t('student_dashboard.index.no_classes_message')
             br
-            | Poproś nauczyciela o kod QR lub link do dołączenia do klasy,
+            = t('student_dashboard.index.no_classes_hint_1')
             br
-            | bądź wprowadź token otrzymany od nauczyciela poniżej:
+            = t('student_dashboard.index.no_classes_hint_2')
 
           .join-class-form
             .join-class-input-wrapper
-              input#join-token-input.form-control.join-token-input type="text" placeholder="Wklej link lub token (np. 34df7beb-1732-4cd3)" autocomplete="off" value="#{@join_token}" data-auto-submit="#{@join_token.present?}"
+              input#join-token-input.form-control.join-token-input type="text" placeholder=t('student_dashboard.index.join_token_placeholder') autocomplete="off" value="#{@join_token}" data-auto-submit="#{@join_token.present?}"
               .join-token-status
                 span#join-status-icon
                 span#join-status-text
@@ -201,20 +204,40 @@ css:
 .schools-modal#cancel-enrollment-modal aria-hidden="true"
   .schools-modal__overlay
   .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="cancel-enrollment-title"
-    button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="cancel-enrollment-modal" style="position: absolute; top: 16px; right: 16px;"
+    button.schools-modal__close type="button" aria-label=t('student_dashboard.index.close') data-close-modal="cancel-enrollment-modal" style="position: absolute; top: 16px; right: 16px;"
       svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
         line x1="18" y1="6" x2="6" y2="18"
         line x1="6" y1="6" x2="18" y2="18"
     .schools-modal__body
-      h3#cancel-enrollment-title style="margin: 0 0 16px; font-size: 24px; font-weight: 500; text-align: center;" Potwierdzenie rezygnacji
-      p#cancel-enrollment-message style="text-align: center; color: var(--content-secondary);" Czy na pewno chcesz zrezygnować z wniosku o dołączenie do klasy?
-      p style="margin-top: 8px; font-size: 14px; text-align: center; color: var(--content-tertiary);" Będziesz mógł ponownie wysłać wniosek w dowolnym momencie.
+      h3#cancel-enrollment-title style="margin: 0 0 16px; font-size: 24px; font-weight: 500; text-align: center;" = t('student_dashboard.index.cancel_confirmation_title')
+      p#cancel-enrollment-message style="text-align: center; color: var(--content-secondary);" = t('student_dashboard.index.cancel_confirmation_message')
+      p style="margin-top: 8px; font-size: 14px; text-align: center; color: var(--content-tertiary);" = t('student_dashboard.index.cancel_confirmation_hint')
     .schools-modal__actions
-      button.schools-modal__primary.schools-modal__primary--danger#confirm-cancel-btn type="button" Zrezygnuj
-      button.schools-modal__secondary type="button" data-close-modal="cancel-enrollment-modal" Anuluj
+      button.schools-modal__primary.schools-modal__primary--danger#confirm-cancel-btn type="button" = t('student_dashboard.index.confirm_cancel')
+      button.schools-modal__secondary type="button" data-close-modal="cancel-enrollment-modal" = t('student_dashboard.index.cancel_action')
 
 javascript:
   (function() {
+    // ==========================================
+    // i18n translations from data attributes
+    // ==========================================
+    const dashboardApp = document.querySelector('.dashboard-app');
+    const i18n = {
+      defaultClassName: dashboardApp?.dataset.i18nDefaultClassName || 'this class',
+      cancelConfirmationMessage: dashboardApp?.dataset.i18nCancelConfirmationMessage || 'Are you sure you want to cancel your enrollment request for class',
+      canceling: dashboardApp?.dataset.i18nCanceling || 'Canceling...',
+      errorOccurred: dashboardApp?.dataset.i18nErrorOccurred || 'An error occurred',
+      connectionError: dashboardApp?.dataset.i18nConnectionError || 'Connection error',
+      sending: dashboardApp?.dataset.i18nSending || 'Sending...',
+      sent: dashboardApp?.dataset.i18nSent || 'Sent!',
+      enrollmentSent: dashboardApp?.dataset.i18nEnrollmentSent || 'Enrollment request for class',
+      enrollmentSentSuffix: dashboardApp?.dataset.i18nEnrollmentSentSuffix || 'has been sent. Please wait for teacher approval.',
+      enrollmentError: dashboardApp?.dataset.i18nEnrollmentError || 'An error occurred while sending the request',
+      connectionErrorRetry: dashboardApp?.dataset.i18nConnectionErrorRetry || 'Connection error. Please try again.',
+      validFormat: dashboardApp?.dataset.i18nValidFormat || 'Valid format',
+      invalidFormat: dashboardApp?.dataset.i18nInvalidFormat || 'Invalid format'
+    };
+
     // ==========================================
     // Modal helpers
     // ==========================================
@@ -264,10 +287,10 @@ javascript:
     document.querySelectorAll('.cancel-enrollment-btn').forEach(btn => {
       btn.addEventListener('click', function() {
         enrollmentToCancel = this.dataset.enrollmentId;
-        const className = this.dataset.className || 'tej klasy';
+        const className = this.dataset.className || i18n.defaultClassName;
         
         if (cancelMessage) {
-          cancelMessage.innerHTML = `Czy na pewno chcesz zrezygnować z wniosku o dołączenie do klasy <strong>${className}</strong>?`;
+          cancelMessage.innerHTML = `${i18n.cancelConfirmationMessage} <strong>${className}</strong>?`;
         }
         
         openModal('cancel-enrollment-modal');
@@ -280,7 +303,7 @@ javascript:
 
         const originalText = this.textContent;
         this.disabled = true;
-        this.textContent = 'Anulowanie...';
+        this.textContent = i18n.canceling;
 
         try {
           const response = await fetch(`/api/v1/student/enrollments/${enrollmentToCancel}/cancel`, {
@@ -296,12 +319,12 @@ javascript:
             window.location.reload();
           } else {
             const data = await response.json();
-            alert(data.error || 'Wystąpił błąd');
+            alert(data.error || i18n.errorOccurred);
             this.disabled = false;
             this.textContent = originalText;
           }
         } catch (error) {
-          alert('Wystąpił błąd połączenia');
+          alert(i18n.connectionError);
           this.disabled = false;
           this.textContent = originalText;
         }
@@ -380,7 +403,7 @@ javascript:
       
       isSubmitting = true;
       lastSubmittedToken = token;
-      setStatus('is-loading', '⏳', 'Wysyłanie...');
+      setStatus('is-loading', '⏳', i18n.sending);
       hideError();
 
       try {
@@ -396,21 +419,21 @@ javascript:
         const data = await response.json();
 
         if (response.ok) {
-          setStatus('is-valid', '✅', 'Wysłano!');
-          showSuccess(`Wniosek o dołączenie do klasy "${data.class_name}" został wysłany. Oczekuj na akceptację nauczyciela.`);
+          setStatus('is-valid', '✅', i18n.sent);
+          showSuccess(`${i18n.enrollmentSent} "${data.class_name}" ${i18n.enrollmentSentSuffix}`);
           
           // Reload page after 2 seconds to show pending state
           setTimeout(() => {
             window.location.reload();
           }, 2000);
         } else {
-          setStatus('is-invalid', '❌', 'Błąd');
-          showError(data.error || 'Wystąpił błąd podczas wysyłania wniosku');
+          setStatus('is-invalid', '❌', 'Error');
+          showError(data.error || i18n.enrollmentError);
           isSubmitting = false; // Allow retry on error
         }
       } catch (error) {
-        setStatus('is-invalid', '❌', 'Błąd');
-        showError('Wystąpił błąd połączenia. Spróbuj ponownie.');
+        setStatus('is-invalid', '❌', 'Error');
+        showError(i18n.connectionErrorRetry);
         isSubmitting = false; // Allow retry on error
       }
     }
@@ -429,7 +452,7 @@ javascript:
       const token = extractToken(value);
 
       if (token) {
-        setStatus('is-valid', '✓', 'Prawidłowy format');
+        setStatus('is-valid', '✓', i18n.validFormat);
         
         // Auto-submit after short delay
         debounceTimer = setTimeout(() => {
@@ -438,7 +461,7 @@ javascript:
       } else {
         // Check if user is still typing
         if (value.length > 5) {
-          setStatus('is-invalid', '✗', 'Nieprawidłowy format');
+          setStatus('is-invalid', '✗', i18n.invalidFormat);
         } else {
           setStatus(null, '', '');
         }
