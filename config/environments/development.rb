@@ -73,7 +73,8 @@ Rails.application.configure do
   config.active_job.verbose_enqueue_logs = true
 
   # Use inline adapter for Active Job so emails open in letter_opener immediately
-  config.active_job.queue_adapter = :inline
+  # config.active_job.queue_adapter = :inline
+  config.active_job.queue_adapter = :sidekiq
 
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true

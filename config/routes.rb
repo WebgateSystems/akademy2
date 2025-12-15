@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   mount Rswag::Ui::Engine => '/api-docs'
   mount Rswag::Api::Engine => '/api-docs'
+  mount Sidekiq::Web => '/sidekiq'
   devise_for :users, controllers: { sessions: 'users/sessions' }
 
   # Pretty login URLs (aliases for /users/sign_in?role=xxx)
