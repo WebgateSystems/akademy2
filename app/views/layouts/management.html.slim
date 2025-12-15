@@ -57,9 +57,15 @@ html lang="pl" class="no-js" data-theme="auto"
         = render 'management/top_bar'
 
         - if notice
-          .alert.alert-success = notice
+          .alert.alert-success role="alert"
+            = notice
+            button.alert-close type="button" aria-label=t('common.close') data-dismiss-alert=""
+              i.bi.bi-x
         - if alert
-          .alert.alert-danger = alert
+          .alert.alert-danger role="alert"
+            = alert
+            button.alert-close type="button" aria-label=t('common.close') data-dismiss-alert=""
+              i.bi.bi-x
 
         = yield
 

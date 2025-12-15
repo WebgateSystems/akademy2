@@ -7,15 +7,22 @@ html
     = csp_meta_tag
     = render 'shared/favicons'
     = stylesheet_link_tag "application", "data-turbo-track": "reload"
+    = javascript_include_tag "application", type: "module"
   body.bg-light.d-flex.justify-content-center.align-items-center style="height: 100vh;"
     div
       main.col-12.col-md-9.col-lg-10.p-4
 
     .p-4.rounded.shadow.bg-white style="width: 360px;"
       - if notice
-        .alert.alert-success = notice
+        .alert.alert-success role="alert"
+          = notice
+          button.alert-close type="button" aria-label=t('common.close') data-dismiss-alert=""
+            i.bi.bi-x
       - if alert
-        .alert.alert-danger = alert
+        .alert.alert-danger role="alert"
+          = alert
+          button.alert-close type="button" aria-label=t('common.close') data-dismiss-alert=""
+            i.bi.bi-x
 
       = yield
 

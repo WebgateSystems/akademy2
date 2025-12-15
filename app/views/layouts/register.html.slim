@@ -11,9 +11,15 @@ html
   body.auth-body
     div
       - if alert.present?
-        .auth-alert.auth-alert--error = alert
+        .alert.alert-danger role="alert"
+          = alert
+          button.alert-close type="button" aria-label=t('common.close') data-dismiss-alert=""
+            i.bi.bi-x
       - if notice.present?
-        .auth-alert.auth-alert--success = notice
+        .alert.alert-success role="alert"
+          = notice
+          button.alert-close type="button" aria-label=t('common.close') data-dismiss-alert=""
+            i.bi.bi-x
       .auth-layout
         = yield
       footer style="text-align: center; padding: 1rem; color: #64748b; font-size: 0.875rem; margin-top: 2rem;"

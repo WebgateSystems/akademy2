@@ -1,4 +1,6 @@
 - content_for :page_title, t('management.students.title')
+- school_id = @school.try(:id) || ''
+- school_classes_data = (@school_classes || []).to_json
 
 javascript:
   window.STUDENTS_ASSET_PATHS = {
@@ -6,8 +8,8 @@ javascript:
     approveIcon: '#{asset_path("icons/social/S/done.svg")}',
     declineIcon: '#{asset_path("icons/social/S/close_red.svg")}'
   };
-  window.MANAGEMENT_SCHOOL_ID = '#{@school&.id}';
-  window.SCHOOL_CLASSES = #{@school_classes.to_json};
+  window.MANAGEMENT_SCHOOL_ID = '#{school_id}';
+  window.SCHOOL_CLASSES = #{raw school_classes_data};
   window.STUDENTS_I18N = {
     status_awaiting: '#{j t('management.students.status_awaiting')}',
     status_inactive: '#{j t('management.students.status_inactive')}',

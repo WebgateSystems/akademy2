@@ -68,8 +68,8 @@ MODULES = [
     slug: 'polska-i-swiat',
     title: 'Polska i świat',
     icon: '🇵🇱',
-    color_light: '#FF6B6B',
-    color_dark: '#C92A2A',
+    color_light: '#4A90E2',
+    color_dark: '#206EC9',
     order_index: 1,
     youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', # Przykładowy link
     quiz: {
@@ -119,8 +119,8 @@ MODULES = [
     slug: 'kryzys-klimatyczny',
     title: 'Kryzys klimatyczny',
     icon: '🌍',
-    color_light: '#4ECDC4',
-    color_dark: '#0D9488',
+    color_light: '#6CC24A',
+    color_dark: '#529C35',
     order_index: 2,
     youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     quiz: {
@@ -157,8 +157,8 @@ MODULES = [
     slug: 'reakcja-na-alarmy',
     title: 'Reakcja na alarmy',
     icon: '🔔',
-    color_light: '#FFD93D',
-    color_dark: '#F59E0B',
+    color_light: '#FFD74B',
+    color_dark: '#F4B400',
     order_index: 3,
     youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     quiz: {
@@ -195,8 +195,8 @@ MODULES = [
     slug: 'ewakuacja',
     title: 'Ewakuacja',
     icon: '🏃‍♂️',
-    color_light: '#95E1D3',
-    color_dark: '#059669',
+    color_light: '#F56CA0',
+    color_dark: '#C9356A',
     order_index: 4,
     youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     quiz: {
@@ -233,8 +233,8 @@ MODULES = [
     slug: 'pierwsza-pomoc',
     title: 'Pierwsza pomoc',
     icon: '❤️‍🩹',
-    color_light: '#F38181',
-    color_dark: '#DC2626',
+    color_light: '#FF9B42',
+    color_dark: '#EF6C00',
     order_index: 5,
     youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     quiz: {
@@ -271,8 +271,8 @@ MODULES = [
     slug: 'cyber-bezpieczenstwo',
     title: 'Cyber-bezpieczeństwo',
     icon: '💻',
-    color_light: '#A8E6CF',
-    color_dark: '#16A34A',
+    color_light: '#4A90E2',
+    color_dark: '#206EC9',
     order_index: 6,
     youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     quiz: {
@@ -309,8 +309,8 @@ MODULES = [
     slug: 'bezpieczne-zachowanie',
     title: 'Bezpieczne zachowanie',
     icon: '🛡️',
-    color_light: '#B4A7D6',
-    color_dark: '#7C3AED',
+    color_light: '#6CC24A',
+    color_dark: '#529C35',
     order_index: 7,
     youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     quiz: {
