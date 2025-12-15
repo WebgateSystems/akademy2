@@ -345,15 +345,14 @@ MODULES = [
   }
 ].freeze
 
-# === Tworzenie ikon jako placeholder PNG ===
+# === Tworzenie ikon jako placeholder SVG (bez tła) ===
 def create_icon_placeholder(icon_path, emoji)
   return if File.exist?(icon_path)
 
-  # Tworzymy prosty SVG z emoji jako placeholder
+  # Tworzymy prosty SVG z emoji - BEZ rect (tło dodaje CSS), wycentrowane
   svg_content = <<~SVG
     <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-      <rect width="128" height="128" fill="#f0f0f0" rx="16"/>
-      <text x="64" y="80" font-size="64" text-anchor="middle">#{emoji}</text>
+      <text x="64" y="64" font-size="64" text-anchor="middle" dominant-baseline="central">#{emoji}</text>
     </svg>
   SVG
   File.write(icon_path, svg_content)

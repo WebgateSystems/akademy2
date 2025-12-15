@@ -26,10 +26,9 @@
                     = "#{best_score}%"
                 .class-result__icon aria-hidden="true"
                   - if subject.icon.present? && subject.icon.url.present?
-                    img src=subject.icon.url alt=subject.title style="width: 32px; height: 32px; object-fit: contain;"
+                    img.class-result__icon-img src=subject.icon.url alt=""
                   - else
-                    / Fallback icon if subject has no icon
-                    span style="font-size: 32px;" 📚
+                    span 📚
                 h3 = subject.title
           - else
             p.class-results__empty = t('student_dashboard.index.no_subjects')
