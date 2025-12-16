@@ -38,10 +38,11 @@
                 - if youtube_id
                   iframe.video-player src="https://www.youtube.com/embed/#{youtube_id}" title=@content.title allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""
               - elsif @content.file&.url.present?
-                video.video-player controls="" poster=(@content.poster&.url)
+                video.video-player#module-video-player controls="" poster=(@content.poster&.url) data-subtitles-url=(@content.subtitles&.url)
                   source src=@content.file.url type="video/mp4"
-                  - if @content.subtitles&.url.present?
-                    track kind="subtitles" src=@content.subtitles.url srclang="pl" label="Polski"
+                - if @content.subtitles&.url.present?
+                  button.video-subtitles-btn#subtitles-toggle type="button" title="Napisy (C)" aria-label="Włącz/wyłącz napisy" data-subtitles-enabled="true"
+                    i.bi.bi-badge-cc-fill
               - else
                 .video-placeholder
                   = image_tag 'icons/social/L/video.svg', width: 120, height: 120
@@ -149,6 +150,57 @@ css:
     width: 100%;
     height: 100%;
     border: none;
+  }
+
+  /* Subtitles toggle button - top left corner */
+  .video-subtitles-btn {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.75);
+    border: 2px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    z-index: 10;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 18px;
+  }
+
+  .video-subtitles-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    transform: scale(1.05);
+  }
+
+  .video-subtitles-btn[data-subtitles-enabled="true"] {
+    color: #ffcc00;
+    background: rgba(0, 0, 0, 0.85);
+    border-color: rgba(255, 204, 0, 0.5);
+  }
+
+  .video-subtitles-btn[data-subtitles-enabled="true"]:hover {
+    color: #ffe066;
+    border-color: rgba(255, 224, 102, 0.7);
+  }
+
+  .video-subtitles-btn[data-subtitles-enabled="false"] {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  /* Custom subtitle styling via ::cue */
+  video::cue {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 18px;
+    line-height: 1.4;
+    padding: 4px 8px;
+    border-radius: 4px;
   }
 
   .video-placeholder {
@@ -348,6 +400,202 @@ javascript:
   document.addEventListener('DOMContentLoaded', () => {
     const videos = document.querySelectorAll('.video-player');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+    // ========================================
+    // Subtitles handling (SRT to VTT conversion)
+    // ========================================
+    const subtitlesBtn = document.getElementById('subtitles-toggle');
+    const videoPlayer = document.getElementById('module-video-player');
+    
+    // Expose toggle function for hotkeys
+    let toggleSubtitles = null;
+    
+    if (subtitlesBtn && videoPlayer) {
+      const subtitlesUrl = videoPlayer.dataset.subtitlesUrl;
+      
+      // Initialize: Load preference from localStorage (default: enabled)
+      const savedPref = localStorage.getItem('akademy-subtitles-enabled');
+      let subtitlesEnabled = savedPref !== 'false'; // default true
+      let trackElement = null;
+      
+      // Convert SRT to WebVTT format
+      function srtToVtt(srtContent) {
+        // Add WEBVTT header and convert timestamps (comma → dot)
+        let vtt = 'WEBVTT\n\n';
+        
+        // Replace SRT timestamps: 00:00:01,000 → 00:00:01.000
+        const converted = srtContent
+          .replace(/\r\n/g, '\n')
+          .replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
+        
+        vtt += converted;
+        return vtt;
+      }
+      
+      // Load subtitles from URL
+      async function loadSubtitles() {
+        if (!subtitlesUrl) return;
+        
+        try {
+          const response = await fetch(subtitlesUrl);
+          if (!response.ok) throw new Error('Failed to load subtitles');
+          
+          let content = await response.text();
+          
+          // Check if it's SRT format (no WEBVTT header)
+          if (!content.trim().startsWith('WEBVTT')) {
+            content = srtToVtt(content);
+          }
+          
+          // Create blob URL for VTT content
+          const blob = new Blob([content], { type: 'text/vtt' });
+          const blobUrl = URL.createObjectURL(blob);
+          
+          // Create and add track element
+          trackElement = document.createElement('track');
+          trackElement.kind = 'subtitles';
+          trackElement.label = 'Polski';
+          trackElement.srclang = 'pl';
+          trackElement.src = blobUrl;
+          trackElement.default = true;
+          
+          videoPlayer.appendChild(trackElement);
+          
+          // Wait a bit for track to be ready, then set state
+          setTimeout(() => {
+            updateSubtitlesState();
+          }, 100);
+          
+        } catch (error) {
+          console.error('Error loading subtitles:', error);
+          subtitlesBtn.style.display = 'none';
+        }
+      }
+      
+      function updateSubtitlesState() {
+        if (videoPlayer.textTracks && videoPlayer.textTracks.length > 0) {
+          for (let i = 0; i < videoPlayer.textTracks.length; i++) {
+            videoPlayer.textTracks[i].mode = subtitlesEnabled ? 'showing' : 'disabled';
+          }
+        }
+        subtitlesBtn.dataset.subtitlesEnabled = subtitlesEnabled;
+        subtitlesBtn.title = subtitlesEnabled ? 'Napisy włączone (C)' : 'Napisy wyłączone (C)';
+        subtitlesBtn.setAttribute('aria-label', subtitlesEnabled ? 'Wyłącz napisy' : 'Włącz napisy');
+      }
+      
+      toggleSubtitles = function() {
+        subtitlesEnabled = !subtitlesEnabled;
+        localStorage.setItem('akademy-subtitles-enabled', subtitlesEnabled);
+        updateSubtitlesState();
+      };
+      
+      // Load subtitles when video metadata is ready
+      videoPlayer.addEventListener('loadedmetadata', loadSubtitles);
+      
+      // Also try immediately if already loaded
+      if (videoPlayer.readyState >= 1) {
+        loadSubtitles();
+      }
+      
+      // Button click
+      subtitlesBtn.addEventListener('click', toggleSubtitles);
+      
+    }
+    
+    // ========================================
+    // Video hotkeys (YouTube-style)
+    // ========================================
+    const videoEl = document.getElementById('module-video-player');
+    
+    if (videoEl) {
+      const container = videoEl.closest('.video-player-container');
+      
+      
+      document.addEventListener('keydown', (e) => {
+        // Skip if typing in form fields
+        const tag = e.target.tagName.toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+        // Skip if modifier keys (allow normal shortcuts)
+        if (e.ctrlKey || e.altKey || e.metaKey) return;
+        
+        const key = e.key.toLowerCase();
+        
+        // C - toggle subtitles
+        if (key === 'c' && toggleSubtitles) {
+          e.preventDefault();
+          toggleSubtitles();
+          return;
+        }
+        
+        // F - fullscreen
+        if (key === 'f') {
+          e.preventDefault();
+          try {
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+              if (document.exitFullscreen) document.exitFullscreen();
+              else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            } else {
+              const target = container || videoEl;
+              if (target.requestFullscreen) target.requestFullscreen();
+              else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+              else if (videoEl.webkitEnterFullscreen) videoEl.webkitEnterFullscreen();
+            }
+          } catch (err) { console.log('Fullscreen error:', err); }
+          return;
+        }
+        
+        // Space or K - play/pause
+        if (key === ' ' || key === 'k') {
+          e.preventDefault();
+          if (videoEl.paused) videoEl.play().catch(() => {});
+          else videoEl.pause();
+          return;
+        }
+        
+        // M - mute/unmute
+        if (key === 'm') {
+          e.preventDefault();
+          videoEl.muted = !videoEl.muted;
+          return;
+        }
+        
+        // Arrow keys
+        if (key === 'arrowleft') {
+          e.preventDefault();
+          videoEl.currentTime = Math.max(0, videoEl.currentTime - 5);
+          return;
+        }
+        if (key === 'arrowright') {
+          e.preventDefault();
+          videoEl.currentTime = Math.min(videoEl.duration || 0, videoEl.currentTime + 5);
+          return;
+        }
+        if (key === 'arrowup') {
+          e.preventDefault();
+          videoEl.volume = Math.min(1, videoEl.volume + 0.1);
+          return;
+        }
+        if (key === 'arrowdown') {
+          e.preventDefault();
+          videoEl.volume = Math.max(0, videoEl.volume - 0.1);
+          return;
+        }
+        
+        // 0 or Home - beginning
+        if (key === '0' || key === 'home') {
+          e.preventDefault();
+          videoEl.currentTime = 0;
+          return;
+        }
+        
+        // End - end of video
+        if (key === 'end') {
+          e.preventDefault();
+          if (videoEl.duration) videoEl.currentTime = videoEl.duration;
+          return;
+        }
+      });
+    }
 
     // Video tracking
     videos.forEach(video => {
