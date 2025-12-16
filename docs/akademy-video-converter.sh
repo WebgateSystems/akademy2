@@ -167,7 +167,6 @@ else
 fi
 
 # Parametry wideo
-W=1280
 FPS=25
 MARGIN=24
 
@@ -180,6 +179,31 @@ echo ""
 # Pobierz długość wideo źródłowego
 VIDEO_DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$INPUT_FILE" | cut -d. -f1)
 VIDEO_DUR=$((VIDEO_DUR + 1))
+
+# Pobierz oryginalne wymiary wideo
+ORIG_WIDTH=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=noprint_wrappers=1:nokey=1 "$INPUT_FILE")
+ORIG_HEIGHT=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=noprint_wrappers=1:nokey=1 "$INPUT_FILE")
+
+# Określ orientację i docelowe wymiary
+# Poziome (landscape): 1280x720, Pionowe (portrait): 720x1280
+if [ "$ORIG_WIDTH" -ge "$ORIG_HEIGHT" ]; then
+  # Wideo poziome - skaluj do szerokości 1280
+  TARGET_W=1280
+  TARGET_H=720
+  SCALE_FILTER="scale=${TARGET_W}:-2"
+  ORIENTATION="poziome"
+else
+  # Wideo pionowe - skaluj do wysokości 1280
+  TARGET_W=720
+  TARGET_H=1280
+  SCALE_FILTER="scale=-2:${TARGET_H}"
+  ORIENTATION="pionowe"
+fi
+
+# Zmienna W dla kompatybilności z resztą skryptu
+W=$TARGET_W
+
+echo "📐 Orientacja: ${ORIENTATION} (${ORIG_WIDTH}x${ORIG_HEIGHT} → ${TARGET_W}x${TARGET_H})"
 
 # Określ efektywną długość wideo głównego (preview lub pełne)
 if [ -n "$PREVIEW_DUR" ]; then
@@ -206,7 +230,7 @@ build_main_video_filter() {
     ALPHA_END=0.5
     ALPHA_BOOST=$(echo "1 - $ALPHA_END" | bc)
     
-    echo "[0:v]scale=${W}:-2,fps=${FPS}[vid];\
+    echo "[0:v]${SCALE_FILTER},fps=${FPS}[vid];\
 [1:v]format=rgba,loop=loop=-1:size=1,trim=duration=${EFFECTIVE_DUR}[logo_loop];\
 [logo_loop]split=2[logo1][logo2];\
 [logo1]colorchannelmixer=aa=${ALPHA_END}[logo_base];\
@@ -214,7 +238,7 @@ build_main_video_filter() {
 [logo_base][logo_boost]overlay=format=auto[logof];\
 [vid][logof]overlay=W-w-${MARGIN}:${MARGIN}[main_video]"
   else
-    echo "[0:v]scale=${W}:-2,fps=${FPS}[main_video]"
+    echo "[0:v]${SCALE_FILTER},fps=${FPS}[main_video]"
   fi
 }
 
@@ -224,11 +248,6 @@ build_main_video_filter() {
 
 if [ "$USE_CREDITS" = true ]; then
   # === Z CREDITS (dwuetapowa konwersja) ===
-  
-  # Oblicz parametry
-  XFADE_OFFSET=$((EFFECTIVE_DUR - XFADE_DUR))
-  FADEOUT_START=$((XFADE_OFFSET + CREDITS_HOLD))
-  TOTAL_DUR=$((EFFECTIVE_DUR + CREDITS_TOTAL - XFADE_DUR))
   
   # Plik tymczasowy dla głównego wideo
   TEMP_DIR=$(mktemp -d)
@@ -244,7 +263,7 @@ if [ "$USE_CREDITS" = true ]; then
     ALPHA_END=0.5
     ALPHA_BOOST=$(echo "1 - $ALPHA_END" | bc)
     
-    MAIN_FILTER="[0:v]scale=${W}:-2,fps=${FPS}[vid];\
+    MAIN_FILTER="[0:v]${SCALE_FILTER},fps=${FPS}[vid];\
 [1:v]format=rgba,loop=loop=-1:size=1,trim=duration=${EFFECTIVE_DUR}[logo_loop];\
 [logo_loop]split=2[logo1][logo2];\
 [logo1]colorchannelmixer=aa=${ALPHA_END}[logo_base];\
@@ -261,7 +280,7 @@ if [ "$USE_CREDITS" = true ]; then
       "${TEMP_MAIN}"
   else
     ffmpeg -y -i "${INPUT_FILE}" \
-      -vf "scale=${W}:-2,fps=${FPS}" \
+      -vf "${SCALE_FILTER},fps=${FPS}" \
       -t "${EFFECTIVE_DUR}" \
       -c:v libx264 -preset slow -crf 23 \
       -profile:v high -level 4.0 -pix_fmt yuv420p \
@@ -275,12 +294,23 @@ if [ "$USE_CREDITS" = true ]; then
   # KROK 2: Dodaj credits z xfade i fade out
   # Używamy -loop 1 dla PNG co daje stały framerate
   # Audio: zachowujemy z głównego wideo + dodajemy ciszę dla credits (fade out audio)
-  AUDIO_FADE_START=$((EFFECTIVE_DUR - 2))  # zaczynamy fade out audio 2s przed końcem wideo
+  
+  # Pobierz RZECZYWISTĄ długość main.mp4 (może być krótsza niż EFFECTIVE_DUR)
+  ACTUAL_MAIN_DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${TEMP_MAIN}")
+  ACTUAL_MAIN_DUR_INT=${ACTUAL_MAIN_DUR%.*}  # usuń część dziesiętną
+  
+  # Przelicz parametry xfade na podstawie rzeczywistej długości
+  XFADE_OFFSET=$((ACTUAL_MAIN_DUR_INT - XFADE_DUR))
+  FADEOUT_START=$((XFADE_OFFSET + CREDITS_HOLD))
+  TOTAL_DUR=$((ACTUAL_MAIN_DUR_INT + CREDITS_TOTAL - XFADE_DUR))
+  AUDIO_FADE_START=$((ACTUAL_MAIN_DUR_INT - 2))  # zaczynamy fade out audio 2s przed końcem wideo
+  
+  echo "   Main: ${ACTUAL_MAIN_DUR_INT}s, xfade offset: ${XFADE_OFFSET}s, total: ${TOTAL_DUR}s"
   
   ffmpeg -y -i "${TEMP_MAIN}" -loop 1 -t "${CREDITS_TOTAL}" -i "${CREDITS_FILE}" \
     -filter_complex "\
 [0:v]fps=${FPS},format=yuv420p[main];\
-[1:v]scale=${W}:720,fps=${FPS},format=yuv420p[credits];\
+[1:v]scale=${TARGET_W}:${TARGET_H}:force_original_aspect_ratio=disable,fps=${FPS},format=yuv420p[credits];\
 [main][credits]xfade=transition=fade:duration=${XFADE_DUR}:offset=${XFADE_OFFSET}[with_credits];\
 [with_credits]fade=t=out:st=${FADEOUT_START}:d=${CREDITS_FADE}[vout];\
 [0:a]apad=whole_dur=${TOTAL_DUR},afade=t=out:st=${AUDIO_FADE_START}:d=3[aout]" \
@@ -302,7 +332,7 @@ else
     ALPHA_END=0.5
     ALPHA_BOOST=$(echo "1 - $ALPHA_END" | bc)
     
-    FILTER="[0:v]scale=${W}:-2,fps=${FPS}[vid];\
+    FILTER="[0:v]${SCALE_FILTER},fps=${FPS}[vid];\
 [1:v]format=rgba,loop=loop=-1:size=1,trim=duration=${EFFECTIVE_DUR}[logo_loop];\
 [logo_loop]split=2[logo1][logo2];\
 [logo1]colorchannelmixer=aa=${ALPHA_END}[logo_base];\
@@ -328,7 +358,7 @@ else
       "${OUTPUT_FILE}"
   else
     # Bez logo, bez credits
-    FILTER="scale=${W}:-2,fps=${FPS}"
+    FILTER="${SCALE_FILTER},fps=${FPS}"
     
     if [ -n "$PREVIEW_DUR" ]; then
       DUR_OPT="-t ${PREVIEW_DUR}"
