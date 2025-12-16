@@ -230,6 +230,84 @@
 }
 
 /* ==========================================================================
+   REMEMBER ME CHECKBOX
+   ========================================================================== */
+
+.login-remember {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  
+  background: var(--surface-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  
+  &:hover {
+    border-color: var(--border-primary);
+  }
+}
+
+.login-remember__checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.login-remember__checkmark {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  
+  background: var(--surface-primary);
+  border: 2px solid var(--border-primary);
+  border-radius: 4px;
+  
+  transition: background 0.2s, border-color 0.2s;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    display: none;
+    
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    
+    border: solid var(--content-on-accent-primary, #fff);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  
+  .login-remember__checkbox:checked + & {
+    background: var(--content-primary);
+    border-color: var(--content-primary);
+    
+    &::after {
+      display: block;
+    }
+  }
+  
+  .login-remember__checkbox:focus + & {
+    box-shadow: 0 0 0 3px var(--focus-ring);
+  }
+}
+
+.login-remember__text {
+  font-size: 14px;
+  color: var(--content-primary);
+  user-select: none;
+}
+
+/* ==========================================================================
    UTILS
    ========================================================================== */
 
