@@ -76,6 +76,7 @@ pl:
       no_answer: "Brak odpowiedzi"
       no_question: "Brak pytania"
       answer_prefix: "Odpowiedź"
+      view_certificate: "Otwórz certyfikat PDF"
     empty:
       no_classes: "Brak przypisanych klas"
       contact_admin: "Skontaktuj się z administracją szkoły, aby zostać przypisanym do klasy."

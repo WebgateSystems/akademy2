@@ -128,19 +128,14 @@ RSpec.describe DashboardHelper, type: :helper do
       expect(helper.score_class(100)).to eq('score-great')
     end
 
-    it 'returns score-good for scores 60-79' do
-      expect(helper.score_class(60)).to eq('score-good')
-      expect(helper.score_class(79)).to eq('score-good')
+    it 'returns score-average for scores 50-79' do
+      expect(helper.score_class(50)).to eq('score-average')
+      expect(helper.score_class(79)).to eq('score-average')
     end
 
-    it 'returns score-average for scores 40-59' do
-      expect(helper.score_class(40)).to eq('score-average')
-      expect(helper.score_class(59)).to eq('score-average')
-    end
-
-    it 'returns score-poor for scores below 40' do
+    it 'returns score-poor for scores below 50' do
       expect(helper.score_class(0)).to eq('score-poor')
-      expect(helper.score_class(39)).to eq('score-poor')
+      expect(helper.score_class(49)).to eq('score-poor')
     end
   end
 end

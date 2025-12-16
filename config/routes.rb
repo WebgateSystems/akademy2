@@ -287,6 +287,9 @@ Rails.application.routes.draw do
   # Role selection page
   get '/enter', to: 'enter#index', as: :enter
 
+  # Public certificate view (no auth required)
+  get '/certificates/:id', to: 'certificates#show', as: :public_certificate
+
   get 'health', to: 'home#spinup_status'
   get 'version', to: 'home#version'
 

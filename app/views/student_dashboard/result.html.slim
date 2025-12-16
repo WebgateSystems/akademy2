@@ -51,11 +51,24 @@
         .quiz-result-actions
           = link_to public_home_path, class: 'quiz-result-link'
             | POMIŃ
-          - if @current_passed
-            = button_to 'POBIERZ CERTYFIKAT', download_api_v1_certificate_path(@quiz_result.certificate.id), method: :get, class: 'quiz-result-btn'
+          - if @current_passed && @quiz_result.certificate
+            = link_to download_api_v1_certificate_path(@quiz_result.certificate.id), class: 'quiz-result-btn', target: '_blank'
+              i.bi.bi-file-earmark-pdf-fill style="margin-right: 8px;"
+              | POBIERZ CERTYFIKAT
           - else
             = link_to student_module_path(@learning_module), class: 'quiz-result-btn'
               | POWTÓRZ MATERIAŁ
+
+        - if @current_passed && @quiz_result.certificate
+          .quiz-result-share
+            h3.quiz-result-share__title Podziel się swoim osiągnięciem!
+            p.quiz-result-share__text Zeskanuj kod QR lub skopiuj link do certyfikatu
+            .quiz-result-share__qr
+              = render_qr_svg(public_certificate_url(@quiz_result.certificate.id), size: 150)
+            .quiz-result-share__link
+              input.quiz-result-share__input type="text" readonly="" value=public_certificate_url(@quiz_result.certificate.id) id="certificate-link"
+              button.quiz-result-share__copy type="button" onclick="copyLink()" title="Kopiuj link"
+                i.bi.bi-clipboard
 
     = render 'shared/app_version'
 
@@ -186,5 +199,84 @@ css:
   .quiz-result-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  .quiz-result-share {
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-muted);
+  }
+
+  .quiz-result-share__title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--content-primary);
+    margin: 0 0 8px;
+  }
+
+  .quiz-result-share__text {
+    font-size: 14px;
+    color: var(--content-tertiary);
+    margin: 0 0 20px;
+  }
+
+  .quiz-result-share__qr {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .quiz-result-share__qr svg {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    background: white;
+    padding: 8px;
+  }
+
+  .quiz-result-share__link {
+    display: flex;
+    gap: 8px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .quiz-result-share__input {
+    flex: 1;
+    padding: 10px 14px;
+    font-size: 13px;
+    border: 1px solid var(--border-muted);
+    border-radius: 6px;
+    background: var(--surface-secondary);
+    color: var(--content-primary);
+  }
+
+  .quiz-result-share__copy {
+    padding: 10px 16px;
+    background: var(--surface-tertiary);
+    border: 1px solid var(--border-muted);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .quiz-result-share__copy:hover {
+    background: var(--surface-secondary);
+  }
+
+javascript:
+  function copyLink() {
+    const input = document.getElementById('certificate-link');
+    if (input) {
+      navigator.clipboard.writeText(input.value).then(() => {
+        const btn = document.querySelector('.quiz-result-share__copy');
+        if (btn) {
+          btn.innerHTML = '<i class="bi bi-check2"></i>';
+          setTimeout(() => {
+            btn.innerHTML = '<i class="bi bi-clipboard"></i>';
+          }, 2000);
+        }
+      });
+    }
   }
 

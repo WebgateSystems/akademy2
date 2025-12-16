@@ -80,7 +80,9 @@
         tbody
           - @students.each do |student|
             tr
-              th scope="row" = "#{student.last_name} #{student.first_name}"
+              th scope="row"
+                a.student-link href=dashboard_student_path(student.id, class_id: @current_class&.id)
+                  = "#{student.last_name} #{student.first_name}"
               - (1..10).each do |question_num|
                 - answer_data = get_student_answer(student.id, question_num)
                 - dot_class = answer_data[:status]
@@ -91,7 +93,14 @@
                   span.quiz-result-dot.js-quiz-tooltip class=dot_class data-question=(t('dashboard.quiz_results.question', number: question_num)) data-question-text=question_text data-answer=answer_text
                     span.visually-hidden = status_text
               td
-                span.quiz-results-score = "#{calculate_student_score(student.id)} pkt"
+                - score = calculate_student_score(student.id)
+                - certificate = @student_certificates&.dig(student.id)
+                - if score >= 80 && certificate
+                  a.quiz-results-score.quiz-results-score--link class=score_color_class(student.id) href=download_api_v1_certificate_path(certificate.id) target="_blank" title=t('dashboard.quiz_results.view_certificate')
+                    = "#{score} pkt"
+                    i.bi.bi-file-earmark-pdf-fill style="margin-left: 6px; font-size: 12px;"
+                - else
+                  span.quiz-results-score class=score_color_class(student.id) = "#{score} pkt"
 
 / Quiz tooltip
 #quiz-tooltip.quiz-tooltip style="display: none;" data-no-question=(t('dashboard.quiz_results.no_question')) data-answer-prefix=(t('dashboard.quiz_results.answer_prefix')) data-no-answer=(t('dashboard.quiz_results.no_answer'))

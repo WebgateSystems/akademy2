@@ -93,6 +93,10 @@ class StudentDashboardController < ApplicationController
     @next_step = @current_step + 1
     @prev_step = @current_step - 1
 
+    # Load certificate if student passed the quiz
+    @quiz_result = QuizResult.find_by(user_id: current_user.id, learning_module_id: @learning_module.id)
+    @certificate = @quiz_result&.passed? ? @quiz_result.certificate : nil
+
     # Log content access
     EventLogger.log_content_access(content: @content, user: current_user, action: 'view') if @content
 

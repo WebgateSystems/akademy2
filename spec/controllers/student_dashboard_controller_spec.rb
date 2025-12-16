@@ -154,6 +154,68 @@ RSpec.describe StudentDashboardController, type: :request do
 
       expect(response).to redirect_to(public_home_path)
     end
+
+    context 'when student has passed quiz with certificate' do
+      let!(:quiz_result) do
+        QuizResult.create!(
+          user: student,
+          learning_module: learning_module,
+          score: 100,
+          passed: true,
+          details: { 'correct_count' => 2, 'total' => 2 },
+          completed_at: Time.current
+        )
+      end
+      let!(:certificate) { create(:certificate, quiz_result: quiz_result) }
+
+      it 'displays certificate download button' do
+        get student_module_path(learning_module)
+
+        expect(response.body).to include('Certyfikat')
+        expect(response.body).to include(download_api_v1_certificate_path(certificate.id))
+      end
+
+      it 'loads certificate in controller' do
+        get student_module_path(learning_module)
+
+        expect(assigns(:certificate)).to eq(certificate)
+      end
+    end
+
+    context 'when student has not passed quiz' do
+      let!(:quiz_result) do
+        QuizResult.create!(
+          user: student,
+          learning_module: learning_module,
+          score: 50,
+          passed: false,
+          details: { 'correct_count' => 1, 'total' => 2 },
+          completed_at: Time.current
+        )
+      end
+
+      it 'does not display certificate download link' do
+        get student_module_path(learning_module)
+
+        # Check that there's no actual link to certificate download
+        expect(response.body).not_to include('href="/api/v1/certificates/')
+      end
+
+      it 'does not load certificate' do
+        get student_module_path(learning_module)
+
+        expect(assigns(:certificate)).to be_nil
+      end
+    end
+
+    context 'when student has not taken quiz' do
+      it 'does not display certificate download link' do
+        get student_module_path(learning_module)
+
+        # Check that there's no actual link to certificate download
+        expect(response.body).not_to include('href="/api/v1/certificates/')
+      end
+    end
   end
 
   describe 'GET /home/modules/:id/quiz' do
@@ -254,7 +316,7 @@ RSpec.describe StudentDashboardController, type: :request do
 
   describe 'GET /home/modules/:id/result' do
     context 'with quiz result' do
-      before do
+      let!(:quiz_result) do
         QuizResult.create!(
           user: student,
           learning_module: learning_module,
@@ -263,8 +325,8 @@ RSpec.describe StudentDashboardController, type: :request do
           details: { 'correct_count' => 2, 'total' => 2 },
           completed_at: Time.current
         )
-        create(:certificate, quiz_result: QuizResult.first)
       end
+      let!(:certificate) { create(:certificate, quiz_result: quiz_result) }
 
       it 'renders result page' do
         get student_result_path(learning_module)
@@ -284,6 +346,58 @@ RSpec.describe StudentDashboardController, type: :request do
 
         expect(response.body).to include('50')
         expect(response.body).to include('Spróbuj ponownie')
+      end
+
+      it 'displays certificate download link with target blank' do
+        get student_result_path(learning_module)
+
+        expect(response.body).to include('POBIERZ CERTYFIKAT')
+        expect(response.body).to include('target="_blank"')
+      end
+
+      it 'displays share section with QR code' do
+        get student_result_path(learning_module)
+
+        expect(response.body).to include('Podziel się swoim osiągnięciem')
+        expect(response.body).to include('<svg')
+      end
+
+      it 'displays public certificate URL for sharing' do
+        get student_result_path(learning_module)
+
+        expect(response.body).to include(public_certificate_url(certificate.id))
+      end
+
+      it 'displays copy link button' do
+        get student_result_path(learning_module)
+
+        expect(response.body).to include('copyLink()')
+      end
+    end
+
+    context 'with failed quiz result' do
+      before do
+        QuizResult.create!(
+          user: student,
+          learning_module: learning_module,
+          score: 50,
+          passed: false,
+          details: { 'correct_count' => 1, 'total' => 2 },
+          completed_at: Time.current
+        )
+      end
+
+      it 'does not display share section' do
+        get student_result_path(learning_module)
+
+        expect(response.body).not_to include('Podziel się swoim osiągnięciem')
+      end
+
+      it 'displays retry material button instead of certificate' do
+        get student_result_path(learning_module)
+
+        expect(response.body).to include('POWTÓRZ MATERIAŁ')
+        expect(response.body).not_to include('POBIERZ CERTYFIKAT')
       end
     end
 

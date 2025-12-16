@@ -52,14 +52,35 @@ module DashboardHelper
     correct_count * 10
   end
 
-  # Get CSS class for score badge
+  # Check if student has attempted the quiz (has any answers)
+  def student_attempted_quiz?(student_id)
+    answers = @student_answers&.dig(student_id) || {}
+    answers.values.compact.any? { |a| a.is_a?(Hash) }
+  end
+
+  # Get CSS class for score display based on student_id
+  # Green: >= 80%, Yellow: 50-79%, Red: < 50%, Gray: not attempted
+  def score_color_class(student_id)
+    return 'score-not-attempted' unless student_attempted_quiz?(student_id)
+
+    score = calculate_student_score(student_id)
+    case score
+    when 80..100
+      'score-great'
+    when 50...80
+      'score-average'
+    else
+      'score-poor'
+    end
+  end
+
+  # Get CSS class for score badge based on numeric score value
+  # Used in show_student view
   def score_class(score)
     case score
     when 80..100
       'score-great'
-    when 60...80
-      'score-good'
-    when 40...60
+    when 50...80
       'score-average'
     else
       'score-poor'

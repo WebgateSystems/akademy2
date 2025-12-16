@@ -81,7 +81,9 @@ class QuizResultsPdf
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def render_results_table(pdf, students, _questions, student_answers)
       pdf.font 'Rubik', size: 8
-      data = build_results_data(students, student_answers)
+      result = build_results_data(students, student_answers)
+      data = result[:data]
+      score_colors = result[:score_colors]
       col_widths = calculate_column_widths(pdf.bounds.width)
 
       pdf.table(data, header: true, width: pdf.bounds.width, column_widths: col_widths) do |table|
@@ -92,12 +94,20 @@ class QuizResultsPdf
         table.cells.size = 8
         table.column(0).align = :left
 
-        # Color correct/incorrect answers
+        # Color correct/incorrect answers and score cell background
         (1...data.length).each do |row_idx|
+          # Answer columns (P1-P10)
           (1..10).each do |col_idx|
             cell_val = data[row_idx][col_idx]
-            table.row(row_idx).column(col_idx).text_color = '1FA055' if cell_val == '✓'
-            table.row(row_idx).column(col_idx).text_color = 'CC3333' if cell_val == '✗'
+            table.row(row_idx).column(col_idx).text_color = '1FA055' if cell_val == '+'
+            table.row(row_idx).column(col_idx).text_color = 'CC3333' if cell_val == '-'
+          end
+
+          # Score column background color
+          score_bg = score_colors[row_idx - 1]
+          if score_bg
+            table.row(row_idx).column(11).background_color = score_bg[:bg]
+            table.row(row_idx).column(11).text_color = score_bg[:text]
           end
         end
       end
@@ -107,28 +117,55 @@ class QuizResultsPdf
     def build_results_data(students, student_answers)
       header = ['Nazwisko i imię'] + (1..10).map { |n| "P#{n}" } + ['Wynik']
       data = [header]
-      students.each { |student| data << build_student_row(student, student_answers) }
-      data
+      score_colors = []
+      students.each do |student|
+        row_data = build_student_row(student, student_answers)
+        data << row_data[:row]
+        score_colors << row_data[:score_color]
+      end
+      { data: data, score_colors: score_colors }
     end
 
     def build_student_row(student, student_answers)
+      answers = student_answers&.dig(student.id) || {}
       row = ["#{student.last_name} #{student.first_name}"]
-      (1..10).each { |q_num| row << answer_symbol(student_answers&.dig(student.id, q_num)) }
-      row << calculate_score(student_answers&.dig(student.id))
-      row
+      (1..10).each { |q_num| row << answer_symbol(answers[q_num]) }
+
+      score = calculate_score_value(answers)
+      has_answers = answers.values.compact.any? { |a| a.is_a?(Hash) }
+      row << "#{score} pkt"
+
+      { row: row, score_color: score_background_color(score, has_answers) }
     end
 
     def answer_symbol(answer_data)
-      return '-' if answer_data.nil?
+      return '' if answer_data.nil?
 
-      answer_data[:correct] ? '✓' : '✗'
+      answer_data[:correct] ? '+' : '-'
     end
 
-    def calculate_score(answers)
-      return '0 pkt' unless answers
+    def calculate_score_value(answers)
+      return 0 unless answers
 
-      correct_count = answers.values.compact.count { |a| a[:correct] }
-      "#{correct_count * 10} pkt"
+      correct_count = answers.values.compact.count { |a| a.is_a?(Hash) && a[:correct] }
+      correct_count * 10
+    end
+
+    # Returns background and text color for score cell
+    # Green: >= 80%, Yellow: 50-79%, Red: < 50%, Gray: not attempted
+    def score_background_color(score, has_answers)
+      unless has_answers
+        return { bg: 'E0E0E0', text: '666666' } # Gray - not attempted
+      end
+
+      case score
+      when 80..100
+        { bg: 'D4EDDA', text: '155724' } # Green
+      when 50...80
+        { bg: 'FFF3CD', text: '856404' } # Yellow
+      else
+        { bg: 'F8D7DA', text: '721C24' } # Red
+      end
     end
 
     def calculate_column_widths(available_width)

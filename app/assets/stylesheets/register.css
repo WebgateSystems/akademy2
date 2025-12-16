@@ -3152,10 +3152,58 @@ h5 {
   min-width: 80px;
   padding: 8px 18px;
   border-radius: 999px;
-  background: var(--state-success);
-  color: var(--content-on-accent-primary);
+  background: var(--surface-tertiary);
+  color: var(--content-secondary);
   font-weight: 500;
   font-size: 14px;
+}
+
+/* Green: >= 80% */
+.quiz-results-score.score-great {
+  background: var(--state-success);
+  color: var(--content-on-accent-primary);
+}
+
+/* Yellow: 50-79% */
+.quiz-results-score.score-average {
+  background: var(--state-warning);
+  color: var(--content-primary);
+}
+
+/* Red: < 50% */
+.quiz-results-score.score-poor {
+  background: var(--state-error);
+  color: var(--content-on-accent-primary);
+}
+
+/* Gray: not attempted */
+.quiz-results-score.score-not-attempted {
+  background: var(--surface-tertiary);
+  color: var(--content-secondary);
+}
+
+/* Link variant for certificate */
+.quiz-results-score.quiz-results-score--link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.quiz-results-score.quiz-results-score--link:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px var(--shadow-medium);
+}
+
+/* Student name link in quiz results table */
+.student-link {
+  color: var(--content-primary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.student-link:hover {
+  color: var(--content-accent);
+  text-decoration: underline;
 }
 
 .archive-year-btn {

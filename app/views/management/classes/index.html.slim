@@ -114,13 +114,63 @@ section aria-label=t('management.classes.list_label')
 
 javascript:
   document.addEventListener('DOMContentLoaded', function() {
-    const CURRENT_YEAR = '#{@current_academic_year}';
+    const CURRENT_YEAR = '#{j @current_academic_year}';
     const API_BASE = '/management/classes';
-    const api = typeof window.ApiClient !== 'undefined' ? new window.ApiClient() : null;
-    const teachers = #{@teachers.map { |t| { id: t.id.to_s, name: [t.first_name, t.last_name].compact.join(' ') } }.to_json};
+    const teachers = #{raw @teachers.map { |t| { id: t.id.to_s, name: [t.first_name, t.last_name].compact.join(' ') } }.to_json};
+    
+    // ============================================
+    // MODAL HANDLERS (work without API)
+    // ============================================
+    document.querySelectorAll('[data-open-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById(btn.getAttribute('data-open-modal'));
+        if (modal) {
+          modal.setAttribute('aria-hidden', 'false');
+          modal.classList.add('is-open');
+        }
+      });
+    });
 
-    if (!api) return;
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const modal = document.getElementById(this.getAttribute('data-close-modal'));
+        if (modal) {
+          if (document.activeElement === this) this.blur();
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
 
+    document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
+      overlay.addEventListener('click', function() {
+        const modal = this.closest('.schools-modal');
+        if (modal) {
+          const focused = modal.querySelector(':focus');
+          if (focused) focused.blur();
+          modal.setAttribute('aria-hidden', 'true');
+          modal.classList.remove('is-open');
+        }
+      });
+    });
+
+    // Year selector (works without API)
+    const yearSelector = document.getElementById('academic-year-selector');
+    if (yearSelector) {
+      yearSelector.addEventListener('change', function() {
+        const selectedYear = this.value;
+        if (selectedYear === CURRENT_YEAR) {
+          window.location.href = '#{management_classes_path}';
+        } else {
+          window.location.href = '#{management_years_path}?year=' + encodeURIComponent(selectedYear);
+        }
+      });
+    }
+
+    // ============================================
+    // TEACHER SEARCH SETUP
+    // ============================================
     function setupTeacherSearch(searchInputId, dropdownId, selectedContainerId, hiddenInputId, isMultiSelect = false) {
       const searchInput = document.getElementById(searchInputId);
       const dropdown = document.getElementById(dropdownId);
@@ -207,14 +257,16 @@ javascript:
         }
       }
 
-      selectedContainer.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-teacher')) {
-          const teacherId = e.target.getAttribute('data-teacher-id');
-          selectedTeachers = selectedTeachers.filter(t => String(t.id) !== String(teacherId));
-          if (hiddenInput && !isMultiSelect) hiddenInput.value = '';
-          renderSelectedTeachers();
-        }
-      });
+      if (selectedContainer) {
+        selectedContainer.addEventListener('click', function(e) {
+          if (e.target.classList.contains('remove-teacher')) {
+            const teacherId = e.target.getAttribute('data-teacher-id');
+            selectedTeachers = selectedTeachers.filter(t => String(t.id) !== String(teacherId));
+            if (hiddenInput && !isMultiSelect) hiddenInput.value = '';
+            renderSelectedTeachers();
+          }
+        });
+      }
 
       document.addEventListener('click', function(e) {
         if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
@@ -236,56 +288,11 @@ javascript:
     const editTeacherSearch = setupTeacherSearch('edit-class-teacher-search', 'edit-class-teacher-dropdown', 'edit-class-selected-teachers', 'edit-class-teacher-id', false);
     const editStaffSearch = setupTeacherSearch('edit-class-staff-search', 'edit-class-staff-dropdown', 'edit-class-selected-staff', null, true);
 
-    const yearSelector = document.getElementById('academic-year-selector');
-    if (yearSelector) {
-      yearSelector.addEventListener('change', function() {
-        const selectedYear = this.value;
-        if (selectedYear === CURRENT_YEAR) {
-          window.location.href = '#{management_classes_path}';
-        } else {
-          window.location.href = '#{management_years_path}?year=' + encodeURIComponent(selectedYear);
-        }
-      });
-    }
-
-    // Modal handlers
-    document.querySelectorAll('[data-open-modal]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const modal = document.getElementById(btn.getAttribute('data-open-modal'));
-        if (modal) {
-          modal.setAttribute('aria-hidden', 'false');
-          modal.classList.add('is-open');
-        }
-      });
-    });
-
-    document.querySelectorAll('[data-close-modal]').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const modal = document.getElementById(this.getAttribute('data-close-modal'));
-        if (modal) {
-          if (document.activeElement === this) this.blur();
-          modal.setAttribute('aria-hidden', 'true');
-          modal.classList.remove('is-open');
-        }
-      });
-    });
-
-    document.querySelectorAll('.schools-modal__overlay').forEach(overlay => {
-      overlay.addEventListener('click', function() {
-        const modal = this.closest('.schools-modal');
-        if (modal) {
-          const focused = modal.querySelector(':focus');
-          if (focused) focused.blur();
-          modal.setAttribute('aria-hidden', 'true');
-          modal.classList.remove('is-open');
-        }
-      });
-    });
-
-    // Edit class handler
+    // ============================================
+    // EDIT CLASS HANDLER - opens modal immediately
+    // ============================================
     document.querySelectorAll('[data-action="edit-class"]').forEach(btn => {
-      btn.addEventListener('click', async function(e) {
+      btn.addEventListener('click', function(e) {
         e.stopPropagation();
         const classId = this.getAttribute('data-class-id');
         const className = this.getAttribute('data-class-name');
@@ -293,20 +300,25 @@ javascript:
         document.getElementById('edit-class-id').value = classId;
         document.getElementById('edit-class-name').value = className;
         
+        // Clear previous selections
+        if (editTeacherSearch) editTeacherSearch.setSelected([]);
+        if (editStaffSearch) editStaffSearch.setSelected([]);
+        
         const editModal = document.getElementById('edit-class-modal');
         if (editModal) {
           editModal.setAttribute('aria-hidden', 'false');
           editModal.classList.add('is-open');
         }
         
-        try {
-          const result = await api.get(`${API_BASE}/${classId}`);
-          if (result.success && result.data) {
-            let attributes = result.data.data?.data?.attributes;
-            if (!attributes && result.data.data?.data) attributes = result.data.data.data;
-            if (!attributes) return;
-            
-            setTimeout(() => {
+        // Load class data asynchronously if API is available
+        if (typeof window.ApiClient !== 'undefined') {
+          const api = new window.ApiClient();
+          api.get(`${API_BASE}/${classId}`).then(result => {
+            if (result.success && result.data) {
+              let attributes = result.data.data?.data?.attributes;
+              if (!attributes && result.data.data?.data) attributes = result.data.data.data;
+              if (!attributes) return;
+              
               if (attributes.main_teacher) {
                 const mainTeacher = { id: attributes.main_teacher.id.toString(), name: attributes.main_teacher.name };
                 if (editTeacherSearch) {
@@ -314,86 +326,103 @@ javascript:
                   const hiddenInput = document.getElementById('edit-class-teacher-id');
                   if (hiddenInput) hiddenInput.value = mainTeacher.id;
                 }
-              } else if (editTeacherSearch) {
-                editTeacherSearch.setSelected([]);
               }
               
               if (attributes.teaching_staff && attributes.teaching_staff.length > 0) {
                 const teachingStaff = attributes.teaching_staff.map(t => ({ id: t.id.toString(), name: t.name }));
                 if (editStaffSearch) editStaffSearch.setSelected(teachingStaff);
-              } else if (editStaffSearch) {
-                editStaffSearch.setSelected([]);
               }
-            }, 100);
-          }
-        } catch (error) {
-          console.error('Error loading class data:', error);
+            }
+          }).catch(error => {
+            console.error('Error loading class data:', error);
+          });
         }
       });
     });
 
-    // Form submissions
-    const addForm = document.getElementById('add-class-form');
-    if (addForm) {
-      addForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(addForm);
-        const selectedMainTeacher = addTeacherSearch.getSelected();
-        const selectedStaff = addStaffSearch.getSelected();
-        
-        const data = {
-          school_class: {
-            school_id: formData.get('school_class[school_id]'),
-            name: formData.get('school_class[name]'),
-            year: formData.get('school_class[year]'),
-            teacher_id: selectedMainTeacher.length > 0 ? selectedMainTeacher[0].id : null,
-            teaching_staff_ids: selectedStaff.map(t => t.id)
-          }
-        };
+    // ============================================
+    // FORM SUBMISSIONS (require API)
+    // ============================================
+    function setupFormSubmissions(api) {
+      const addForm = document.getElementById('add-class-form');
+      if (addForm) {
+        addForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const formData = new FormData(addForm);
+          const selectedMainTeacher = addTeacherSearch ? addTeacherSearch.getSelected() : [];
+          const selectedStaff = addStaffSearch ? addStaffSearch.getSelected() : [];
+          
+          const data = {
+            school_class: {
+              school_id: formData.get('school_class[school_id]'),
+              name: formData.get('school_class[name]'),
+              year: formData.get('school_class[year]'),
+              teacher_id: selectedMainTeacher.length > 0 ? selectedMainTeacher[0].id : null,
+              teaching_staff_ids: selectedStaff.map(t => t.id)
+            }
+          };
 
-        try {
-          const result = await api.post(API_BASE, data);
-          if (result.success) {
-            window.location.reload();
-          } else {
-            alert('Error: ' + (result.error || 'Failed to create class'));
+          try {
+            const result = await api.post(API_BASE, data);
+            if (result.success) {
+              window.location.reload();
+            } else {
+              alert('Error: ' + (result.error || 'Failed to create class'));
+            }
+          } catch (error) {
+            alert('Error: ' + error.message);
           }
-        } catch (error) {
-          alert('Error: ' + error.message);
-        }
-      });
+        });
+      }
+
+      const editForm = document.getElementById('edit-class-form');
+      if (editForm) {
+        editForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const classId = document.getElementById('edit-class-id').value;
+          const formData = new FormData(editForm);
+          const selectedMainTeacher = editTeacherSearch ? editTeacherSearch.getSelected() : [];
+          const selectedStaff = editStaffSearch ? editStaffSearch.getSelected() : [];
+          
+          const data = {
+            school_class: {
+              school_id: formData.get('school_class[school_id]'),
+              name: formData.get('school_class[name]'),
+              year: formData.get('school_class[year]'),
+              teacher_id: selectedMainTeacher.length > 0 ? selectedMainTeacher[0].id : null,
+              teaching_staff_ids: selectedStaff.map(t => t.id)
+            }
+          };
+
+          try {
+            const result = await api.patch(`${API_BASE}/${classId}`, data);
+            if (result.success) {
+              window.location.reload();
+            } else {
+              alert('Error: ' + (result.error || 'Failed to update class'));
+            }
+          } catch (error) {
+            alert('Error: ' + error.message);
+          }
+        });
+      }
     }
 
-    const editForm = document.getElementById('edit-class-form');
-    if (editForm) {
-      editForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const classId = document.getElementById('edit-class-id').value;
-        const formData = new FormData(editForm);
-        const selectedMainTeacher = editTeacherSearch ? editTeacherSearch.getSelected() : [];
-        const selectedStaff = editStaffSearch ? editStaffSearch.getSelected() : [];
-        
-        const data = {
-          school_class: {
-            school_id: formData.get('school_class[school_id]'),
-            name: formData.get('school_class[name]'),
-            year: formData.get('school_class[year]'),
-            teacher_id: selectedMainTeacher.length > 0 ? selectedMainTeacher[0].id : null,
-            teaching_staff_ids: selectedStaff.map(t => t.id)
-          }
-        };
-
-        try {
-          const result = await api.patch(`${API_BASE}/${classId}`, data);
-          if (result.success) {
-            window.location.reload();
-          } else {
-            alert('Error: ' + (result.error || 'Failed to update class'));
-          }
-        } catch (error) {
-          alert('Error: ' + error.message);
+    // Wait for ApiClient and setup form submissions
+    function waitForApiClient(maxAttempts = 50) {
+      let attempts = 0;
+      const check = () => {
+        if (typeof window.ApiClient !== 'undefined') {
+          setupFormSubmissions(new window.ApiClient());
+        } else if (attempts < maxAttempts) {
+          attempts++;
+          setTimeout(check, 100);
+        } else {
+          console.error('ApiClient not available after waiting');
         }
-      });
+      };
+      check();
     }
+    waitForApiClient();
   });
 

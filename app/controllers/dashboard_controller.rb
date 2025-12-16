@@ -460,6 +460,9 @@ class DashboardController < ApplicationController
     # Load student answers for the table
     load_student_answers(student_ids)
 
+    # Load certificates for students with passing scores
+    load_student_certificates(student_ids, module_ids)
+
     # Distribution stats
     calculate_distribution_stats(student_ids)
   end
@@ -513,8 +516,16 @@ class DashboardController < ApplicationController
         student_results.each do |result|
           next unless result.details.is_a?(Hash) && result.details['answers'].is_a?(Hash)
 
-          student_answer = result.details['answers'][question_data[:id]]
-          next unless student_answer
+          # Try both formats: by question ID (q1, q2...) and by index (0, 1, 2...)
+          answers_hash = result.details['answers']
+          raw_answer = answers_hash[question_data[:id]] ||
+                       answers_hash[(q_num - 1).to_s] ||
+                       answers_hash[q_num - 1]
+          next unless raw_answer
+
+          # Convert answer index to option ID if needed
+          # If raw_answer is numeric string like "1", convert to option ID like "b"
+          student_answer = convert_answer_to_option_id(question_data[:id], raw_answer, quiz_contents)
 
           correct_ids = find_correct_ids_for_question(question_data[:id], quiz_contents)
           is_correct = Array(student_answer).sort == correct_ids.sort
@@ -534,6 +545,43 @@ class DashboardController < ApplicationController
         @student_answers[student_id][q_num] ||= nil
       end
     end
+  end
+
+  # Load certificates for students - maps student_id to certificate
+  def load_student_certificates(student_ids, module_ids)
+    @student_certificates = {}
+
+    # Find all quiz results with certificates for these students and modules
+    quiz_results_with_certs = QuizResult
+                              .includes(:certificate)
+                              .where(user_id: student_ids, learning_module_id: module_ids)
+                              .where('score >= 80')
+
+    quiz_results_with_certs.each do |qr|
+      next unless qr.certificate&.id
+
+      @student_certificates[qr.user_id] = qr.certificate
+    end
+  end
+
+  # Convert numeric index answer (like "1") to option ID (like "b")
+  def convert_answer_to_option_id(question_id, raw_answer, quiz_contents)
+    # If answer is already an option ID (like "a", "b", "c"), return as-is
+    return raw_answer unless raw_answer.is_a?(String) && raw_answer.match?(/^\d+$/)
+
+    # Find the question and get option ID by index
+    quiz_contents.each do |content|
+      next unless content.payload.is_a?(Hash) && content.payload['questions'].is_a?(Array)
+
+      question = content.payload['questions'].find { |q| q['id'] == question_id }
+      next unless question
+
+      options = Array(question['options'])
+      option_index = raw_answer.to_i
+      return options[option_index]['id'] if options[option_index]
+    end
+
+    raw_answer # Fallback to original
   end
 
   def find_correct_ids_for_question(question_id, quiz_contents)
@@ -621,17 +669,17 @@ class DashboardController < ApplicationController
         (1..10).each do |q_num|
           answer_data = @student_answers&.dig(student.id, q_num)
           row << if answer_data.nil?
-                   '-'
+                   '' # Empty for no answer
                  elsif answer_data[:correct]
-                   '1'
+                   '+' # Plus for correct
                  else
-                   '0'
+                   '-' # Minus for incorrect
                  end
         end
 
         # Calculate score
         answers = @student_answers&.dig(student.id) || {}
-        correct_count = answers.values.compact.count { |a| a[:correct] }
+        correct_count = answers.values.compact.count { |a| a.is_a?(Hash) && a[:correct] }
         row << (correct_count * 10).to_s
 
         csv << row
