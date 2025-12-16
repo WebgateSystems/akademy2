@@ -2207,6 +2207,29 @@ paths:
       summary: Create a registration flow session
       tags:
       - Register
+      parameters:
+      - name: role_key
+        in: query
+        required: false
+        description: "User role (student or teacher) by default role key = student:\n
+          * `student` \n * `teacher` \n "
+        enum:
+        - student
+        - teacher
+        schema:
+          type: string
+      - name: class_token
+        in: query
+        required: false
+        description: Token for joining a class
+        schema:
+          type: string
+      - name: join_token
+        in: query
+        required: false
+        description: Invitation token
+        schema:
+          type: string
       responses:
         '201':
           description: Flow created
@@ -2304,214 +2327,6 @@ paths:
               required:
               - flow_id
               - profile
-  "/api/v1/register/student":
-    post:
-      summary: Register a new student
-      tags:
-      - Registration
-      security: []
-      parameters: []
-      description: Invalid user data
-      responses:
-        '201':
-          description: student registered with class token
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  user_id:
-                    type: string
-                    format: uuid
-                  email:
-                    type: string
-                  role:
-                    type: string
-                    enum:
-                    - student
-                  status:
-                    type: string
-                    enum:
-                    - pending_approval
-                  school_id:
-                    type: string
-                    format: uuid
-                    nullable: true
-                  access_token:
-                    type: string
-                required:
-                - user_id
-                - email
-                - role
-                - status
-                - access_token
-        '422':
-          description: validation errors
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errors:
-                    type: array
-                    items:
-                      type: string
-                required:
-                - errors
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-              - user
-              properties:
-                user:
-                  type: object
-                  required:
-                  - email
-                  - password
-                  - password_confirmation
-                  - first_name
-                  - last_name
-                  - phone
-                  properties:
-                    email:
-                      type: string
-                      format: email
-                      description: Student email address
-                    password:
-                      type: string
-                      description: PIN (4 digits)
-                    password_confirmation:
-                      type: string
-                      description: PIN confirmation
-                    first_name:
-                      type: string
-                      description: First name
-                    last_name:
-                      type: string
-                      description: Last name
-                    phone:
-                      type: string
-                      description: 'Phone number (format: +48123456789)'
-                    locale:
-                      type: string
-                      enum:
-                      - en
-                      - pl
-                      description: Preferred locale (optional)
-                class_token:
-                  type: string
-                  description: Class join token (optional)
-                join_token:
-                  type: string
-                  description: Join token alias (optional)
-        required: true
-  "/api/v1/register/teacher":
-    post:
-      summary: Register a new teacher
-      tags:
-      - Registration
-      security: []
-      parameters: []
-      description: Invalid user data
-      responses:
-        '201':
-          description: teacher registered with school token
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  user_id:
-                    type: string
-                    format: uuid
-                  email:
-                    type: string
-                  role:
-                    type: string
-                    enum:
-                    - teacher
-                  status:
-                    type: string
-                    enum:
-                    - pending_approval
-                  school_id:
-                    type: string
-                    format: uuid
-                    nullable: true
-                  access_token:
-                    type: string
-                required:
-                - user_id
-                - email
-                - role
-                - status
-                - access_token
-        '422':
-          description: validation errors
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errors:
-                    type: array
-                    items:
-                      type: string
-                required:
-                - errors
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-              - user
-              properties:
-                user:
-                  type: object
-                  required:
-                  - email
-                  - password
-                  - password_confirmation
-                  - first_name
-                  - last_name
-                  - phone
-                  properties:
-                    email:
-                      type: string
-                      format: email
-                      description: Teacher email address
-                    password:
-                      type: string
-                      description: Password (min 8 characters)
-                    password_confirmation:
-                      type: string
-                      description: Password confirmation
-                    first_name:
-                      type: string
-                      description: First name
-                    last_name:
-                      type: string
-                      description: Last name
-                    phone:
-                      type: string
-                      description: 'Phone number (format: +48123456789)'
-                    locale:
-                      type: string
-                      enum:
-                      - en
-                      - pl
-                      description: Preferred locale (optional)
-                school_token:
-                  type: string
-                  description: School join token (optional)
-                join_token:
-                  type: string
-                  description: Join token alias (optional)
-        required: true
   "/api/v1/register/set_pin":
     post:
       summary: Submit PIN (first step)
