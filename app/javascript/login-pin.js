@@ -3,10 +3,158 @@
  * Manages 4 separate digit inputs for PIN entry (login, password reset, etc.)
  */
 document.addEventListener('DOMContentLoaded', () => {
+	// Initialize phone input formatting
+	initPhoneInput();
+	
 	// Initialize PIN groups
 	initPinGroup('login-pin-hidden', '.login-pin-digit:not(.reset-pin-digit):not(.reset-pin-confirm-digit)', true);
 	initPinGroup('reset-pin-hidden', '.reset-pin-digit', false);
 	initPinGroup('reset-pin-confirm-hidden', '.reset-pin-confirm-digit', false);
+	
+	/**
+	 * Phone input with +48 prefix and formatting (123 456 789)
+	 */
+	function initPhoneInput() {
+		const displayInput = document.getElementById('phone-display');
+		const hiddenInput = document.getElementById('phone-hidden');
+		const firstPinInput = document.querySelector('.login-pin-digit[data-pin-index="0"]');
+		
+		if (!displayInput || !hiddenInput) return;
+		
+		// Format phone number for display: +48 123 456 789
+		function formatPhoneDisplay(value) {
+			// Extract just digits and any leading +
+			let hasPlus = value.startsWith('+');
+			let digits = value.replace(/\D/g, '');
+			
+			// Limit to country code (2) + phone number (9) = 11 digits max
+			digits = digits.slice(0, 11);
+			
+			// Build formatted string
+			let result = '';
+			
+			if (hasPlus || digits.length > 0) {
+				result = '+';
+			}
+			
+			// Country code (first 2 digits after +)
+			if (digits.length > 0) {
+				result += digits.slice(0, 2);
+			}
+			
+			// Remaining digits in groups of 3
+			const remaining = digits.slice(2);
+			if (remaining.length > 0) {
+				result += ' ' + remaining.slice(0, 3);
+			}
+			if (remaining.length > 3) {
+				result += ' ' + remaining.slice(3, 6);
+			}
+			if (remaining.length > 6) {
+				result += ' ' + remaining.slice(6, 9);
+			}
+			
+			return result;
+		}
+		
+		// Get clean phone value for submission: +48123456789
+		function getCleanPhone(value) {
+			const hasPlus = value.startsWith('+');
+			const digits = value.replace(/\D/g, '');
+			return (hasPlus ? '+' : '') + digits;
+		}
+		
+		// Check if phone number is valid (country code + 9 digits)
+		function isPhoneValid(value) {
+			const digits = value.replace(/\D/g, '');
+			// Valid: 2 digit country code + 9 digit phone = 11 digits total
+			return digits.length === 11;
+		}
+		
+		// Check if user has started typing phone number (beyond just +48)
+		function hasStartedTyping(value) {
+			const digits = value.replace(/\D/g, '');
+			// More than just country code
+			return digits.length > 2;
+		}
+		
+		// Update validation state (border color)
+		function updateValidation() {
+			const value = displayInput.value;
+			
+			if (!hasStartedTyping(value)) {
+				// Not started yet - neutral
+				displayInput.classList.remove('login-phone--valid', 'login-phone--invalid');
+			} else if (isPhoneValid(value)) {
+				// Valid - green
+				displayInput.classList.remove('login-phone--invalid');
+				displayInput.classList.add('login-phone--valid');
+			} else {
+				// Invalid - red
+				displayInput.classList.remove('login-phone--valid');
+				displayInput.classList.add('login-phone--invalid');
+			}
+		}
+		
+		// Update hidden field with clean value
+		function updateHiddenField() {
+			hiddenInput.value = getCleanPhone(displayInput.value);
+		}
+		
+		// Handle input - format as user types
+		displayInput.addEventListener('input', (e) => {
+			const cursorPos = e.target.selectionStart;
+			const oldValue = e.target.value;
+			const oldLength = oldValue.length;
+			
+			// Format the value (this also limits to max digits)
+			const formatted = formatPhoneDisplay(oldValue);
+			e.target.value = formatted;
+			
+			// Try to maintain cursor position
+			const newLength = formatted.length;
+			const diff = newLength - oldLength;
+			let newCursorPos = cursorPos + diff;
+			
+			// Adjust cursor if it's after a space we just added
+			if (newCursorPos > 0 && formatted[newCursorPos - 1] === ' ') {
+				newCursorPos++;
+			}
+			
+			// Keep cursor within bounds
+			newCursorPos = Math.min(newCursorPos, formatted.length);
+			newCursorPos = Math.max(newCursorPos, 0);
+			
+			e.target.setSelectionRange(newCursorPos, newCursorPos);
+			
+			updateHiddenField();
+			updateValidation();
+		});
+		
+		// Handle keydown for Tab to go directly to PIN
+		displayInput.addEventListener('keydown', (e) => {
+			if (e.key === 'Tab' && !e.shiftKey && firstPinInput) {
+				e.preventDefault();
+				firstPinInput.focus();
+			}
+		});
+		
+		// On focus, if empty, prefill with +48
+		displayInput.addEventListener('focus', () => {
+			if (displayInput.value === '' || displayInput.value === '+') {
+				displayInput.value = '+48';
+				updateHiddenField();
+				// Move cursor to end
+				setTimeout(() => {
+					displayInput.setSelectionRange(3, 3);
+				}, 0);
+			}
+		});
+		
+		// Initial update
+		updateHiddenField();
+		updateValidation();
+	}
 
 	function initPinGroup(hiddenInputId, inputSelector, autoSubmit) {
 		const hiddenInput = document.getElementById(hiddenInputId);

@@ -108,6 +108,25 @@
     cursor: not-allowed;
   }
   
+  /* Phone input validation states */
+  .login-phone--invalid {
+    border-color: var(--state-error, #ef4444) !important;
+    
+    &:focus {
+      border-color: var(--state-error, #ef4444) !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+    }
+  }
+  
+  .login-phone--valid {
+    border-color: var(--state-success, #22c55e) !important;
+    
+    &:focus {
+      border-color: var(--state-success, #22c55e) !important;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2) !important;
+    }
+  }
+  
   /* ==========================================================================
      BUTTONS
      ========================================================================== */

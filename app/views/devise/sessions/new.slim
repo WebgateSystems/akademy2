@@ -26,14 +26,19 @@
           / ======================================
           #student-fields
             .mb-3
-              = label_tag :phone, 'Telefon', class: 'form-label'
-              = telephone_field_tag :phone, params[:phone],
-                class: 'form-control login-input',
+              = label_tag :phone_display, 'Telefon', class: 'form-label'
+              / Hidden field for actual phone value (clean format: +48123456789)
+              = hidden_field_tag :phone, params[:phone], id: 'phone-hidden'
+              / Display field with formatting
+              = telephone_field_tag :phone_display, (params[:phone].present? ? params[:phone].gsub(/(\+\d{2})(\d{3})(\d{3})(\d{3})/, '\1 \2 \3 \4') : '+48'),
+                id: 'phone-display',
+                class: 'form-control login-input login-phone-input',
                 inputmode: "tel",
-                placeholder: "+48 123 456 789"
+                placeholder: "123 456 789",
+                autocomplete: "tel"
 
             .mb-3
-              = label_tag :pin_label, 'PIN (4 cyfry)', class: 'form-label'
+              span.form-label PIN (4 cyfry)
               / Hidden field that holds the combined PIN for form submission
               = password_field_tag :password, nil,
                 id: 'login-pin-hidden',
