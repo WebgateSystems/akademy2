@@ -39,8 +39,8 @@
             - @videos.each do |video|
               - is_own = video.user_id == current_user.id
               - duration_str = video.duration_sec.present? && video.duration_sec > 0 ? "#{video.duration_sec / 60}:#{format('%02d', video.duration_sec % 60)}" : '—'
-              article.school-video-card class="#{is_own && video.pending? ? 'school-video-card--pending' : ''}"
-                button.school-video-card__thumbnail.js-open-video type="button" aria-label="Odtwórz #{video.title}" data-video-url="#{video.youtube_url || video.file&.url}" data-video-title="#{video.title}" data-video-author="#{video.author_name}" data-video-school="#{video.school_name || '—'}" data-video-subject="#{video.subject&.title || '—'}" data-video-date="#{video.created_at.strftime('%d.%m.%Y')}" data-video-duration="#{duration_str}" data-video-description="#{video.description}"
+              article.school-video-card.js-video-row class="#{is_own && video.pending? ? 'school-video-card--pending' : ''}" data-video-url="#{video.youtube_url || video.file&.url}" data-video-title="#{video.title}" data-video-author="#{video.author_name}" data-video-school="#{video.school_name || '—'}" data-video-subject="#{video.subject&.title || '—'}" data-video-date="#{video.created_at.strftime('%d.%m.%Y')}" data-video-duration="#{duration_str}" data-video-description="#{video.description}"
+                .school-video-card__thumbnail
                   - if video.thumbnail.present?
                     = image_tag video.thumbnail.url, alt: video.title, class: 'school-video-card__thumbnail-img'
                   - else
@@ -514,6 +514,9 @@ javascript:
         
         // Helper to open video with details
         function openVideo(url, title, details = {}) {
+          // Prevent double-opening
+          if (videoModal.classList.contains('is-open')) return;
+          
           const titleEl = videoModal?.querySelector('.video-player-modal__title');
           if (titleEl) titleEl.textContent = title;
           
@@ -543,7 +546,6 @@ javascript:
             if (videoContainer) videoContainer.style.display = 'block';
             if (videoElement) {
               videoElement.src = url;
-              videoElement.play().catch(() => {}); // Auto-play, ignore errors
               // Focus video for keyboard controls (space, arrows, etc.)
               setTimeout(() => videoElement.focus(), 100);
             }
@@ -683,23 +685,21 @@ javascript:
             return; // Stop here, don't process other handlers
           }
           
-          // 4. Handle video player (thumbnail click or row click)
-          const openBtn = e.target.closest('.js-open-video');
+          // 4. Handle video player (card click in grid or row click in list)
           const videoRow = e.target.closest('.js-video-row');
-          const clickedElement = openBtn || videoRow;
           
-          if (clickedElement) {
-            const videoUrl = clickedElement.getAttribute('data-video-url');
-            const videoTitle = clickedElement.getAttribute('data-video-title');
+          if (videoRow) {
+            const videoUrl = videoRow.getAttribute('data-video-url');
+            const videoTitle = videoRow.getAttribute('data-video-title');
             
             if (videoUrl) {
               const details = {
-                author: clickedElement.getAttribute('data-video-author') || '—',
-                school: clickedElement.getAttribute('data-video-school') || '—',
-                subject: clickedElement.getAttribute('data-video-subject') || '—',
-                date: clickedElement.getAttribute('data-video-date') || '—',
-                duration: clickedElement.getAttribute('data-video-duration') || '—',
-                description: clickedElement.getAttribute('data-video-description') || ''
+                author: videoRow.getAttribute('data-video-author') || '—',
+                school: videoRow.getAttribute('data-video-school') || '—',
+                subject: videoRow.getAttribute('data-video-subject') || '—',
+                date: videoRow.getAttribute('data-video-date') || '—',
+                duration: videoRow.getAttribute('data-video-duration') || '—',
+                description: videoRow.getAttribute('data-video-description') || ''
               };
               openVideo(videoUrl, videoTitle, details);
             }

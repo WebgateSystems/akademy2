@@ -121,6 +121,7 @@
   border-radius: 0;
   overflow: visible;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-4px);
