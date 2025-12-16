@@ -29,7 +29,9 @@ namespace :wlatcy_moch do
       notifications: Notification.where(school: school).count,
       quiz_results: QuizResult.where(user_id: user_ids).count,
       certificates: Certificate.joins(:quiz_result).where(quiz_results: { user_id: user_ids }).count,
-      events: Event.where(user_id: user_ids).count
+      events: Event.where(user_id: user_ids).count,
+      student_videos: StudentVideo.where(user_id: user_ids).count,
+      student_video_likes: StudentVideoLike.where(user_id: user_ids).count
     }
 
     puts "\n   Records to be deleted:"
@@ -44,6 +46,13 @@ namespace :wlatcy_moch do
 
       # Delete quiz results
       QuizResult.where(user_id: user_ids).destroy_all
+
+      # Delete student video likes first (depends on student_videos and users)
+      StudentVideoLike.where(user_id: user_ids).delete_all
+      StudentVideoLike.where(student_video_id: StudentVideo.where(user_id: user_ids).pluck(:id)).delete_all
+
+      # Delete student videos
+      StudentVideo.where(user_id: user_ids).destroy_all
 
       # Delete events
       Event.where(user_id: user_ids).delete_all

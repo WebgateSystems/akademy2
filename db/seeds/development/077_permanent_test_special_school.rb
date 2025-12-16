@@ -16,7 +16,7 @@ spec_logo = Rails.root.join('db/files/schools/spec.png')
 # =============================================================================
 school = School.new(
   id: '77777777-3d96-492d-900e-777777777777',
-  name: 'Szkoła specjalna im. Włatców Móch',
+  name: 'Szkoła specjalna im. Włatców Móch Bartka Kędzierskiego',
   slug: 'szkola-specjalna-wlatcow',
   address: 'ul. Świętego ducha 48/50. Amen',
   postcode: '00-071',
@@ -122,6 +122,7 @@ bartus = create_user_without_notifications(
 )
 UserRole.create!(user: bartus, role: principal_role, school: school)
 UserRole.create!(user: bartus, role: teacher_role, school: school)
+TeacherSchoolEnrollment.create!(teacher: bartus, school: school, status: 'approved')
 
 # Assign Bartus as homeroom teacher for 4B
 TeacherClassAssignment.create!(
@@ -145,6 +146,7 @@ misio = create_user_without_notifications(
 )
 UserRole.create!(user: misio, role: school_manager_role, school: school)
 UserRole.create!(user: misio, role: teacher_role, school: school)
+TeacherSchoolEnrollment.create!(teacher: misio, school: school, status: 'approved')
 
 # Assign Misio as staff in 2B
 TeacherClassAssignment.create!(
