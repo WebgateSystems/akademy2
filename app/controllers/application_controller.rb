@@ -124,8 +124,8 @@ class ApplicationController < ActionController::Base
     session[:last_redirect_count] = redirect_count
     session[:last_redirect_time] = Time.current.to_i
 
-    # Trigger after 2 rapid redirects to the same path
-    handle_redirect_loop if redirect_count >= 2
+    # Trigger after 20 rapid redirects to the same path (relaxed from 2)
+    handle_redirect_loop if redirect_count >= 20
   end
 
   def clear_redirect_tracking

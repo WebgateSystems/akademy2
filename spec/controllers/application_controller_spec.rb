@@ -228,15 +228,15 @@ RSpec.describe ApplicationController, type: :controller do
       sign_in user
     end
 
-    context 'when user hits the same path twice after redirect' do
+    context 'when user hits the same path 20 times after redirect' do
       before do
         session[:last_redirect_path] = '/index'
-        session[:last_redirect_count] = 1
+        session[:last_redirect_count] = 19 # One more will trigger the limit of 20
         session[:last_redirect_time] = Time.current.to_i
         allow(controller.request).to receive_messages(path: '/index', referer: 'http://test.host/index')
       end
 
-      it 'detects redirect loop after 2 consecutive redirects' do
+      it 'detects redirect loop after 20 consecutive redirects' do
         allow(controller).to receive(:respond_to?).and_call_original
         allow(controller).to receive(:respond_to?).with(:new_user_session_path, any_args).and_return(true)
         allow(controller).to receive_messages(current_user: user, new_user_session_path: '/users/sign_in')
@@ -250,7 +250,7 @@ RSpec.describe ApplicationController, type: :controller do
         controller.send(:check_redirect_loop)
       end
 
-      it 'increments redirect count' do
+      it 'increments redirect count and triggers redirect' do
         allow(controller).to receive(:respond_to?).and_call_original
         allow(controller).to receive(:respond_to?).with(:new_user_session_path, any_args).and_return(true)
         allow(controller).to receive_messages(current_user: user, new_user_session_path: '/users/sign_in')
@@ -258,10 +258,8 @@ RSpec.describe ApplicationController, type: :controller do
 
         controller.send(:check_redirect_loop)
 
-        # After check_redirect_loop, count should be incremented to 2
-        # But then handle_redirect_loop clears it, so we check before that
-        # Actually, since handle_redirect_loop is called and clears session, we can't check after
-        # Let's verify the logic was executed correctly by checking redirect was called
+        # After check_redirect_loop, count increments to 20, triggering handle_redirect_loop
+        # which calls redirect_to
         expect(controller).to have_received(:redirect_to)
       end
     end
