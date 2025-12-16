@@ -12,6 +12,7 @@ unless SimpleCov.running
     add_filter '/db/'
     add_filter '/vendor/'
     add_filter '/lib/tasks/'
+    add_filter 'lib'
     add_filter 'app/channels/application_cable/connection.rb'
     # Exclude generated/migration files
     add_filter '/db/migrate/'
@@ -40,6 +41,10 @@ unless SimpleCov.running
 
     # Update coverage badge in README after tests complete
     at_exit do
+      result = SimpleCov.result
+
+      # generate HTML report
+      result.format!
       coverage = SimpleCov.result.covered_percent.round(1)
       color = case coverage
               when 90.. then 'brightgreen'

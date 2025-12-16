@@ -49,6 +49,7 @@ module Api
               score: quiz_result.score,
               passed: quiz_result.passed,
               completed_at: quiz_result.completed_at,
+              certificate_id: quiz_result&.certificate&.id,
               message: passed ? 'Congratulations! You passed the quiz.' : 'Keep practicing! You need 80% to pass.'
             }
           }, status: quiz_result.previously_new_record? ? :created : :ok
@@ -72,6 +73,7 @@ module Api
                 id: result.id,
                 score: result.score,
                 passed: result.passed,
+                certificate_id: result&.certificate&.id,
                 completed_at: result.completed_at,
                 learning_module: {
                   id: result.learning_module.id,
