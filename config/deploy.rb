@@ -20,7 +20,7 @@ set :format_options, command_output: true, log_file: 'log/capistrano.log', color
 
 set :linked_files,
     %W[config/cable.yml config/settings/#{fetch(:stage)}.yml public/robots.txt]
-set :linked_dirs, %w[log public/uploads tmp]
+set :linked_dirs, %w[log public/uploads public/generated tmp]
 
 set :keep_releases, 5
 
