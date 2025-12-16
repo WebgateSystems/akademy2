@@ -22,7 +22,7 @@ RSpec.describe 'Register flow interactors' do
   describe Api::V1::Register::Flows::Create do
     it 'creates a new registration flow' do
       expect do
-        result = described_class.call
+        result = described_class.call(params: {})
         expect(result).to be_success
         expect(result.form).to be_a(RegistrationFlow)
       end.to change(RegistrationFlow, :count).by(1)

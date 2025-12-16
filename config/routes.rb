@@ -234,13 +234,9 @@ Rails.application.routes.draw do
         post 'verify_phone',   to: 'steps#verify_phone'
         post 'set_pin',        to: 'steps#set_pin'
         post 'confirm_pin',    to: 'steps#confirm_pin'
-
-        # Explicit role-based registration endpoints
-        post 'student', to: 'registrations#student'
-        post 'teacher', to: 'registrations#teacher'
       end
 
-      resources :certificates, only: [:show], param: :id do
+      resources :certificates, only: [:show], params: :id do
         member do
           get :download
         end
@@ -288,7 +284,6 @@ Rails.application.routes.draw do
   # Role selection page
   get '/enter', to: 'enter#index', as: :enter
 
-  # Public certificate view (no auth required)
   get '/certificates/:id', to: 'certificates#show', as: :public_certificate
 
   get 'health', to: 'home#spinup_status'

@@ -3,7 +3,7 @@ module Api
     module Register
       class FlowsController < ApplicationApiController
         def create
-          result = Api::V1::Register::Flows::Create.call(serializer: FlowSerializer)
+          result = Api::V1::Register::Flows::Create.call(params:, serializer: FlowSerializer)
           default_handler(result)
         end
       end
