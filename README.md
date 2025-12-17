@@ -8,7 +8,7 @@
 
 ---
 
-Języki: Polski (domyślny) · [English](README.en.md)
+Języki: Polski (domyślny) · [English](README.en.md) · [Українська](README.ua.md)
 
 Platforma edukacyjna dla szkół (panel WWW + API dla aplikacji mobilnej).
 
@@ -54,9 +54,59 @@ bin/rails db:seed
 
 ## Testy
 
+### Testy jednostkowe (RSpec)
+
 ```bash
 bundle exec rspec
 ```
+
+### Testy E2E (Puppeteer)
+
+Testy end-to-end symulują rzeczywiste interakcje użytkownika w przeglądarce.
+
+**Wymagania:**
+- Node.js + Yarn (Puppeteer zainstalowany automatycznie)
+- Uruchomiona aplikacja na `localhost:3000`
+- Dane testowe w bazie (`rake db:seed`)
+
+**Uruchomienie wszystkich testów:**
+
+```bash
+# Tryb headless (szybki, bez widocznej przeglądarki)
+rake test
+
+# Tryb GUI (z widoczną przeglądarką i kursorem)
+rake test:gui
+```
+
+**Uruchomienie pojedynczego testu:**
+
+```bash
+# Headless
+rake test[superadmin-menu]
+
+# Z widoczną przeglądarką
+rake test[superadmin-menu,gui]
+```
+
+**Dostępne testy:**
+
+| Test | Opis |
+|------|------|
+| `superadmin-menu` | Nawigacja menu panelu superadmina |
+| `superadmin-users` | Zarządzanie użytkownikami (filtrowanie, edycja) |
+| `superadmin-content` | Zarządzanie treściami (przedmioty, moduły) |
+| `principal-dashboard` | Menu panelu dyrektora |
+| `principal-management` | Zarządzanie klasami, nauczycielami, uczniami |
+| `teacher-dashboard` | Menu panelu nauczyciela |
+| `teacher-dashboard-full` | Pełny test funkcji nauczyciela |
+| `student-dashboard` | Menu panelu ucznia |
+| `student-dashboard-full` | Pełny test funkcji ucznia |
+| `theme-switcher` | Przełączanie tematu jasny/ciemny |
+| `dashboard-switcher` | Przełączanie nauczyciel↔dyrektor |
+| `subjects-dragdrop` | Drag & drop przedmiotów |
+
+Szczegóły w `e2e/README.md`.
 
 ## Start aplikacji (development)
 

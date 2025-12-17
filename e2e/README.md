@@ -1,18 +1,17 @@
-# E2E Visual Tests (Selenium + Applitools)
+# E2E Tests (Puppeteer)
 
-Automatyczne testy wizualne aplikacji AKAdemy używające Selenium WebDriver i Applitools Eyes.
+Języki: Polski (domyślny) · [English](README.en.md) · [Українська](README.ua.md)
+
+---
+
+Automatyczne testy end-to-end aplikacji AKAdemy używające Puppeteer.
 
 ## Wymagania
 
-```bash
-# Instalacja podstawowa (bez Applitools)
-yarn add -D selenium-webdriver
-
-# Opcjonalnie z Applitools (wymaga npm zamiast yarn jeśli są problemy z chromedriver)
-yarn add -D selenium-webdriver @applitools/eyes-selenium
-```
-
-**Chrome** musi być zainstalowany w systemie. Selenium 4 automatycznie pobiera ChromeDriver.
+- Node.js + Yarn
+- Puppeteer (instalowany automatycznie z `yarn install`)
+- Uruchomiona aplikacja na `localhost:3000`
+- Dane testowe w bazie (`rake db:seed`)
 
 ## Konfiguracja
 
@@ -22,14 +21,12 @@ yarn add -D selenium-webdriver @applitools/eyes-selenium
 |---------|------|-----------|
 | `E2E_BASE_URL` | URL aplikacji | `http://localhost:3000` |
 | `E2E_HEADLESS` | Tryb headless | `true` |
-| `APPLITOOLS_API_KEY` | Klucz API Applitools | (opcjonalny) |
-| `E2E_BATCH_NAME` | Nazwa batcha w Applitools | `E2E Visual Tests` |
 
 ### Użytkownicy testowi
 
 Testy używają użytkowników z seeda "Włatcy Móch":
 
-- **Superadmin**: `admin@akademy.edu.pl` / `admin123!`
+- **Superadmin**: `sladkowski@webgate.pro` / `devpass!`
 - **Dyrektor**: `bartus@wlatcy.edu.pl` / `devpass!`
 - **Nauczyciel**: `teachertest@gmail.com` / `devpass!`
 - **Uczeń**: `+48123234345` / PIN: `0000`
@@ -40,29 +37,60 @@ Testy używają użytkowników z seeda "Włatcy Móch":
 # Uruchom serwer Rails (w osobnym terminalu)
 bin/dev
 
-# Uruchom wszystkie testy E2E
-yarn e2e:all
+# Uruchom wszystkie testy (headless)
+rake test
 
-# Uruchom pojedynczy test (superadmin menu)
-yarn e2e
+# Uruchom z widoczną przeglądarką
+rake test:gui
 
-# Uruchom z widoczną przeglądarką (nie-headless)
-yarn e2e:headed
+# Uruchom pojedynczy test (headless)
+rake test[superadmin-menu]
+
+# Uruchom pojedynczy test z GUI
+rake test[superadmin-menu,gui]
 ```
+
+## Dostępne testy
+
+| Test | Opis |
+|------|------|
+| `superadmin-menu` | Nawigacja menu panelu superadmina |
+| `superadmin-users` | Zarządzanie użytkownikami (filtrowanie, edycja) |
+| `superadmin-content` | Zarządzanie treściami (przedmioty, moduły) |
+| `principal-dashboard` | Menu panelu dyrektora |
+| `principal-management` | Zarządzanie klasami, nauczycielami, uczniami |
+| `teacher-dashboard` | Menu panelu nauczyciela |
+| `teacher-dashboard-full` | Pełny test funkcji nauczyciela |
+| `student-dashboard` | Menu panelu ucznia |
+| `student-dashboard-full` | Pełny test funkcji ucznia |
+| `theme-switcher` | Przełączanie tematu jasny/ciemny |
+| `dashboard-switcher` | Przełączanie nauczyciel↔dyrektor |
+| `subjects-dragdrop` | Drag & drop przedmiotów |
 
 ## Struktura plików
 
 ```
 e2e/
-├── config.js           # Konfiguracja testów
+├── config.js           # Konfiguracja (URL, timeouty, użytkownicy)
 ├── run-all.js          # Runner wszystkich testów
 ├── README.md           # Ten plik
 ├── helpers/
-│   ├── driver.js       # Helper Selenium WebDriver
-│   └── applitools.js   # Helper Applitools Eyes
+│   ├── browser.js      # Helper Puppeteer (nawigacja, kliknięcia, formularze)
+│   └── auth.js         # Helper logowania (superadmin, teacher, student, principal)
 ├── tests/
-│   └── superadmin-menu.test.js  # Test menu superadmina
-└── screenshots/        # Zrzuty ekranu (generowane)
+│   ├── superadmin-menu.test.js
+│   ├── superadmin-users.test.js
+│   ├── superadmin-content.test.js
+│   ├── principal-dashboard.test.js
+│   ├── principal-management.test.js
+│   ├── teacher-dashboard.test.js
+│   ├── teacher-dashboard-full.test.js
+│   ├── student-dashboard.test.js
+│   ├── student-dashboard-full.test.js
+│   ├── theme-switcher.test.js
+│   ├── dashboard-switcher.test.js
+│   └── subjects-dragdrop.test.js
+└── screenshots/        # Zrzuty ekranu (generowane przy błędach)
 ```
 
 ## Pisanie nowych testów
@@ -70,91 +98,128 @@ e2e/
 ```javascript
 // e2e/tests/my-test.test.js
 
-const {
-  createDriver,
-  navigateTo,
-  waitForElement,
-  fillInput,
-  safeClick,
-  takeScreenshot,
-} = require('../helpers/driver');
-
-const { openEyes, checkWindow, closeEyes } = require('../helpers/applitools');
+const browser = require('../helpers/browser');
+const auth = require('../helpers/auth');
 
 async function runTest() {
-  const driver = await createDriver();
+  let testPassed = false;
+  
+  console.log('🚀 Starting My Test...\n');
   
   try {
-    await openEyes(driver, 'My Test Name');
+    await browser.launch();
+    
+    // Login
+    await auth.loginAsSuperadmin();
+    console.log('   ✓ Logged in');
     
     // Navigate
-    await navigateTo(driver, '/some/path');
+    await browser.goto('/admin/schools');
+    console.log('   ✓ Navigated to schools');
     
     // Interact
-    await fillInput(driver, '#username', 'test');
-    await safeClick(driver, 'button[type="submit"]');
-    
-    // Visual check
-    await checkWindow('Page After Login');
+    await browser.click('.btn-new');
+    await browser.type('#school_name', 'Test School');
     
     // Assert
-    await waitForElement(driver, '.success-message');
-    
-    console.log('✅ Test passed');
-    return true;
+    const exists = await browser.exists('.success-message', 2000);
+    if (exists) {
+      console.log('   ✓ Success message shown');
+      testPassed = true;
+    }
     
   } catch (error) {
-    console.error('❌ Test failed:', error);
-    await takeScreenshot(driver, 'error');
-    return false;
+    console.error('❌ TEST ERROR:', error.message);
+    await browser.screenshot('my-test-error');
     
   } finally {
-    await closeEyes();
-    await driver.quit();
+    await browser.close();
   }
+  
+  console.log(testPassed ? '\n✅ TEST PASSED\n' : '\n❌ TEST FAILED\n');
+  return testPassed;
 }
 
-runTest().then(passed => process.exit(passed ? 0 : 1));
+runTest()
+  .then(passed => process.exit(passed ? 0 : 1))
+  .catch(error => {
+    console.error('Fatal:', error);
+    process.exit(1);
+  });
 ```
 
-## Applitools (opcjonalne)
+## Helper API
 
-Aby używać wizualnych porównań Applitools:
+### browser.js
 
-1. Załóż konto na [applitools.com](https://applitools.com)
-2. Skopiuj API key z dashboardu
-3. Ustaw zmienną środowiskową:
+```javascript
+// Nawigacja
+await browser.goto('/path');           // Przejdź do ścieżki
+await browser.waitFor('selector');     // Czekaj na element
+await browser.waitForNavigation();     // Czekaj na nawigację
 
-```bash
-export APPLITOOLS_API_KEY="your-api-key-here"
+// Interakcje
+await browser.click('selector');       // Kliknij element
+await browser.type('selector', 'text'); // Wpisz tekst (z animacją)
+await browser.fastType('selector', 'text'); // Wpisz tekst (natychmiast)
+
+// Sprawdzanie
+await browser.exists('selector', timeout); // Czy element istnieje?
+await browser.getText('selector');     // Pobierz tekst elementu
+browser.url();                         // Aktualny URL
+
+// Narzędzia
+await browser.sleep(ms);               // Pauza
+await browser.screenshot('name');      // Zrzut ekranu
+browser.getPage();                     // Dostęp do Puppeteer page
 ```
 
-Bez klucza API testy nadal działają, ale pomijają wizualne porównania.
+### auth.js
+
+```javascript
+await auth.loginAsSuperadmin();  // Zaloguj jako superadmin
+await auth.loginAsTeacher();     // Zaloguj jako nauczyciel
+await auth.loginAsPrincipal();   // Zaloguj jako dyrektor
+await auth.loginAsStudent();     // Zaloguj jako uczeń (phone + PIN)
+```
+
+## Tryb GUI - wizualny kursor
+
+W trybie `rake test:gui` widoczny jest wizualny kursor (złota strzałka), który:
+- Płynnie przesuwa się do elementów przed kliknięciem
+- Pokazuje efekt kliknięcia (zmniejszenie)
+- Pozostaje widoczny między akcjami
+
+Parametry szybkości są różne dla trybu headless (szybki) i GUI (wolniejszy, bardziej widoczny).
 
 ## Troubleshooting
 
-### Chrome nie uruchamia się
+### Test failuje tylko w headless mode
 
-```bash
-# Sprawdź wersję Chrome
-/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version
-
-# Selenium 4 automatycznie dobiera ChromeDriver
-```
-
-### Timeout przy ładowaniu strony
-
-Zwiększ timeout w `config.js`:
-
+Dodaj więcej opóźnień:
 ```javascript
-timeouts: {
-  pageLoad: 60000, // 60 sekund
-}
+await browser.sleep(browser.getSpeed().mediumPause);
 ```
 
 ### Element nie znaleziony
 
-1. Sprawdź czy selektor CSS jest poprawny
-2. Dodaj `await driver.sleep(1000)` przed akcją
-3. Użyj `takeScreenshot()` do debugowania
+1. Sprawdź selektor CSS
+2. Dodaj `await browser.waitFor('selector')` przed akcją
+3. Użyj `await browser.screenshot('debug')` do debugowania
 
+### Timeout przy ładowaniu strony
+
+Zwiększ timeout w `config.js`:
+```javascript
+timeouts: {
+  implicit: 20000,  // 20 sekund
+  pageLoad: 60000,  // 60 sekund
+}
+```
+
+### Problemy z logowaniem
+
+Sprawdź czy:
+1. Aplikacja jest uruchomiona (`bin/dev`)
+2. Dane testowe są w bazie (`rake db:seed`)
+3. Użytkownicy w `config.js` są poprawni

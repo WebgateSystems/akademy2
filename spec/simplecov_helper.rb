@@ -52,7 +52,7 @@ unless SimpleCov.running
       badge_url = "https://img.shields.io/badge/coverage-#{coverage}%25-#{color}"
       badge_markdown = "![Coverage](#{badge_url})"
 
-      %w[README.md README.en.md].each do |readme|
+      %w[README.md README.en.md README.ua.md].each do |readme|
         path = File.join(SimpleCov.root, readme)
         next unless File.exist?(path)
 

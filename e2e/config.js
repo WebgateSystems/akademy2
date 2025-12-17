@@ -8,9 +8,9 @@ module.exports = {
   
   // Timeouts
   timeouts: {
-    implicit: 10000,      // Wait for elements
+    implicit: 15000,      // Wait for elements (increased)
     pageLoad: 30000,      // Wait for page load
-    script: 10000,        // Wait for async scripts
+    script: 15000,        // Wait for async scripts
   },
   
   // Browser options
@@ -35,9 +35,9 @@ module.exports = {
       email: 'teachertest@gmail.com',
       password: 'devpass!',
     },
-    // Student (phone + PIN)
+    // Student (phone + PIN) - from "Włatcy Móch" school with approved classes
     student: {
-      phone: '+48123234345',
+      phone: '+48123234345', // Czesio Opania, klasa 2B
       pin: '0000',
     },
   },

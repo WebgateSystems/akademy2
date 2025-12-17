@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Rails/RakeEnvironment -- E2E tests don't need Rails environment
+
 desc 'Run E2E tests. Usage: rake test / rake test[superadmin] / rake test[superadmin,gui]'
 task :test, [:name, :mode] do |_t, args|
   name = args[:name]
@@ -67,3 +69,5 @@ def list_available_tests
     puts "  - #{name}"
   end
 end
+
+# rubocop:enable Rails/RakeEnvironment

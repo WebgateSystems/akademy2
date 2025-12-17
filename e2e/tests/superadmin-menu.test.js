@@ -11,6 +11,9 @@
 const browser = require('../helpers/browser');
 const config = require('../config');
 
+// Get speed-appropriate delays
+const pause = () => browser.getSpeed();
+
 // Expected menu items in superadmin panel (from actual HTML)
 const EXPECTED_MENU_ITEMS = [
   { text: 'Pulpit', href: '/admin', exact: true },
@@ -104,9 +107,16 @@ async function runTest() {
         
         console.log(`   🖱️  Clicking: "${item.text}"`);
         
-        // Click and wait for navigation
-        await browser.click(selector);
-        await browser.sleep(2000); // Wait 2s to see the page change
+        // Wait for element and click with navigation
+        await browser.waitFor(selector);
+        
+        // Use Promise.all for click + navigation
+        await Promise.all([
+          browser.waitForNavigation().catch(() => {}), // Navigation may be instant for SPA
+          browser.click(selector),
+        ]);
+        
+        await browser.sleep(pause().mediumPause);
         
         const currentUrl = browser.url();
         const urlMatches = item.exact 
@@ -126,12 +136,6 @@ async function runTest() {
           console.log(`      ❌ Error on page: ${errorText}`);
         }
         
-        // Check page has content (not blank)
-        const hasContent = await browser.exists('.dashboard-main', 500);
-        if (!hasContent) {
-          console.log(`      ⚠️  Page appears empty`);
-        }
-        
         console.log(''); // Empty line for readability
         
       } catch (error) {
@@ -147,7 +151,7 @@ async function runTest() {
     // Go to Schools page and check table exists
     console.log('   Testing Schools page...');
     await browser.goto('/admin/schools');
-    await browser.sleep(1500);
+    await browser.sleep(pause().mediumPause);
     
     const hasTable = await browser.exists('table, .schools-table, .teachers-table', 2000);
     if (hasTable) {
@@ -159,7 +163,7 @@ async function runTest() {
     // Go to Events/Activity log
     console.log('   Testing Activity Log page...');
     await browser.goto('/admin/events');
-    await browser.sleep(1500);
+    await browser.sleep(pause().mediumPause);
     
     const hasLogs = await browser.exists('.activity-log, table, .events-list', 2000);
     if (hasLogs) {

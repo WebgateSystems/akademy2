@@ -10,19 +10,45 @@ let browser = null;
 let page = null;
 let mousePos = { x: 960, y: 540 }; // Track mouse position
 
+// Speed settings based on mode
+const SPEED = {
+  headless: {
+    slowMo: 0,
+    typeDelay: 0,        // Instant typing
+    mouseSteps: 1,       // Instant mouse move
+    shortPause: 100,     // Minimal pause
+    mediumPause: 300,
+    longPause: 500,
+  },
+  gui: {
+    slowMo: 20,          // Reduced from 50
+    typeDelay: 10,       // Reduced from 30
+    mouseSteps: 5,       // Reduced from 15
+    shortPause: 200,
+    mediumPause: 500,
+    longPause: 1000,
+  }
+};
+
+function getSpeed() {
+  return config.browser.headless ? SPEED.headless : SPEED.gui;
+}
+
 /**
  * Launch browser and create page
  */
 async function launch() {
   const isHeadless = config.browser.headless;
+  const speed = getSpeed();
   
   browser = await puppeteer.launch({
     headless: isHeadless,
-    slowMo: isHeadless ? 0 : 50, // Slow down actions in GUI mode
+    slowMo: speed.slowMo,
     args: [
       `--window-size=${config.browser.windowSize.width},${config.browser.windowSize.height}`,
       '--no-sandbox',
       '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage', // Faster in Docker/CI
     ],
     defaultViewport: {
       width: config.browser.windowSize.width,
@@ -36,7 +62,6 @@ async function launch() {
   // Add visual cursor indicator in GUI mode
   if (!isHeadless) {
     await installMouseHelper(page);
-    // Initialize mouse position to center
     mousePos = { x: config.browser.windowSize.width / 2, y: config.browser.windowSize.height / 2 };
     await page.mouse.move(mousePos.x, mousePos.y);
   }
@@ -118,10 +143,16 @@ async function restoreMousePosition() {
  */
 async function goto(path) {
   const url = path.startsWith('http') ? path : `${config.baseUrl}${path}`;
-  await page.goto(url, { waitUntil: 'networkidle2' });
+  // Use domcontentloaded for speed, networkidle2 is too slow
+  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  
+  // Brief wait for JS to initialize
+  await sleep(getSpeed().shortPause);
   
   // Restore mouse to last known position after page load
-  await showCursorAt(mousePos.x, mousePos.y);
+  if (!config.browser.headless) {
+    await showCursorAt(mousePos.x, mousePos.y);
+  }
   
   return url;
 }
@@ -176,15 +207,11 @@ async function click(selector) {
  * Smoothly move mouse from current position to target
  */
 async function smoothMoveTo(targetX, targetY) {
-  const distance = Math.sqrt(
-    Math.pow(targetX - mousePos.x, 2) + Math.pow(targetY - mousePos.y, 2)
-  );
+  const speed = getSpeed();
   
-  // Faster movement: fewer steps (min 5, max 15)
-  const steps = Math.min(15, Math.max(5, Math.floor(distance / 80)));
-  
-  // Move in steps
-  await page.mouse.move(targetX, targetY, { steps });
+  // In headless mode: instant move
+  // In GUI mode: smooth but fast
+  await page.mouse.move(targetX, targetY, { steps: speed.mouseSteps });
   
   // Update tracked position
   mousePos.x = targetX;
@@ -196,19 +223,31 @@ async function smoothMoveTo(targetX, targetY) {
  */
 async function type(selector, text) {
   await waitFor(selector);
+  const speed = getSpeed();
   
-  // Get element position and move smoothly
-  const element = await page.$(selector);
-  const box = await element.boundingBox();
-  
-  if (box && !config.browser.headless) {
-    const targetX = box.x + box.width / 2;
-    const targetY = box.y + box.height / 2;
-    await smoothMoveTo(targetX, targetY);
+  // Get element position and move smoothly (GUI only)
+  if (!config.browser.headless) {
+    const element = await page.$(selector);
+    const box = await element.boundingBox();
+    if (box) {
+      await smoothMoveTo(box.x + box.width / 2, box.y + box.height / 2);
+    }
   }
   
   await page.click(selector, { clickCount: 3 }); // Select all
-  await page.type(selector, text, { delay: config.browser.headless ? 0 : 30 }); // Typing delay in GUI mode
+  await page.type(selector, text, { delay: speed.typeDelay });
+}
+
+/**
+ * Fast type - instant text input (bypass character-by-character)
+ */
+async function fastType(selector, text) {
+  await waitFor(selector);
+  await page.$eval(selector, (el, value) => {
+    el.value = value;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }, text);
 }
 
 /**
@@ -242,10 +281,15 @@ function url() {
  * Wait for navigation
  */
 async function waitForNavigation() {
-  await page.waitForNavigation({ waitUntil: 'networkidle2' });
+  await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
   
-  // Restore cursor at last known position
-  await showCursorAt(mousePos.x, mousePos.y);
+  // Brief wait for JS
+  await sleep(getSpeed().shortPause);
+  
+  // Restore cursor at last known position (GUI only)
+  if (!config.browser.headless) {
+    await showCursorAt(mousePos.x, mousePos.y);
+  }
 }
 
 /**
@@ -297,6 +341,7 @@ module.exports = {
   waitFor,
   click,
   type,
+  fastType,  // Instant text input
   getText,
   exists,
   url,
@@ -305,5 +350,6 @@ module.exports = {
   close,
   sleep,
   getPage,
+  getSpeed,  // Access speed settings
 };
 

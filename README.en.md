@@ -8,7 +8,7 @@
 
 ---
 
-Languages: [Polski (default)](README.md) · English
+Languages: [Polski (default)](README.md) · English · [Українська](README.ua.md)
 
 Educational platform for schools (Web panels + API for a mobile app).
 
@@ -82,9 +82,59 @@ bin/dev
 
 ## Tests
 
+### Unit tests (RSpec)
+
 ```bash
 bundle exec rspec
 ```
+
+### E2E tests (Puppeteer)
+
+End-to-end tests simulate real user interactions in a browser.
+
+**Requirements:**
+- Node.js + Yarn (Puppeteer installed automatically)
+- Running application on `localhost:3000`
+- Test data in database (`rake db:seed`)
+
+**Run all tests:**
+
+```bash
+# Headless mode (fast, no visible browser)
+rake test
+
+# GUI mode (visible browser with cursor)
+rake test:gui
+```
+
+**Run a single test:**
+
+```bash
+# Headless
+rake test[superadmin-menu]
+
+# With visible browser
+rake test[superadmin-menu,gui]
+```
+
+**Available tests:**
+
+| Test | Description |
+|------|-------------|
+| `superadmin-menu` | Superadmin panel menu navigation |
+| `superadmin-users` | User management (filtering, editing) |
+| `superadmin-content` | Content management (subjects, modules) |
+| `principal-dashboard` | Principal panel menu |
+| `principal-management` | Class, teacher, student management |
+| `teacher-dashboard` | Teacher panel menu |
+| `teacher-dashboard-full` | Full teacher functionality test |
+| `student-dashboard` | Student panel menu |
+| `student-dashboard-full` | Full student functionality test |
+| `theme-switcher` | Light/dark theme switching |
+| `dashboard-switcher` | Teacher↔principal dashboard switching |
+| `subjects-dragdrop` | Subject drag & drop |
+
+Details in `e2e/README.md`.
 
 ## OpenAPI / Swagger
 
