@@ -163,6 +163,7 @@ RSpec.describe 'Register flow interactors' do
   end
 
   describe Api::V1::Register::Steps::Finish do
+    let!(:student_role) { Role.find_or_create_by!(key: 'student') { |r| r.name = 'Student' } }
     let(:flow) do
       RegistrationFlow.create!(
         data: {
@@ -200,6 +201,84 @@ RSpec.describe 'Register flow interactors' do
 
       expect(result).to be_failure
       expect(result.status).to eq(:unprocessable_entity)
+    end
+
+    context 'when role is student without class token' do
+      before do
+        flow.update!(
+          data: flow.data.merge('role_key' => 'student')
+        )
+      end
+
+      it 'assigns student role without school or enrollment' do
+        result = described_class.call(params: { flow_id: flow.id })
+
+        expect(result).to be_success
+        user = result.form
+
+        user_role = UserRole.find_by(user: user)
+        expect(user_role).not_to be_nil
+        expect(user_role.role.key).to eq('student')
+        expect(user_role.school).to be_nil
+        expect(StudentClassEnrollment.where(student: user)).to be_empty
+      end
+    end
+
+    context 'when role is student with valid class token' do
+      let!(:school_class) { create(:school_class) }
+
+      before do
+        flow.update!(
+          data: flow.data.merge(
+            'role_key' => 'student',
+            'class_token' => school_class.join_token
+          )
+        )
+        allow(NotificationService).to receive(:create_student_enrollment_request)
+      end
+
+      it 'assigns student role with school and creates enrollment' do
+        result = described_class.call(params: { flow_id: flow.id })
+
+        expect(result).to be_success
+        user = result.form
+
+        user_role = UserRole.find_by(user: user)
+        expect(user_role).not_to be_nil
+        expect(user_role.role.key).to eq('student')
+        expect(user_role.school).to eq(school_class.school)
+
+        enrollment = StudentClassEnrollment.find_by(student: user, school_class: school_class)
+        expect(enrollment).not_to be_nil
+        expect(enrollment.status).to eq('pending')
+
+        expect(NotificationService).to have_received(:create_student_enrollment_request)
+          .with(student: user, school_class: school_class)
+      end
+    end
+
+    context 'when role is student with invalid class token' do
+      before do
+        flow.update!(
+          data: flow.data.merge(
+            'role_key' => 'student',
+            'class_token' => 'non-existent-token'
+          )
+        )
+      end
+
+      it 'assigns student role without school' do
+        result = described_class.call(params: { flow_id: flow.id })
+
+        expect(result).to be_success
+        user = result.form
+
+        user_role = UserRole.find_by(user: user)
+        expect(user_role).not_to be_nil
+        expect(user_role.role.key).to eq('student')
+        expect(user_role.school).to be_nil
+        expect(StudentClassEnrollment.where(student: user)).to be_empty
+      end
     end
   end
 end
