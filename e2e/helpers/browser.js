@@ -4,11 +4,47 @@
  */
 
 const puppeteer = require('puppeteer');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 const config = require('../config');
 
 let browser = null;
 let page = null;
 let mousePos = { x: 960, y: 540 }; // Track mouse position
+let tempUserDataDir = null;
+
+/**
+ * Create temporary user data dir with password manager disabled
+ */
+function createTempProfile() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'puppeteer-test-'));
+  const defaultDir = path.join(dir, 'Default');
+  fs.mkdirSync(defaultDir, { recursive: true });
+  
+  // Chrome Preferences with password manager completely disabled
+  const prefs = {
+    credentials_enable_service: false,
+    credentials_enable_autosignin: false,
+    profile: {
+      password_manager_enabled: false,
+      password_manager_leak_detection: false,
+    },
+    password_manager: {
+      enabled: false,
+      leak_detection: false,
+    },
+    autofill: {
+      enabled: false,
+    },
+    savefile: {
+      default_directory: '/tmp',
+    },
+  };
+  
+  fs.writeFileSync(path.join(defaultDir, 'Preferences'), JSON.stringify(prefs));
+  return dir;
+}
 
 // Speed settings based on mode
 const SPEED = {
@@ -41,23 +77,50 @@ async function launch() {
   const isHeadless = config.browser.headless;
   const speed = getSpeed();
   
+  // Create temp profile with password manager disabled
+  tempUserDataDir = createTempProfile();
+  
   browser = await puppeteer.launch({
     headless: isHeadless,
     slowMo: speed.slowMo,
+    userDataDir: tempUserDataDir,
     args: [
       `--window-size=${config.browser.windowSize.width},${config.browser.windowSize.height}`,
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage', // Faster in Docker/CI
+      // Disable ALL password manager features
+      '--disable-features=PasswordLeakDetection,PasswordCheck,PasswordImport,PasswordExport,PasswordManagerOnboarding,AutofillServerCommunication',
+      '--disable-save-password-bubble',
+      '--disable-password-generation',
+      '--password-store=basic',
+      '--disable-sync',
+      '--disable-background-networking',
+      '--disable-component-extensions-with-background-pages',
     ],
     defaultViewport: {
       width: config.browser.windowSize.width,
       height: config.browser.windowSize.height,
     },
+    // Disable Chrome password manager completely
+    ignoreDefaultArgs: ['--enable-automation'],
   });
   
   page = await browser.newPage();
   page.setDefaultTimeout(config.timeouts.implicit);
+  
+  // Override credentials API to prevent password save prompts
+  await page.evaluateOnNewDocument(() => {
+    // Prevent Chrome from saving passwords
+    Object.defineProperty(navigator, 'credentials', {
+      get: () => ({ 
+        preventSilentAccess: () => Promise.resolve(),
+        get: () => Promise.resolve(null),
+        store: () => Promise.resolve(),
+        create: () => Promise.resolve(null)
+      })
+    });
+  });
   
   // Add visual cursor indicator in GUI mode
   if (!isHeadless) {
@@ -318,6 +381,16 @@ async function close() {
     await browser.close();
     browser = null;
     page = null;
+  }
+  
+  // Clean up temp profile
+  if (tempUserDataDir) {
+    try {
+      fs.rmSync(tempUserDataDir, { recursive: true, force: true });
+    } catch (e) {
+      // Ignore cleanup errors
+    }
+    tempUserDataDir = null;
   }
 }
 
