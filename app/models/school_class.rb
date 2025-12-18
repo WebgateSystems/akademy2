@@ -9,6 +9,11 @@ class SchoolClass < ApplicationRecord
   validates :year, presence: true
   validates :join_token, uniqueness: true, allow_nil: true
 
+  validates :name, uniqueness: {
+    scope: %i[school_id year],
+    case_sensitive: false
+  }
+
   before_create :generate_join_token
 
   # Find class by join token

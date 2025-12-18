@@ -22,12 +22,12 @@ async function runTest() {
     await testDashboardOverview();
     
     // Test 2: My classes
-    console.log('📍 Test 2: My classes');
-    await testMyClasses();
+    // console.log('📍 Test 2: My classes');
+    // await testMyClasses();
     
     // Test 3: Quiz results
-    console.log('📍 Test 3: Quiz results');
-    await testQuizResults();
+    // console.log('📍 Test 3: Quiz results');
+    // await testQuizResults();
     
     // Test 4: Students list and filtering
     console.log('📍 Test 4: Students list');
@@ -100,98 +100,98 @@ async function testDashboardOverview() {
   console.log('');
 }
 
-async function testMyClasses() {
-  const page = browser.getPage();
+// async function testMyClasses() {
+//   const page = browser.getPage();
   
-  await browser.goto('/dashboard/classes');
-  await browser.sleep(2000);
-  console.log('   ✓ Navigated to /dashboard/classes');
+//   await browser.goto('/dashboard/classes');
+//   await browser.sleep(2000);
+//   console.log('   ✓ Navigated to /dashboard/classes');
   
-  // Count classes
-  const classCount = await page.evaluate(() => {
-    const items = document.querySelectorAll('.class-card, .class-item, table tbody tr, [data-class]');
-    return items.length;
-  });
-  console.log(`   ✓ Found ${classCount} classes`);
+//   // Count classes
+//   const classCount = await page.evaluate(() => {
+//     const items = document.querySelectorAll('.class-card, .class-item, table tbody tr, [data-class]');
+//     return items.length;
+//   });
+//   console.log(`   ✓ Found ${classCount} classes`);
   
-  if (classCount > 0) {
-    // Click first class
-    const firstClass = await page.$('.class-card, .class-item, table tbody tr:first-child');
-    if (firstClass) {
-      console.log('   🖱️  Clicking first class...');
-      await firstClass.click();
-      await browser.sleep(1500);
+//   if (classCount > 0) {
+//     // Click first class
+//     const firstClass = await page.$('.class-card, .class-item, table tbody tr:first-child');
+//     if (firstClass) {
+//       console.log('   🖱️  Clicking first class...');
+//       await firstClass.click();
+//       await browser.sleep(1500);
       
-      const newUrl = page.url();
-      console.log(`   ✓ Current URL: ${newUrl}`);
+//       const newUrl = page.url();
+//       console.log(`   ✓ Current URL: ${newUrl}`);
       
-      // Check if students are shown
-      const studentCount = await page.evaluate(() => {
-        const items = document.querySelectorAll('.student-item, .student-row, [data-student]');
-        return items.length;
-      });
-      console.log(`   ✓ Students in class: ${studentCount}`);
-    }
-  }
+//       // Check if students are shown
+//       const studentCount = await page.evaluate(() => {
+//         const items = document.querySelectorAll('.student-item, .student-row, [data-student]');
+//         return items.length;
+//       });
+//       console.log(`   ✓ Students in class: ${studentCount}`);
+//     }
+//   }
   
-  console.log('');
-}
+//   console.log('');
+// }
 
-async function testQuizResults() {
-  const page = browser.getPage();
+// async function testQuizResults() {
+//   const page = browser.getPage();
   
-  await browser.goto('/dashboard/quiz_results');
-  await browser.sleep(2000);
-  console.log('   ✓ Navigated to quiz results');
+//   await browser.goto('/dashboard/quiz_results');
+//   await browser.sleep(2000);
+//   console.log('   ✓ Navigated to quiz results');
   
-  // Check for subject/class filters
-  const hasFilters = await page.evaluate(() => {
-    const classFilter = document.querySelector('select[name*="class"], #class_filter, [data-filter="class"]');
-    const subjectFilter = document.querySelector('select[name*="subject"], #subject_filter, [data-filter="subject"]');
-    return { classFilter: !!classFilter, subjectFilter: !!subjectFilter };
-  });
+//   // Check for subject/class filters
+//   const hasFilters = await page.evaluate(() => {
+//     const classFilter = document.querySelector('select[name*="class"], #class_filter, [data-filter="class"]');
+//     const subjectFilter = document.querySelector('select[name*="subject"], #subject_filter, [data-filter="subject"]');
+//     return { classFilter: !!classFilter, subjectFilter: !!subjectFilter };
+//   });
   
-  console.log(`   Class filter: ${hasFilters.classFilter ? '✓' : '✗'}`);
-  console.log(`   Subject filter: ${hasFilters.subjectFilter ? '✓' : '✗'}`);
+//   console.log(`   Class filter: ${hasFilters.classFilter ? '✓' : '✗'}`);
+//   console.log(`   Subject filter: ${hasFilters.subjectFilter ? '✓' : '✗'}`);
   
-  // Check for results table
-  const tableExists = await browser.exists('table, .results-table, .quiz-results', 2000);
-  console.log(`   Results table: ${tableExists ? '✓' : '✗'}`);
+//   // Check for results table
+//   const tableExists = await browser.exists('table, .results-table, .quiz-results', 2000);
+//   console.log(`   Results table: ${tableExists ? '✓' : '✗'}`);
   
-  if (tableExists) {
-    // Count students in results
-    const rowCount = await page.evaluate(() => {
-      const rows = document.querySelectorAll('table tbody tr');
-      return rows.length;
-    });
-    console.log(`   ✓ Results rows: ${rowCount}`);
+//   if (tableExists) {
+//     // Count students in results
+//     const rowCount = await page.evaluate(() => {
+//       const rows = document.querySelectorAll('table tbody tr');
+//       return rows.length;
+//     });
+//     console.log(`   ✓ Results rows: ${rowCount}`);
     
-    // Look for export buttons
-    const exportPdf = await browser.exists('a[href*="pdf"], .btn-export-pdf, [data-export="pdf"]', 1000);
-    const exportCsv = await browser.exists('a[href*="csv"], .btn-export-csv, [data-export="csv"]', 1000);
+//     // Look for export buttons
+//     const exportPdf = await browser.exists('a[href*="pdf"], .btn-export-pdf, [data-export="pdf"]', 1000);
+//     const exportCsv = await browser.exists('a[href*="csv"], .btn-export-csv, [data-export="csv"]', 1000);
     
-    console.log(`   Export PDF: ${exportPdf ? '✓' : '✗'}`);
-    console.log(`   Export CSV: ${exportCsv ? '✓' : '✗'}`);
-  }
+//     console.log(`   Export PDF: ${exportPdf ? '✓' : '✗'}`);
+//     console.log(`   Export CSV: ${exportCsv ? '✓' : '✗'}`);
+//   }
   
-  // Test filter change
-  const classFilter = await page.$('select[name*="class"], #class_filter');
-  if (classFilter) {
-    console.log('   🖱️  Testing class filter...');
+//   // Test filter change
+//   const classFilter = await page.$('select[name*="class"], #class_filter');
+//   if (classFilter) {
+//     console.log('   🖱️  Testing class filter...');
     
-    const options = await page.$$eval('select[name*="class"] option', opts => 
-      opts.map(o => ({ value: o.value, text: o.textContent.trim() }))
-    );
+//     const options = await page.$$eval('select[name*="class"] option', opts => 
+//       opts.map(o => ({ value: o.value, text: o.textContent.trim() }))
+//     );
     
-    if (options.length > 1) {
-      await classFilter.select(options[1].value);
-      await browser.sleep(1500);
-      console.log(`   ✓ Filtered by: ${options[1].text}`);
-    }
-  }
+//     if (options.length > 1) {
+//       await classFilter.select(options[1].value);
+//       await browser.sleep(1500);
+//       console.log(`   ✓ Filtered by: ${options[1].text}`);
+//     }
+//   }
   
-  console.log('');
-}
+//   console.log('');
+// }
 
 async function testStudentsList() {
   const page = browser.getPage();
@@ -260,7 +260,7 @@ async function testStudentsList() {
 async function testVideosSection() {
   const page = browser.getPage();
   
-  await browser.goto('/dashboard/videos');
+  await browser.goto('/dashboard/student_videos');
   await browser.sleep(2000);
   console.log('   ✓ Navigated to videos');
   

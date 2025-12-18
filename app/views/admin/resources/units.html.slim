@@ -26,11 +26,11 @@ section aria-label=(t('admin.resources.units.list'))
               strong = unit.title
             td = unit.subject&.title || '—'
             td.schools-page__actions
-              = link_to admin_resource_path(resource: 'units', id: unit.id), "aria-label": t('common.view') do
+              = link_to admin_resource_path(resource: 'units', id: unit.id), "aria-label": t('common.view'), class: 'unit-action--show' do
                 = image_tag "icons/social/S/search.svg", alt: ""
-              = link_to admin_edit_resource_path(resource: 'units', id: unit.id), "aria-label": t('common.edit') do
+              = link_to admin_edit_resource_path(resource: 'units', id: unit.id), "aria-label": t('common.edit'), class: 'unit-action--edit' do
                 = image_tag "icons/social/S/edit.svg", alt: ""
-              button type="button" aria-label=(t('common.delete')) data-action="delete-unit" data-unit-id=unit.id data-unit-title=h(unit.title&.to_s || '')
+              button.unit-action--delete type="button" aria-label=(t('common.delete')) data-action="delete-unit" data-unit-id=unit.id data-unit-title=h(unit.title&.to_s || '')
                 = image_tag "icons/social/S/delete.svg", alt: ""
         - if @records.empty?
           tr

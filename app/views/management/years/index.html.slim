@@ -68,7 +68,7 @@ section aria-label=t('management.years.list_label')
         span
           = t('management.years.year')
           sup style="color: var(--content-secondary);" *
-        input#add-year-year type="text" name="academic_year[year]" placeholder="2025/2026" required="" pattern="\\d{4}/\\d{4}"
+        input#add-year-year type="text" name="academic_year[year]" placeholder="2025/2026" required="" pattern="^\d{4}/\d{4}$"
         small style="color: var(--content-secondary); font-size: 12px;" = t('management.years.year_format_hint')
       label style="display: flex; flex-direction: row; align-items: center; gap: 8px; cursor: pointer;"
         input#add-year-is-current type="checkbox" name="academic_year[is_current]" value="1" style="width: auto; height: auto; padding: 0; margin: 0; cursor: pointer;"
@@ -133,7 +133,7 @@ section aria-label=t('management.years.list_label')
         span
           = t('management.years.year')
           sup style="color: var(--content-secondary);" *
-        input#edit-year-year type="text" name="academic_year[year]" placeholder="2025/2026" required="" pattern="\\d{4}/\\d{4}"
+        input#edit-year-year type="text" name="academic_year[year]" placeholder="2025/2026" required="" pattern="^\d{4}/\d{4}$"
         small style="color: var(--content-secondary); font-size: 12px;" = t('management.years.year_format_hint')
       label style="display: flex; flex-direction: row; align-items: center; gap: 8px; cursor: pointer;"
         input#edit-year-is-current type="checkbox" name="academic_year[is_current]" value="1" style="width: auto; height: auto; padding: 0; margin: 0; cursor: pointer;"

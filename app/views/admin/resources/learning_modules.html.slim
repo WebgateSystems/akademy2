@@ -40,11 +40,11 @@ section aria-label=(t('admin.resources.learning_modules.list'))
               - else
                 span style="color: var(--content-secondary);" —
             td.schools-page__actions
-              = link_to admin_resource_path(resource: 'learning_modules', id: module_record.id), "aria-label": t('common.view') do
+              = link_to admin_resource_path(resource: 'learning_modules', id: module_record.id), "aria-label": t('common.view'), class: 'learning_module-action--show' do
                 = image_tag "icons/social/S/search.svg", alt: ""
-              = link_to admin_edit_resource_path(resource: 'learning_modules', id: module_record.id), "aria-label": t('common.edit') do
+              = link_to admin_edit_resource_path(resource: 'learning_modules', id: module_record.id), "aria-label": t('common.edit'), class: 'learning_module-action--edit' do
                 = image_tag "icons/social/S/edit.svg", alt: ""
-              button type="button" aria-label=(t('common.delete')) data-action="delete-learning-module" data-learning-module-id=module_record.id data-learning-module-title=h(module_record.title&.to_s || '')
+              button.learning_module-action--delete type="button" aria-label=(t('common.delete')) data-action="delete-learning-module" data-learning-module-id=module_record.id data-learning-module-title=h(module_record.title&.to_s || '')
                 = image_tag "icons/social/S/delete.svg", alt: ""
         - if @records.empty?
           tr

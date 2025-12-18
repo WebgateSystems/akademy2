@@ -11,6 +11,10 @@ const pause = () => browser.getSpeed();
 async function clearSession() {
   const page = browser.getPage();
   
+  // Navigate to a neutral page first to ensure we're not on a protected route
+  await browser.goto('/login/administration');
+  await browser.sleep(pause().shortPause);
+  
   // Clear all cookies
   const client = await page.target().createCDPSession();
   await client.send('Network.clearBrowserCookies');
@@ -21,6 +25,8 @@ async function clearSession() {
     sessionStorage.clear();
   });
   
+  // Navigate to logout or a public page to ensure clean state
+  await browser.goto('/');
   await browser.sleep(pause().shortPause);
 }
 
@@ -43,6 +49,8 @@ async function runTest() {
     
     // Test 2: Theme switch on teacher dashboard
     console.log('📍 Test 2: Theme switch on Teacher dashboard');
+    // Add small delay after clearing session to ensure clean state
+    await browser.sleep(pause().shortPause);
     await auth.loginAsTeacher();
     console.log('   ✓ Logged in as teacher');
     await testThemeToggle();
@@ -52,6 +60,8 @@ async function runTest() {
     
     // Test 3: Theme switch on principal dashboard
     console.log('📍 Test 3: Theme switch on Principal dashboard');
+    // Add small delay after clearing session to ensure clean state
+    await browser.sleep(pause().shortPause);
     await auth.loginAsPrincipal();
     console.log('   ✓ Logged in as principal');
     await testThemeToggle();

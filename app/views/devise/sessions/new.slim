@@ -28,9 +28,9 @@
             .mb-3
               = label_tag :phone_display, 'Telefon', class: 'form-label'
               / Hidden field for actual phone value (clean format: +48123456789)
-              = hidden_field_tag :phone, params[:phone], id: 'phone-hidden'
+              / = hidden_field_tag :phone, params[:phone], id: 'phone-hidden'
               / Display field with formatting
-              = telephone_field_tag :phone_display, (params[:phone].present? ? params[:phone].gsub(/(\+\d{2})(\d{3})(\d{3})(\d{3})/, '\1 \2 \3 \4') : '+48'),
+              = telephone_field_tag :phone, (params[:phone].present? ? params[:phone].gsub(/(\+\d{2})(\d{3})(\d{3})(\d{3})/, '\1 \2 \3 \4') : '+48'),
                 id: 'phone-display',
                 class: 'form-control login-input login-phone-input',
                 inputmode: "tel",

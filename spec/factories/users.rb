@@ -6,7 +6,7 @@ FactoryBot.define do
     locale { 'en' }
     password { 'Password1' }
     password_confirmation { 'Password1' }
-    phone { FFaker::PhoneNumber.phone_number }
+    phone { "+48#{rand(500_000_000..999_999_999)}" }
     birthdate { Date.new(2000, 1, 1) }
     school { create(:school) }
     confirmed_at { Time.current }
