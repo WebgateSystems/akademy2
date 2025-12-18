@@ -38,11 +38,11 @@ section aria-label=(t('admin.resources.subjects.list'))
                 span style="display: inline-block; width: 24px; height: 24px; border-radius: 4px; background-color: #{subject.color_light || '#ccc'}; border: 1px solid #ddd;" title=(t('admin.resources.subjects.form.color_light'))
                 span style="display: inline-block; width: 24px; height: 24px; border-radius: 4px; background-color: #{subject.color_dark || '#333'}; border: 1px solid #ddd;" title=(t('admin.resources.subjects.form.color_dark'))
             td.schools-page__actions
-              = link_to admin_resource_path(resource: 'subjects', id: subject.id), "aria-label": t('common.view') do
+              = link_to admin_resource_path(resource: 'subjects', id: subject.id), "aria-label": t('common.view'), class: 'subject-action subject-action--show' do
                 = image_tag "icons/social/S/search.svg", alt: ""
-              = link_to admin_edit_resource_path(resource: 'subjects', id: subject.id), "aria-label": t('common.edit') do
+              = link_to admin_edit_resource_path(resource: 'subjects', id: subject.id), "aria-label": t('common.edit'), class: 'subject-action subject-action--edit' do
                 = image_tag "icons/social/S/edit.svg", alt: ""
-              button type="button" aria-label=(t('common.delete')) data-action="delete-subject" data-subject-id=subject.id data-subject-title=h(subject.title&.to_s || '')
+              button.subject-action.subject-action--delete type="button" aria-label=(t('common.delete')) data-action="delete-subject" data-subject-id=subject.id data-subject-title=h(subject.title&.to_s || '')
                 = image_tag "icons/social/S/delete.svg", alt: ""
         - if @records.empty?
           tr

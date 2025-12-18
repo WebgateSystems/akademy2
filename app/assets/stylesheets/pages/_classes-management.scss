@@ -37,6 +37,7 @@
 		margin-bottom: 20px;
 		padding-bottom: 16px;
 		border-bottom: 1px solid var(--border-muted);
+		overflow: hidden;
 	}
 
 	&__name {
@@ -45,11 +46,19 @@
 		font-weight: 600;
 		font-family: var(--font-display);
 		color: var(--content-primary);
+
+		flex: 1 1 auto;              // занимает всё доступное место
+		min-width: 0;                // ключевой хак для flex-элементов
+		overflow: hidden;            // скрываем выходящий текст
+		text-overflow: ellipsis;     // добавляем ...
+		white-space: nowrap;         // не переносим на новую строку
+		margin-right: 12px;
 	}
 
 	&__actions {
 		display: flex;
 		gap: 8px;
+		flex-shrink: 0;
 	}
 
 	&__edit {

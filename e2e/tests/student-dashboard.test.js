@@ -4,6 +4,7 @@
 
 const browser = require('../helpers/browser');
 const config = require('../config');
+const auth = require('../helpers/auth');
 
 // Student menu items (Filmy szkolne only visible if student has approved classes)
 const EXPECTED_MENU_ITEMS = [
@@ -19,75 +20,39 @@ async function runTest() {
   
   try {
     await browser.launch();
+  
+    // Login as student
+    console.log('📍 Step 1: Login as student');
+    await auth.loginAsStudent();
     
-    // Step 1: Navigate to student login
-    console.log('📍 Step 1: Navigate to student login');
-    await browser.goto('/login/student');
-    await browser.waitFor('#phone-display, input[type="tel"]');
-    console.log('   ✓ Login page loaded');
-    
-    // Step 2: Login as student (phone + PIN)
-    console.log('📍 Step 2: Login as student');
-    const { phone, pin } = config.users.student;
-    const page = browser.getPage();
-    
-    // Phone input: #phone-display is visible, type with +48 prefix
-    const phoneDigits = phone.replace('+48', '');
-    const phoneDisplay = await page.$('#phone-display');
-    
-    if (phoneDisplay) {
-      await phoneDisplay.click({ clickCount: 3 });
-      await page.keyboard.type('+48' + phoneDigits, { delay: 10 });
-    }
-    
-    console.log(`   Phone: ${phone}`);
-    await browser.sleep(200);
-    
-    // PIN: 4 separate .login-pin-digit inputs
-    const pinInputs = await page.$$('.login-pin-digit');
-    
-    if (pinInputs.length >= 4) {
-      for (let i = 0; i < 4; i++) {
-        await pinInputs[i].click();
-        await page.keyboard.type(pin[i]);
-        await browser.sleep(50);
-      }
-    }
-    
-    console.log(`   PIN: ${'*'.repeat(pin.length)}`);
-    await browser.sleep(300);
-    
-    // Click submit button
-    const submitBtn = await page.$('button[type="submit"], input[type="submit"], .login-btn');
-    if (submitBtn) {
-      await Promise.all([
-        browser.waitForNavigation().catch(() => {}),
-        submitBtn.click(),
-      ]);
-    }
-    
-    await browser.sleep(1000);
-    
-    // Check where we landed after login
     const currentUrl = browser.url();
-    console.log(`   ✓ Successfully logged in`);
-    console.log(`   Current URL: ${currentUrl}`);
+    console.log(`   ✓ Logged in as student`);
+    console.log(`   Current URL: ${currentUrl}\n`);
+    
+    // Verify we're logged in (should be on /home or redirected away from login)
+    if (currentUrl.includes('/login/student')) {
+      throw new Error('Login failed: Still on login page after login attempt');
+    }
     
     // If not on /home, navigate there
     if (!currentUrl.includes('/home')) {
       console.log('   🖱️  Navigating to /home...');
       await browser.goto('/home');
-      await browser.sleep(1000);
-      console.log(`   Current URL: ${browser.url()}`);
+      await browser.sleep(1500);
+      console.log(`   Current URL: ${browser.url()}\n`);
     }
+    
+    // Wait for dashboard to load
+    await browser.sleep(500);
     
     await browser.sleep(1000);
     
     // Step 3: Verify menu items
-    console.log('📍 Step 3: Verify menu items');
+    console.log('📍 Step 2: Verify menu items');
     const menuResults = [];
     
-    // Debug: check page structure
+    // // Debug: check page structure
+    const page = browser.getPage();
     const pageInfo = await page.evaluate(() => {
       return {
         hasSidebar: !!document.querySelector('.dashboard-sidebar'),
@@ -124,7 +89,7 @@ async function runTest() {
     }
     
     // Step 4: Click found menu items
-    console.log('📍 Step 4: Navigate through menu\n');
+    console.log('📍 Step 3: Navigate through menu\n');
     
     for (const item of menuResults.filter(r => r.found)) {
       try {
@@ -156,7 +121,7 @@ async function runTest() {
     }
     
     // Step 5: Test subject cards (if on home page)
-    console.log('📍 Step 5: Test subject cards');
+    console.log('📍 Step 4: Test subject cards');
     await browser.goto('/home');
     await browser.sleep(1500);
     

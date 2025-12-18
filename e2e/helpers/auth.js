@@ -53,7 +53,13 @@ async function loginAsPrincipal() {
   const { email, password } = config.users.principal;
   
   await browser.goto('/login/administration');
-  await browser.waitFor('input[name="user[email]"], input#user_email');
+  
+  // Wait for page to load and form to be ready
+  await browser.waitFor('input[name="user[email]"], input#user_email', { timeout: 10000 });
+  
+  // Additional wait to ensure form is fully interactive
+  await browser.sleep(browser.getSpeed().shortPause);
+  
   await browser.fastType('input[name="user[email]"], input#user_email', email);
   await browser.fastType('input[name="user[password]"], input#user_password', password);
   
@@ -102,22 +108,56 @@ async function loginAsStudent() {
     }
   }
   
-  await browser.sleep(browser.getSpeed().mediumPause);
+  // Wait a bit for PIN to be processed and form to auto-submit
+  await browser.sleep(browser.getSpeed().shortPause);
   
-  // Form may auto-submit or need button click
-  const submitBtn = await page.$('button[type="submit"], input[type="submit"], .login-btn');
-  if (submitBtn) {
-    try {
-      await Promise.all([
-        browser.waitForNavigation().catch(() => {}),
-        submitBtn.click(),
-      ]);
-    } catch (e) {
-      // May already have navigated
+  // Wait for navigation after PIN entry (form auto-submits when PIN is complete)
+  // In headless mode, navigation might take longer
+  try {
+    // Wait for navigation with timeout
+    await Promise.race([
+      browser.waitForNavigation(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Navigation timeout')), 10000))
+    ]);
+  } catch (e) {
+    // Navigation might have already completed or timed out, check current URL
+    const currentUrl = browser.url();
+    if (!currentUrl.includes('/home') && currentUrl.includes('/login/student')) {
+      // Still on login page, wait a bit more and check for errors
+      await browser.sleep(browser.getSpeed().mediumPause);
+      
+      // Check if there's an error message
+      const hasError = await browser.exists('.alert-danger, .error-message, .flash-alert', 1000);
+      if (hasError) {
+        const errorText = await browser.getText('.alert-danger, .error-message, .flash-alert').catch(() => 'Unknown error');
+        throw new Error(`Login failed: ${errorText}`);
+      }
+      
+      // Try waiting for navigation one more time
+      try {
+        await Promise.race([
+          browser.waitForNavigation(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Navigation timeout')), 5000))
+        ]);
+      } catch (e2) {
+        // If still on login page, something went wrong
+        const finalUrl = browser.url();
+        if (finalUrl.includes('/login/student')) {
+          throw new Error('Login failed: Still on login page after PIN entry. Navigation did not occur.');
+        }
+      }
     }
   }
   
+  // Additional wait for page to stabilize
   await browser.sleep(browser.getSpeed().mediumPause);
+  
+  // Final verification - make sure we're not on login page
+  const finalUrl = browser.url();
+  if (finalUrl.includes('/login/student')) {
+    throw new Error('Login failed: Did not redirect to home page');
+  }
+  
   return phone;
 }
 

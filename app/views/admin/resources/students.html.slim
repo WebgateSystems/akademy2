@@ -41,7 +41,7 @@ css:
       h3#add-student-title = t('admin.resources.students.add')
       button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="add-student-modal"
         = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
-    form.schools-modal__form.headmaster-form#add-student-form
+    form.schools-modal__form.headmaster-form#admin-add-student-form
       label
         span
           = t('admin.resources.students.school')
@@ -83,7 +83,7 @@ css:
       h3#edit-student-title = t('admin.resources.students.edit')
       button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="edit-student-modal"
         = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
-    form.schools-modal__form.headmaster-form#edit-student-form
+    form.schools-modal__form.headmaster-form#admin-edit-student-form
       input type="hidden" id="edit-student-id" value=""
       label
         span
@@ -413,7 +413,7 @@ javascript:
     }
 
     // Add student form
-    const addForm = document.getElementById('add-student-form');
+    const addForm = document.getElementById('admin-add-student-form');
     if (addForm) {
       addForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -457,7 +457,7 @@ javascript:
     }
 
     // Edit student form
-    const editForm = document.getElementById('edit-student-form');
+    const editForm = document.getElementById('admin-edit-student-form');
     if (editForm) {
       editForm.addEventListener('submit', async (e) => {
         e.preventDefault();

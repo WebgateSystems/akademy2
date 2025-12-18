@@ -94,7 +94,7 @@ section aria-label=(t('admin.resources.schools.list'))
       h3#edit-school-title = t('admin.resources.schools.edit')
       button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="edit-school-modal"
         = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
-    form#edit-school-form.schools-modal__form
+    form#admin-edit-school-form.schools-modal__form
       input#edit-school-id type="hidden" value=""
       label
         span
@@ -269,7 +269,7 @@ javascript:
       }
 
       // Edit school form
-      const editForm = document.getElementById('edit-school-form');
+      const editForm = document.getElementById('admin-edit-school-form');
       if (editForm) {
         editForm.addEventListener('submit', async (e) => {
           e.preventDefault();

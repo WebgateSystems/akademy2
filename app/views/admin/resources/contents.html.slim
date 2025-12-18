@@ -34,11 +34,11 @@ section aria-label=(t('admin.resources.contents.list'))
             td = content.learning_module&.unit&.title || '—'
             td = content.learning_module&.unit&.subject&.title || '—'
             td.schools-page__actions
-              = link_to admin_resource_path(resource: 'contents', id: content.id), "aria-label": t('common.view') do
+              = link_to admin_resource_path(resource: 'contents', id: content.id), "aria-label": t('common.view'), class: 'content-action--show' do
                 = image_tag "icons/social/S/search.svg", alt: ""
-              = link_to admin_edit_resource_path(resource: 'contents', id: content.id), "aria-label": t('common.edit') do
+              = link_to admin_edit_resource_path(resource: 'contents', id: content.id), "aria-label": t('common.edit'),class: 'content-action--edit' do
                 = image_tag "icons/social/S/edit.svg", alt: ""
-              button type="button" aria-label=(t('common.delete')) data-action="delete-content" data-content-id=content.id data-content-title=h(content.title&.to_s || '')
+              button.content-action--delete type="button" aria-label=(t('common.delete')) data-action="delete-content" data-content-id=content.id data-content-title=h(content.title&.to_s || '')
                 = image_tag "icons/social/S/delete.svg", alt: ""
         - if @records.empty?
           tr

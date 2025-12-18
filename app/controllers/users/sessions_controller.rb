@@ -90,7 +90,7 @@ class Users::SessionsController < Devise::SessionsController
   end
 
   def student_phone
-    params[:phone].to_s.strip
+    params[:phone].to_s.strip.gsub(/[^\d+]/, '')
   end
 
   def student_pin

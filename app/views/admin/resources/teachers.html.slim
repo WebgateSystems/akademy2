@@ -23,7 +23,7 @@ section aria-label=(t('admin.resources.teachers.list'))
           th.teachers-table__heading scope="col" = t('admin.resources.teachers.school')
           th.teachers-table__heading scope="col" = t('common.status')
           th.teachers-table__heading.teachers-table__heading--actions scope="col" = t('common.actions')
-      tbody.teachers-table__body#teachers-table-body
+      tbody.teachers-table__body#admin-teachers-table-body
         / Teachers will be loaded via API
     #teachers-loading-indicator.teachers-loading style="display: none; padding: 20px; text-align: center;"
       .spinner style="display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--content-primary); border-radius: 50%; animation: spin 0.8s linear infinite;"
@@ -166,7 +166,7 @@ javascript:
     let searchTimeout = null;
     const perPage = 20;
     const SEARCH_MIN_LENGTH = 3;
-    const tbody = document.getElementById('teachers-table-body');
+    const tbody = document.getElementById('admin-teachers-table-body');
     const loadingIndicator = document.getElementById('teachers-loading-indicator');
     const emptyMessage = document.getElementById('teachers-empty-message');
     const searchInput = document.getElementById('teachers-search-input');
