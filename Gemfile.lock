@@ -234,10 +234,10 @@ GEM
     elastic-transport (8.4.1)
       faraday (< 3)
       multi_json
-    elasticsearch (8.19.2)
+    elasticsearch (9.2.0)
       elastic-transport (~> 8.3)
-      elasticsearch-api (= 8.19.2)
-    elasticsearch-api (8.19.2)
+      elasticsearch-api (= 9.2.0)
+    elasticsearch-api (9.2.0)
       multi_json
     erb (6.0.1)
     erubi (1.13.1)
@@ -378,7 +378,7 @@ GEM
     msgpack (1.8.0)
     multi_json (1.18.0)
     mutex_m (0.3.0)
-    net-http (0.8.0)
+    net-http (0.9.1)
       uri (>= 0.11.1)
     net-imap (0.5.12)
       date
@@ -769,7 +769,7 @@ DEPENDENCIES
   devise-jwt (~> 0.12.1)
   dry-validation
   ed25519 (~> 1.2)
-  elasticsearch (~> 8.0)
+  elasticsearch (~> 9.2)
   factory_bot_rails
   fasterer
   ffaker
