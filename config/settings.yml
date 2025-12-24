@@ -13,6 +13,10 @@ elasticsearch:
   url: http://localhost:9200
   index_prefix: akademy2
   enabled: true # set to false in test environment or when ES is not available
+  
+sidekiq:
+  user: 'admin'
+  password: 'admin'
 
 services:
   twilio:

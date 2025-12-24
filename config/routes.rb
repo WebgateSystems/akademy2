@@ -1,7 +1,24 @@
+require 'sidekiq/web'
+
+Sidekiq::Web.use Rack::Auth::Basic do |username, password|
+  username == Settings.sidekiq.user && password == Settings.sidekiq.password
+end
+
+session_middleware = lambda { |env|
+  app = Rack::Builder.new do
+    use Rack::Session::Cookie, key: 'akademy_sidekiq_session', secret: Rails.application.config.secret_key_base,
+                               same_site: true, max_age: 86_400
+    run Sidekiq::Web
+  end
+  app.call(env)
+}
+
 Rails.application.routes.draw do
   mount Rswag::Ui::Engine => '/api-docs'
   mount Rswag::Api::Engine => '/api-docs'
   devise_for :users, controllers: { sessions: 'users/sessions' }
+
+  mount session_middleware => '/sidekiq'
 
   # Pretty login URLs (aliases for /users/sign_in?role=xxx)
   devise_scope :user do
