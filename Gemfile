@@ -91,7 +91,7 @@ group :development do
   gem 'fasterer', require: false
   gem 'i18n-tasks'
   gem 'reek', require: false
-  gem 'rubocop', '~> 1.64', require: false
+  gem 'rubocop', '~> 1.82', require: false
   gem 'rubocop-factory_bot', require: false
   gem 'rubocop-i18n', require: false
   gem 'rubocop-performance', require: false
