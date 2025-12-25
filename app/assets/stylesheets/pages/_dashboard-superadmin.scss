@@ -4,7 +4,7 @@
 	display: grid;
 	grid-template-columns: var(--dashboard-sidebar-width) minmax(0, 1fr);
 	column-gap: 0;
-	background: var(--bg-secondary);
+	background: var(--surface-primary);
 	color: var(--content-primary);
 	position: relative;
 }
