@@ -35,7 +35,7 @@ section aria-label=(t('admin.resources.schools.list'))
                 = [headmaster.first_name, headmaster.last_name].compact.join(' ') || headmaster.email
               - else
                 | —
-            td.schools-page__actions
+            td.schools-page__actions.dp-table-cell
               button type="button" aria-label=(t('admin.resources.schools.edit')) data-action="edit-school" data-school-id=school.id data-school-name=h(school.name&.to_s || '') data-school-slug=h(school.slug&.to_s || '') data-school-address=h(school.address&.to_s || '') data-school-city=h(school.city&.to_s || '') data-school-postcode=h(school.postcode&.to_s || '') data-school-country=h(school.country&.to_s || '') data-school-phone=h(school.phone&.to_s || '') data-school-email=h(school.email&.to_s || '') data-school-homepage=h(school.homepage&.to_s || '') data-school-logo-url=(school.logo.present? && school.logo.url.present? ? h(school.logo.url.to_s) : '')
                 = image_tag "icons/social/S/edit.svg", alt: ""
               button type="button" aria-label=(t('admin.resources.schools.delete')) data-action="delete-school" data-school-id=school.id data-school-name=h(school.name&.to_s || '')

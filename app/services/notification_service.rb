@@ -132,26 +132,26 @@ class NotificationService
       school_class = enrollment.school_class
       next unless school_class
 
-      teachers = User.joins(:teacher_class_assignments)
-                     .where(teacher_class_assignments: { school_class_id: school_class.id })
-                     .distinct
+      # teachers = User.joins(:teacher_class_assignments)
+      #                .where(teacher_class_assignments: { school_class_id: school_class.id })
+      #                .distinct
 
-      teachers.find_each do |_teacher|
-        Notification.create!(
-          notification_type: 'quiz_completed',
-          title: 'Sukces ucznia!',
-          message: "#{student_name} ukończył/a quiz \"#{module_title}\" z wynikiem #{quiz_result.score} punktów.",
-          target_role: 'teacher',
-          school: school,
-          user: student,
-          metadata: {
-            student_id: student.id,
-            quiz_result_id: quiz_result.id,
-            school_class_id: school_class.id,
-            score: quiz_result.score
-          }
-        )
-      end
+      # teachers.find_each do |_teacher|
+      Notification.create!(
+        notification_type: 'quiz_completed',
+        title: 'Sukces ucznia!',
+        message: "#{student_name} ukończył/a quiz \"#{module_title}\" z wynikiem #{quiz_result.score} punktów.",
+        target_role: 'teacher',
+        school: school,
+        user: student,
+        metadata: {
+          student_id: student.id,
+          quiz_result_id: quiz_result.id,
+          school_class_id: school_class.id,
+          score: quiz_result.score
+        }
+      )
+      # end
     end
   end
 

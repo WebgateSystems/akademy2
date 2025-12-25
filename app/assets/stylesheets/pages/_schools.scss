@@ -116,8 +116,10 @@
 		z-index: auto;
 	}
 
-	.dp-inline-table {
-		display: inline-table;
+	.dp-table-cell {
+		display: table-cell;
+		white-space: nowrap;
+		vertical-align: middle;
 	}
 
 	.right {
