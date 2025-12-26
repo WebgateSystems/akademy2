@@ -174,11 +174,11 @@ module Api
         end
 
         def render_json_verify_response(result)
-          JSON_VERIFY_RESPONSES.fetch(result, JSON_VERIFY_RESPONSES[:fallback]).call(self)
+          JSON_VERIFY_RESPONSES.fetch(result) { JSON_VERIFY_RESPONSES[:fallback] }.call(self)
         end
 
         def render_html_verify_response(result)
-          HTML_VERIFY_RESPONSES.fetch(result, HTML_VERIFY_RESPONSES[:fallback]).call(self)
+          HTML_VERIFY_RESPONSES.fetch(result) { HTML_VERIFY_RESPONSES[:fallback] }.call(self)
         end
 
         def account_params

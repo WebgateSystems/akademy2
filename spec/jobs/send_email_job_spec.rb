@@ -9,26 +9,29 @@ RSpec.describe SendEmailJob, type: :job do
     let(:mail_double) { instance_double(ActionMailer::MessageDelivery) }
 
     before do
+      described_class.clear
       allow(CustomDeviseMailer).to receive(:reset_password_instructions)
         .and_return(mail_double)
       allow(mail_double).to receive(:deliver_now)
     end
 
     it 'calls the specified mailer with the given action and arguments' do
-      described_class.perform_now('CustomDeviseMailer', 'reset_password_instructions', user, token, {})
+      described_class.new.perform('CustomDeviseMailer', 'reset_password_instructions', user.to_global_id.to_s, token,
+                                  {})
 
       expect(CustomDeviseMailer).to have_received(:reset_password_instructions)
         .with(user, token, {})
     end
 
     it 'delivers the email immediately' do
-      described_class.perform_now('CustomDeviseMailer', 'reset_password_instructions', user, token, {})
+      described_class.new.perform('CustomDeviseMailer', 'reset_password_instructions', user.to_global_id.to_s, token,
+                                  {})
 
       expect(mail_double).to have_received(:deliver_now)
     end
 
-    it 'queues the job in the default queue' do
-      expect(described_class.new.queue_name).to eq('default')
+    it 'uses mail queue' do
+      expect(described_class.get_sidekiq_options['queue']).to eq(:mail)
     end
 
     context 'with different mailer classes' do
@@ -46,7 +49,7 @@ RSpec.describe SendEmailJob, type: :job do
       end
 
       it 'works with any mailer class' do
-        described_class.perform_now('TestMailer', 'welcome_email', user.id)
+        described_class.new.perform('TestMailer', 'welcome_email', user.id)
 
         expect(mock_mailer).to have_received(:welcome_email).with(user.id)
         expect(test_mail).to have_received(:deliver_now)
@@ -61,7 +64,8 @@ RSpec.describe SendEmailJob, type: :job do
 
       it 'passes all arguments to the mailer' do
         opts = { from: 'noreply@example.com' }
-        described_class.perform_now('CustomDeviseMailer', 'confirmation_instructions', user, token, opts)
+        described_class.new.perform('CustomDeviseMailer', 'confirmation_instructions', user.to_global_id.to_s, token,
+                                    opts)
 
         expect(CustomDeviseMailer).to have_received(:confirmation_instructions)
           .with(user, token, opts)
@@ -74,21 +78,19 @@ RSpec.describe SendEmailJob, type: :job do
 
     it 'enqueues the job' do
       expect do
-        described_class.perform_later('CustomDeviseMailer', 'reset_password_instructions', user, 'token', {})
-      end.to have_enqueued_job(described_class)
+        described_class.enqueue('CustomDeviseMailer', 'reset_password_instructions', user, 'token', {})
+      end.to change(described_class.jobs, :size).by(1)
     end
 
     it 'enqueues with correct arguments' do
-      expect do
-        described_class.perform_later('CustomDeviseMailer', 'reset_password_instructions', user, 'token', {})
-      end.to have_enqueued_job(described_class)
-        .with('CustomDeviseMailer', 'reset_password_instructions', user, 'token', {})
+      described_class.enqueue('CustomDeviseMailer', 'reset_password_instructions', user, 'token', {})
+      expect(described_class.jobs.last['args']).to eq(['CustomDeviseMailer', 'reset_password_instructions',
+                                                       user.to_global_id.to_s, 'token', {}])
     end
 
-    it 'enqueues in the default queue' do
-      expect do
-        described_class.perform_later('CustomDeviseMailer', 'reset_password_instructions', user, 'token', {})
-      end.to have_enqueued_job(described_class).on_queue('default')
+    it 'enqueues in the mail queue' do
+      described_class.enqueue('CustomDeviseMailer', 'reset_password_instructions', user, 'token', {})
+      expect(described_class.jobs.last['queue']).to eq('mail')
     end
   end
 end

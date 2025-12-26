@@ -1,3 +1,9 @@
 exclude_paths:
   - 'config/**/*'
   - 'vendor/**/*'
+
+speedups:
+  # Prefer readability; while-loop rewrite is rarely worth it in this app.
+  each_with_index_vs_while: false
+  # Prefer rubocop style + readability; performance difference here is negligible.
+  fetch_with_argument_vs_block: false

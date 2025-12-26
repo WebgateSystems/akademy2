@@ -32,7 +32,7 @@ class Users::SessionsController < Devise::SessionsController
       unless permission_result
         # User doesn't have permissions for intended path
         # Set resource for Devise form
-        user_params = params.fetch(:user, {}).permit(:email, :password, :remember_me)
+        user_params = params.fetch(:user) { {} }.permit(:email, :password, :remember_me)
         self.resource = resource_class.new(user_params)
 
         # rubocop:disable I18n/GetText/DecorateString
@@ -132,7 +132,7 @@ class Users::SessionsController < Devise::SessionsController
     # Check if user is locked (inactive)
     if user.inactive?
       # Set resource for Devise form
-      user_params = params.fetch(:user, {}).permit(:email, :password, :remember_me)
+      user_params = params.fetch(:user) { {} }.permit(:email, :password, :remember_me)
       self.resource = resource_class.new(user_params)
       # rubocop:disable I18n/GetText/DecorateString
       flash.now[:alert] = 'Twoje konto zostało zablokowane. Skontaktuj się z administratorem.'

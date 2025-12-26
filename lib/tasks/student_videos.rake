@@ -47,7 +47,8 @@ namespace :student_videos do
     StudentVideo.find_each do |video|
       next if video.file.blank?
 
-      ProcessVideoJob.perform_later(video.id)
+      # ProcessVideoJob is a Sidekiq worker (not an ActiveJob), so enqueue via Sidekiq API
+      ProcessVideoJob.perform_async(video.id)
       puts "  → Enqueued ProcessVideoJob for video #{video.id}"
     end
 

@@ -90,7 +90,8 @@ class User < ApplicationRecord
 
   # Override Devise method to send emails via SendEmailJob
   def send_devise_notification(notification, *args)
-    SendEmailJob.perform_later('CustomDeviseMailer', notification.to_s, self, *args)
+    # We do not use ActiveJob. Sidekiq args must be JSON-serializable (Sidekiq strict args).
+    SendEmailJob.enqueue('CustomDeviseMailer', notification.to_s, self, *args)
   end
 
   private
