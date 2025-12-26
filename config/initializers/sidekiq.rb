@@ -2,18 +2,16 @@ require 'sidekiq'
 require 'sidekiq-scheduler'
 require 'sidekiq-scheduler/web'
 require 'logger'
-require_relative '../../lib/multi_logger'
 
 Sidekiq.configure_server do |config|
   config.redis = { url: Settings.redis_url }
 
-  file_logger = Logger.new(Rails.root.join('log/sidekiq.log'))
-  file_logger.level = Logger::DEBUG
-
   console_logger = Logger.new($stdout)
   console_logger.level = Logger::DEBUG
 
-  config.logger = MultiLogger.new(file_logger, console_logger)
+  # In production we typically run Sidekiq under systemd/Docker which already captures STDOUT/STDERR.
+  # Avoid double-logging to the same logfile (systemd StandardOutput + Sidekiq :logfile + custom file logger).
+  config.logger = console_logger
 
   config.on(:startup) do
     schedule_file = 'config/sidekiq.yml'
