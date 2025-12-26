@@ -19,13 +19,14 @@ RSpec.describe DeleteYoutubeVideoJob, type: :job do
 
     job.perform(student_video_id, youtube_id)
 
-    expect(Rails.logger).to have_received(:info).with(/\[YouTubeDelete\]\[deleted\] StudentVideo##{student_video_id}/)
+    expect(Rails.logger).to have_received(:info)
+      .with(/\[YouTubeDelete\] \[deleted\] StudentVideo##{student_video_id}/)
   end
 
   it 're-raises errors to trigger retry' do
     allow(YoutubeDeleteService).to receive(:new).and_raise(StandardError, 'boom')
 
     expect { job.perform(student_video_id, youtube_id) }.to raise_error(StandardError, 'boom')
-    expect(Rails.logger).to have_received(:error).with(/\[YouTubeDelete\]\[fail\]/)
+    expect(Rails.logger).to have_received(:error).with(/\[YouTubeDelete\] \[fail\]/)
   end
 end

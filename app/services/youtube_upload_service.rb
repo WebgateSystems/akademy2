@@ -4,7 +4,9 @@ require 'google/apis/youtube_v3'
 require 'googleauth'
 
 class YoutubeUploadService
-  YOUTUBE_SCOPE = 'https://www.googleapis.com/auth/youtube.upload'
+  # Needs to allow both upload + management operations (e.g. delete).
+  # IMPORTANT: if you change scopes, you must generate a new refresh token with those scopes.
+  YOUTUBE_SCOPE = 'https://www.googleapis.com/auth/youtube.force-ssl'
 
   def self.call(**args)
     new(**args).call

@@ -4,7 +4,8 @@ require 'google/apis/youtube_v3'
 require 'googleauth'
 
 class YoutubeDeleteService
-  YOUTUBE_SCOPE = 'https://www.googleapis.com/auth/youtube.upload'
+  # IMPORTANT: if you change scopes, you must generate a new refresh token with those scopes.
+  YOUTUBE_SCOPE = 'https://www.googleapis.com/auth/youtube.force-ssl'
 
   def initialize(youtube_id:)
     @youtube_id = youtube_id

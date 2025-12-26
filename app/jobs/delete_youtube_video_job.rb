@@ -8,12 +8,40 @@ class DeleteYoutubeVideoJob < BaseSidekiqJob
   def perform(student_video_id, youtube_id)
     result = YoutubeDeleteService.new(youtube_id: youtube_id).call
 
-    Rails.logger.info "[YouTubeDelete][#{result}] StudentVideo##{student_video_id} youtube_id=#{youtube_id}"
+    log_info("[#{result}] StudentVideo##{student_video_id} youtube_id=#{youtube_id}")
+  rescue Google::Apis::ClientError => e
+    handle_client_error!(e, student_video_id, youtube_id)
   rescue StandardError => e
-    Rails.logger.error(
-      "[YouTubeDelete][fail] StudentVideo##{student_video_id} youtube_id=#{youtube_id} — " \
-      "#{e.class}: #{e.message}"
+    log_error(
+      "[fail] StudentVideo##{student_video_id} youtube_id=#{youtube_id} — #{e.class}: #{e.message}"
     )
     raise
+  end
+
+  private
+
+  def handle_client_error!(error, student_video_id, youtube_id)
+    # Permanent misconfiguration: token does not have required OAuth scopes.
+    # Don't spam retries; log and stop.
+    if insufficient_scopes?(error)
+      log_error(
+        "[insufficient_scopes] StudentVideo##{student_video_id} youtube_id=#{youtube_id} — #{error.message}"
+      )
+      return
+    end
+
+    raise error
+  end
+
+  def insufficient_scopes?(error)
+    error.message&.match?(/insufficient authentication scopes/i)
+  end
+
+  def log_info(message)
+    Rails.logger.info "[YouTubeDelete] #{message}"
+  end
+
+  def log_error(message)
+    Rails.logger.error "[YouTubeDelete] #{message}"
   end
 end

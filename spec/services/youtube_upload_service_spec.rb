@@ -125,7 +125,7 @@ RSpec.describe YoutubeUploadService do
         client_secret: 'test_client_secret',
         token_credential_uri: 'https://oauth2.googleapis.com/token',
         refresh_token: 'test_refresh_token',
-        scope: 'https://www.googleapis.com/auth/youtube.upload'
+        scope: 'https://www.googleapis.com/auth/youtube.force-ssl'
       )
     end
 
@@ -152,7 +152,7 @@ RSpec.describe YoutubeUploadService do
 
   describe 'constants' do
     it 'has YOUTUBE_SCOPE constant' do
-      expect(described_class::YOUTUBE_SCOPE).to eq('https://www.googleapis.com/auth/youtube.upload')
+      expect(described_class::YOUTUBE_SCOPE).to eq('https://www.googleapis.com/auth/youtube.force-ssl')
     end
 
     # privacy status is configured via Settings.services.youtube.privacy_status
