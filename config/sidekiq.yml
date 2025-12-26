@@ -6,6 +6,7 @@
 :queues:
   - internal
   - default
+  - searchkick
   - mail
 
 :scheduler:
