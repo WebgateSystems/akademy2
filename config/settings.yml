@@ -42,3 +42,15 @@ services:
     refresh_token: <%= ENV['YOUTUBE_REFRESH_TOKEN'] || 'youtube_refresh_token' %>
     # YouTube API: "public" | "unlisted" | "private"
     privacy_status: <%= ENV['YOUTUBE_PRIVACY_STATUS'] || 'public' %>
+
+# Store listings / ratings (used on landing page)
+stores:
+  google_play:
+    url: <%= ENV.fetch('GOOGLE_PLAY_URL') { 'https://play.google.com/store/apps/details?id=pro.webgate.academy' } %>
+    content_rating: <%= ENV.fetch('GOOGLE_PLAY_CONTENT_RATING') { 'PEGI 3' } %>
+    iarc_global_rating_id: <%= ENV.fetch('IARC_GLOBAL_RATING_ID') { 'b8937020-82e4-42df-8685-008eb1f65c25' } %>
+  app_store:
+    # When Apple approves the app, set APP_STORE_URL (and optionally APP_STORE_CONTENT_RATING like "4+").
+    url: <%= ENV.fetch('APP_STORE_URL') { '' } %>
+    content_rating: <%= ENV.fetch('APP_STORE_CONTENT_RATING') { '' } %>
+    status: <%= ENV.fetch('APP_STORE_STATUS') { 'in_review' } %>

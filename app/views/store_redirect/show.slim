@@ -1,0 +1,24 @@
+/ Pobierz na telefon (fallback dla desktop/nieznanych UA)
+- google_play_url = Settings.stores.google_play.url
+- app_store_url = Settings.stores.app_store.url
+
+.container style="max-width: 980px; margin: 48px auto;"
+  .card style="padding: 24px;"
+    h1 style="margin: 0 0 10px;" Pobierz AKAdemy 2.0
+    p style="margin: 0 0 18px; color: #475569;"
+      | Wykryjemy urządzenie i przekierujemy do właściwego sklepu. Jeśli jesteś na komputerze, wybierz sklep ręcznie.
+
+    .row style="display:flex; gap:12px; flex-wrap:wrap; margin: 18px 0 0;"
+      a.btn href=get_app_path(platform: 'android')
+        i.bi.bi-google-play aria-hidden="true"
+        |  Google Play
+
+      - if app_store_url.present?
+        a.btn.outline href=get_app_path(platform: 'ios')
+          i.bi.bi-apple aria-hidden="true"
+          |  App Store
+      - else
+        span.btn.outline style="opacity:.6; pointer-events:none;"
+          i.bi.bi-apple aria-hidden="true"
+          |  App Store (wkrótce)
+

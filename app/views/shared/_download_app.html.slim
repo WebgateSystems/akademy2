@@ -1,0 +1,34 @@
+- google_play_url = Settings.stores.google_play.url
+- app_store_url = Settings.stores.app_store.url.presence
+- redirect_url = 'https://akademy.edu.pl/get-app'
+
+section#download.section.container
+  .cols
+    div
+      h2 style="font-size:clamp(28px,4vw,40px); margin:0 0 12px" Pobierz na telefon
+      p.big Zeskanuj kod lub wybierz sklep — dopasujemy link do urządzenia.
+
+      .download-buttons
+        a.store-btn href=google_play_url target="_blank" rel="noopener"
+          i.bi.bi-google-play aria-hidden="true"
+          span Pobierz z Google Play
+
+        - if app_store_url.present?
+          a.store-btn.store-btn--outline href=app_store_url target="_blank" rel="noopener"
+            i.bi.bi-apple aria-hidden="true"
+            span Pobierz z App Store
+        - else
+          span.store-btn.store-btn--outline.is-disabled
+            i.bi.bi-apple aria-hidden="true"
+            span App Store (wkrótce)
+
+      p.small style="margin:12px 0 0"
+        | Link z QR prowadzi przez stronę pośredniczącą, która wykrywa Android/iOS i przekierowuje do właściwego sklepu.
+
+    .card.download-qr
+      .download-qr__title QR do pobrania
+      a.download-qr__code href=redirect_url target="_blank" rel="noopener" aria-label="Otwórz stronę pobrania"
+        = image_tag 'qr/get-app.svg', alt: "QR: #{redirect_url}", loading: "lazy", decoding: "async"
+      .download-qr__meta
+        code = redirect_url
+

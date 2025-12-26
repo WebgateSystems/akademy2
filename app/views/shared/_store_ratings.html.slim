@@ -1,0 +1,41 @@
+- google_play_url = Settings.stores.google_play.url
+- google_play_rating = Settings.stores.google_play.content_rating
+- iarc_id = Settings.stores.google_play.iarc_global_rating_id
+
+- app_store_url = Settings.stores.app_store.url
+- app_store_rating = Settings.stores.app_store.content_rating
+- app_store_status = Settings.stores.app_store.status
+
+section#content-rating.section.container
+  .card.content-rating-card
+    h2 style="font-size:clamp(24px,3vw,32px); margin:0 0 10px" Ocena wiekowa
+    p.small style="margin:0 0 18px"
+      | Oceny dotyczą dystrybucji cyfrowej aplikacji na platformach. Szczegóły można zweryfikować na stronach sklepów.
+
+    .ratings-grid
+      .rating-item
+        .rating-title Google Play
+        .rating-row
+          span.rating-badge = google_play_rating
+          a.rating-link href=google_play_url target="_blank" rel="noopener"
+            | Zobacz w Google Play
+        - if iarc_id.present?
+          .rating-meta
+            | IARC Global Rating ID:
+            |  
+            code = iarc_id
+
+      .rating-item
+        .rating-title App Store (iOS)
+        - if app_store_url.present?
+          .rating-row
+            - if app_store_rating.present?
+              span.rating-badge = app_store_rating
+            a.rating-link href=app_store_url target="_blank" rel="noopener"
+              | Zobacz w App Store
+        - else
+          .rating-meta
+            | Status:
+            |  
+            strong = (app_store_status == 'in_review' ? 'w trakcie weryfikacji' : app_store_status.to_s)
+

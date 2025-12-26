@@ -176,6 +176,123 @@ nav {
   font-size: 16px;
 }
 
+/* Store content ratings (between "Jak to działa" and "FAQ") */
+.content-rating-card {
+  display: grid;
+  gap: 10px;
+}
+
+.ratings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.rating-item {
+  border: 1px solid var(--card-border);
+  background: color-mix(in oklab, var(--surface) 65%, transparent);
+  border-radius: 16px;
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.rating-title {
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.rating-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.rating-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 74px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: var(--card);
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+.rating-link {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.rating-link:hover {
+  text-decoration: underline;
+}
+
+.rating-meta {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* "Pobierz na telefon" section */
+.download-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.store-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-weight: 800;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 8px 24px -6px color-mix(in oklab, var(--accent) 50%, transparent);
+}
+
+.store-btn--outline {
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  box-shadow: none;
+}
+
+.store-btn.is-disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.download-qr {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  text-align: center;
+}
+
+.download-qr__title {
+  font-weight: 900;
+}
+
+.download-qr__code img {
+  width: min(240px, 70vw);
+  height: auto;
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.download-qr__meta {
+  color: var(--muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
 .pill {
   display: inline-flex;
   align-items: center;

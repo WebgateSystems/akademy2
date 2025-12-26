@@ -313,4 +313,7 @@ Rails.application.routes.draw do
 
   # Landing page
   root 'home#index'
+
+  # Store redirect (used by QR on landing) - detects device and redirects to the right store.
+  get '/get-app', to: 'store_redirect#show', as: :get_app
 end
