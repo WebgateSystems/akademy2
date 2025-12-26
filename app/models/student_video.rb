@@ -41,6 +41,8 @@ class StudentVideo < ApplicationRecord
   # Callbacks
   after_destroy :remove_file_from_disk
   after_commit :process_video, on: :create
+  before_destroy :stash_youtube_id_for_deletion
+  after_destroy :enqueue_youtube_delete
 
   # Instance methods
   def pending?
@@ -196,5 +198,15 @@ class StudentVideo < ApplicationRecord
     remove_thumbnail!
   rescue StandardError => e
     Rails.logger.error "Failed to remove video file: #{e.message}"
+  end
+
+  def stash_youtube_id_for_deletion
+    @youtube_id_for_deletion = youtube_id
+  end
+
+  def enqueue_youtube_delete
+    return if @youtube_id_for_deletion.blank?
+
+    DeleteYoutubeVideoJob.perform_async(id, @youtube_id_for_deletion)
   end
 end

@@ -40,3 +40,5 @@ services:
     client_id: <%= ENV['YOUTUBE_ID'] || 'youtube_id' %>
     client_secret: <%= ENV['YOUTUBE_CLIENT_SECRET'] || 'youtube_client_secret' %>
     refresh_token: <%= ENV['YOUTUBE_REFRESH_TOKEN'] || 'youtube_refresh_token' %>
+    # YouTube API: "public" | "unlisted" | "private"
+    privacy_status: <%= ENV['YOUTUBE_PRIVACY_STATUS'] || 'public' %>

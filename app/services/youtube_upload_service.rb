@@ -5,7 +5,6 @@ require 'googleauth'
 
 class YoutubeUploadService
   YOUTUBE_SCOPE = 'https://www.googleapis.com/auth/youtube.upload'
-  PRIVACY_STATUS = 'unlisted'
 
   def self.call(**args)
     new(**args).call
@@ -72,7 +71,7 @@ class YoutubeUploadService
 
   def status
     {
-      privacy_status: PRIVACY_STATUS
+      privacy_status: Settings.services.youtube.privacy_status
     }
   end
 end

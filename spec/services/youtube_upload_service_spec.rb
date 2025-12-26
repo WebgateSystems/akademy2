@@ -22,7 +22,8 @@ RSpec.describe YoutubeUploadService do
     # Mock Settings
     allow(Settings.services.youtube).to receive_messages(client_id: 'test_client_id',
                                                          client_secret: 'test_client_secret',
-                                                         refresh_token: 'test_refresh_token')
+                                                         refresh_token: 'test_refresh_token',
+                                                         privacy_status: 'public')
   end
 
   describe '.call' do
@@ -108,11 +109,11 @@ RSpec.describe YoutubeUploadService do
       end
     end
 
-    it 'creates video resource with unlisted privacy status' do
+    it 'creates video resource with public privacy status' do
       service.call
 
       expect(youtube_service).to have_received(:insert_video) do |_parts, resource, _options|
-        expect(resource.status[:privacy_status]).to eq('unlisted')
+        expect(resource.status[:privacy_status]).to eq('public')
       end
     end
 
@@ -154,8 +155,6 @@ RSpec.describe YoutubeUploadService do
       expect(described_class::YOUTUBE_SCOPE).to eq('https://www.googleapis.com/auth/youtube.upload')
     end
 
-    it 'has PRIVACY_STATUS constant' do
-      expect(described_class::PRIVACY_STATUS).to eq('unlisted')
-    end
+    # privacy status is configured via Settings.services.youtube.privacy_status
   end
 end
