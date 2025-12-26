@@ -57,7 +57,7 @@ Rails.application.routes.draw do
     post 'profile',       to: 'wizard#profile_submit'
 
     get  'verify-phone',  to: 'wizard#verify_phone', as: :verify_phone
-    get  'resend-code',   to: 'wizard#resend-code'
+    get  'resend-code',   to: 'wizard#resend_code'
     post 'verify-phone',  to: 'wizard#verify_phone_submit'
 
     get  'set-pin',       to: 'wizard#set_pin', as: :set_pin
