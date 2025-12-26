@@ -18,6 +18,7 @@ RSpec.describe TwilioService, type: :service do
     # Settings stub
     allow(Settings.services.twilio).to receive_messages(
       phone_number: '+48000000000',
+      messaging_service_sid: '',
       account_sid: 'default_sid',
       auth_token: 'default_token'
     )
@@ -77,6 +78,18 @@ RSpec.describe TwilioService, type: :service do
           from: '+48000000000'
         )
         expect(result).to eq(success: true, sid: 'SM123', status: 'sent')
+      end
+
+      it 'uses default messaging_service_sid (alfa sender) when configured' do
+        allow(Settings.services.twilio).to receive(:messaging_service_sid).and_return('MG_DEFAULT')
+
+        service.send_sms(to: to, body: body)
+
+        expect(messages).to have_received(:create).with(
+          to: to,
+          body: body,
+          messaging_service_sid: 'MG_DEFAULT'
+        )
       end
 
       it 'sends SMS with explicit from number when provided' do

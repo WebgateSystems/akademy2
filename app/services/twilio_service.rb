@@ -10,7 +10,8 @@ class TwilioService
 
     log "[Twilio] Sending SMS to #{to}: #{body}"
 
-    params = build_params(to: to, body: body, from: from, messaging_service_sid: messaging_service_sid)
+    effective_messaging_service_sid = messaging_service_sid.presence || default_messaging_service_sid
+    params = build_params(to: to, body: body, from: from, messaging_service_sid: effective_messaging_service_sid)
     client = build_client(account_sid, auth_token)
 
     create_message(client, params)
@@ -68,6 +69,10 @@ class TwilioService
   # --------------------------
   def default_from_number
     Settings.services.twilio.phone_number
+  end
+
+  def default_messaging_service_sid
+    Settings.services.twilio.messaging_service_sid
   end
 
   def normalize_phone(phone)
