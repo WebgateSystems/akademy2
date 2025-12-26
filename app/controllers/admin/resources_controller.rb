@@ -1,6 +1,7 @@
 class Admin::ResourcesController < Admin::BaseController
   RESOURCES = {
     'users' => User,
+    'app_managers' => User,
     'teachers' => User,
     'students' => User,
     'roles' => Role,
@@ -23,7 +24,7 @@ class Admin::ResourcesController < Admin::BaseController
   }.freeze
 
   before_action :set_resource_class, except: %i[reorder_subjects reorder_learning_module_contents]
-  before_action :set_record, only: %i[show edit update destroy]
+  before_action :set_record, only: %i[show edit update destroy lock unlock]
 
   def index
     case params[:resource]
@@ -31,6 +32,8 @@ class Admin::ResourcesController < Admin::BaseController
       load_schools
     when 'users'
       load_headmasters
+    when 'app_managers'
+      load_app_managers
     when 'teachers'
       load_teachers
     when 'students'
@@ -101,13 +104,28 @@ class Admin::ResourcesController < Admin::BaseController
 
     @record = @resource_class.new(create_params)
     prepare_record_for_creation
-    assign_principal_role if creating_headmaster?
 
     if @record.save
-      redirect_to admin_resource_collection_path(resource: params[:resource]), notice: 'Utworzono.'
+      assign_principal_role if creating_headmaster?
+      assign_manager_role if creating_app_manager?
+      redirect_to admin_resource_collection_path(resource: params[:resource]), notice: t('admin.flash.created')
     else
       render :new, status: :unprocessable_entity
     end
+  end
+
+  def lock
+    return head :not_found unless @resource_class == User
+
+    @record.lock_access! if @record.locked_at.blank?
+    redirect_to admin_resource_collection_path(resource: params[:resource]), notice: t('admin.flash.locked')
+  end
+
+  def unlock
+    return head :not_found unless @resource_class == User
+
+    @record.unlock_access! if @record.locked_at.present?
+    redirect_to admin_resource_collection_path(resource: params[:resource]), notice: t('admin.flash.unlocked')
   end
 
   def update
@@ -119,7 +137,7 @@ class Admin::ResourcesController < Admin::BaseController
     @record.remove_icon! if @resource_class == Subject && params[:subject][:remove_icon] == '1'
 
     if @record.update(update_params)
-      redirect_to admin_resource_collection_path(resource: params[:resource]), notice: 'Zaktualizowano.'
+      redirect_to admin_resource_collection_path(resource: params[:resource]), notice: t('admin.flash.updated')
     else
       render :edit, status: :unprocessable_entity
     end
@@ -290,6 +308,8 @@ class Admin::ResourcesController < Admin::BaseController
               else
                 @resource_class.find(params[:id])
               end
+  rescue ActiveRecord::RecordNotFound
+    head :not_found
   end
 
   def permitted_params
@@ -345,6 +365,16 @@ class Admin::ResourcesController < Admin::BaseController
                .order(created_at: :desc)
                .limit(200)
     render 'admin/resources/headmasters'
+  end
+
+  def load_app_managers
+    @records = @resource_class
+               .joins(:roles)
+               .where(roles: { key: 'manager' })
+               .distinct
+               .order(created_at: :desc)
+               .limit(200)
+    render 'admin/resources/app_managers'
   end
 
   def load_teachers
@@ -405,6 +435,7 @@ class Admin::ResourcesController < Admin::BaseController
 
   def prepare_record_for_creation
     handle_headmaster_metadata if creating_headmaster?
+    handle_app_manager_defaults if creating_app_manager?
     handle_school_slug if creating_school?
     handle_subject_slug_and_order if creating_subject?
     handle_unit_order if creating_unit?
@@ -412,8 +443,17 @@ class Admin::ResourcesController < Admin::BaseController
     handle_content_order if creating_content?
   end
 
+  def handle_app_manager_defaults
+    # App managers should be usable immediately (no email confirmation flow like headmasters)
+    @record.confirmed_at ||= Time.current if @record.respond_to?(:confirmed_at)
+  end
+
   def creating_headmaster?
     @resource_class == User && params[:user][:role_key] == 'principal'
+  end
+
+  def creating_app_manager?
+    @resource_class == User && params[:user][:role_key] == 'manager'
   end
 
   def creating_school?
@@ -541,6 +581,16 @@ class Admin::ResourcesController < Admin::BaseController
     return unless principal_role
 
     UserRole.create!(user: @record, role: principal_role, school: @record.school)
+  end
+
+  def assign_manager_role
+    return unless creating_app_manager?
+
+    manager_role = Role.find_by(key: 'manager')
+    return unless manager_role
+
+    # App manager role is global.
+    UserRole.create!(user: @record, role: manager_role)
   end
 
   def prepare_params_for_update(update_params)

@@ -30,6 +30,13 @@
 en:
   hello: "Hello world"
 
+  admin:
+    flash:
+      created: "Created."
+      updated: "Updated."
+      locked: "Locked."
+      unlocked: "Unlocked."
+
   navigation:
     dashboard: "Dashboard"
     schools: "Schools"

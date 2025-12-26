@@ -3,6 +3,7 @@ class Admin::BaseController < ApplicationController
   helper_method :notifications_count
 
   before_action :authenticate_admin!
+  before_action :check_admin_active!
   before_action :require_admin!
   before_action :set_notifications_count
 
@@ -16,6 +17,14 @@ class Admin::BaseController < ApplicationController
     # Store the location user was trying to access
     session[:return_to] = request.fullpath if request.get?
     redirect_to new_admin_session_path
+  end
+
+  def check_admin_active!
+    return unless current_admin
+    return if current_admin.active?
+
+    session.delete(:admin_id)
+    redirect_to new_admin_session_path, alert: t('devise.failure.locked')
   end
 
   def current_admin
@@ -39,7 +48,7 @@ class Admin::BaseController < ApplicationController
   end
 
   def require_admin!
-    redirect_to new_admin_session_path unless current_admin&.admin?
+    redirect_to new_admin_session_path unless current_admin&.admin_panel_access?
   end
 
   def set_notifications_count

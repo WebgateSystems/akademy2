@@ -42,7 +42,11 @@ RSpec.describe CertificatesController, type: :request do
         get public_certificate_path(certificate)
 
         expect(response.body).to include(student.first_name)
-        expect(response.body).to include(student.last_name)
+        # Last names can be HTML-escaped in the response (e.g. apostrophe -> &#39;)
+        escaped_last_name = ERB::Util.h(student.last_name)
+        expect(response.body).to(satisfy do |body|
+          body.include?(student.last_name) || body.include?(escaped_last_name)
+        end)
       end
 
       it 'displays module title' do

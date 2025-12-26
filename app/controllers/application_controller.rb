@@ -39,6 +39,7 @@ class ApplicationController < ActionController::Base
   def redirect_path_for_user_roles(user)
     user_roles = user.roles.pluck(:key)
     return admin_root_path if user_roles.include?('admin')
+    return admin_root_path if user_roles.include?('manager')
     return dashboard_path if user_roles.include?('teacher')
     return management_root_path if management_role?(user_roles)
     return public_home_path if user_roles.include?('student')

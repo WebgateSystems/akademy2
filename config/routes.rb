@@ -43,6 +43,8 @@ Rails.application.routes.draw do
     post 'subjects/reorder', to: 'resources#reorder_subjects', as: :reorder_subjects
     post 'learning_modules/:id/reorder_contents', to: 'resources#reorder_learning_module_contents',
                                                   as: :reorder_learning_module_contents
+    post ':resource/:id/lock', to: 'resources#lock', as: :lock_resource
+    post ':resource/:id/unlock', to: 'resources#unlock', as: :unlock_resource
     get ':resource', to: 'resources#index', as: :resource_collection
     get ':resource/new', to: 'resources#new', as: :new_resource
     post ':resource', to: 'resources#create', as: :create_resource

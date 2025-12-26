@@ -6,7 +6,7 @@ class Admin::SessionsController < ApplicationController
   def create
     result = ::Api::V1::Sessions::CreateSession.call(params: { user: params })
 
-    return handle_success(result) if result.success? && result.form.admin?
+    return handle_success(result) if result.success? && result.form.admin_panel_access?
 
     handle_failure(result)
   end

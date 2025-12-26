@@ -1,0 +1,207 @@
+- content_for :page_title, 'Managerzy aplikacji'
+
+section aria-label="Managerzy aplikacji"
+  header.schools-page__header
+    label.schools-search.schools-search--half
+      span.visually-hidden Szukaj
+      input type="search" placeholder="Szukaj..." id="app-managers-search-input"
+      = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true", "data-theme-icon": true
+    button.schools-page__add type="button" data-open-modal="add-app-manager-modal"
+      | Dodaj managera
+  .schools-page__controls
+
+  p.small style="margin:0 0 12px"
+    | Konta z rolą 
+    strong manager
+    |  — dostęp do panelu 
+    code
+      | /admin
+    | .
+
+  .schools-card
+    table.schools-page__table
+      thead
+        tr
+          th.left scope="col" Imię i nazwisko
+          th.left scope="col" Email
+          th.left scope="col" Utworzono
+          th.left scope="col" Status
+          th.right scope="col" Akcje
+      tbody
+        - @records.each do |user|
+          tr
+            td = user.full_name
+            td = user.email
+            td = user.created_at.strftime('%d.%m.%Y')
+            td
+              - if user.locked_at.present?
+                span style="color: var(--state-error); font-weight: 500;" = t('common.inactive')
+              - else
+                span style="color: var(--state-success); font-weight: 500;" = t('common.active')
+            td.schools-page__actions.dp-table-cell
+              .headmasters-actions
+                details.headmasters-menu
+                  summary aria-label="Otwórz menu akcji"
+                    = image_tag "icons/social/S/button-3.svg", alt: "", "data-theme-icon": true
+                  ul
+                    li
+                      = link_to admin_edit_resource_path(resource: 'app_managers', id: user.id), class: 'dropdown-link' do
+                        = t('common.edit')
+                    li
+                      - if user.locked_at.present?
+                        = button_to admin_unlock_resource_path(resource: 'app_managers', id: user.id), method: :post, form_class: 'inline-form', class: 'dropdown-link', type: 'submit' do
+                          | Odblokuj
+                      - else
+                        = button_to admin_lock_resource_path(resource: 'app_managers', id: user.id), method: :post, form_class: 'inline-form', class: 'dropdown-link', type: 'submit' do
+                          | Zablokuj
+                    li
+                      = button_to admin_destroy_resource_path(resource: 'app_managers', id: user.id), method: :delete, form_class: 'inline-form', class: 'dropdown-link', data: { turbo_confirm: 'Na pewno usunąć konto?' }, type: 'submit' do
+                        | Usuń
+        - if @records.empty?
+          tr
+            td.text-center colspan="5" style="padding: 40px; color: var(--content-secondary);"
+              | Brak managerów aplikacji.
+
+/ Add Modal
+.schools-modal#add-app-manager-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="add-app-manager-title"
+    header.schools-modal__header
+      h3#add-app-manager-title Dodaj managera aplikacji
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="add-app-manager-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    = form_with url: admin_create_resource_path(resource: 'app_managers'), method: :post, class: "schools-modal__form" do
+      = hidden_field_tag 'user[role_key]', 'manager'
+      label
+        span
+          | Email
+          sup style="color: var(--content-secondary);" *
+        input type="email" name="user[email]" placeholder="manager@akademy.local" required=""
+      .cols style="grid-template-columns:repeat(2,minmax(160px,1fr)); gap:12px"
+        label
+          span Imię
+          input type="text" name="user[first_name]" placeholder="Marek"
+        label
+          span Nazwisko
+          input type="text" name="user[last_name]" placeholder="Manager"
+      label
+        span Telefon
+        input type="text" name="user[metadata][phone]" placeholder="+48 XXX XXX XXX"
+      .cols style="grid-template-columns:repeat(2,minmax(160px,1fr)); gap:12px"
+        label
+          span
+            | Hasło
+            sup style="color: var(--content-secondary);" *
+          input type="password" name="user[password]" autocomplete="new-password" required=""
+        label
+          span
+            | Powtórz hasło
+            sup style="color: var(--content-secondary);" *
+          input type="password" name="user[password_confirmation]" autocomplete="new-password" required=""
+      .schools-modal__actions
+        button.schools-modal__primary type="submit" Utwórz
+        button.schools-modal__secondary type="button" data-close-modal="add-app-manager-modal" = t('common.cancel')
+
+javascript:
+  // Minimal client-side search filtering (no API)
+  (function () {
+    const input = document.getElementById('app-managers-search-input');
+    if (!input) return;
+    const rows = Array.from(document.querySelectorAll('table.schools-page__table tbody tr'));
+    input.addEventListener('input', () => {
+      const q = input.value.toLowerCase().trim();
+      rows.forEach((tr) => {
+        const text = tr.textContent.toLowerCase();
+        tr.style.display = q === '' || text.includes(q) ? '' : 'none';
+      });
+    });
+  })();
+
+  // Modal handlers (same pattern as other admin pages)
+  (function () {
+    document.querySelectorAll('[data-open-modal]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById(btn.getAttribute('data-open-modal'));
+        if (!modal) return;
+        modal.setAttribute('aria-hidden', 'false');
+        modal.classList.add('is-open');
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById(btn.getAttribute('data-close-modal'));
+        if (!modal) return;
+        modal.setAttribute('aria-hidden', 'true');
+        modal.classList.remove('is-open');
+      });
+    });
+
+    document.querySelectorAll('.schools-modal__overlay').forEach((overlay) => {
+      overlay.addEventListener('click', function () {
+        const modal = this.closest('.schools-modal');
+        if (!modal) return;
+        modal.setAttribute('aria-hidden', 'true');
+        modal.classList.remove('is-open');
+      });
+    });
+  })();
+
+  // Menu positioning (same pattern as headmasters) – prevents overflow outside viewport
+  (function () {
+    const menus = document.querySelectorAll('.headmasters-menu');
+    const tbody = document.querySelector('table.schools-page__table tbody');
+    if (!menus.length || !tbody) return;
+
+    menus.forEach((menu) => {
+      const summary = menu.querySelector('summary');
+      if (!summary) return;
+
+      menu.addEventListener('toggle', function () {
+        if (!menu.open) return;
+
+        menus.forEach((m) => { if (m !== menu && m.open) m.open = false; });
+
+        requestAnimationFrame(() => {
+          const summaryRect = summary.getBoundingClientRect();
+          const ul = menu.querySelector('ul');
+          if (!ul) return;
+
+          const ulHeight = ul.offsetHeight || 150;
+          const spaceBelow = window.innerHeight - summaryRect.bottom;
+          const spaceAbove = summaryRect.top;
+
+          ul.style.position = 'fixed';
+          ul.style.zIndex = '999999';
+          ul.style.isolation = 'isolate';
+          ul.style.transform = 'translateZ(0)';
+          ul.style.willChange = 'transform';
+          ul.style.maxWidth = 'min(220px, calc(100vw - 24px))';
+
+          const right = Math.max(12, window.innerWidth - summaryRect.right);
+          ul.style.right = right + 'px';
+          ul.style.left = 'auto';
+
+          if (spaceBelow < ulHeight + 20 && spaceAbove > ulHeight + 20) {
+            menu.setAttribute('data-menu-align', 'top');
+            ul.style.bottom = (window.innerHeight - summaryRect.top + 10) + 'px';
+            ul.style.top = 'auto';
+          } else {
+            menu.removeAttribute('data-menu-align');
+            ul.style.top = (summaryRect.bottom + 10) + 'px';
+            ul.style.bottom = 'auto';
+          }
+        });
+      });
+
+      const ul = menu.querySelector('ul');
+      if (ul) ul.addEventListener('click', (e) => e.stopPropagation());
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.headmasters-menu')) {
+        menus.forEach((m) => { if (m.open) m.open = false; });
+      }
+    }, true);
+  })();
+

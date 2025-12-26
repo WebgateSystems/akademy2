@@ -36,6 +36,9 @@ html lang="pl" class="no-js" data-theme="auto"
           = link_to admin_resource_collection_path(resource: 'users'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/users')}" do
             i.bi.bi-person-badge aria-hidden="true"
             span.dashboard-nav__label = t('navigation.headmasters')
+          = link_to admin_resource_collection_path(resource: 'app_managers'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/app_managers')}" do
+            i.bi.bi-shield-lock aria-hidden="true"
+            span.dashboard-nav__label Managerzy aplikacji
           = link_to admin_resource_collection_path(resource: 'teachers'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/teachers')}" do
             i.bi.bi-person-workspace aria-hidden="true"
             span.dashboard-nav__label = t('navigation.teachers')

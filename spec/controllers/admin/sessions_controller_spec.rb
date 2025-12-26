@@ -32,7 +32,7 @@ RSpec.describe Admin::SessionsController, type: :controller do
       it 'creates session and redirects to admin root' do
         result = double(
           success?: true,
-          form: double(admin?: true),
+          form: double(admin_panel_access?: true),
           access_token: 'test-token'
         )
         allow(Api::V1::Sessions::CreateSession).to receive(:call).and_return(result)
@@ -64,7 +64,7 @@ RSpec.describe Admin::SessionsController, type: :controller do
       it 'renders new with error' do
         result = double(
           success?: true,
-          form: double(admin?: false),
+          form: double(admin_panel_access?: false),
           message: nil
         )
         allow(Api::V1::Sessions::CreateSession).to receive(:call).and_return(result)

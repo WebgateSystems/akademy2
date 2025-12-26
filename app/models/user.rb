@@ -37,6 +37,15 @@ class User < ApplicationRecord
     roles.pluck(:key).include?('admin')
   end
 
+  def manager?
+    roles.pluck(:key).include?('manager')
+  end
+
+  # Access to /admin panel (superadmin + application managers)
+  def admin_panel_access?
+    admin? || manager?
+  end
+
   def teacher?
     roles.pluck(:key).include?('teacher')
   end

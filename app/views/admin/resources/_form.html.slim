@@ -1,4 +1,8 @@
-= form_with model: @record, url: request.path, method: (@record.persisted? ? :patch : :post), class: 'needs-validation' do |f|
+- form_url = @record.persisted? ? admin_update_resource_path(resource: params[:resource], id: @record.id) : admin_create_resource_path(resource: params[:resource])
+
+= form_with model: @record, url: form_url, method: (@record.persisted? ? :patch : :post), class: 'needs-validation' do |f|
+  - if @resource_class == User && params[:resource] == 'app_managers'
+    = hidden_field_tag 'user[role_key]', 'manager'
   .row.g-3
     - (@resource_class.columns.map(&:name) - %w[id created_at updated_at]).each do |col|
       .col-12.col-md-6

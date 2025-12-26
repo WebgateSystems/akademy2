@@ -51,6 +51,28 @@
 			display: block;
 		}
 
+		a.dropdown-link {
+			width: 100%;
+			padding: 0px 16px;
+			height: 40px;
+			border: none;
+			background: transparent;
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+			font: inherit;
+			font-weight: 500;
+			font-size: 14px;
+			color: var(--content-secondary);
+			cursor: pointer;
+			text-decoration: none;
+
+			&:hover {
+				background: var(--surface-hover);
+				text-decoration: none;
+			}
+		}
+
 		button {
 			width: 100%;
 			padding: 0px 16px;

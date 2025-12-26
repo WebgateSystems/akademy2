@@ -1,4 +1,10 @@
 pl:
+  admin:
+    flash:
+      created: "Utworzono."
+      updated: "Zaktualizowano."
+      locked: "Zablokowano."
+      unlocked: "Odblokowano."
   enter:
     title: "Akademy - Kim jesteś?"
     heading: "Kim jesteś?"
