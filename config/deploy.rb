@@ -10,6 +10,11 @@ set :deploy_via, :remote_cache
 set :bundle_without, %w[test development].join(':')
 set :pty, true
 
+# Avoid using global /tmp for Capistrano uploads/scripts (e.g. capistrano-nvm writes nvm-exec.sh there).
+# When staging + production deploy as different users on the same host, stale /tmp files can cause
+# "Permission denied" due to sticky bit. Use per-app shared tmp instead.
+set :tmp_dir, -> { shared_path.join('tmp') }
+
 # NVM / Node
 set :nvm_type, :user
 set :nvm_node, 'v22.19.0'
