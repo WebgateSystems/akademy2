@@ -17,6 +17,9 @@ Sidekiq.configure_server do |config|
     # In production, ensure all application constants (including Sidekiq jobs) are loaded.
     # This prevents NameError "uninitialized constant ..." for newly added job classes.
     Rails.application&.eager_load!
+    # Extra safety: force-load all Sidekiq worker files. This avoids rare cases where a worker constant
+    # isn't eager-loaded and Sidekiq can't constantize it at runtime (NameError).
+    Dir[Rails.root.join('app/jobs/**/*.rb')].sort.each { |path| require path }
 
     schedule_file = 'config/sidekiq.yml'
 
