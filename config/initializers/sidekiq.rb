@@ -14,6 +14,10 @@ Sidekiq.configure_server do |config|
   config.logger = console_logger
 
   config.on(:startup) do
+    # In production, ensure all application constants (including Sidekiq jobs) are loaded.
+    # This prevents NameError "uninitialized constant ..." for newly added job classes.
+    Rails.application&.eager_load!
+
     schedule_file = 'config/sidekiq.yml'
 
     Sidekiq::Scheduler.reload_schedule! if File.exist?(schedule_file) && Sidekiq.server?

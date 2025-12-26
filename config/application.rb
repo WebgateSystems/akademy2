@@ -41,6 +41,8 @@ module Akademy
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    # Ensure Sidekiq workers under `app/jobs` are eagerly loaded in production.
+    config.eager_load_paths << Rails.root.join('app/jobs')
     config.time_zone = 'Europe/Warsaw'
     config.i18n.available_locales = %i[pl en]
     config.i18n.default_locale = :pl
