@@ -50,10 +50,10 @@ module Register
     end
 
     def resend_code
-      phone = @flow.get(:phone)&.dig('phone')
+      phone = @flow['phone']['phone']
       ::Register::SendSmsCode.call(phone:, flow: @flow)
 
-      render json: { ok: true }
+      render json: { ok: true }, status: :ok
     end
 
     def verify_phone_submit
