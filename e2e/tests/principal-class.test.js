@@ -56,45 +56,52 @@ async function runTest() {
 
     const updatedClassName = `${className} UPDATED`;
 
-    // Wait for edit button to appear (may take time in headless mode)
     const editButtonSelector = `button.class-card__edit[data-action="edit-class"][data-class-name="${className}"]`;
     
     await page.waitForSelector(editButtonSelector, { 
       visible: true, 
-      timeout: 10000 // 10 seconds timeout for headless mode
+      timeout: 10000
     });
     
-    // Scroll button into view before clicking (helps in headless mode)
     await page.evaluate((selector) => {
       const btn = document.querySelector(selector);
       if (btn) btn.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }, editButtonSelector);
     
-    await browser.sleep(200); // Small delay for scroll
+    await browser.sleep(200);
     
-    await page.click(editButtonSelector);
+    await Promise.all([
+      page.waitForFunction(
+        () => {
+          const modal = document.getElementById('edit-class-modal');
+          return modal && 
+                 modal.classList.contains('is-open') && 
+                 modal.getAttribute('aria-hidden') === 'false';
+        },
+        { timeout: 10000 }
+      ),
+      page.click(editButtonSelector)
+    ]);
 
-    // Wait for modal to open with longer timeout for headless mode
-    await page.waitForSelector('#edit-class-form', { 
-      visible: true, 
-      timeout: 10000 // 10 seconds timeout
-    });
-    
-    // Wait for form input field to be ready (more reliable check)
     await page.waitForFunction(
       () => {
+        const modal = document.getElementById('edit-class-modal');
         const form = document.getElementById('edit-class-form');
         const input = document.getElementById('edit-class-name');
-        return form && 
-               form.offsetParent !== null && // Form is visible
+        return modal && 
+               modal.classList.contains('is-open') &&
+               modal.getAttribute('aria-hidden') === 'false' &&
+               form && 
+               form.offsetParent !== null && 
                input && 
-               input.offsetParent !== null; // Input is visible
+               input.offsetParent !== null &&
+               !input.disabled;
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     );
     
-    // Additional wait for form to be fully rendered and interactive
-    await browser.sleep(300);
+
+    await browser.sleep(200);
 
     await page.evaluate(() => {
       document.querySelector('#edit-class-name').value = '';
