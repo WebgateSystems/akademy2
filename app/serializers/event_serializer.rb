@@ -2,6 +2,7 @@
 
 class EventSerializer < ApplicationSerializer
   attributes :id, :event_type, :occurred_at, :created_at, :updated_at
+  attribute :user_id, &:user_id
 
   attribute :user_name do |event|
     [event.user.first_name, event.user.last_name].compact.join(' ').presence || event.user.email if event.user

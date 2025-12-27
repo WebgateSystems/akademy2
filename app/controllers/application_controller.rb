@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
 
   before_action :check_user_active
+  before_action :check_user_blocked
   before_action :check_redirect_loop
 
   rescue_from Pundit::NotAuthorizedError do
@@ -56,13 +57,25 @@ class ApplicationController < ActionController::Base
   # Check if logged in user is still active (not locked)
   # If user was deactivated while logged in, sign them out
   def check_user_active
-    return unless respond_to?(:user_signed_in?) && user_signed_in?
     return unless respond_to?(:current_user) && current_user.present?
     return if current_user.active?
 
     sign_out current_user
     # rubocop:disable I18n/GetText/DecorateString
     redirect_to new_user_session_path, alert: 'Twoje konto zostało dezaktywowane. Skontaktuj się z administratorem.'
+    # rubocop:enable I18n/GetText/DecorateString
+  end
+
+  # Kick out users blocked by admin "Blokady" (RequestBlockRule rule_type=user)
+  def check_user_blocked
+    return unless respond_to?(:current_user) && current_user.present?
+
+    return unless RequestBlockRule.blocked?(user_id: current_user.id)
+
+    sign_out current_user
+    reset_session
+    # rubocop:disable I18n/GetText/DecorateString
+    redirect_to new_user_session_path, alert: 'Twoje konto zostało zablokowane. Skontaktuj się z administratorem.'
     # rubocop:enable I18n/GetText/DecorateString
   end
 
@@ -84,7 +97,10 @@ class ApplicationController < ActionController::Base
   end
 
   def user_signed_in?
-    current_user.present? || (respond_to?(:user_signed_in?) && user_signed_in?)
+    return true if respond_to?(:current_user) && current_user.present?
+    return super if defined?(super)
+
+    false
   end
 
   def should_skip_redirect_check?(current_path)

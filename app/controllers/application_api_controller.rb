@@ -6,6 +6,8 @@ class ApplicationApiController < ActionController::API
 
   attr_reader :current_user
 
+  before_action :reject_blocked_request!
+
   private
 
   def authenticate!
@@ -15,6 +17,8 @@ class ApplicationApiController < ActionController::API
     else
       devise_auth
     end
+
+    reject_blocked_user! if current_user
   end
 
   def authorize_access_request!
@@ -53,5 +57,20 @@ class ApplicationApiController < ActionController::API
 
   def not_authorized
     render json: { error: I18n.t('session.errors.not_autorized') }, status: :unauthorized
+  end
+
+  def reject_blocked_request!
+    ip = request.remote_ip
+    return unless RequestBlockRule.blocked?(ip: ip)
+
+    Rails.logger.warn("[BlockedRequest] ip=#{ip}")
+    render json: { error: 'Request blocked' }, status: :forbidden
+  end
+
+  def reject_blocked_user!
+    return unless RequestBlockRule.blocked?(user_id: current_user.id)
+
+    Rails.logger.warn("[BlockedUser] user_id=#{current_user.id}")
+    render json: { error: 'User blocked' }, status: :forbidden
   end
 end

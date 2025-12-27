@@ -38,6 +38,10 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root to: 'dashboard#index'
+    get 'traffic_metrics', to: 'dashboard#traffic_metrics', as: :traffic_metrics
+    post 'events/:id/block_preview', to: 'event_blocks#preview', as: :event_block_preview
+    post 'events/:id/block', to: 'event_blocks#create', as: :event_block
+    resources :request_block_rules, only: %i[index destroy]
     get 'notifications', to: 'notifications#index', as: :notifications
     post 'notifications/mark_as_read', to: 'notifications#mark_as_read', as: :mark_notification_as_read
     post 'subjects/reorder', to: 'resources#reorder_subjects', as: :reorder_subjects

@@ -1,0 +1,157 @@
+- content_for :page_title, 'Blokady'
+
+section aria-label="Blokady"
+  header.schools-page__header
+    label.schools-search.schools-search--half
+      span.visually-hidden Szukaj reguł
+      input type="search" placeholder="Szukaj po użytkowniku / IP / CIDR..." id="block-rules-search-input" value=@query
+      = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true", "data-theme-icon": true
+
+  .schools-card.headmasters-table
+    table.schools-page__table
+      thead
+        tr
+          th.left scope="col" Typ
+          th.left scope="col" Wartość
+          th.left scope="col" Użytkownik
+          th.left scope="col" Utworzono
+          th.left scope="col" Notatka
+          th.right scope="col" Akcje
+      tbody
+        - @rules.each do |rule|
+          - blocked_user = (rule.rule_type == 'user' ? @blocked_users_by_id[rule.value.to_s] : nil)
+          tr
+            td = rule.rule_type
+            td
+              code = rule.value
+            td
+              - if blocked_user
+                = [blocked_user.first_name, blocked_user.last_name].compact.join(' ').presence || blocked_user.email
+              - elsif rule.rule_type == 'user'
+                | #{rule.value}
+              - else
+                | —
+            td = rule.created_at.strftime('%d.%m.%Y %H:%M')
+            td = rule.note.presence || '—'
+            td.schools-page__actions.dp-table-cell
+              .headmasters-actions
+                details.headmasters-menu
+                  summary aria-label="Otwórz menu akcji"
+                    = image_tag "icons/social/S/button-3.svg", alt: "", "data-theme-icon": true
+                  ul
+                    li
+                      button type="button" data-action="delete-rule" data-rule-id=rule.id data-rule-label="#{rule.rule_type}: #{rule.value}"
+                        | Usuń regułę
+        - if @rules.empty?
+          tr
+            td.text-center colspan="6" style="padding: 40px; color: var(--content-secondary);"
+              | Brak reguł.
+
+/. Delete confirm modal
+.schools-modal#delete-block-rule-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="delete-block-rule-title"
+    header.schools-modal__header
+      h3#delete-block-rule-title Usuń regułę blokady
+      button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="delete-block-rule-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__form
+      p#delete-block-rule-desc style="margin:0 0 16px; color: var(--content-secondary);"
+      form#delete-block-rule-form method="post"
+        input type="hidden" name="_method" value="delete"
+        = hidden_field_tag :authenticity_token, form_authenticity_token
+        .schools-modal__actions
+          button.schools-modal__secondary type="button" data-close-modal="delete-block-rule-modal" Anuluj
+          button.schools-modal__primary type="submit" Usuń
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    // Search -> reload with q param
+    const input = document.getElementById('block-rules-search-input');
+    if (input) {
+      let t;
+      input.addEventListener('input', function() {
+        clearTimeout(t);
+        t = setTimeout(() => {
+          const q = input.value.trim();
+          const url = new URL(window.location.href);
+          if (q) url.searchParams.set('q', q);
+          else url.searchParams.delete('q');
+          window.location.href = url.toString();
+        }, 250);
+      });
+    }
+
+    // Menu positioning (reuse the same pattern as headmasters)
+    (function setupMenus() {
+      const menus = document.querySelectorAll('.headmasters-menu');
+      const tbody = document.querySelector('.headmasters-table tbody');
+      if (!tbody) return;
+
+      menus.forEach((menu) => {
+        const summary = menu.querySelector('summary');
+        if (!summary) return;
+        menu.addEventListener('toggle', function() {
+          if (!menu.open) return;
+          menus.forEach(m => { if (m !== menu && m.open) m.open = false; });
+          requestAnimationFrame(() => {
+            const summaryRect = summary.getBoundingClientRect();
+            const ul = menu.querySelector('ul');
+            if (!ul) return;
+            const ulHeight = ul.offsetHeight || 150;
+            const spaceBelow = window.innerHeight - summaryRect.bottom;
+            const spaceAbove = summaryRect.top;
+
+            ul.style.position = 'fixed';
+            ul.style.zIndex = '999999';
+            ul.style.isolation = 'isolate';
+            ul.style.transform = 'translateZ(0)';
+            ul.style.willChange = 'transform';
+            ul.style.right = (window.innerWidth - summaryRect.right) + 'px';
+
+            if (spaceBelow >= ulHeight + 20 || spaceBelow >= spaceAbove) {
+              ul.style.top = (summaryRect.bottom + 10) + 'px';
+              ul.style.bottom = 'auto';
+            } else {
+              ul.style.bottom = (window.innerHeight - summaryRect.top + 10) + 'px';
+              ul.style.top = 'auto';
+            }
+          });
+        });
+        const ul = menu.querySelector('ul');
+        if (ul) ul.addEventListener('click', e => e.stopPropagation());
+      });
+
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.headmasters-menu')) {
+          menus.forEach(m => { if (m.open) m.open = false; });
+        }
+      }, true);
+    })();
+
+    // Delete modal
+    const modal = document.getElementById('delete-block-rule-modal');
+    const desc = document.getElementById('delete-block-rule-desc');
+    const form = document.getElementById('delete-block-rule-form');
+
+    function openModal() { if (modal) { modal.setAttribute('aria-hidden', 'false'); modal.classList.add('is-open'); } }
+    function closeModal() { if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); } }
+
+    document.querySelectorAll('[data-close-modal="delete-block-rule-modal"]').forEach(btn => btn.addEventListener('click', closeModal));
+    if (modal) {
+      const overlay = modal.querySelector('.schools-modal__overlay');
+      if (overlay) overlay.addEventListener('click', closeModal);
+    }
+
+    document.querySelectorAll('[data-action="delete-rule"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-rule-id');
+        const label = btn.getAttribute('data-rule-label');
+        if (desc) desc.textContent = `Czy na pewno chcesz usunąć regułę: ${label}?`;
+        if (form) form.setAttribute('action', `/admin/request_block_rules/${encodeURIComponent(id)}`);
+        openModal();
+      });
+    });
+  });
+
+

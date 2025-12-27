@@ -432,6 +432,45 @@
 	}
 }
 
+/* API traffic range tabs */
+.traffic-range-tabs {
+	display: inline-flex;
+	align-items: center;
+	gap: 0;
+	border: 1px solid var(--border-primary);
+	border-radius: 999px;
+	overflow: hidden;
+	background: var(--surface-primary);
+	flex-shrink: 0;
+}
+
+.traffic-range-tab {
+	border: none;
+	background: transparent;
+	color: var(--content-secondary);
+	font: inherit;
+	font-weight: 600;
+	font-size: 12px;
+	line-height: 1;
+	padding: 10px 12px;
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+
+.traffic-range-tab + .traffic-range-tab {
+	border-left: 1px solid var(--border-primary);
+}
+
+.traffic-range-tab:hover {
+	background: var(--surface-hover);
+	color: var(--content-primary);
+}
+
+.traffic-range-tab.is-active {
+	background: var(--surface-active);
+	color: var(--content-primary);
+}
+
 .schools-search--wide {
 	max-width: none;
 	width: 100%;
@@ -591,6 +630,25 @@
 	}
 }
 
+.js-line-chart[data-chart-id='api-traffic'] {
+	// Vertical time divisions (set from JS via --x-grid-columns).
+	.chart__grid {
+		--x-grid-columns: 12;
+		// Use a non-repeating gradient and repeat it via background-size.
+		// (Avoid combining repeating-linear-gradient with background-size, which can over-repeat.)
+		background-image: linear-gradient(
+			to right,
+			var(--chart-grid-line) 0,
+			var(--chart-grid-line) 0.5px,
+			transparent 0.5px,
+			transparent 100%
+		);
+		background-size: calc(100% / var(--x-grid-columns)) 100%;
+		background-position: left top;
+		background-repeat: repeat;
+	}
+}
+
 .chart__canvas {
 	position: relative;
 	height: 240px;
@@ -602,6 +660,133 @@
 		height: 100%;
 		display: block;
 	}
+}
+
+.chart-crosshair {
+	position: absolute;
+	inset: 24px 48px 56px 24px; // same inner plot area as .chart__grid
+	pointer-events: none;
+	z-index: 4;
+}
+
+.chart-crosshair__v {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 1px;
+	background: color-mix(in oklab, var(--content-primary) 14%, transparent);
+	transform: translateX(-0.5px);
+}
+
+.chart-crosshair__h {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: color-mix(in oklab, var(--content-primary) 14%, transparent);
+	transform: translateY(-0.5px);
+}
+
+.chart-crosshair__dot {
+	position: absolute;
+	width: 8px;
+	height: 8px;
+	border-radius: 999px;
+	background: var(--surface-primary);
+	border: 2px solid var(--accent, #2563eb);
+	transform: translate(-50%, -50%);
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.chart-crosshair__x,
+.chart-crosshair__y {
+	position: absolute;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--content-primary);
+	background: var(--surface-primary);
+	border: 1px solid var(--border-primary);
+	border-radius: 10px;
+	padding: 6px 8px;
+	box-shadow: 0 10px 22px rgba(0, 0, 0, 0.14);
+	white-space: nowrap;
+}
+
+.chart-crosshair__x {
+	bottom: -46px; // sit near x axis labels
+	transform: translateX(-50%);
+}
+
+.chart-crosshair__y {
+	right: -46px; // sit near y axis labels
+	transform: translateY(-50%);
+}
+
+.chart-selection-popover {
+	position: absolute;
+	z-index: 5;
+	min-width: 260px;
+	max-width: min(420px, calc(100% - 24px));
+	padding: 10px 12px;
+	border-radius: 12px;
+	border: 1px solid var(--border-primary);
+	background: var(--surface-primary);
+	box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+	backdrop-filter: blur(6px);
+}
+
+.chart-selection-popover__meta {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--content-secondary);
+	margin-bottom: 8px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.chart-selection-popover__actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.chart-selection-popover__btn {
+	border: 1px solid var(--border-primary);
+	background: var(--surface-secondary);
+	color: var(--content-primary);
+	font: inherit;
+	font-weight: 600;
+	font-size: 12px;
+	line-height: 1;
+	padding: 10px 12px;
+	border-radius: 10px;
+	cursor: pointer;
+	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+.chart-selection-popover__btn:hover {
+	background: var(--surface-hover);
+	transform: translateY(-1px);
+}
+
+.chart-selection-popover__btn--primary {
+	// Some admin screens may not define --accent; provide a safe fallback so CTA stays visible.
+	background: var(--accent, #2563eb);
+	border-color: var(--accent, #2563eb);
+	color: #fff;
+}
+
+.chart-selection-popover__btn--primary:hover {
+	background: color-mix(in oklab, var(--accent, #2563eb) 92%, #000);
+}
+
+.chart-selection-popover__btn--ghost {
+	background: transparent;
 }
 
 .chart__svg {

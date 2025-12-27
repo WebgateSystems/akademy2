@@ -22,7 +22,8 @@ module ApiRequestLogger
     start_time = Time.current
     yield
   ensure
-    log_request_if_needed(start_time) if current_user && response.status < 500
+    # Log all API traffic (even unauthenticated/forbidden) so the dashboard chart reflects reality.
+    log_request_if_needed(start_time) if response.status < 500
   end
 
   def log_request_if_needed(start_time)
@@ -33,7 +34,10 @@ module ApiRequestLogger
       user: current_user,
       status: response.status,
       params: request.params.except('controller', 'action', 'format'),
-      response_time: response_time
+      response_time: response_time,
+      ip: request.remote_ip,
+      user_agent: request.user_agent,
+      request_id: request.request_id
     )
   end
 end

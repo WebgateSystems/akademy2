@@ -183,6 +183,25 @@ RSpec.describe Users::SessionsController, type: :request do
         end.not_to raise_error
       end
     end
+
+    context 'when teacher is blocked by RequestBlockRule(user)' do
+      it 'does not allow login' do
+        RequestBlockRule.create!(rule_type: 'user', value: teacher_user.id.to_s)
+
+        post user_session_path, params: {
+          role: 'teacher',
+          user: {
+            email: teacher_user.email,
+            password: teacher_user.password
+          }
+        }
+
+        # Blocked user should NOT be logged in. Devise may return 422 or redirect back to sign_in.
+        # The key assertion is that they're not actually authenticated.
+        follow_redirect! if response.redirect?
+        expect(request.env['warden'].user).to be_nil
+      end
+    end
   end
 
   describe 'student PIN login' do

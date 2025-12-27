@@ -21,13 +21,18 @@ section.activity-log aria-label=(t('admin.resources.activity_log.title'))
         button.activity-date-picker__calendar type="button" aria-label=(t('admin.resources.activity_log.select_date_to'))
           = image_tag "icons/social/M/calendar.svg", alt: "", "data-theme-icon": true
 
+    .activity-filter
+      label.activity-filter__label for="activity-ip-filter" IP
+      .activity-date-picker.activity-date-picker--plain
+        input#activity-ip-filter.activity-date-picker__display type="text" placeholder="np. 1.2.3.4 lub 1.2.3.*"
+
   .activity-log__table
     .activity-log__head
       span = t('admin.resources.activity_log.date')
       span = t('admin.resources.activity_log.source')
       span = t('admin.resources.activity_log.action')
       span = t('admin.resources.activity_log.subject')
-      span = t('admin.resources.activity_log.subject_id')
+      span IP
     #activity-log-body.activity-log__body
       / Events will be loaded via API
     #activity-loading-indicator.activity-loading style="display: none; padding: 20px; text-align: center;"
@@ -37,6 +42,21 @@ section.activity-log aria-label=(t('admin.resources.activity_log.title'))
       p = t('admin.resources.activity_log.empty')
     #activity-error-message.activity-log__empty style="display: none; color: var(--state-error);"
       p#activity-error-text = t('admin.resources.activity_log.error')
+
+/ Confirm modal for blocking actions
+.schools-modal#event-block-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="event-block-title"
+    header.schools-modal__header
+      h3#event-block-title Zablokować?
+      button.schools-modal__close type="button" aria-label=(t('common.close')) data-close-modal="event-block-modal"
+        = image_tag "icons/social/S/close.svg", alt: "", "data-theme-icon": true
+    .schools-modal__form
+      p#event-block-description style="margin: 0 0 16px; color: var(--content-secondary);"
+      p#event-block-error style="display:none; margin:0 0 12px; color: var(--state-error); font-weight:600;"
+      .schools-modal__actions
+        button.schools-modal__secondary type="button" data-close-modal="event-block-modal" = t('common.cancel')
+        button.schools-modal__primary#event-block-confirm type="button" Potwierdź
 
 css:
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -57,7 +77,8 @@ javascript:
 
     const ASSET_PATHS = {
       dropdown: '#{asset_path("icons/social/XS/dropdown.svg")}',
-      copy: '#{asset_path("icons/social/XS/copy.svg")}'
+      copy: '#{asset_path("icons/social/XS/copy.svg")}',
+      actions: '#{asset_path("icons/social/S/button-3.svg")}'
     };
 
     let currentPage = 1;
@@ -72,6 +93,46 @@ javascript:
     const errorText = document.getElementById('activity-error-text');
     const dateFromInput = document.getElementById('activity-date-from');
     const dateToInput = document.getElementById('activity-date-to');
+    const ipInput = document.getElementById('activity-ip-filter');
+
+    // Prefill filters from URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const qpFrom = urlParams.get('from');
+    const qpTo = urlParams.get('to');
+    const qpSearch = urlParams.get('search');
+    const qpIp = urlParams.get('ip');
+
+    function parseDisplayToDatetimeLocal(value) {
+      // Expected: "DD.MM.YYYY HH:MM"
+      if (!value) return null;
+      const m = value.match(/^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})$/);
+      if (!m) return null;
+      const day = m[1];
+      const month = m[2];
+      const year = m[3];
+      const hh = m[4];
+      const mm = m[5];
+      return `${year}-${month}-${day}T${hh}:${mm}`;
+    }
+
+    function setDatePickerValue(role, displayValue) {
+      const picker = document.querySelector(`.activity-date-picker[data-date-role="${role}"]`);
+      if (!picker) return;
+      const display = picker.querySelector('.activity-date-picker__display');
+      const native = picker.querySelector('.activity-date-picker__native');
+      if (display) display.value = displayValue || '';
+      if (native) {
+        const localVal = parseDisplayToDatetimeLocal(displayValue);
+        if (localVal) {
+          native.value = localVal;
+          native.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+    }
+
+    if (qpFrom) setDatePickerValue('from', qpFrom);
+    if (qpTo) setDatePickerValue('to', qpTo);
+    if (ipInput && qpIp) ipInput.value = qpIp;
 
     if (typeof window.ApiClient === 'undefined') { console.error('ApiClient not available'); return; }
     const api = new window.ApiClient();
@@ -90,6 +151,7 @@ javascript:
 
     function renderEventEntry(event) {
       const attrs = event.attributes || event;
+      const eventId = event.id || attrs.id;
       const occurredAt = attrs.occurred_at || attrs.created_at;
       const dateFormatted = formatDate(occurredAt);
       const userName = attrs.user_name || '—';
@@ -98,6 +160,9 @@ javascript:
       const subjectId = attrs.subject_id || attrs.id || '—';
       const subjectOwnerId = attrs.subject_owner_id;
       const eventData = attrs.data || {};
+      const ipAddress = eventData.ip || '—';
+      const hasIp = ipAddress && ipAddress !== '—';
+      const hasUser = !!(attrs.user_id);
 
       const details = document.createElement('details');
       details.className = 'activity-entry';
@@ -138,15 +203,58 @@ javascript:
       subjectCell.className = 'activity-cell';
       subjectCell.textContent = subjectType;
       
-      const subjectIdCell = document.createElement('span');
-      subjectIdCell.className = 'activity-cell';
-      subjectIdCell.textContent = subjectId;
+      const ipCell = document.createElement('span');
+      ipCell.className = 'activity-cell activity-cell--ip';
+
+      const ipText = document.createElement('span');
+      ipText.className = 'activity-ip';
+      ipText.textContent = ipAddress;
+      ipCell.appendChild(ipText);
+
+      const actionsWrap = document.createElement('span');
+      actionsWrap.className = 'activity-actions';
+      actionsWrap.setAttribute('data-open', 'false');
+
+      const menuBtn = document.createElement('button');
+      menuBtn.type = 'button';
+      menuBtn.className = 'activity-actions-btn';
+      menuBtn.setAttribute('aria-label', 'Akcje');
+      const icon = document.createElement('img');
+      icon.src = ASSET_PATHS.actions;
+      icon.alt = '';
+      icon.setAttribute('aria-hidden', 'true');
+      menuBtn.appendChild(icon);
+
+      const menu = document.createElement('div');
+      menu.className = 'activity-actions-menu';
+
+      const mkItem = (label, kind) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'activity-actions-menu__item';
+        b.textContent = label;
+        b.setAttribute('data-block-kind', kind);
+        return b;
+      };
+      const userItem = mkItem('Zablokuj użytkownika', 'user');
+      const ipItem = mkItem('Zablokuj IP', 'ip');
+      const netItem = mkItem('Zablokuj sieć', 'network');
+      if (!hasUser) { userItem.disabled = true; userItem.setAttribute('aria-disabled', 'true'); }
+      if (!hasIp) { ipItem.disabled = true; ipItem.setAttribute('aria-disabled', 'true'); }
+      if (!hasIp) { netItem.disabled = true; netItem.setAttribute('aria-disabled', 'true'); }
+      menu.appendChild(userItem);
+      menu.appendChild(ipItem);
+      menu.appendChild(netItem);
+
+      actionsWrap.appendChild(menuBtn);
+      actionsWrap.appendChild(menu);
+      ipCell.appendChild(actionsWrap);
       
       summary.appendChild(dateCell);
       summary.appendChild(userCell);
       summary.appendChild(actionCell);
       summary.appendChild(subjectCell);
-      summary.appendChild(subjectIdCell);
+      summary.appendChild(ipCell);
       
       const detailsDiv = document.createElement('div');
       detailsDiv.className = 'activity-entry__details';
@@ -211,6 +319,12 @@ javascript:
       } else {
         dl.appendChild(createDetailRow(MSG.subject_id, subjectId));
       }
+
+      if (ipAddress && ipAddress !== '—') {
+        dl.appendChild(createDetailRow('IP', ipAddress, ipAddress));
+      } else {
+        dl.appendChild(createDetailRow('IP', ipAddress));
+      }
       
       if (subjectOwnerId) {
         dl.appendChild(createDetailRow(MSG.subject_owner_id, subjectOwnerId, subjectOwnerId));
@@ -266,9 +380,186 @@ javascript:
       
       details.appendChild(summary);
       details.appendChild(detailsDiv);
+
+      const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+      // Modal helpers (same style as other admin confirm modals)
+      const modal = document.getElementById('event-block-modal');
+      const modalDesc = document.getElementById('event-block-description');
+      const modalErr = document.getElementById('event-block-error');
+      const modalConfirm = document.getElementById('event-block-confirm');
+      let pendingConfirm = null;
+
+      function openModal() {
+        if (!modal) return;
+        modalErr.style.display = 'none';
+        modalErr.textContent = '';
+        modal.setAttribute('aria-hidden', 'false');
+        modal.classList.add('is-open');
+      }
+
+      function closeModal() {
+        if (!modal) return;
+        modal.setAttribute('aria-hidden', 'true');
+        modal.classList.remove('is-open');
+        pendingConfirm = null;
+      }
+
+      // Bind global close handlers once
+      if (!window.__eventBlockModalBound) {
+        window.__eventBlockModalBound = true;
+        document.querySelectorAll('[data-close-modal="event-block-modal"]').forEach((btn) => {
+          btn.addEventListener('click', closeModal);
+        });
+        const overlay = modal && modal.querySelector('.schools-modal__overlay');
+        if (overlay) overlay.addEventListener('click', closeModal);
+        if (modalConfirm) {
+          modalConfirm.addEventListener('click', async () => {
+            if (!pendingConfirm) return;
+            modalConfirm.disabled = true;
+            try {
+              await pendingConfirm();
+              closeModal();
+            } catch (e) {
+              modalErr.textContent = e.message || 'Nie udało się wykonać operacji.';
+              modalErr.style.display = '';
+            } finally {
+              modalConfirm.disabled = false;
+            }
+          });
+        }
+      }
+
+      function closeMenu() {
+        actionsWrap.setAttribute('data-open', 'false');
+      }
+
+      function openMenu() {
+        actionsWrap.setAttribute('data-open', 'true');
+        // Position menu as fixed, similar to other admin dropdowns.
+        requestAnimationFrame(() => {
+          const btnRect = menuBtn.getBoundingClientRect();
+          const menuHeight = menu.offsetHeight || 160;
+          const spaceBelow = window.innerHeight - btnRect.bottom;
+          const spaceAbove = btnRect.top;
+
+          menu.style.position = 'fixed';
+          menu.style.zIndex = '999999';
+          // keep within viewport
+          const left = Math.min(window.innerWidth - 12 - 220, Math.max(12, btnRect.right - 220));
+          menu.style.left = `${left}px`;
+          if (spaceBelow >= menuHeight + 12 || spaceBelow >= spaceAbove) {
+            menu.style.top = `${btnRect.bottom + 8}px`;
+            menu.style.bottom = 'auto';
+          } else {
+            menu.style.bottom = `${window.innerHeight - btnRect.top + 8}px`;
+            menu.style.top = 'auto';
+          }
+        });
+      }
+
+      // Prevent toggling the row when clicking on actions
+      summary.addEventListener('click', (e) => {
+        if (e.target.closest('.activity-actions')) e.preventDefault();
+      });
+
+      menuBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        actionsWrap.getAttribute('data-open') === 'true' ? closeMenu() : openMenu();
+      });
+
+      menu.querySelectorAll('[data-block-kind]').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!eventId) return;
+          const kind = btn.getAttribute('data-block-kind');
+          if (btn.disabled) return;
+
+          const pretty = (k) => ({ user: 'użytkownika', ip: 'IP', network: 'sieć' }[k] || k);
+          const target = (k) => {
+            if (k === 'user') return attrs.user_id;
+            if (k === 'ip') return ipAddress;
+        if (k === 'network') return ipAddress;
+            return '';
+          };
+
+          if (modalDesc) {
+            modalDesc.textContent = `Za chwilę dodamy regułę blokady dla ${pretty(kind)} na podstawie tego eventu.\n` +
+              `Cel: ${target(kind)}\n\n` +
+              `Czy na pewno chcesz kontynuować?`;
+          }
+
+          pendingConfirm = async () => {
+            const payload = { kind: kind };
+            if (kind === 'network' && window.__eventBlockNetworkValue) payload.value = window.__eventBlockNetworkValue;
+
+            const resp = await fetch(`/admin/events/${encodeURIComponent(eventId)}/block`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-Token': csrf || ''
+              },
+              body: JSON.stringify(payload)
+            });
+            const json = await resp.json().catch(() => ({}));
+            if (!resp.ok || json.ok === false) {
+              throw new Error(json.error || `Nie udało się (HTTP ${resp.status}).`);
+            }
+            closeMenu();
+            currentPage = 1; hasMore = true; allEvents = []; loadEvents(1);
+          };
+
+          // For network block: compute exact CIDR first (RDAP, fallback to /24 or /64).
+          if (kind === 'network') {
+            modalErr.style.display = 'none';
+            modalErr.textContent = '';
+            if (modalDesc) modalDesc.textContent = 'Wyliczamy sieć do zablokowania...';
+            openModal();
+            try {
+              const prev = await fetch(`/admin/events/${encodeURIComponent(eventId)}/block_preview`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                  'X-CSRF-Token': csrf || ''
+                },
+                body: JSON.stringify({ kind: 'network' })
+              });
+              const pj = await prev.json().catch(() => ({}));
+              if (!prev.ok || pj.ok === false) throw new Error(pj.error || `Nie udało się (HTTP ${prev.status}).`);
+              const cidr = pj.value;
+              const resolution = pj.resolution === 'rdap' ? 'RDAP' : 'fallback';
+              window.__eventBlockNetworkValue = cidr;
+              if (modalDesc) {
+                modalDesc.textContent =
+                  `Za chwilę dodamy regułę blokady dla sieci.\n` +
+                  `IP z eventu: ${ipAddress}\n` +
+                  `Wyliczona sieć: ${cidr} (metoda: ${resolution})\n\n` +
+                  `Czy na pewno chcesz kontynuować?`;
+              }
+            } catch (err) {
+              modalErr.textContent = err.message || 'Nie udało się wyliczyć sieci.';
+              modalErr.style.display = '';
+            }
+          } else {
+            openModal();
+          }
+        });
+      });
       
       return details;
     }
+
+    // Close open action menus on outside click
+    document.addEventListener('click', function(evt) {
+      if (evt.target.closest('.activity-actions')) return;
+      document.querySelectorAll('.activity-actions[data-open="true"]').forEach((wrap) => {
+        wrap.setAttribute('data-open', 'false');
+      });
+    }, true);
 
     async function loadEvents(page = 1) {
       if (isLoading || (!hasMore && page > 1)) return;
@@ -279,6 +570,8 @@ javascript:
         let url = `/events?page=${page}&per_page=${perPage}`;
         if (dateFromInput && dateFromInput.value) url += `&from=${encodeURIComponent(dateFromInput.value)}`;
         if (dateToInput && dateToInput.value) url += `&to=${encodeURIComponent(dateToInput.value)}`;
+        if (ipInput && ipInput.value) url += `&ip=${encodeURIComponent(ipInput.value)}`;
+        if (qpSearch) url += `&search=${encodeURIComponent(qpSearch)}`;
         
         const result = await api.get(url);
         
@@ -362,8 +655,10 @@ javascript:
       });
     }
 
-    if (dateFromInput) dateFromInput.addEventListener('change', () => { currentPage = 1; hasMore = true; allEvents = []; loadEvents(1); });
-    if (dateToInput) dateToInput.addEventListener('change', () => { currentPage = 1; hasMore = true; allEvents = []; loadEvents(1); });
+    const resetAndLoad = () => { currentPage = 1; hasMore = true; allEvents = []; loadEvents(1); };
+    if (dateFromInput) dateFromInput.addEventListener('change', resetAndLoad);
+    if (dateToInput) dateToInput.addEventListener('change', resetAndLoad);
+    if (ipInput) ipInput.addEventListener('input', () => { if (ipInput.value.length === 0 || ipInput.value.length >= 3) resetAndLoad(); });
 
     loadEvents(1);
   });

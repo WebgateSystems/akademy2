@@ -23,7 +23,9 @@ class EventLogger
 
   # Convenience methods for common event types
   # rubocop:disable Metrics/ParameterLists
-  def self.log_api_request(method:, path:, user:, status:, params: {}, response_time: nil)
+  # rubocop:disable Metrics/MethodLength
+  def self.log_api_request(method:, path:, user:, status:, params: {}, response_time: nil, ip: nil, user_agent: nil,
+                           request_id: nil)
     log(
       event_type: 'api_request',
       user: user,
@@ -32,12 +34,16 @@ class EventLogger
         method: method,
         path: path,
         status: status,
+        ip: ip,
+        user_agent: user_agent,
+        request_id: request_id,
         params: sanitize_params(params),
         response_time_ms: response_time
       },
       client: 'api'
     )
   end
+  # rubocop:enable Metrics/MethodLength
   # rubocop:enable Metrics/ParameterLists
 
   def self.log_login(user:, client: 'web')

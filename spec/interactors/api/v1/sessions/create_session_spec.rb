@@ -44,4 +44,15 @@ RSpec.describe Api::V1::Sessions::CreateSession do
     expect(result).to be_failure
     expect(result.message).to include('Invalid password or PIN')
   end
+
+  it 'fails when user is blocked by RequestBlockRule(user)' do
+    RequestBlockRule.create!(rule_type: 'user', value: user.id)
+
+    result = call_interactor(user: { email: user.email, password: 'Password1' })
+
+    expect(result).to be_failure
+    expect(result.status).to eq(:forbidden)
+    expect(result.message).to include('User is blocked')
+    expect(result.access_token).to be_nil
+  end
 end

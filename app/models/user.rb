@@ -87,14 +87,22 @@ class User < ApplicationRecord
     self.metadata['theme'] = value
   end
 
-  # Override Devise method to prevent locked users from authenticating
+  # Override Devise method to prevent locked/blocked users from authenticating
   def active_for_authentication?
-    super && active?
+    super && active? && !blocked_by_admin?
   end
 
-  # Custom message for locked accounts
+  # Custom message for locked/blocked accounts
   def inactive_message
-    locked_at.present? ? :locked : super
+    return :blocked if blocked_by_admin?
+    return :locked if locked_at.present?
+
+    super
+  end
+
+  # Check if user is blocked by admin via RequestBlockRule
+  def blocked_by_admin?
+    RequestBlockRule.blocked?(user_id: id)
   end
 
   # Override Devise method to send emails via SendEmailJob

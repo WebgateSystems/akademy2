@@ -48,6 +48,9 @@ html lang="pl" class="no-js" data-theme="auto"
           = link_to admin_resource_collection_path(resource: 'events'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/events')}" do
             i.bi.bi-clock-history aria-hidden="true"
             span.dashboard-nav__label = t('navigation.activity_log')
+          = link_to admin_request_block_rules_path, class: "dashboard-nav__button #{'is-active' if request.path.include?('/request_block_rules')}" do
+            i.bi.bi-shield-exclamation aria-hidden="true"
+            span.dashboard-nav__label Blokady
           .dashboard-nav__divider
           = link_to admin_resource_collection_path(resource: 'subjects'), class: "dashboard-nav__button #{'is-active' if request.path.include?('/subjects')}" do
             i.bi.bi-book aria-hidden="true"

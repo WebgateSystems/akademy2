@@ -329,7 +329,7 @@ pl:
         from: "Od"
         to: "Do"
         date: "Data"
-        source: "Źródło"
+        source: "Użytkownik"
         action: "Akcja"
         subject: "Obiekt"
         subject_id: "ID obiektu"

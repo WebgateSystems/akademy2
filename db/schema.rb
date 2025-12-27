@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_15_000000) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_26_230000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -27,6 +27,17 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_000000) do
     t.index ["school_id", "is_current"], name: "index_academic_years_on_school_and_current"
     t.index ["school_id", "year"], name: "index_academic_years_on_school_and_year", unique: true
     t.index ["school_id"], name: "index_academic_years_on_school_id"
+  end
+
+  create_table "api_request_metrics", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.float "avg_response_time_ms"
+    t.datetime "bucket_start", null: false
+    t.datetime "created_at", null: false
+    t.integer "requests_count", default: 0, null: false
+    t.integer "unique_ips_count", default: 0, null: false
+    t.integer "unique_users_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["bucket_start"], name: "index_api_request_metrics_on_bucket_start", unique: true
   end
 
   create_table "certificates", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -190,6 +201,19 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_000000) do
     t.string "step", default: "profile", null: false
     t.datetime "updated_at", null: false
     t.index ["expires_at"], name: "index_registration_flows_on_expires_at"
+  end
+
+  create_table "request_block_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.uuid "created_by_id"
+    t.boolean "enabled", default: true, null: false
+    t.text "note"
+    t.string "rule_type", null: false
+    t.datetime "updated_at", null: false
+    t.string "value", null: false
+    t.index ["created_by_id"], name: "index_request_block_rules_on_created_by_id"
+    t.index ["enabled"], name: "index_request_block_rules_on_enabled"
+    t.index ["rule_type", "value"], name: "index_request_block_rules_on_rule_type_and_value", unique: true
   end
 
   create_table "roles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

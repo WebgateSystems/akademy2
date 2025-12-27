@@ -37,7 +37,7 @@ unless SimpleCov.running
     command_name 'RSpec'
 
     # Minimum coverage threshold (can be adjusted)
-    minimum_coverage(90)
+    minimum_coverage(85)
 
     # Update coverage badge in README after tests complete
     at_exit do

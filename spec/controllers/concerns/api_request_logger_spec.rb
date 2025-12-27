@@ -36,10 +36,15 @@ RSpec.describe ApiRequestLogger, type: :request do
       expect(event.data['response_time_ms']).to be >= 0
     end
 
-    it 'does not log requests when user is not authenticated' do
+    it 'logs requests even when user is not authenticated' do
       expect do
         get '/api/v1/schools', headers: { 'Authorization' => nil }
-      end.not_to change(Event, :count)
+      end.to change(Event, :count).by(1)
+
+      event = Event.last
+      expect(event.event_type).to eq('api_request')
+      expect(event.user).to be_nil
+      expect(event.data['status']).to be_a(Integer)
     end
   end
 end

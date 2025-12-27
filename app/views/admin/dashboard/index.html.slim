@@ -14,13 +14,29 @@ section.dashboard-stats aria-label=(t('admin.dashboard.stats.key_statistics'))
     h3.stat-label.text-body-2 = t('navigation.students')
     p.stat-value = number_with_delimiter(@students_count)
 
-section.panel.panel--chart aria-label=(t('admin.dashboard.stats.user_growth_chart'))
+section.panel.panel--chart aria-label="Ruch w API"
   .panel__header
     div
-      p.stat-label.text-body-2 = t('admin.dashboard.stats.user_growth')
-  .chart.chart--line.js-line-chart data-chart-id="user-growth"
+      p.stat-label.text-body-2 Ruch (API + inne zdarzenia)
+      p.small style="margin:6px 0 0; color: var(--content-secondary);"
+        | Zaznacz na wykresie zakres, aby przejść do dziennika aktywności z filtrem czasu.
+      p.small style="margin:6px 0 0; color: var(--content-secondary); display:flex; gap:12px; flex-wrap:wrap;"
+        span style="display:inline-flex; align-items:center; gap:6px;"
+          span style="width:10px; height:10px; border-radius:999px; background:#166534; display:inline-block;"
+          | API (api_request)
+        span style="display:inline-flex; align-items:center; gap:6px;"
+          span style="width:10px; height:10px; border-radius:999px; background:#1e3a8a; display:inline-block;"
+          | inne eventy
+    .traffic-range-tabs role="tablist" aria-label="Zakres czasu wykresu ruchu API"
+      button.traffic-range-tab type="button" data-traffic-range="3h" role="tab" aria-selected="false" 3h
+      button.traffic-range-tab type="button" data-traffic-range="8h" role="tab" aria-selected="false" 8h
+      button.traffic-range-tab type="button" data-traffic-range="24h" role="tab" aria-selected="true" 24h
+      button.traffic-range-tab type="button" data-traffic-range="7d" role="tab" aria-selected="false" 7d
+      button.traffic-range-tab type="button" data-traffic-range="30d" role="tab" aria-selected="false" 30d
+      button.traffic-range-tab type="button" data-traffic-range="90d" role="tab" aria-selected="false" 90d
+  .chart.chart--line.js-line-chart data-chart-id="api-traffic" data-metrics-url=admin_traffic_metrics_path
     .chart__grid aria-hidden="true"
-    .chart__canvas role="img" aria-live="polite" aria-label=(t('admin.dashboard.stats.user_growth_aria'))
+    .chart__canvas role="img" aria-live="polite" aria-label="Wykres ruchu API"
       svg.chart__svg viewBox="0 0 960 240" preserveAspectRatio="none" role="presentation"
     .chart__axis.chart__axis--y aria-hidden="true"
     .chart__axis.chart__axis--x aria-hidden="true"
@@ -113,6 +129,563 @@ javascript:
           }
         }
       });
+    }
+
+    // API traffic chart (aggregated)
+    const trafficRoot = document.querySelector('.js-line-chart[data-chart-id="api-traffic"]');
+    const metricsUrl = trafficRoot && trafficRoot.dataset.metricsUrl;
+    if (trafficRoot && metricsUrl) {
+      const svg = trafficRoot.querySelector('svg');
+      const xAxis = trafficRoot.querySelector('.chart__axis--x');
+      const yAxis = trafficRoot.querySelector('.chart__axis--y');
+      const grid = trafficRoot.querySelector('.chart__grid');
+      const margin = { left: 24, right: 48 };
+      const verticalPadding = { top: 24, bottom: 8 };
+
+      const pad2 = (n) => String(n).padStart(2, '0');
+      const formatForFilter = (d) => `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+
+      const withAlpha = (hex, alpha) => {
+        const safeHex = hex.replace('#', '');
+        const bigint = parseInt(safeHex, 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      };
+
+      const buildYAxis = (values) => {
+        const maxValue = Math.max(...values, 0);
+        if (maxValue <= 0) return { ticks: [0], ceiling: 1 };
+
+        // For small maxima we want the zoom to be visually obvious (avoid padding to ~15).
+        // Examples:
+        // - max=1..3 => ceiling=4
+        // - max=4 => ceiling=5
+        // - max=5 => ceiling=6
+        if (maxValue <= 5) {
+          const ceiling = maxValue <= 3 ? 4 : (maxValue + 1);
+          const ticks = [];
+          for (let t = ceiling; t >= 0; t -= 1) ticks.push(t);
+          return { ticks, ceiling };
+        }
+
+        // For larger ranges, use a "nice" 5-step scale with modest padding.
+        const paddedMax = Math.max(maxValue + Math.max(maxValue * 0.1, 1), 1);
+        const roughStep = paddedMax / 5 || 1;
+        const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+        const niceStep = Math.ceil(roughStep / magnitude) * magnitude;
+        const ceiling = Math.max(niceStep * 5, paddedMax || niceStep);
+        const ticks = [];
+        for (let i = 5; i >= 0; i -= 1) ticks.push(i * niceStep);
+        return { ticks, ceiling };
+      };
+
+      const renderGrid = (lines) => { grid.innerHTML = lines.map(() => '<span class="chart__grid-line"></span>').join(''); };
+      const renderAxes = (labels, ticks) => {
+        xAxis.innerHTML = labels.map((label) => `<span>${label}</span>`).join('');
+        yAxis.innerHTML = ticks.map((tick) => `<span>${tick}</span>`).join('');
+      };
+
+      const buildPath = (values, palette, yBasisValues = null) => {
+        const safeValues = (values && values.length ? values : [0, 0]);
+        const height = 220;
+        const width = 960;
+        const innerWidth = width - margin.left - margin.right;
+        const basis = (yBasisValues && yBasisValues.length ? yBasisValues : safeValues);
+        const validValues = basis.filter((v) => v >= 0);
+        const { ticks, ceiling } = buildYAxis(validValues);
+        const max = ceiling || 1;
+        const step = innerWidth / Math.max(safeValues.length - 1, 1);
+        const chartHeight = height - verticalPadding.top - verticalPadding.bottom;
+        const baselineY = height - verticalPadding.bottom;
+
+        const points = safeValues.map((value, index) => {
+          const x = margin.left + index * step;
+          const y = verticalPadding.top + (chartHeight - (value / max) * chartHeight);
+          return { x, y };
+        });
+
+        const clampY = (y) => Math.max(verticalPadding.top, Math.min(baselineY, y));
+
+        const buildSmoothLineThroughPoints = (pts) => {
+          // Catmull-Rom -> cubic Bezier conversion.
+          // Produces a smooth curve that still passes through every point (no "flattening" spikes).
+          if (pts.length === 1) return `M${pts[0].x},${pts[0].y}`;
+          if (pts.length === 2) return `M${pts[0].x},${pts[0].y} L${pts[1].x},${pts[1].y}`;
+
+          const p = (i) => {
+            if (i < 0) return pts[0];
+            if (i >= pts.length) return pts[pts.length - 1];
+            return pts[i];
+          };
+
+          let d = `M${pts[0].x},${pts[0].y}`;
+          for (let i = 0; i < pts.length - 1; i += 1) {
+            const p0 = p(i - 1);
+            const p1 = p(i);
+            const p2 = p(i + 1);
+            const p3 = p(i + 2);
+
+            const cp1x = p1.x + (p2.x - p0.x) / 6;
+            const cp1y = clampY(p1.y + (p2.y - p0.y) / 6);
+            const cp2x = p2.x - (p3.x - p1.x) / 6;
+            const cp2y = clampY(p2.y - (p3.y - p1.y) / 6);
+
+            d += ` C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+          }
+          return d;
+        };
+
+        const line = buildSmoothLineThroughPoints(points);
+        const area = `${line} L${points[points.length - 1].x},${baselineY} L${points[0].x},${baselineY} Z`;
+        return { ticks, ceiling: max, line, area, width, height, points };
+      };
+
+      const state = {
+        points: [],
+        timestamps: [],
+        values: [],
+        otherValues: [],
+        fullTimestamps: [],
+        fullValues: [],
+        fullOtherValues: [],
+        zoomed: false,
+        range: '24h',
+        dragging: false,
+        startIndex: null,
+        endIndex: null,
+        lastChartWidth: 960,
+        lastChartHeight: 220
+      };
+      const palette = { color: '#166534', label: 'API traffic' }; // dark green
+      const rangeTabs = Array.from(document.querySelectorAll('[data-traffic-range]'));
+
+      const setActiveRangeTab = (range) => {
+        rangeTabs.forEach((btn) => {
+          const active = btn.getAttribute('data-traffic-range') === range;
+          btn.classList.toggle('is-active', active);
+          btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+      };
+
+      const ensureSelectionRect = () => {
+        let rect = svg.querySelector('rect[data-selection]');
+        if (!rect) {
+          rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('data-selection', 'true');
+          // Selection highlight should be neutral (gray), not "data" color.
+          rect.setAttribute('fill', 'rgba(148, 163, 184, 0.36)'); // slate-ish, visible
+          rect.setAttribute('stroke', 'rgba(148, 163, 184, 0.70)');
+          rect.setAttribute('stroke-width', '1');
+          rect.style.display = 'none';
+          rect.style.pointerEvents = 'none';
+          svg.appendChild(rect);
+        }
+        return rect;
+      };
+
+      const ensureSelectionPopover = () => {
+        let pop = trafficRoot.querySelector('[data-selection-popover]');
+        if (!pop) {
+          pop = document.createElement('div');
+          pop.setAttribute('data-selection-popover', 'true');
+          pop.className = 'chart-selection-popover';
+          pop.style.display = 'none';
+          pop.innerHTML = `
+            <div class="chart-selection-popover__meta" data-selection-meta></div>
+            <div class="chart-selection-popover__actions">
+              <button type="button" class="chart-selection-popover__btn" data-selection-zoom>Zoom</button>
+              <button type="button" class="chart-selection-popover__btn chart-selection-popover__btn--ghost" data-selection-reset style="display:none">Reset zoom</button>
+              <a class="chart-selection-popover__btn chart-selection-popover__btn--primary" href="#" data-selection-logs>Idź do logów</a>
+              <button type="button" class="chart-selection-popover__btn chart-selection-popover__btn--ghost" data-selection-cancel>Anuluj</button>
+            </div>
+          `;
+          trafficRoot.appendChild(pop);
+        }
+        return pop;
+      };
+
+      const ensureCrosshair = () => {
+        let root = trafficRoot.querySelector('[data-crosshair]');
+        if (!root) {
+          root = document.createElement('div');
+          root.setAttribute('data-crosshair', 'true');
+          root.className = 'chart-crosshair';
+          root.style.display = 'none';
+          root.innerHTML = `
+            <div class="chart-crosshair__v" data-crosshair-v></div>
+            <div class="chart-crosshair__h" data-crosshair-h></div>
+            <div class="chart-crosshair__dot" data-crosshair-dot></div>
+            <div class="chart-crosshair__x" data-crosshair-x></div>
+            <div class="chart-crosshair__y" data-crosshair-y></div>
+          `;
+          trafficRoot.appendChild(root);
+        }
+        return root;
+      };
+
+      const render = (labels, series) => {
+        const safeLabels = (labels && labels.length ? labels : ['']);
+        const apiValues = (series && series.api && series.api.length ? series.api : [0, 0]);
+        const otherValues = (series && series.other && series.other.length ? series.other : [0, 0]);
+        const mergedMax = apiValues.concat(otherValues);
+
+        const otherPalette = { color: '#1e3a8a', label: 'Other events' }; // dark blue/navy
+        const { line: apiLine, area: apiArea, ticks, width, height, points } = buildPath(apiValues, palette, mergedMax);
+        const { line: otherLine, area: otherArea } = buildPath(otherValues, otherPalette, mergedMax);
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        // NOTE: `.chart__svg .chart__line { stroke: var(--chart-line); }` overrides `stroke=""`.
+        // Use inline styles with `!important` and avoid the shared `.chart__line` class.
+        svg.innerHTML = `
+          <path class="chart__area chart__area--other" style="fill:${withAlpha(otherPalette.color, 0.10)} !important" d="${otherArea}" />
+          <path class="chart__area chart__area--api" style="fill:${withAlpha(palette.color, 0.12)} !important" d="${apiArea}" />
+          <path class="chart__line--other" style="fill:none; stroke:${otherPalette.color} !important; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; opacity:0.92" d="${otherLine}" />
+          <path class="chart__line--api" style="fill:none; stroke:${palette.color} !important; stroke-width:3; stroke-linecap:round; stroke-linejoin:round" d="${apiLine}" />
+        `;
+        // selection rect appended after reset
+        const rect = ensureSelectionRect();
+        svg.appendChild(rect);
+        state.points = points;
+        state.lastChartWidth = width;
+        state.lastChartHeight = height;
+        renderAxes(safeLabels, ticks);
+        renderGrid(ticks);
+      };
+
+      const buildLabels = (timestamps, range) => {
+        // Keep labels readable: show at most ~8 labels
+        const max = 8;
+        const step = Math.max(1, Math.floor(timestamps.length / max));
+        return timestamps.map((iso, idx) => {
+          if (idx % step !== 0 && idx !== timestamps.length - 1) return '';
+          const d = new Date(iso);
+          if (range === '3h' || range === '8h' || range === '24h') return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+          return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}`;
+        });
+      };
+
+      const xGridColumnsForRange = (range) => {
+        // Used by CSS background to draw vertical "time divisions".
+        // For 3h we want 15-minute divisions: 3h / 15m = 12 columns.
+        if (range === '3h') return 12;
+        if (range === '8h') return 16; // 30-minute divisions
+        if (range === '24h') return 24; // 1-hour divisions
+        if (range === '7d') return 7; // 1-day divisions
+        if (range === '30d') return 10; // ~3-day divisions
+        if (range === '90d') return 12; // ~weekly divisions
+        return 12;
+      };
+
+      const loadRange = async (range) => {
+        state.range = range;
+        state.zoomed = false;
+        setActiveRangeTab(range);
+        trafficRoot.style.setProperty('--x-grid-columns', String(xGridColumnsForRange(range)));
+        const pop = ensureSelectionPopover();
+        pop.style.display = 'none';
+        try {
+          const resp = await fetch(`${metricsUrl}?range=${encodeURIComponent(range)}`, { headers: { 'Accept': 'application/json' } });
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          const json = await resp.json();
+          const pts = (json.points || []);
+          const stepMinutes = Number(json.step_minutes || 0);
+          state.stepMinutes = Number.isFinite(stepMinutes) && stepMinutes > 0 ? stepMinutes : (range === '3h' || range === '8h' ? 5 : 15);
+
+          if (!pts.length) {
+            const now = new Date();
+            const back = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+            const timestamps = [back.toISOString(), now.toISOString()];
+            state.timestamps = timestamps;
+            state.values = [0, 0];
+            state.otherValues = [0, 0];
+            state.fullTimestamps = timestamps;
+            state.fullValues = [0, 0];
+            state.fullOtherValues = [0, 0];
+            render(buildLabels(timestamps, range), { api: [0, 0], other: [0, 0] });
+            return;
+          }
+
+          const timestamps = pts.map((p) => p.t);
+          const values = pts.map((p) => p.api || 0);
+          const otherValues = pts.map((p) => p.other || 0);
+          state.timestamps = timestamps;
+          state.values = values;
+          state.otherValues = otherValues;
+          state.fullTimestamps = timestamps.slice(0);
+          state.fullValues = values.slice(0);
+          state.fullOtherValues = otherValues.slice(0);
+          render(buildLabels(timestamps, range), { api: values, other: otherValues });
+        } catch (e) {
+          const now = new Date();
+          const back = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+          const timestamps = [back.toISOString(), now.toISOString()];
+          state.timestamps = timestamps;
+          state.values = [0, 0];
+          state.otherValues = [0, 0];
+          state.fullTimestamps = timestamps;
+          state.fullValues = [0, 0];
+          state.fullOtherValues = [0, 0];
+          state.stepMinutes = (range === '3h' || range === '8h') ? 5 : 15;
+          render(buildLabels(timestamps, range), { api: [0, 0], other: [0, 0] });
+        }
+      };
+
+      // Range buttons
+      document.querySelectorAll('[data-traffic-range]').forEach((btn) => {
+        btn.addEventListener('click', () => loadRange(btn.getAttribute('data-traffic-range')));
+      });
+
+      // Drag selection to jump into activity log (/admin/events?from=..&to=..&search=api_request)
+      // Note: selection rect lives inside the SVG and is recreated after each render().
+      // Always obtain it via ensureSelectionRect() when updating.
+      const dragThresholdPx = 6;
+      state.mouseDown = false;
+      state.mouseDownPoint = null;
+      state.mouseDownIndex = null;
+      const pickIndexFromEvent = (evt) => {
+        if (!state.points.length) return null;
+        const svgRect = svg.getBoundingClientRect();
+        const x = evt.clientX - svgRect.left;
+        const ratio = x / svgRect.width;
+        const idx = Math.min(state.points.length - 1, Math.max(0, Math.round(ratio * (state.points.length - 1))));
+        return idx;
+      };
+
+      const showCrosshairAtIndex = (idx) => {
+        if (idx == null || !state.points.length) return;
+        const root = ensureCrosshair();
+        const v = root.querySelector('[data-crosshair-v]');
+        const h = root.querySelector('[data-crosshair-h]');
+        const dot = root.querySelector('[data-crosshair-dot]');
+        const xLbl = root.querySelector('[data-crosshair-x]');
+        const yLbl = root.querySelector('[data-crosshair-y]');
+
+        const p = state.points[idx];
+        const tIso = state.timestamps[idx];
+        const apiValue = state.values[idx];
+        const otherValue = state.otherValues[idx];
+        if (!p || !tIso) return;
+
+        const svgRect = svg.getBoundingClientRect();
+        const rootRect = trafficRoot.getBoundingClientRect();
+
+        const xPx = (p.x / state.lastChartWidth) * svgRect.width + (svgRect.left - rootRect.left);
+        const yPx = (p.y / state.lastChartHeight) * svgRect.height + (svgRect.top - rootRect.top);
+
+        root.style.display = '';
+        if (v) v.style.left = `${xPx}px`;
+        if (h) h.style.top = `${yPx}px`;
+        if (dot) {
+          dot.style.left = `${xPx}px`;
+          dot.style.top = `${yPx}px`;
+        }
+        if (xLbl) {
+          const d = new Date(tIso);
+          xLbl.textContent = formatForFilter(d);
+          xLbl.style.left = `${xPx}px`;
+        }
+        if (yLbl) {
+          yLbl.textContent = `API: ${apiValue} • inne: ${otherValue}`;
+          yLbl.style.top = `${yPx}px`;
+        }
+      };
+
+      const hideCrosshair = () => {
+        const root = trafficRoot.querySelector('[data-crosshair]');
+        if (root) root.style.display = 'none';
+      };
+
+      const updateSelectionRect = () => {
+        if (state.startIndex == null || state.endIndex == null) return;
+        const a = Math.min(state.startIndex, state.endIndex);
+        const b = Math.max(state.startIndex, state.endIndex);
+        const p1 = state.points[a];
+        const p2 = state.points[b];
+        const rect = ensureSelectionRect();
+        rect.style.display = '';
+        rect.setAttribute('x', p1.x);
+        rect.setAttribute('y', 0);
+        rect.setAttribute('width', Math.max(1, p2.x - p1.x));
+        rect.setAttribute('height', state.lastChartHeight || 220);
+      };
+
+      const hideSelection = () => {
+        const rect = ensureSelectionRect();
+        rect.style.display = 'none';
+        const pop = ensureSelectionPopover();
+        pop.style.display = 'none';
+      };
+
+      const buildLogsUrlForSelection = () => {
+        if (state.startIndex == null || state.endIndex == null || !state.timestamps.length) return null;
+        const a = Math.min(state.startIndex, state.endIndex);
+        const b = Math.max(state.startIndex, state.endIndex);
+        const fromIso = state.timestamps[a];
+        const toIso = state.timestamps[b];
+        if (!fromIso || !toIso) return null;
+        const from = formatForFilter(new Date(fromIso));
+        // Metrics points are bucket starts; logs are raw events.
+        // To match the selected bucket(s), set `to` to the last minute of the last bucket.
+        const step = (state.stepMinutes && state.stepMinutes > 0) ? state.stepMinutes : 5;
+        const toEnd = new Date(new Date(toIso).getTime() + Math.max(0, step - 1) * 60 * 1000);
+        const to = formatForFilter(toEnd);
+        return `/admin/events?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+      };
+
+      const showSelectionPopover = () => {
+        const url = buildLogsUrlForSelection();
+        if (!url) return;
+
+        const pop = ensureSelectionPopover();
+        const meta = pop.querySelector('[data-selection-meta]');
+        const logsLink = pop.querySelector('[data-selection-logs]');
+        const resetBtn = pop.querySelector('[data-selection-reset]');
+        if (meta) {
+          const a = Math.min(state.startIndex, state.endIndex);
+          const b = Math.max(state.startIndex, state.endIndex);
+          const fromIso = state.timestamps[a];
+          const toIso = state.timestamps[b];
+          const step = (state.stepMinutes && state.stepMinutes > 0) ? state.stepMinutes : 5;
+          const toEnd = new Date(new Date(toIso).getTime() + Math.max(0, step - 1) * 60 * 1000);
+          meta.textContent = `${formatForFilter(new Date(fromIso))} → ${formatForFilter(toEnd)}`;
+        }
+        if (logsLink) logsLink.setAttribute('href', url);
+        if (resetBtn) resetBtn.style.display = state.zoomed ? '' : 'none';
+
+        // Position: near selection center, above the x-axis (within chart root).
+        const svgRect = svg.getBoundingClientRect();
+        const rootRect = trafficRoot.getBoundingClientRect();
+        const a = Math.min(state.startIndex, state.endIndex);
+        const b = Math.max(state.startIndex, state.endIndex);
+        const p1 = state.points[a];
+        const p2 = state.points[b];
+        const centerX = (p1.x + p2.x) / 2;
+        const centerXPx = (centerX / state.lastChartWidth) * svgRect.width;
+        const leftPx = centerXPx + (svgRect.left - rootRect.left);
+
+        pop.style.display = '';
+        // Measure after display
+        const popWidth = pop.offsetWidth || 260;
+        const padding = 12;
+        const clampedLeft = Math.max(padding, Math.min(leftPx - popWidth / 2, rootRect.width - popWidth - padding));
+        pop.style.left = `${clampedLeft}px`;
+        pop.style.top = `${verticalPadding.top + 10}px`;
+      };
+
+      const zoomToSelection = () => {
+        if (state.startIndex == null || state.endIndex == null) return;
+        const a = Math.min(state.startIndex, state.endIndex);
+        const b = Math.max(state.startIndex, state.endIndex);
+        const ts = state.timestamps.slice(a, b + 1);
+        const vs = state.values.slice(a, b + 1);
+        const ovs = state.otherValues.slice(a, b + 1);
+        if (ts.length < 2) return;
+        state.timestamps = ts;
+        state.values = vs;
+        state.otherValues = ovs;
+        state.zoomed = true;
+        hideSelection();
+        render(buildLabels(ts, state.range), { api: vs, other: ovs });
+      };
+
+      const resetZoom = () => {
+        if (!state.fullTimestamps.length) return;
+        state.timestamps = state.fullTimestamps.slice(0);
+        state.values = state.fullValues.slice(0);
+        state.otherValues = state.fullOtherValues.slice(0);
+        state.zoomed = false;
+        hideSelection();
+        render(buildLabels(state.timestamps, state.range), { api: state.values, other: state.otherValues });
+      };
+
+      // Popover actions
+      (function attachSelectionPopoverHandlers() {
+        const pop = ensureSelectionPopover();
+        const zoomBtn = pop.querySelector('[data-selection-zoom]');
+        const resetBtn = pop.querySelector('[data-selection-reset]');
+        const cancelBtn = pop.querySelector('[data-selection-cancel]');
+        if (zoomBtn) {
+          zoomBtn.addEventListener('click', (e) => { e.preventDefault(); zoomToSelection(); });
+        }
+        if (resetBtn) {
+          resetBtn.addEventListener('click', (e) => { e.preventDefault(); resetZoom(); });
+        }
+        if (cancelBtn) {
+          cancelBtn.addEventListener('click', (e) => { e.preventDefault(); hideSelection(); });
+        }
+      })();
+
+      svg.addEventListener('mousedown', (evt) => {
+        state.mouseDown = true;
+        state.mouseDownPoint = { x: evt.clientX, y: evt.clientY };
+        state.mouseDownIndex = pickIndexFromEvent(evt);
+        state.dragging = false;
+        state.startIndex = null;
+        state.endIndex = null;
+        hideSelection();
+      });
+      window.addEventListener('mousemove', (evt) => {
+        if (!state.mouseDown) return;
+
+        const dx = evt.clientX - (state.mouseDownPoint ? state.mouseDownPoint.x : evt.clientX);
+        const dy = evt.clientY - (state.mouseDownPoint ? state.mouseDownPoint.y : evt.clientY);
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (!state.dragging) {
+          if (dist < dragThresholdPx) return;
+          // Start selection only after threshold.
+          state.dragging = true;
+          state.startIndex = state.mouseDownIndex;
+          state.endIndex = state.startIndex;
+        }
+
+        state.endIndex = pickIndexFromEvent(evt);
+        updateSelectionRect();
+        showSelectionPopover();
+      });
+      window.addEventListener('mouseup', () => {
+        const wasDragging = state.dragging;
+        state.mouseDown = false;
+        state.mouseDownPoint = null;
+        state.mouseDownIndex = null;
+        state.dragging = false;
+
+        if (!wasDragging) return;
+        if (state.startIndex == null || state.endIndex == null || !state.timestamps.length) return;
+        updateSelectionRect();
+        showSelectionPopover();
+      });
+
+      // Hide selection when clicking outside the popover
+      document.addEventListener('click', (evt) => {
+        const pop = trafficRoot.querySelector('[data-selection-popover]');
+        if (!pop || pop.style.display === 'none') return;
+        if (evt.target.closest('[data-selection-popover]')) return;
+        if (evt.target.closest('.js-line-chart[data-chart-id="api-traffic"] svg')) return;
+        hideSelection();
+      }, true);
+
+      // Reset zoom on double click
+      svg.addEventListener('dblclick', (evt) => {
+        evt.preventDefault();
+        resetZoom();
+      });
+
+      // Crosshair follows cursor (does not interfere with selection)
+      svg.addEventListener('mousemove', (evt) => {
+        if (state.dragging) return;
+        const idx = pickIndexFromEvent(evt);
+        showCrosshairAtIndex(idx);
+      });
+      svg.addEventListener('mouseleave', () => {
+        hideCrosshair();
+      });
+
+      // Render empty chart immediately (axes + 0 values) and then load real data.
+      render([''], { api: [0, 0], other: [0, 0] });
+      setActiveRangeTab('24h');
+      loadRange('24h');
     }
   });
 

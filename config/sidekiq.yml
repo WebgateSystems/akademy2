@@ -12,8 +12,16 @@
 :scheduler:
   :schedule:
     clear_register_flow:
-      cron: "0 0 * * *" # Runs every day at midnight     '* * * * *' every minute
+      cron: "0 0 * * *" # Runs every day at midnight
       class: "ClearRegisterFlowJob"
+
+    rollup_api_request_metrics:
+      cron: "*/5 * * * *" # every 5 minutes
+      class: "RollupApiRequestMetricsJob"
+
+    purge_old_api_request_data:
+      cron: "15 3 * * *" # daily at 03:15
+      class: "PurgeOldApiRequestDataJob"
 
 staging:
   :concurrency: 10

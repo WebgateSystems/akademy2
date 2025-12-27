@@ -43,6 +43,7 @@ class Users::SessionsController < Devise::SessionsController
       end
     end
 
+    # NOTE: Blocked/locked users are rejected by User#active_for_authentication? (returns 422 via Devise)
     super
   end
 
@@ -66,7 +67,7 @@ class Users::SessionsController < Devise::SessionsController
   # rubocop:disable I18n/GetText/DecorateString
   def handle_student_login
     return render_student_error('Użytkownik z takim numerem nie istnieje') unless student_user
-    if student_user.inactive?
+    if student_user.inactive? || student_user.blocked_by_admin?
       return render_student_error('Twoje konto zostało zablokowane. Skontaktuj się z administracją szkoły.')
     end
     return render_student_error('Nieprawidłowy PIN') unless valid_student_pin?
@@ -86,7 +87,7 @@ class Users::SessionsController < Devise::SessionsController
   # rubocop:enable I18n/GetText/DecorateString
 
   def student_role?
-    params[:role] == 'student' || params.dig(:user, :role) == 'student'
+    params[:role] == 'student' || user_role_param == 'student'
   end
 
   def student_phone
@@ -123,23 +124,13 @@ class Users::SessionsController < Devise::SessionsController
     return true if path.blank?
 
     # Get user from params (before login)
-    email = params.dig(:user, :email)
+    email = user_email_param
     return false unless email
 
-    user = User.find_by(email: email)
+    user = find_user_for_auth(email)
     return false unless user
 
-    # Check if user is locked (inactive)
-    if user.inactive?
-      # Set resource for Devise form
-      user_params = params.fetch(:user) { {} }.permit(:email, :password, :remember_me)
-      self.resource = resource_class.new(user_params)
-      # rubocop:disable I18n/GetText/DecorateString
-      flash.now[:alert] = 'Twoje konto zostało zablokowane. Skontaktuj się z administratorem.'
-      # rubocop:enable I18n/GetText/DecorateString
-      render :new, status: :unprocessable_entity
-      return nil # Signal that we've already handled the response
-    end
+    # NOTE: Blocked/locked users are rejected by User#active_for_authentication? (Devise hook)
 
     # Validate password first
     password = params.dig(:user, :password)
@@ -160,5 +151,25 @@ class Users::SessionsController < Devise::SessionsController
       # If path doesn't require specific role, allow login
       true
     end
+  end
+
+  def user_email_param
+    raw = params[:user] || params['user']
+    return nil unless raw
+
+    u = raw.respond_to?(:to_unsafe_h) ? raw.to_unsafe_h : raw
+    u[:email] || u['email']
+  end
+
+  def user_role_param
+    raw = params[:user] || params['user']
+    return nil unless raw
+
+    u = raw.respond_to?(:to_unsafe_h) ? raw.to_unsafe_h : raw
+    u[:role] || u['role']
+  end
+
+  def find_user_for_auth(email)
+    User.where('LOWER(email) = ?', email.to_s.downcase).first
   end
 end

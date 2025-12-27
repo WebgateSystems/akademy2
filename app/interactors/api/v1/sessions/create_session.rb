@@ -9,6 +9,8 @@ module Api
           context.user = strategy.user
           user_not_exist unless user
 
+          blocked_user unless user_allowed?
+
           wrong_password unless authenticate
 
           create_jwt
@@ -44,6 +46,17 @@ module Api
 
         def wrong_password
           context.fail!(message: ['Invalid password or PIN'])
+        end
+
+        def user_allowed?
+          return true unless user
+
+          user.active? && !RequestBlockRule.blocked?(user_id: user.id)
+        end
+
+        def blocked_user
+          context.status = :forbidden
+          context.fail!(message: ['User is blocked'])
         end
 
         def create_jwt

@@ -13,4 +13,10 @@ class Admin::DashboardController < Admin::BaseController
     # Top performing schools (placeholder - można dodać logikę completion rate)
     @top_schools = School.limit(5)
   end
+
+  # JSON for traffic chart (aggregated, fast)
+  # GET /admin/traffic_metrics?range=3h|8h|24h|7d|30d|90d
+  def traffic_metrics
+    render json: ::Admin::TrafficMetricsService.new(range: params[:range]).as_json
+  end
 end
