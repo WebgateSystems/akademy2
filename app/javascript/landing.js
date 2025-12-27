@@ -14,6 +14,20 @@
     const isDark = theme === 'dark';
     document.documentElement.classList.toggle('theme-dark', isDark);
     document.documentElement.setAttribute('data-theme', theme);
+    updateVideoPoster(theme);
+  }
+
+  function updateVideoPoster(theme) {
+    const video = document.getElementById('hero-intro-video');
+    if (!video) return;
+
+    const posterLight = video.dataset.posterLight;
+    const posterDark = video.dataset.posterDark;
+    const newPoster = theme === 'dark' ? posterDark : posterLight;
+
+    if (newPoster && video.poster !== newPoster) {
+      video.poster = newPoster;
+    }
   }
 
   // Apply theme immediately on script load
@@ -21,8 +35,11 @@
   const effectiveTheme = storedTheme || getSystemTheme();
   applyTheme(effectiveTheme);
 
-  // Setup toggle and year after DOM is ready
+  // Setup toggle, year, and poster after DOM is ready
   document.addEventListener('DOMContentLoaded', function() {
+    // Update video poster (in case video wasn't in DOM during initial applyTheme)
+    updateVideoPoster(effectiveTheme);
+
     const toggle = document.getElementById('themeToggle');
     const yearEl = document.getElementById('currentYear');
     

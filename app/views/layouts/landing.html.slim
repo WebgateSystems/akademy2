@@ -49,6 +49,7 @@ html lang="pl"
           = image_tag "icons/logo/Akademy_logo_full.svg", alt: "AKAdemy 2.0", class: "brand-logo", "data-theme-icon": true
         nav
           a.only-desktop href="#features" Funkcje
+          a.only-desktop href="#webinar" Webinar
           a.only-desktop href="#how" Jak to działa
           a.only-desktop href="#faq" FAQ
           button#themeToggle.icon-pill type="button" aria-label="Przełącz motyw" title="Przełącz motyw"
@@ -76,14 +77,10 @@ html lang="pl"
           .row style="gap:12px; flex-wrap:wrap"
             a.btn href="#features" Zobacz funkcje
             a.btn.outline href="#how" Jak to działa
-        .hero-illu aria-hidden="true"
-          svg width="88%" viewBox="0 0 640 360" role="img" aria-label="Ilustracja kafelków i certyfikatu"
-            rect x="0" y="0" width="640" height="360" rx="24" fill="none" stroke="var(--card-border)"
-            rect x="36" y="40" width="220" height="140" rx="16" fill="var(--surface)" stroke="var(--card-border)"
-            rect x="276" y="40" width="140" height="140" rx="16" fill="var(--surface)" stroke="var(--card-border)"
-            rect x="436" y="40" width="168" height="140" rx="16" fill="var(--surface)" stroke="var(--card-border)"
-            rect x="36" y="200" width="280" height="120" rx="16" fill="none" stroke="var(--accent)"
-            path d="M56 280 l40 -40 l24 24 l64 -64" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"
+        .hero-video
+          video.hero-video__player#hero-intro-video controls="" playsinline="" preload="metadata" data-poster-light="https://cdn.akademy.edu.pl/poster-light-theme.jpg" data-poster-dark="https://cdn.akademy.edu.pl/poster-dark-theme.jpg"
+            source src="https://cdn.akademy.edu.pl/intro-akademy2.0.mp4" type="video/mp4"
+            | Twoja przeglądarka nie obsługuje wideo HTML5.
 
     section#features.section.container
       h2 style="font-size:clamp(28px,4vw,40px); margin:0 0 16px" Najważniejsze funkcje
@@ -130,6 +127,39 @@ html lang="pl"
             | , gotowe instrukcje i checklisty dla szkół.
 
     == render 'shared/download_app'
+
+    section#webinar.section.container
+      .webinar-card
+        .webinar-badge
+          span.pill Już 29 grudnia!
+        h2 style="font-size:clamp(24px,3.5vw,36px); margin:0 0 16px" Webinar dla zainteresowanych
+        p.webinar-intro
+          | Zapraszamy każdego zainteresowanego, nauczycieli i administrację szkolną zwłaszcza, do wzięcia udziału w webinarze dotyczącym bazowej funkcjonalności platformy edukacyjnej AKAdemy 2.0.
+        .webinar-details
+          .webinar-detail
+            strong 📅 Data:
+            |  29 grudnia 2025 (poniedziałek)
+          .webinar-detail
+            strong 🕐 Godzina:
+            |  17:00 (GMT+1, Warszawa)
+          .webinar-detail
+            strong ⏱️ Czas trwania:
+            |  ok. 1 godziny
+        .webinar-links
+          h3 Dołącz przez Zoom (główny kanał):
+          a.btn.webinar-btn href="https://polsl-pl.zoom.us/j/96258944674?pwd=V1TOSOBaFu1mAgahocUYlrzTno13TI.1" target="_blank" rel="noopener"
+            | Dołącz do webinaru (Zoom)
+          .webinar-credentials
+            p
+              strong Identyfikator spotkania:
+              |  962 5894 4674
+            p
+              strong Kod dostępu:
+              |  902114
+          h3 style="margin-top:24px" Kanał zapasowy (Google Meet):
+          p.small W razie problemów z dostępem do Zoom:
+          a.btn.outline.webinar-btn href="https://meet.google.com/ihs-hqrj-uhv?hs=224" target="_blank" rel="noopener"
+            | Dołącz przez Google Meet
 
     section#how.section.container
       .cols

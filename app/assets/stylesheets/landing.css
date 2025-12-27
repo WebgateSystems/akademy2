@@ -490,6 +490,120 @@ footer .copyright-link:hover {
   color: var(--muted);
 }
 
+/* Hero video player */
+.hero-video {
+  width: 100%;
+  max-width: 640px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface, #000);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.hero-video__player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  background: #000;
+  border-radius: 16px;
+}
+
+.hero-video__player:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Webinar section */
+.webinar-card {
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: 20px;
+  padding: 32px 40px;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.webinar-badge {
+  margin-bottom: 16px;
+}
+
+.webinar-badge .pill {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  padding: 6px 16px;
+  font-size: 14px;
+}
+
+.webinar-intro {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.webinar-details {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px 32px;
+  margin-bottom: 28px;
+  padding: 16px;
+  background: var(--bg);
+  border-radius: 12px;
+}
+
+.webinar-detail {
+  font-size: 1rem;
+}
+
+.webinar-links {
+  text-align: center;
+}
+
+.webinar-links h3 {
+  font-size: 1.1rem;
+  margin: 0 0 12px;
+  color: var(--text);
+}
+
+.webinar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  padding: 12px 28px;
+}
+
+.webinar-credentials {
+  margin: 16px 0;
+  padding: 12px 20px;
+  background: var(--bg);
+  border-radius: 8px;
+  display: inline-block;
+  text-align: left;
+}
+
+.webinar-credentials p {
+  margin: 4px 0;
+  font-family: monospace;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 600px) {
+  .webinar-card {
+    padding: 24px 20px;
+  }
+  
+  .webinar-details {
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+  }
+}
+
 @media (max-width: 900px) {
   nav .only-desktop {
     display: none;
