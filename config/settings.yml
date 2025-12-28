@@ -42,6 +42,12 @@ services:
     refresh_token: <%= ENV['YOUTUBE_REFRESH_TOKEN'] || 'youtube_refresh_token' %>
     # YouTube API: "public" | "unlisted" | "private"
     privacy_status: <%= ENV['YOUTUBE_PRIVACY_STATUS'] || 'public' %>
+  # Analytics (Umami Cloud - free Hobby tier)
+  analytics:
+    # Only enabled in production (or when UMAMI_ENABLED=true explicitly set)
+    enabled: <%= ENV.fetch('UMAMI_ENABLED') { Rails.env.production? } %>
+    script_url: https://cloud.umami.is/script.js
+    website_id: <%= ENV.fetch('UMAMI_WEBSITE_ID') { 'b2469e0d-e840-4df7-9c29-2590709b2f41' } %>
 
 # Store listings / ratings (used on landing page)
 stores:

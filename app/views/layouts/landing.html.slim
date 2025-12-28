@@ -12,6 +12,8 @@ html lang="pl"
     == render 'shared/favicons'
     = javascript_include_tag "landing", "data-turbo-track": "reload"
     = stylesheet_link_tag "landing", "data-turbo-track": "reload"
+    - if Settings.services.analytics.enabled && Settings.services.analytics.website_id.present?
+      script defer="" data-website-id=Settings.services.analytics.website_id src=Settings.services.analytics.script_url
     script type="application/ld+json"
       | {
       |   "@context":"https://schema.org",
