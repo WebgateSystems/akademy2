@@ -8,4 +8,16 @@
 
 require_relative 'environment'
 
-Dir[Rails.root.join('app/jobs/**/*.rb')].sort.each { |path| require path }
+# Ensure Rails is fully loaded and all classes are available
+Rails.application.eager_load!
+
+# Explicitly load base classes first, then all jobs
+require Rails.root.join('app/jobs/application_job.rb')
+require Rails.root.join('app/jobs/base_sidekiq_job.rb')
+
+Dir[Rails.root.join('app/jobs/**/*.rb')].sort.each do |path|
+  # Skip already loaded base classes
+  next if path.end_with?('application_job.rb', 'base_sidekiq_job.rb')
+
+  require path
+end
