@@ -1,4 +1,6 @@
-:require: ./config/sidekiq_boot.rb
+# Note: sidekiq_boot.rb is loaded via config/environment.rb which Sidekiq loads by default
+# when started with `bundle exec sidekiq`. We configure eager loading there.
+:require: ./config/environment.rb
 :concurrency: 5
 :pidfile: tmp/pids/sidekiq.pid
 :timeout: 45

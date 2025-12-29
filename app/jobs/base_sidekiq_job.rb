@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BaseSidekiqJob
   include Sidekiq::Job
 
