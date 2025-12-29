@@ -36,9 +36,7 @@ class DashboardController < ApplicationController
       return
     end
 
-    @classes = current_user.assigned_classes
-                           .where(school_id: @school&.id)
-                           .order(:name)
+    @classes = teacher_classes_for_school
 
     # Preload awaiting counts for sidebar (avoid N+1)
     class_ids = @classes.pluck(:id)
@@ -62,9 +60,7 @@ class DashboardController < ApplicationController
 
   def quiz_results
     @school = current_user.school
-    @classes = current_user.assigned_classes
-                           .where(school_id: @school&.id)
-                           .order(:name)
+    @classes = teacher_classes_for_school
 
     # Preload awaiting counts for sidebar
     class_ids = @classes.pluck(:id)
@@ -87,9 +83,7 @@ class DashboardController < ApplicationController
 
   def students
     @school = current_user.school
-    @classes = current_user.assigned_classes
-                           .where(school_id: @school&.id)
-                           .order(:name)
+    @classes = teacher_classes_for_school
 
     class_ids = @classes.pluck(:id)
     @classes_awaiting_counts = StudentClassEnrollment.where(school_class_id: class_ids, status: 'pending')
@@ -113,9 +107,7 @@ class DashboardController < ApplicationController
 
   def notifications
     @school = current_user.school
-    @classes = current_user.assigned_classes
-                           .where(school_id: @school&.id)
-                           .order(:name)
+    @classes = teacher_classes_for_school
 
     class_ids = @classes.pluck(:id)
     @classes_awaiting_counts = StudentClassEnrollment.where(school_class_id: class_ids, status: 'pending')
@@ -161,9 +153,7 @@ class DashboardController < ApplicationController
   # Moderate student videos
   def student_videos
     @school = current_user.school
-    @classes = current_user.assigned_classes
-                           .where(school_id: @school&.id)
-                           .order(:name)
+    @classes = teacher_classes_for_school
 
     class_ids = @classes.pluck(:id)
     @classes_awaiting_counts = StudentClassEnrollment.where(school_class_id: class_ids, status: 'pending')
@@ -198,9 +188,7 @@ class DashboardController < ApplicationController
 
   def show_student
     @school = current_user.school
-    @classes = current_user.assigned_classes
-                           .where(school_id: @school&.id)
-                           .order(:name)
+    @classes = teacher_classes_for_school
 
     class_ids = @classes.pluck(:id)
     @classes_awaiting_counts = StudentClassEnrollment.where(school_class_id: class_ids, status: 'pending')
@@ -311,6 +299,13 @@ class DashboardController < ApplicationController
     return nil if class_id.blank?
 
     current_user.assigned_classes.find_by(id: class_id)
+  end
+
+  # Returns teacher's assigned classes for the current school (deduplicated)
+  def teacher_classes_for_school
+    # Use subquery to avoid PostgreSQL DISTINCT + ORDER BY conflict
+    class_ids = current_user.teacher_class_assignments.pluck(:school_class_id).uniq
+    SchoolClass.where(id: class_ids, school_id: current_user.school_id).order(:name)
   end
 
   def student_in_teacher_classes?(student)
@@ -638,9 +633,7 @@ class DashboardController < ApplicationController
 
   def load_export_data
     @school = current_user.school
-    @classes = current_user.assigned_classes
-                           .where(school_id: @school&.id)
-                           .order(:name)
+    @classes = teacher_classes_for_school
 
     @current_class = if params[:class_id].present?
                        @classes.find_by(id: params[:class_id]) || @classes.first
