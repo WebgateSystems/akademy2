@@ -133,10 +133,10 @@ html lang="pl"
     section#webinar.section.container
       .webinar-card
         .webinar-badge
-          span.pill Już 29 grudnia!
+          span.pill Już dziś o 17:00!
         h2 style="font-size:clamp(24px,3.5vw,36px); margin:0 0 16px" Webinar dla zainteresowanych
         p.webinar-intro
-          | Zapraszamy każdego zainteresowanego, nauczycieli i administrację szkolną zwłaszcza, do wzięcia udziału w webinarze dotyczącym bazowej funkcjonalności platformy edukacyjnej AKAdemy 2.0.
+          | Zapraszamy nauczycieli i administrację szkolną do udziału w webinarze prezentującym funkcjonalność platformy edukacyjnej AKAdemy 2.0. Po rejestracji otrzymasz link do spotkania na podany adres e-mail.
         .webinar-details
           .webinar-detail
             strong 📅 Data:
@@ -147,21 +147,66 @@ html lang="pl"
           .webinar-detail
             strong ⏱️ Czas trwania:
             |  ok. 1 godziny
-        .webinar-links
-          h3 Dołącz przez Zoom (główny kanał):
-          a.btn.webinar-btn href="https://polsl-pl.zoom.us/j/96258944674?pwd=V1TOSOBaFu1mAgahocUYlrzTno13TI.1" target="_blank" rel="noopener"
-            | Dołącz do webinaru (Zoom)
-          .webinar-credentials
-            p
-              strong Identyfikator spotkania:
-              |  962 5894 4674
-            p
-              strong Kod dostępu:
-              |  902114
-          h3 style="margin-top:24px" Kanał zapasowy (Google Meet):
-          p.small W razie problemów z dostępem do Zoom:
-          a.btn.outline.webinar-btn href="https://meet.google.com/ihs-hqrj-uhv?hs=224" target="_blank" rel="noopener"
-            | Dołącz przez Google Meet
+        
+        .webinar-form-wrapper
+          h3.webinar-form__title Zapisz się na webinar
+          form#webinar-registration-form.webinar-form
+            .webinar-form__row
+              .webinar-form__field
+                label.webinar-form__label for="webinar-first-name"
+                  | Imię
+                  span.required *
+                input#webinar-first-name.webinar-form__input type="text" name="first_name" required="" placeholder="np. Jan"
+              .webinar-form__field
+                label.webinar-form__label for="webinar-last-name"
+                  | Nazwisko
+                  span.required *
+                input#webinar-last-name.webinar-form__input type="text" name="last_name" required="" placeholder="np. Kowalski"
+            .webinar-form__row
+              .webinar-form__field
+                label.webinar-form__label for="webinar-email"
+                  | E-mail
+                  span.required *
+                input#webinar-email.webinar-form__input type="email" name="email" required="" placeholder="np. jan.kowalski@szkola.edu.pl"
+              .webinar-form__field
+                label.webinar-form__label for="webinar-phone" Telefon
+                input#webinar-phone.webinar-form__input type="tel" name="phone" placeholder="np. +48 123 456 789"
+            .webinar-form__row
+              .webinar-form__field
+                label.webinar-form__label for="webinar-position" Stanowisko
+                input#webinar-position.webinar-form__input type="text" name="position" placeholder="np. Dyrektor, Nauczyciel"
+              .webinar-form__field
+                label.webinar-form__label for="webinar-school" Szkoła
+                input#webinar-school.webinar-form__input type="text" name="school_name" placeholder="np. SP nr 1 w Warszawie"
+            
+            .webinar-form__submit
+              button#webinar-submit-btn.btn.webinar-btn type="submit" disabled=""
+                | Zapisz się i odbierz link + prezentację
+              p.webinar-form__hint
+                span.required *
+                |  Pola wymagane
+            
+            .webinar-form__message#webinar-form-message style="display:none"
+              p
+        
+        .webinar-benefits
+          h3 style="margin:24px 0 12px" 📋 Co będzie na webinarze?
+          ul.webinar-benefits-list
+            li
+              span.webinar-benefit-icon 🎬
+              | Prezentacja funkcjonalności – panel ucznia, nauczyciela i dyrekcji
+            li
+              span.webinar-benefit-icon 📊
+              | Statystyki i raporty – jak monitorować postępy uczniów
+            li
+              span.webinar-benefit-icon 🏆
+              | Certyfikaty PDF – automatyczne generowanie po zaliczeniu quizów
+            li
+              span.webinar-benefit-icon 📴
+              | Tryb offline – jak działa nauka bez internetu
+            li
+              span.webinar-benefit-icon 🚀
+              | Wdrożenie pilotażowe – jak rozpocząć korzystanie w Twojej szkole
 
     section#how.section.container
       .cols

@@ -58,5 +58,88 @@
         applyTheme(newTheme);
       });
     }
+
+    // Webinar registration form
+    setupWebinarForm();
   });
+
+  function setupWebinarForm() {
+    const form = document.getElementById('webinar-registration-form');
+    const submitBtn = document.getElementById('webinar-submit-btn');
+    const messageEl = document.getElementById('webinar-form-message');
+    
+    if (!form || !submitBtn) return;
+
+    const requiredFields = form.querySelectorAll('input[required]');
+    
+    // Enable/disable submit button based on required fields
+    function checkFormValidity() {
+      let allFilled = true;
+      requiredFields.forEach(function(field) {
+        if (!field.value.trim()) {
+          allFilled = false;
+        }
+      });
+      submitBtn.disabled = !allFilled;
+    }
+
+    requiredFields.forEach(function(field) {
+      field.addEventListener('input', checkFormValidity);
+    });
+
+    // Form submission
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Wysyłanie...';
+      messageEl.style.display = 'none';
+      messageEl.className = 'webinar-form__message';
+
+      const formData = {
+        webinar_registration: {
+          first_name: form.querySelector('[name="first_name"]').value.trim(),
+          last_name: form.querySelector('[name="last_name"]').value.trim(),
+          email: form.querySelector('[name="email"]').value.trim(),
+          position: form.querySelector('[name="position"]').value.trim(),
+          school_name: form.querySelector('[name="school_name"]').value.trim(),
+          phone: form.querySelector('[name="phone"]').value.trim()
+        }
+      };
+
+      try {
+        const response = await fetch('/webinar_registrations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          messageEl.className = 'webinar-form__message webinar-form__message--success';
+          messageEl.querySelector('p').textContent = result.message;
+          messageEl.style.display = 'block';
+          form.reset();
+          submitBtn.textContent = '✅ Zapisano!';
+          // Keep button disabled after success
+        } else {
+          messageEl.className = 'webinar-form__message webinar-form__message--error';
+          messageEl.querySelector('p').textContent = result.errors ? result.errors.join(', ') : 'Wystąpił błąd. Spróbuj ponownie.';
+          messageEl.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Zapisz się i odbierz link + prezentację';
+        }
+      } catch (error) {
+        messageEl.className = 'webinar-form__message webinar-form__message--error';
+        messageEl.querySelector('p').textContent = 'Wystąpił błąd połączenia. Sprawdź internet i spróbuj ponownie.';
+        messageEl.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Zapisz się i odbierz link + prezentację';
+      }
+    });
+  }
 })();

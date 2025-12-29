@@ -317,6 +317,9 @@ Rails.application.routes.draw do
   get 'accessibility', to: 'pages#accessibility', as: :accessibility
   get 'license', to: 'pages#license', as: :license
 
+  # Webinar registration
+  post 'webinar_registrations', to: 'webinar_registrations#create', as: :webinar_registrations
+
   # Landing page
   root 'home#index'
 
