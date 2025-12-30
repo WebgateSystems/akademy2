@@ -18,16 +18,20 @@
   }
 
   function updateVideoPoster(theme) {
-    const video = document.getElementById('hero-intro-video');
-    if (!video) return;
+    const heroVideo = document.getElementById('hero-intro-video');
+    const webinarVideo = document.getElementById('webinar-video-player');
+    
+    [heroVideo, webinarVideo].forEach(function(video) {
+      if (!video) return;
 
-    const posterLight = video.dataset.posterLight;
-    const posterDark = video.dataset.posterDark;
-    const newPoster = theme === 'dark' ? posterDark : posterLight;
+      const posterLight = video.dataset.posterLight;
+      const posterDark = video.dataset.posterDark;
+      const newPoster = theme === 'dark' ? posterDark : posterLight;
 
-    if (newPoster && video.poster !== newPoster) {
-      video.poster = newPoster;
-    }
+      if (newPoster && video.poster !== newPoster) {
+        video.poster = newPoster;
+      }
+    });
   }
 
   // Apply theme immediately on script load
@@ -59,8 +63,8 @@
       });
     }
 
-    // Webinar registration form
-    setupWebinarForm();
+    // Webinar registration form (no longer needed, but keeping function for compatibility)
+    // setupWebinarForm();
   });
 
   function setupWebinarForm() {

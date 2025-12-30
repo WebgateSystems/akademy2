@@ -717,6 +717,34 @@ footer .copyright-link:hover {
   font-weight: 500;
 }
 
+/* Webinar video player */
+.webinar-video-wrapper {
+  margin: 32px 0;
+}
+
+.webinar-video {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface, #000);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.webinar-video__player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  background: #000;
+  border-radius: 16px;
+}
+
+.webinar-video__player:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* Webinar benefits list */
 .webinar-benefits {
   margin-top: 32px;
