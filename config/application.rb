@@ -55,6 +55,8 @@ module Akademy
       g.test_framework :rspec
     end
 
+    config.autoload_paths << Rails.root.join('app/middleware')
+
     # Enable session support for API controllers
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore, key: '_akademy_session'

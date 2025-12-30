@@ -1,25 +1,11 @@
 require 'sidekiq/web'
 
-Sidekiq::Web.use Rack::Auth::Basic do |username, password|
-  username == Settings.sidekiq.user && password == Settings.sidekiq.password
-end
-
-session_middleware = lambda { |env|
-  app = Rack::Builder.new do
-    use Rack::Session::Cookie, key: 'akademy_sidekiq_session', secret: Rails.application.config.secret_key_base,
-                               same_site: true, max_age: 86_400
-    run Sidekiq::Web
-  end
-  app.call(env)
-}
+Sidekiq::Web.use SidekiqAuthMiddleware
 
 Rails.application.routes.draw do
   mount Rswag::Ui::Engine => '/api-docs'
   mount Rswag::Api::Engine => '/api-docs'
-  mount Sidekiq::Web => '/sidekiq'
   devise_for :users, controllers: { sessions: 'users/sessions' }
-
-  mount session_middleware => '/sidekiq'
 
   # Pretty login URLs (aliases for /users/sign_in?role=xxx)
   devise_scope :user do
@@ -38,6 +24,7 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root to: 'dashboard#index'
+    mount Sidekiq::Web => '/sidekiq'
     get 'traffic_metrics', to: 'dashboard#traffic_metrics', as: :traffic_metrics
     post 'events/:id/block_preview', to: 'event_blocks#preview', as: :event_block_preview
     post 'events/:id/block', to: 'event_blocks#create', as: :event_block
