@@ -5,6 +5,7 @@
 # `$XDG_CONFIG_HOME/git/ignore` or `~/.config/git/ignore`
 
 .DS_Store
+lib/tasks/rspo_scraper.rake
 
 /.idea
 # Ignore bundler config.

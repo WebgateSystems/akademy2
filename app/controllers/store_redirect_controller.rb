@@ -21,12 +21,15 @@ class StoreRedirectController < ApplicationController
   def resolve_target_url
     forced = params[:platform].to_s.downcase
     return google_play_url if forced == 'android'
-    return app_store_url if forced == 'ios'
+    return app_store_url if forced == 'ios' && app_store_url.present?
 
     ua = request.user_agent.to_s
+    # Android - zawsze przekieruj
     return google_play_url if ua.match?(/android/i)
-    return app_store_url if ua.match?(/iphone|ipad|ipod/i)
+    # iOS/iPad/iPhone - przekieruj tylko jeśli App Store URL jest skonfigurowany
+    return app_store_url if ua.match?(/iphone|ipad|ipod/i) && app_store_url.present?
 
+    # Desktop/nieznane urządzenia - pokaż fallback
     nil
   end
 

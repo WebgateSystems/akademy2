@@ -13,6 +13,12 @@ RSpec.describe 'Store redirect (/get-app)', type: :request do
   end
 
   it 'renders fallback page for iOS when App Store URL is not configured' do
+    stores_double = double(
+      google_play: double(url: google_play_url),
+      app_store: double(url: nil)
+    )
+    allow(Settings).to receive(:stores).and_return(stores_double)
+
     get get_app_path, headers: { 'User-Agent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)' }
 
     expect(response).to have_http_status(:ok)

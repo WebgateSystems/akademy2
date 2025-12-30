@@ -107,6 +107,7 @@ Metrics/ClassLength:
     - "app/controllers/application_controller.rb"
     - "app/controllers/users/sessions_controller.rb"
     - "app/models/student_video.rb"
+    - "lib/tasks/rspo_scraper.rake" # Rake task for scraping RSPO data - complex by nature
 
 Metrics/CyclomaticComplexity:
   Max: 8
@@ -127,6 +128,7 @@ Metrics/CyclomaticComplexity:
     - "app/controllers/api/v1/student/quiz_results_controller.rb"
     - "app/controllers/api/v1/student/videos_controller.rb"
     - "app/jobs/process_video_job.rb"
+    - "lib/tasks/rspo_scraper.rake" # Rake task for scraping RSPO data - complex by nature
 
 Metrics/MethodLength:
   Max: 15
@@ -173,6 +175,7 @@ Metrics/MethodLength:
     - 'app/controllers/api/v1/teacher/videos_controller.rb'
     - 'app/jobs/process_video_job.rb'
     - 'app/models/student_video.rb'
+    - 'lib/tasks/rspo_scraper.rake' # Rake task for scraping RSPO data - complex by nature
 
 Metrics/PerceivedComplexity:
   Max: 8
@@ -196,6 +199,7 @@ Metrics/PerceivedComplexity:
     - "app/controllers/api/v1/student/quiz_results_controller.rb"
     - "app/controllers/api/v1/student/videos_controller.rb"
     - "app/jobs/process_video_job.rb"
+    - "lib/tasks/rspo_scraper.rake" # Rake task for scraping RSPO data - complex by nature
 
 Metrics/BlockNesting:
   Max: 3
