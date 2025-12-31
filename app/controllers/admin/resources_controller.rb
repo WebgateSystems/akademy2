@@ -95,6 +95,8 @@ class Admin::ResourcesController < Admin::BaseController
       render 'admin/resources/learning_modules_edit'
     when 'contents'
       render 'admin/resources/contents_edit'
+
+    when 'app_managers' then render 'admin/resources/app_managers_edit'
     end
   end
 
