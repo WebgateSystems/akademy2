@@ -92,6 +92,87 @@ RSpec.describe Api::V1::Management::UpdateClass do
         expect(assignment).to be_nil
       end
 
+      it 'removes main teacher when teacher_id is nil' do
+        TeacherClassAssignment.create!(
+          school_class: school_class,
+          teacher: teacher,
+          role: 'main'
+        )
+        context[:params][:school_class][:teacher_id] = nil
+        result = described_class.call(context)
+
+        expect(result).to be_success
+        assignment = TeacherClassAssignment.find_by(
+          school_class: school_class,
+          role: 'main'
+        )
+        expect(assignment).to be_nil
+      end
+
+      it 'does not update teacher assignment when teacher_id is not in params' do
+        existing_assignment = TeacherClassAssignment.create!(
+          school_class: school_class,
+          teacher: teacher,
+          role: 'main'
+        )
+        # Update only name, without teacher_id in params
+        context[:params][:school_class][:name] = '4C'
+        result = described_class.call(context)
+
+        expect(result).to be_success
+        assignment = TeacherClassAssignment.find_by(
+          school_class: school_class,
+          role: 'main'
+        )
+        expect(assignment).to be_present
+        expect(assignment.id).to eq(existing_assignment.id)
+      end
+
+      it 'does not update teaching staff when teaching_staff_ids is not in params' do
+        existing_assignment = TeacherClassAssignment.create!(
+          school_class: school_class,
+          teacher: teacher,
+          role: 'teaching_staff'
+        )
+        # Update only name, without teaching_staff_ids in params
+        context[:params][:school_class][:name] = '4C'
+        result = described_class.call(context)
+
+        expect(result).to be_success
+        assignments = TeacherClassAssignment.where(
+          school_class: school_class,
+          role: 'teaching_staff'
+        )
+        expect(assignments.count).to eq(1)
+        expect(assignments.first.id).to eq(existing_assignment.id)
+      end
+
+      it 'allows assigning teacher as main when they are already teaching_staff' do
+        # First assign as teaching_staff
+        TeacherClassAssignment.create!(
+          school_class: school_class,
+          teacher: teacher,
+          role: 'teaching_staff'
+        )
+        # Then assign as main teacher
+        context[:params][:school_class][:teacher_id] = teacher.id
+        result = described_class.call(context)
+
+        expect(result).to be_success
+        main_assignment = TeacherClassAssignment.find_by(
+          school_class: school_class,
+          teacher: teacher,
+          role: 'main'
+        )
+        teaching_staff_assignment = TeacherClassAssignment.find_by(
+          school_class: school_class,
+          teacher: teacher,
+          role: 'teaching_staff'
+        )
+        expect(main_assignment).to be_present
+        expect(teaching_staff_assignment).to be_present
+      end
+
       it 'updates teaching staff assignments' do
         context[:params][:school_class][:teaching_staff_ids] = [teacher.id, teacher2.id]
         result = described_class.call(context)

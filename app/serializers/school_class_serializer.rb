@@ -8,9 +8,7 @@ class SchoolClassSerializer < ApplicationSerializer
   end
 
   attribute :main_teacher do |school_class|
-    assignment = TeacherClassAssignment.includes(:teacher)
-                                       .where(school_class: school_class, role: 'main')
-                                       .first
+    assignment = TeacherClassAssignment.where(school_class: school_class, role: 'main').first
     if assignment&.teacher
       {
         id: assignment.teacher.id,
@@ -20,8 +18,7 @@ class SchoolClassSerializer < ApplicationSerializer
   end
 
   attribute :teaching_staff do |school_class|
-    assignments = TeacherClassAssignment.includes(:teacher)
-                                        .where(school_class: school_class, role: 'teaching_staff')
+    assignments = TeacherClassAssignment.where(school_class: school_class, role: 'teaching_staff')
     assignments.map do |assignment|
       {
         id: assignment.teacher.id,

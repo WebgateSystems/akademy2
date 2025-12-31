@@ -56,18 +56,36 @@ module Api
           teacher_id = update_params.delete(:teacher_id)
           teaching_staff_ids = update_params.delete(:teaching_staff_ids)
 
-          if context.school_class.update(update_params)
-            update_teacher_assignment(teacher_id) if teacher_id.present? || teacher_id == ''
-            if teaching_staff_ids.present? || teaching_staff_ids == []
-              update_teaching_staff_assignment(teaching_staff_ids)
-            end
-            context.form = context.school_class
-            context.status = :ok
-            context.serializer = SchoolClassSerializer
-          else
-            context.message = context.school_class.errors.full_messages
-            context.fail!
+          return unless context.school_class.update(update_params)
+
+          update_assignments_if_present(teacher_id, teaching_staff_ids)
+          context.form = context.school_class
+          context.status = :ok
+          context.serializer = SchoolClassSerializer
+        end
+
+        def update_assignments_if_present(teacher_id, teaching_staff_ids)
+          school_class_params = school_class_params_from_context
+          teacher_id_present = param_present?(school_class_params, :teacher_id)
+          teaching_staff_ids_present = param_present?(school_class_params, :teaching_staff_ids)
+
+          update_teacher_assignment(teacher_id) if teacher_id_present
+          update_teaching_staff_assignment(teaching_staff_ids) if teaching_staff_ids_present
+        end
+
+        def school_class_params_from_context
+          school_class_key = context.params[:school_class] || context.params['school_class']
+          if school_class_key.is_a?(Hash) || school_class_key.is_a?(ActionController::Parameters)
+            return school_class_key
           end
+
+          nil
+        end
+
+        def param_present?(params_hash, key)
+          return false unless params_hash
+
+          params_hash.key?(key) || params_hash.key?(key.to_s)
         end
 
         def update_teacher_assignment(teacher_id)
