@@ -1,5 +1,5 @@
 /**
- * E2E Test: Superadmin creates and deletes an App Manager
+ * E2E Test: Superadmin creates, edits, deactivates and deletes an App Manager
  *
  * Scenario:
  * 1. Login as superadmin
@@ -9,8 +9,12 @@
  * 5. Submit
  * 6. Verify app manager was created via search
  * 7. Open actions menu for created app manager
- * 8. Delete app manager
- * 9. Verify app manager was deleted
+ * 8. Edit app manager
+ * 9. Verify app manager was edited
+ * 10. Deactivate app manager
+ * 11. Verify app manager was deactivated
+ * 12. Delete app manager
+ * 13. Verify app manager was deleted
  */
 
 const browser = require('../helpers/browser');
@@ -21,7 +25,7 @@ const pause = () => browser.getSpeed();
 async function runTest() {
   let testPassed = false;
 
-  console.log('🚀 Starting Create and Delete App Manager Test...\n');
+  console.log('🚀 Starting Create, Edit, Deactivate and Delete App Manager Test...\n');
 
   try {
     // ========================================
@@ -202,9 +206,225 @@ async function runTest() {
     console.log('   ✓ Actions menu opened');
 
     // ========================================
-    // Step 8: Delete app manager
+    // Step 8: Edit app manager
     // ========================================
-    console.log('📍 Step 8: Delete app manager');
+    console.log('📍 Step 8: Edit app manager');
+
+    const editLinkClicked = await page.evaluate((email) => {
+      const rows = Array.from(document.querySelectorAll('tr'));
+
+      for (const row of rows) {
+        if (row.innerText.includes(email)) {
+          // Ensure menu is open
+          const details = row.querySelector('details.headmasters-menu');
+          if (details && !details.open) {
+            const summary = details.querySelector('summary');
+            if (summary) summary.click();
+          }
+          
+          const editLink = row.querySelector('a.dropdown-link[href*="/edit"]');
+          if (editLink) {
+            editLink.click();
+            return true;
+          }
+        }
+      }
+      return false;
+    }, managerEmail);
+
+    if (!editLinkClicked) {
+      throw new Error(`Edit link for app manager "${managerEmail}" not found`);
+    }
+
+    await browser.waitForNavigation();
+    await browser.waitFor('#app-manager-form', 5000);
+
+    console.log('   ✓ Edit page loaded');
+
+    const updatedFirstName = `${managerFirstName} UPDATED`;
+    const updatedPhone = '+48987654321';
+
+    await page.evaluate(() => {
+      const firstNameInput = document.querySelector('input[name="user[first_name]"]');
+      if (firstNameInput) firstNameInput.value = '';
+    });
+
+    await browser.type('input[name="user[first_name]"]', updatedFirstName);
+    
+    await page.evaluate(() => {
+      const phoneInput = document.querySelector('input[name="user[metadata][phone]"]');
+      if (phoneInput) phoneInput.value = '';
+    });
+
+    await browser.type('input[name="user[metadata][phone]"]', updatedPhone);
+
+    console.log(`   ✓ Form updated (first name: "${updatedFirstName}", phone: "${updatedPhone}")`);
+
+    // Submit edit form
+    await Promise.all([
+      browser.waitForNavigation().catch(() => {}),
+      page.click('button[form="app-manager-form"]'),
+    ]);
+
+    await browser.sleep(pause().mediumPause);
+
+    console.log('   ✓ App manager updated');
+
+    // ========================================
+    // Step 9: Verify app manager was edited
+    // ========================================
+    console.log('📍 Step 9: Verify app manager was edited');
+
+    await page.waitForSelector(searchInputSelector, { visible: true, timeout: 5000 });
+
+    await page.focus(searchInputSelector);
+    await page.evaluate((selector) => {
+      document.querySelector(selector).value = '';
+    }, searchInputSelector);
+    await page.type(searchInputSelector, managerEmail);
+    await browser.sleep(pause().mediumPause);
+
+    const updatedFound = await page.evaluate((email, updatedFirstName) => {
+      const rows = Array.from(document.querySelectorAll('tr'));
+      for (const row of rows) {
+        if (row.innerText.includes(email) && row.innerText.includes(updatedFirstName)) {
+          return true;
+        }
+      }
+      return false;
+    }, managerEmail, updatedFirstName);
+
+    if (!updatedFound) {
+      throw new Error(`Updated app manager with email "${managerEmail}" and name "${updatedFirstName}" not found`);
+    }
+
+    console.log('   ✓ Edited app manager found via search');
+
+    // ========================================
+    // Step 10: Deactivate app manager
+    // ========================================
+    console.log('📍 Step 10: Deactivate app manager');
+
+    // Reopen actions menu for the app manager
+    const reopenMenuForManager = await page.evaluate((email) => {
+      const rows = Array.from(document.querySelectorAll('tr'));
+
+      for (const row of rows) {
+        if (row.innerText.includes(email)) {
+          const summary = row.querySelector(
+            'details.headmasters-menu > summary'
+          );
+          if (summary) {
+            summary.click();
+            return true;
+          }
+        }
+      }
+      return false;
+    }, managerEmail);
+
+    if (!reopenMenuForManager) {
+      throw new Error(`Actions menu for app manager "${managerEmail}" not found`);
+    }
+
+    await browser.sleep(pause().smallPause);
+
+    const deactivateClicked = await page.evaluate((email) => {
+      const rows = Array.from(document.querySelectorAll('tr'));
+
+      for (const row of rows) {
+        if (row.innerText.includes(email)) {
+          // Find the lock/deactivate form (button with text "Zablokuj")
+          const forms = row.querySelectorAll('form.inline-form');
+          
+          for (const form of forms) {
+            const button = form.querySelector('button[type="submit"]');
+            if (button && (button.textContent.includes('Zablokuj') || button.textContent.includes('Blokuj'))) {
+              button.click();
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }, managerEmail);
+
+    if (!deactivateClicked) {
+      throw new Error(`Deactivate button for app manager "${managerEmail}" not found`);
+    }
+
+    await Promise.all([
+      browser.waitForNavigation().catch(() => {}),
+      browser.sleep(pause().smallPause),
+    ]);
+
+    await browser.sleep(pause().mediumPause);
+    console.log('   ✓ App manager deactivated');
+
+    // ========================================
+    // Step 11: Verify app manager was deactivated
+    // ========================================
+    console.log('📍 Step 11: Verify app manager was deactivated');
+
+    await page.waitForSelector(searchInputSelector, { visible: true, timeout: 5000 });
+
+    await page.focus(searchInputSelector);
+    await page.evaluate((selector) => {
+      document.querySelector(selector).value = '';
+    }, searchInputSelector);
+    await page.type(searchInputSelector, managerEmail);
+    await browser.sleep(pause().mediumPause);
+
+    const isDeactivated = await page.evaluate((email) => {
+      const rows = Array.from(document.querySelectorAll('tr'));
+
+      for (const row of rows) {
+        if (row.innerText.includes(email)) {
+          // Check if status column shows inactive (in Polish: "Nieaktywny" or similar)
+          const statusText = row.innerText;
+          // Look for inactive indicators
+          if (statusText.match(/nieaktywn|inactive|zablokowan/i)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }, managerEmail);
+
+    if (!isDeactivated) {
+      throw new Error(`App manager with email "${managerEmail}" was not deactivated (status not found as inactive)`);
+    }
+
+    console.log('   ✓ App manager status shows as deactivated');
+
+    // ========================================
+    // Step 12: Delete app manager
+    // ========================================
+    console.log('📍 Step 12: Delete app manager');
+
+    // Reopen actions menu for deletion
+    const reopenMenuForDeletion = await page.evaluate((email) => {
+      const rows = Array.from(document.querySelectorAll('tr'));
+
+      for (const row of rows) {
+        if (row.innerText.includes(email)) {
+          const summary = row.querySelector(
+            'details.headmasters-menu > summary'
+          );
+          if (summary) {
+            summary.click();
+            return true;
+          }
+        }
+      }
+      return false;
+    }, managerEmail);
+
+    if (!reopenMenuForDeletion) {
+      throw new Error(`Actions menu for app manager "${managerEmail}" not found for deletion`);
+    }
+
+    await browser.sleep(pause().smallPause);
 
     // Устанавливаем обработчик диалога ДО клика
     page.once('dialog', async dialog => {
@@ -251,9 +471,9 @@ async function runTest() {
     console.log('   ✓ App manager deleted');
 
     // ========================================
-    // Step 9: Verify app manager was deleted
+    // Step 13: Verify app manager was deleted
     // ========================================
-    console.log('📍 Step 9: Verify app manager was deleted');
+    console.log('📍 Step 13: Verify app manager was deleted');
 
     await page.waitForSelector(searchInputSelector, { visible: true, timeout: 5000 });
 
@@ -275,7 +495,7 @@ async function runTest() {
 
     console.log('   ✓ App manager successfully deleted');
     
-    console.log('\n✅ CREATE AND DELETE APP MANAGER TEST PASSED\n');
+    console.log('\n✅ CREATE, EDIT, DEACTIVATE AND DELETE APP MANAGER TEST PASSED\n');
     testPassed = true;
 
   } catch (error) {

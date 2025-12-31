@@ -1,0 +1,40 @@
+- content_for :page_title, 'Managerzy aplikacji'
+
+section aria-label="Edytuj managera aplikacji"
+  header.schools-page__header
+    h2 style="margin: 0; font-size: 24px; font-weight: 600;"
+      = "Edytuj managera: #{@record.full_name || @record.email}"
+    .d-flex style="gap: 12px;"
+      button type="submit" form="app-manager-form" class="schools-page__add" style="cursor: pointer; border: none;"
+        = t('common.save')
+      = link_to admin_resource_collection_path(resource: 'app_managers'), class: "schools-page__add", style: "text-decoration: none; background: var(--surface-secondary); color: var(--content-primary);" do
+        = t('common.cancel')
+
+  .schools-card style="margin-top: 24px;"
+    = form_with model: @record, url: admin_update_resource_path(resource: 'app_managers', id: @record.id), method: :patch, local: true, id: 'app-manager-form', class: 'schools-modal__form', style: 'padding: 24px;' do |f|
+      = hidden_field_tag 'user[role_key]', 'manager'
+      
+      - if @record.errors.any?
+        div style="padding: 16px; margin-bottom: 24px; background: var(--surface-error); border-radius: 8px; color: var(--content-error);"
+          strong Błędy:
+          ul style="margin: 8px 0 0 0; padding-left: 20px;"
+            - @record.errors.full_messages.each do |message|
+              li = message
+
+      label
+        span
+          | Email
+          sup style="color: var(--content-secondary);" *
+        input type="email" name="user[email]" value=@record.email placeholder="manager@akademy.local" required=""
+      
+      .cols style="grid-template-columns:repeat(2,minmax(160px,1fr)); gap:12px"
+        label
+          span Imię
+          input type="text" name="user[first_name]" value=@record.first_name placeholder="Marek"
+        label
+          span Nazwisko
+          input type="text" name="user[last_name]" value=@record.last_name placeholder="Manager"
+      
+      label
+        span Telefon
+        input type="text" name="user[metadata][phone]" value=(@record.metadata&.dig('phone') || '') placeholder="+48 XXX XXX XXX"
