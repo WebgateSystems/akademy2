@@ -208,6 +208,10 @@ Rails.application.routes.draw do
 
       resource :session, only: :create
 
+      # Password reset endpoints
+      post 'passwords/forgot', to: 'passwords#forgot'
+      post 'passwords/reset', to: 'passwords#reset'
+
       resources :schools, only: %i[index show create update destroy]
       resources :headmasters, only: %i[index show create update destroy] do
         member do
