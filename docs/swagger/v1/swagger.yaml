@@ -2133,6 +2133,42 @@ paths:
       responses:
         '200':
           description: student account unlocked
+  "/api/v1/passwords/forgot":
+    post:
+      summary: Send reset password instructions
+      tags:
+      - Passwords
+      parameters: []
+      responses:
+        '200':
+          description: instructions sent (always for existing / non-existing users)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '422':
+          description: email is missing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    items:
+                      type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
   "/api/v1/register/confirm_pin":
     post:
       summary: Confirm PIN and complete registration
