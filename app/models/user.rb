@@ -17,6 +17,7 @@ class User < ApplicationRecord
   has_many :teacher_school_enrollments, foreign_key: 'teacher_id', dependent: :destroy, inverse_of: :teacher
   has_many :student_videos, dependent: :destroy
   has_many :student_video_likes, dependent: :destroy
+  has_many :quiz_results, dependent: :destroy
 
   devise :database_authenticatable,
          :registerable,
