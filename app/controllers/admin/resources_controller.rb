@@ -163,68 +163,134 @@ class Admin::ResourcesController < Admin::BaseController
     redirect_to admin_resource_collection_path(resource: params[:resource]), alert: alert_message
   end
 
+  # def reorder_subjects
+  #   subject_ids = params[:subject_ids]
+  #   return head :bad_request unless subject_ids.is_a?(Array)
+
+  #   # Validate that all IDs are valid UUIDs
+  #   return head :bad_request unless subject_ids.all? do |id|
+  #     id.match?(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i)
+  #   end
+
+  #   # Build a single SQL query with CASE WHEN to update all order_index values at once
+  #   # This is much more efficient than updating each record separately
+  #   case_when = subject_ids.each_with_index.map do |subject_id, index|
+  #     sanitized_id = Subject.connection.quote(subject_id)
+  #     "WHEN #{sanitized_id} THEN #{index + 1}"
+  #   end.join(' ')
+
+  #   sanitized_ids = subject_ids.map { |id| Subject.connection.quote(id) }.join(', ')
+
+  #   sql = <<-SQL.squish
+  #     UPDATE subjects
+  #     SET order_index = CASE id
+  #       #{case_when}
+  #     END
+  #     WHERE id IN (#{sanitized_ids})
+  #   SQL
+
+  #   Subject.connection.execute(sql)
+
+  #   head :ok
+  # end
+
   def reorder_subjects
     subject_ids = params[:subject_ids]
     return head :bad_request unless subject_ids.is_a?(Array)
 
-    # Validate that all IDs are valid UUIDs
-    return head :bad_request unless subject_ids.all? do |id|
-      id.match?(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i)
-    end
+    uuid_regex = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i
+    return head :bad_request unless subject_ids.all? { |id| uuid_regex.match?(id) }
 
-    # Build a single SQL query with CASE WHEN to update all order_index values at once
-    # This is much more efficient than updating each record separately
-    case_when = subject_ids.each_with_index.map do |subject_id, index|
-      sanitized_id = Subject.connection.quote(subject_id)
-      "WHEN #{sanitized_id} THEN #{index + 1}"
-    end.join(' ')
+    placeholders = subject_ids.map { '(?, ?)' }.join(', ')
+    bindings = subject_ids.each_with_index.flat_map { |id, index| [id, index + 1] }
 
-    sanitized_ids = subject_ids.map { |id| Subject.connection.quote(id) }.join(', ')
+    sql = ActiveRecord::Base.send(
+      :sanitize_sql_array,
+      [
+        <<~SQL.squish,
+          order_index = v.order_index
+          FROM (
+            VALUES #{placeholders}
+          ) AS v(id, order_index)
+          WHERE subjects.id = v.id::uuid
+        SQL
+        *bindings
+      ]
+    )
 
-    sql = <<-SQL.squish
-      UPDATE subjects
-      SET order_index = CASE id
-        #{case_when}
-      END
-      WHERE id IN (#{sanitized_ids})
-    SQL
-
-    Subject.connection.execute(sql)
+    # rubocop:disable Rails/SkipsModelValidations
+    Subject.update_all(sql)
+    # rubocop:enable Rails/SkipsModelValidations
 
     head :ok
   end
 
+  # def reorder_learning_module_contents
+  #   learning_module = LearningModule.find(params[:id])
+  #   content_ids = params[:content_ids]
+
+  #   return head :bad_request unless content_ids.is_a?(Array)
+  #   return head :bad_request unless content_ids.all? do |id|
+  #     id.match?(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i)
+  #   end
+
+  #   # Verify all contents belong to this learning module
+  #   contents = Content.where(id: content_ids, learning_module_id: learning_module.id)
+  #   return head :bad_request unless contents.count == content_ids.count
+
+  #   # Build a single SQL query with CASE WHEN to update all order_index values at once
+  #   case_when = content_ids.each_with_index.map do |content_id, index|
+  #     sanitized_id = Content.connection.quote(content_id)
+  #     "WHEN #{sanitized_id} THEN #{index + 1}"
+  #   end.join(' ')
+
+  #   sanitized_ids = content_ids.map { |id| Content.connection.quote(id) }.join(', ')
+
+  #   sql = <<-SQL.squish
+  #     UPDATE contents
+  #     SET order_index = CASE id
+  #       #{case_when}
+  #     END
+  #     WHERE id IN (#{sanitized_ids})
+  #       AND learning_module_id = #{Content.connection.quote(learning_module.id)}
+  #   SQL
+
+  #   Content.connection.execute(sql)
+
+  #   head :ok
+  # end
   def reorder_learning_module_contents
     learning_module = LearningModule.find(params[:id])
     content_ids = params[:content_ids]
 
     return head :bad_request unless content_ids.is_a?(Array)
-    return head :bad_request unless content_ids.all? do |id|
-      id.match?(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i)
-    end
 
-    # Verify all contents belong to this learning module
+    uuid_regex = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i
+    return head :bad_request unless content_ids.all? { |id| uuid_regex.match?(id) }
+
     contents = Content.where(id: content_ids, learning_module_id: learning_module.id)
     return head :bad_request unless contents.count == content_ids.count
 
-    # Build a single SQL query with CASE WHEN to update all order_index values at once
-    case_when = content_ids.each_with_index.map do |content_id, index|
-      sanitized_id = Content.connection.quote(content_id)
-      "WHEN #{sanitized_id} THEN #{index + 1}"
-    end.join(' ')
+    placeholders = content_ids.map { '(?, ?)' }.join(', ')
+    bindings = content_ids.each_with_index.flat_map { |id, index| [id, index + 1] }
 
-    sanitized_ids = content_ids.map { |id| Content.connection.quote(id) }.join(', ')
+    sql = ActiveRecord::Base.send(
+      :sanitize_sql_array,
+      [
+        <<~SQL.squish,
+          order_index = v.order_index
+          FROM (VALUES #{placeholders}) AS v(id, order_index)
+          WHERE contents.id = v.id::uuid
+            AND contents.learning_module_id = ?
+        SQL
+        *bindings,
+        learning_module.id
+      ]
+    )
 
-    sql = <<-SQL.squish
-      UPDATE contents
-      SET order_index = CASE id
-        #{case_when}
-      END
-      WHERE id IN (#{sanitized_ids})
-        AND learning_module_id = #{Content.connection.quote(learning_module.id)}
-    SQL
-
-    Content.connection.execute(sql)
+    # rubocop:disable Rails/SkipsModelValidations
+    Content.update_all(sql)
+    # rubocop:enable Rails/SkipsModelValidations
 
     head :ok
   end
