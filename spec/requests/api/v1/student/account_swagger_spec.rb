@@ -140,6 +140,106 @@ RSpec.describe 'Student Account API', type: :request do
     end
   end
 
+  path '/api/v1/student/account/verify_phone' do
+    get 'Request phone verification' do
+      tags 'Student Account'
+      description 'Sends a verification code via SMS to the student\'s phone number'
+      produces 'application/json'
+      security [bearerAuth: []]
+
+      response '200', 'verification code sent' do
+        before do
+          allow(Users::SendSmsCode).to receive(:call).and_return(
+            double(code: '123456')
+          )
+        end
+
+        schema type: :object,
+               properties: {
+                 success: { type: :boolean }
+               }
+
+        run_test! do
+          json = JSON.parse(response.body)
+          expect(json['success']).to be true
+
+          student.reload
+          expect(student.metadata['phone_verification']['code']).to eq('123456')
+          expect(student.metadata['phone_verification']['verified']).to be false
+        end
+      end
+
+      response '401', 'unauthorized' do
+        let(:Authorization) { nil }
+        run_test!
+      end
+    end
+  end
+
+  path '/api/v1/student/account/verify_submit' do
+    put 'Submit verification code' do
+      tags 'Student Account'
+      description 'Verify the phone number using the code received via SMS'
+      produces 'application/json'
+      consumes 'application/json'
+      security [bearerAuth: []]
+
+      parameter name: :verification, in: :body, schema: {
+        type: :object,
+        properties: {
+          user: {
+            type: :object,
+            properties: {
+              verification_code: { type: :string, example: '123456' }
+            }
+          }
+        }
+      }
+
+      response '200', 'phone verified' do
+        let(:verification) { { user: { verification_code: '123456' } } }
+
+        before do
+          allow_any_instance_of(Users::VerifyPhoneCode).to receive(:call).and_return(:ok)
+        end
+
+        schema type: :object,
+               properties: {
+                 success: { type: :boolean },
+                 phone_verified: { type: :boolean }
+               }
+
+        run_test! do
+          expect(JSON.parse(response.body)['phone_verified']).to be true
+        end
+      end
+
+      response '422', 'invalid code' do
+        let(:verification) { { user: { verification_code: 'wrong' } } }
+
+        before do
+          allow_any_instance_of(Users::VerifyPhoneCode).to receive(:call).and_return(:invalid)
+        end
+
+        run_test! do
+          expect(JSON.parse(response.body)['error']).to eq('Invalid verification code')
+        end
+      end
+
+      response '422', 'code expired' do
+        let(:verification) { { user: { verification_code: '123456' } } }
+
+        before do
+          allow_any_instance_of(Users::VerifyPhoneCode).to receive(:call).and_return(:expired)
+        end
+
+        run_test! do
+          expect(JSON.parse(response.body)['error']).to eq('Verification code expired')
+        end
+      end
+    end
+  end
+
   path '/api/v1/student/account/settings' do
     get 'Get settings' do
       tags 'Student Account'
