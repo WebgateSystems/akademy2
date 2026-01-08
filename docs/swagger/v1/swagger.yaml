@@ -2794,6 +2794,61 @@ paths:
                     phone:
                       type: string
                       description: New phone number (only if unverified)
+  "/api/v1/student/account/verify_phone":
+    get:
+      summary: Request phone verification
+      tags:
+      - Student Account
+      description: Sends a verification code via SMS to the student's phone number
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: verification code sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '401':
+          description: unauthorized
+  "/api/v1/student/account/verify_submit":
+    put:
+      summary: Submit verification code
+      tags:
+      - Student Account
+      description: Verify the phone number using the code received via SMS
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: phone verified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  phone_verified:
+                    type: boolean
+        '422':
+          description: code expired
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    verification_code:
+                      type: string
+                      example: '123456'
   "/api/v1/student/account/settings":
     get:
       summary: Get settings

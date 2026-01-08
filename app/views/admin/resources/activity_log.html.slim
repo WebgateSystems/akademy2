@@ -102,6 +102,9 @@ javascript:
     const qpSearch = urlParams.get('search');
     const qpIp = urlParams.get('ip');
 
+    window.__eventBlockPendingConfirm = null;
+    window.__eventBlockNetworkValue = null;
+
     function parseDisplayToDatetimeLocal(value) {
       // Expected: "DD.MM.YYYY HH:MM"
       if (!value) return null;
@@ -415,11 +418,12 @@ javascript:
         if (overlay) overlay.addEventListener('click', closeModal);
         if (modalConfirm) {
           modalConfirm.addEventListener('click', async () => {
-            if (!pendingConfirm) return;
+            if (!window.__eventBlockPendingConfirm) return;
             modalConfirm.disabled = true;
             try {
-              await pendingConfirm();
+              await window.__eventBlockPendingConfirm();
               closeModal();
+              window.__eventBlockPendingConfirm = null;
             } catch (e) {
               modalErr.textContent = e.message || 'Nie udało się wykonać operacji.';
               modalErr.style.display = '';
@@ -428,6 +432,7 @@ javascript:
             }
           });
         }
+
       }
 
       function closeMenu() {
@@ -481,7 +486,7 @@ javascript:
           const target = (k) => {
             if (k === 'user') return attrs.user_id;
             if (k === 'ip') return ipAddress;
-        if (k === 'network') return ipAddress;
+            if (k === 'network') return ipAddress;
             return '';
           };
 
@@ -491,9 +496,14 @@ javascript:
               `Czy na pewno chcesz kontynuować?`;
           }
 
-          pendingConfirm = async () => {
+          window.__eventBlockPendingConfirm = async () => {
             const payload = { kind: kind };
-            if (kind === 'network' && window.__eventBlockNetworkValue) payload.value = window.__eventBlockNetworkValue;
+
+            if (kind === 'user') payload.value = attrs.user_id;
+            if (kind === 'ip') payload.value = ipAddress;
+            if (kind === 'network' && window.__eventBlockNetworkValue) {
+              payload.value = window.__eventBlockNetworkValue;
+            }
 
             const resp = await fetch(`/admin/events/${encodeURIComponent(eventId)}/block`, {
               method: 'POST',
@@ -504,15 +514,19 @@ javascript:
               },
               body: JSON.stringify(payload)
             });
+
             const json = await resp.json().catch(() => ({}));
             if (!resp.ok || json.ok === false) {
               throw new Error(json.error || `Nie udało się (HTTP ${resp.status}).`);
             }
+
             closeMenu();
-            currentPage = 1; hasMore = true; allEvents = []; loadEvents(1);
+            currentPage = 1;
+            hasMore = true;
+            allEvents = [];
+            loadEvents(1);
           };
 
-          // For network block: compute exact CIDR first (RDAP, fallback to /24 or /64).
           if (kind === 'network') {
             modalErr.style.display = 'none';
             modalErr.textContent = '';
@@ -549,6 +563,7 @@ javascript:
           }
         });
       });
+
       
       return details;
     }
