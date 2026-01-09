@@ -616,7 +616,7 @@ GEM
       sexp_processor (~> 4.16)
     rufus-scheduler (3.9.2)
       fugit (~> 1.1, >= 1.11.1)
-    searchkick (6.0.2)
+    searchkick (6.0.3)
       activemodel (>= 7.2)
     securerandom (0.4.1)
     sexp_processor (4.17.4)
