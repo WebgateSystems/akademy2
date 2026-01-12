@@ -78,6 +78,8 @@ module Api
         end
 
         def save_administration
+          context.administration.skip_confirmation!
+
           if context.administration.save
             assign_administration_roles
             # Create notification for awaiting approval
@@ -85,10 +87,15 @@ module Api
             context.form = context.administration
             context.status = :created
             context.serializer = AdministrationSerializer
+            send_reset_instruction
           else
             context.message = context.administration.errors.full_messages
             context.fail!
           end
+        end
+
+        def current_form
+          @current_form ||= ::Api::V1::Users::UserForm.new
         end
 
         def assign_administration_roles
@@ -110,6 +117,10 @@ module Api
               school: school
             )
           end
+        end
+
+        def send_reset_instruction
+          context.administration.send_reset_password_instructions
         end
       end
     end
