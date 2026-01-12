@@ -53,12 +53,15 @@ module Api
         end
 
         def save_teacher
+          context.teacher.skip_confirmation!
+
           if context.teacher.save
             # Assign teacher role immediately after save
             assign_teacher_role
             context.form = context.teacher
             context.status = :created
             context.serializer = TeacherSerializer
+            send_reset_instruction
           else
             context.message = context.teacher.errors.full_messages
             context.fail!
@@ -80,6 +83,10 @@ module Api
             role: teacher_role,
             school: school
           )
+        end
+
+        def send_reset_instruction
+          context.teacher.send_reset_password_instructions
         end
       end
     end

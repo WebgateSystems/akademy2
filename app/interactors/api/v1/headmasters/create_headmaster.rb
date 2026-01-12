@@ -51,11 +51,14 @@ module Api
         end
 
         def save_headmaster
+          context.headmaster.skip_confirmation!
+
           if context.headmaster.save
             assign_principal_role
             context.form = context.headmaster
             context.status = :created
             context.serializer = HeadmasterSerializer
+            send_reset_instruction
           else
             context.message = context.headmaster.errors.full_messages
             context.fail!
@@ -71,6 +74,10 @@ module Api
             role: principal_role,
             school: context.headmaster.school
           )
+        end
+
+        def send_reset_instruction
+          context.headmaster.send_reset_password_instructions
         end
       end
     end

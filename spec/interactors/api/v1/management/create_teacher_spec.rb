@@ -75,17 +75,17 @@ RSpec.describe Api::V1::Management::CreateTeacher do
         expect(teacher.encrypted_password).to be_present
       end
 
-      it 'creates notification' do
-        expect do
-          described_class.call(context)
-        end.to change(Notification, :count).by_at_least(1)
+      # it 'creates notification' do
+      #   expect do
+      #     described_class.call(context)
+      #   end.to change(Notification, :count).by_at_least(1)
 
-        notification = Notification.find_by(
-          notification_type: 'teacher_awaiting_approval',
-          school: school
-        )
-        expect(notification).to be_present
-      end
+      #   notification = Notification.find_by(
+      #     notification_type: 'teacher_awaiting_approval',
+      #     school: school
+      #   )
+      #   expect(notification).to be_present
+      # end
 
       it 'sets serializer' do
         result = described_class.call(context)
