@@ -4,7 +4,7 @@ gem 'config'
 gem 'pg', '~> 1.6'
 gem 'propshaft'
 gem 'puma', '>= 7.1'
-gem 'rails', '~> 8.1.1', '>= 8.1.1'
+gem 'rails', '~> 8.1.2'
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
