@@ -40,7 +40,6 @@ gem 'sidekiq-scheduler'
 gem 'slim-rails'
 gem 'solid_cable'
 gem 'solid_cache'
-gem 'solid_queue'
 gem 'streamio-ffmpeg', '~> 3.0'
 gem 'thruster', require: false
 gem 'twilio-ruby'
