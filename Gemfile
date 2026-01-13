@@ -31,7 +31,7 @@ gem 'oj', '~> 3.16'
 gem 'pry'
 gem 'pundit', '~> 2.5'
 gem 'rack-attack', '~> 6.7'
-gem 'rqrcode', '~> 3.1'
+gem 'rqrcode', '~> 3.2'
 gem 'rswag'
 gem 'searchkick' # Elasticsearch integration for full-text search
 gem 'sidekiq', '~> 8.1.0'
