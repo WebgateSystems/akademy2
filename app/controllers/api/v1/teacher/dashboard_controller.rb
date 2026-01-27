@@ -124,15 +124,15 @@ module Api
                  .includes(units: { learning_modules: :contents })
                  .order(:order_index)
                  .map do |subject|
-                   {
-                     id: subject.id,
-                     title: subject.title,
-                     slug: subject.slug,
-                     description: subject.description,
-                     icon_url: subject.icon.presence&.url,
-                     color_light: subject.color_light,
-                     color_dark: subject.color_dark
-                   }
+            {
+              id: subject.id,
+              title: subject.title,
+              slug: subject.slug,
+              description: subject.description,
+              icon_url: subject.icon.presence&.url,
+              color_light: subject.color_light,
+              color_dark: subject.color_dark
+            }
           end
         end
 
@@ -143,31 +143,31 @@ module Api
                  .includes(units: :learning_modules)
                  .order(:order_index)
                  .map do |subject|
-                   module_ids = subject.units.flat_map { |u| u.learning_modules.pluck(:id) }
+            module_ids = subject.units.flat_map { |u| u.learning_modules.pluck(:id) }
 
-                   total_possible = student_ids.count * module_ids.count
-                   completed = QuizResult.where(user_id: student_ids, learning_module_id: module_ids).count
+            total_possible = student_ids.count * module_ids.count
+            completed = QuizResult.where(user_id: student_ids, learning_module_id: module_ids).count
 
-                   avg_score = if total_possible.positive?
-                                 QuizResult.where(user_id: student_ids, learning_module_id: module_ids)
-                                           .average(:score)&.round || 0
-                               else
-                                 0
-                               end
+            avg_score = if total_possible.positive?
+                          QuizResult.where(user_id: student_ids, learning_module_id: module_ids)
+                                    .average(:score)&.round || 0
+                        else
+                          0
+                        end
 
-                   completion_rate = total_possible.positive? ? ((completed.to_f / total_possible) * 100).round : 0
+            completion_rate = total_possible.positive? ? ((completed.to_f / total_possible) * 100).round : 0
 
-                   {
-                     id: subject.id,
-                     title: subject.title,
-                     slug: subject.slug,
-                     description: subject.description,
-                     icon_url: subject.icon.presence&.url,
-                     color_light: subject.color_light,
-                     color_dark: subject.color_dark,
-                     completion_rate: completion_rate,
-                     average_score: avg_score
-                   }
+            {
+              id: subject.id,
+              title: subject.title,
+              slug: subject.slug,
+              description: subject.description,
+              icon_url: subject.icon.presence&.url,
+              color_light: subject.color_light,
+              color_dark: subject.color_dark,
+              completion_rate: completion_rate,
+              average_score: avg_score
+            }
           end
         end
 
