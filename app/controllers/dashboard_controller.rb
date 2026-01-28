@@ -52,7 +52,6 @@ class DashboardController < ApplicationController
                      end
 
     @subjects = Subject.where(school_id: [nil, @school&.id])
-                       .includes(units: :learning_modules)
                        .order(:order_index)
 
     load_class_statistics if @current_class
@@ -413,9 +412,15 @@ class DashboardController < ApplicationController
   def calculate_subject_stats(student_ids)
     return {} if student_ids.empty?
 
+    subject_ids = @subjects.map(&:id)
+    pairs = LearningModule.joins(unit: :subject)
+                          .where(subjects: { id: subject_ids })
+                          .pluck('subjects.id', 'learning_modules.id')
+    module_ids_by_subject = pairs.group_by(&:first).transform_values { |arr| arr.map(&:last).uniq }
+
     stats = {}
     @subjects.each do |subject|
-      module_ids = subject.units.flat_map { |u| u.learning_modules.pluck(:id) }
+      module_ids = module_ids_by_subject[subject.id] || []
       next if module_ids.empty?
 
       total_possible = student_ids.count * module_ids.count
