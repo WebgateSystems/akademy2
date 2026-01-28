@@ -151,6 +151,31 @@ RSpec.describe ApplicationController, type: :controller do
       end
     end
 
+    context 'when registration wizard data is in session' do
+      let(:user) do
+        u = create(:user, school: school)
+        UserRole.create!(user: u, role: teacher_role, school: school)
+        u.reload
+      end
+
+      before do
+        allow(controller).to receive(:stored_location_for).with(user).and_return(nil)
+        session[Register::WizardFlow::SESSION_KEY] = { 'profile' => { 'email' => 'a@b.com' } }
+        session[:join_class_token] = 'abc-123'
+        session[:join_school_token] = 'xyz'
+        session[:join_school_id] = school.id
+      end
+
+      it 'clears registration wizard and join tokens so session stays small after login' do
+        controller.after_sign_in_path_for(user)
+
+        expect(session[Register::WizardFlow::SESSION_KEY]).to be_nil
+        expect(session[:join_class_token]).to be_nil
+        expect(session[:join_school_token]).to be_nil
+        expect(session[:join_school_id]).to be_nil
+      end
+    end
+
     context 'when no stored location exists' do
       before do
         allow(controller).to receive(:stored_location_for).and_return(nil)

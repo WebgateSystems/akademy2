@@ -41,6 +41,25 @@ RSpec.describe Admin::SessionsController, type: :controller do
 
         expect(response).to redirect_to(admin_root_path)
       end
+
+      it 'clears registration wizard data from session so cookie stays small' do
+        result = double(
+          success?: true,
+          form: double(admin_panel_access?: true),
+          access_token: 'test-token'
+        )
+        allow(Api::V1::Sessions::CreateSession).to receive(:call).and_return(result)
+
+        session[Register::WizardFlow::SESSION_KEY] = { 'profile' => { 'email' => 'a@b.com' } }
+        session[:join_class_token] = 'token123'
+        session[:join_school_id] = SecureRandom.uuid
+
+        post :create, params: { email: admin.email, password: 'Password1' }
+
+        expect(session[Register::WizardFlow::SESSION_KEY]).to be_nil
+        expect(session[:join_class_token]).to be_nil
+        expect(session[:join_school_id]).to be_nil
+      end
     end
 
     context 'with invalid credentials' do

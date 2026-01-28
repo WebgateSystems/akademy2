@@ -8,7 +8,8 @@ db:
   # Pool size should be >= Sidekiq concurrency (20 in production)
   pool: <%= ENV.fetch('DB_POOL') { ENV.fetch('RAILS_MAX_THREADS') { 25 } } %>
 
-# redis_url: <%= ENV['REDIS_URL'] || 'redis://localhost:6379/4' %>
+# Used by Sidekiq and Redis session store. Empty = CookieStore for session; Sidekiq falls back to localhost.
+redis_url: <%= ENV.fetch('REDIS_URL', '') %>
 
 elasticsearch:
   url: http://localhost:9200

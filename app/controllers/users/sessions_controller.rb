@@ -75,10 +75,12 @@ class Users::SessionsController < Devise::SessionsController
     sign_in(student_user)
     EventLogger.log_login(user: student_user, client: 'web_student')
 
+    # Clear registration wizard data (student path does not use after_sign_in_path_for)
+    token = session[:join_class_token]
+    clear_registration_wizard_data
+
     # Check if there's a class token in session (from join link)
-    if session[:join_class_token].present?
-      token = session[:join_class_token]
-      session.delete(:join_class_token) # Clean up session
+    if token.present?
       redirect_to public_home_path(token: token)
     else
       redirect_to public_home_path

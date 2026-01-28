@@ -57,8 +57,19 @@ module Akademy
 
     config.autoload_paths << Rails.root.join('app/middleware')
 
-    # Enable session support for API controllers
+    # Session store: Redis when Settings.redis_url set, CookieStore otherwise
     config.middleware.use ActionDispatch::Cookies
-    config.middleware.use ActionDispatch::Session::CookieStore, key: '_akademy_session'
+    session_key = '_akademy_session'
+    if Settings.redis_url.presence
+      # Use separate Redis DB for sessions (e.g. /1) so Sidekiq (often /0) is untouched
+      session_redis_url = Settings.redis_url.sub(%r{/\d*\z}, '/1')
+      config.session_store :redis_store,
+                           servers: [session_redis_url],
+                           expire_after: 7.days,
+                           key: session_key,
+                           threadsafe: true
+    else
+      config.session_store :cookie_store, key: session_key
+    end
   end
 end

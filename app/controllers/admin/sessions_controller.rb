@@ -35,6 +35,8 @@ class Admin::SessionsController < ApplicationController
     # Clear redirect loop tracking on successful login
     session.delete(:last_redirect_path) if session[:last_redirect_path]
 
+    clear_registration_wizard_data
+
     session[:admin_id] = result.access_token
 
     # Check if user was trying to access a specific admin page
