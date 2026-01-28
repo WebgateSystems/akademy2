@@ -86,6 +86,20 @@ RSpec.describe Users::SessionsController, type: :request do
         expect(response).to have_http_status(:redirect)
         expect(response).not_to redirect_to('/some/path')
       end
+
+      it 'redirects to public home with class token when join_class_token was in session' do
+        # Visit home with token so session[:join_class_token] is set (request spec cannot set session directly)
+        get public_home_path(token: 'my-class-token')
+
+        post user_session_path, params: {
+          user: { role: 'student' },
+          phone: student_user.phone,
+          password: student_user.password
+        }
+
+        expect(response).to have_http_status(:redirect)
+        expect(response).to redirect_to(public_home_path(token: 'my-class-token'))
+      end
     end
   end
 

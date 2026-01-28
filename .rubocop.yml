@@ -369,6 +369,7 @@ RSpec/RepeatedExampleGroupDescription:
 
 RSpec/DescribeClass:
   Exclude:
+    - 'spec/config/session_store_spec.rb'
     - 'spec/interactors/api/v1/headmasters/headmasters_spec.rb'
     - 'spec/interactors/api/v1/learning_modules/learning_modules_spec.rb'
     - 'spec/interactors/api/v1/register/register_steps_spec.rb'

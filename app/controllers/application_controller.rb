@@ -22,6 +22,8 @@ class ApplicationController < ActionController::Base
   def after_sign_in_path_for(resource)
     return super unless resource.is_a?(User)
 
+    clear_registration_wizard_data
+
     # First, check if user was trying to access a specific page (stored by Devise or custom session)
     stored_location = stored_location_for(resource) || session[:return_to]
     return handle_stored_location(stored_location) if stored_location.present?
@@ -35,6 +37,14 @@ class ApplicationController < ActionController::Base
   def handle_stored_location(stored_location)
     session.delete(:return_to)
     stored_location
+  end
+
+  # Remove registration wizard and join tokens from session after login (keeps cookie small)
+  def clear_registration_wizard_data
+    session.delete(Register::WizardFlow::SESSION_KEY)
+    session.delete(:join_class_token)
+    session.delete(:join_school_token)
+    session.delete(:join_school_id)
   end
 
   def redirect_path_for_user_roles(user)

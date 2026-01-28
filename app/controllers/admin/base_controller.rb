@@ -14,8 +14,8 @@ class Admin::BaseController < ApplicationController
   def authenticate_admin!
     return if current_admin
 
-    # Store the location user was trying to access
-    session[:return_to] = request.fullpath if request.get?
+    # Store the location user was trying to access (GET and HEAD both read the page)
+    session[:return_to] = request.fullpath if request.get? || request.head?
     redirect_to new_admin_session_path
   end
 

@@ -3,14 +3,16 @@
 require 'sidekiq'
 require 'sidekiq-scheduler'
 
+redis_url = Settings.redis_url.presence || 'redis://localhost:6379/0'
+
 # Configure Sidekiq client (for enqueueing jobs from Rails app)
 Sidekiq.configure_client do |config|
-  config.redis = { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }
+  config.redis = { url: redis_url }
 end
 
 # Configure Sidekiq server (for processing jobs)
 Sidekiq.configure_server do |config|
-  config.redis = { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }
+  config.redis = { url: redis_url }
 
   # Ensure all job classes are loaded before processing starts
   config.on(:startup) do
