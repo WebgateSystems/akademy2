@@ -154,6 +154,9 @@ pl:
         chart_title: "Zaliczone / do zaliczenia"
         completed: "Zaliczone"
         to_complete: "Do zaliczenia"
+        view_certificate: "Otwórz certyfikat"
+        certificate: "Certyfikat"
+        no_certificates: "Brak certyfikatów do wyświetlenia"
     notifications:
       title: "Centrum powiadomień"
       timeline: "Oś czasu powiadomień"

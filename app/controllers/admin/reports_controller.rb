@@ -13,6 +13,14 @@ class Admin::ReportsController < Admin::BaseController
     end
   end
 
+  def class_certificates
+    school_class = SchoolClass.find(params[:id])
+    enrolled_ids = school_class.student_class_enrollments.where(status: 'approved').pluck(:student_id)
+    students_data = build_students_with_certs(enrolled_ids)
+
+    render json: { students: students_data }
+  end
+
   private
 
   def load_summary_stats
@@ -73,8 +81,37 @@ class Admin::ReportsController < Admin::BaseController
     students_count = enrolled_ids.size
     max_certs = [students_count * MODULES_TO_PASS, 1].max
 
-    { class_name: school_class.name, students_count: students_count,
+    { class_id: school_class.id, class_name: school_class.name, students_count: students_count,
       certificates_count: certs, percentage: (certs.to_f / max_certs * 100).round(1) }
+  end
+
+  def build_students_with_certs(student_ids)
+    return [] if student_ids.empty?
+
+    # Load all certificates with eager loading for PDF URL generation
+    all_certs = Certificate.joins(quiz_result: :learning_module)
+                           .where(quiz_results: { user_id: student_ids })
+                           .includes(quiz_result: [:learning_module, { user: :school }])
+                           .order('learning_modules.id')
+
+    # Group certificates by user_id
+    certs_by_user = all_certs.group_by { |c| c.quiz_result.user_id }
+
+    # Get users who have certificates, sorted alphabetically
+    user_ids_with_certs = certs_by_user.keys
+    students = User.where(id: user_ids_with_certs).order(:last_name, :first_name)
+
+    students.map do |student|
+      user_certs = certs_by_user[student.id] || []
+      {
+        student_name: "#{student.last_name} #{student.first_name}",
+        certificates: user_certs.map { |c| certificate_data(c) }
+      }
+    end
+  end
+
+  def certificate_data(cert)
+    { id: cert.id, module_title: cert.learning_module&.title, pdf_url: cert.pdf&.url }
   end
 
   def certificates_count_for(user_ids)

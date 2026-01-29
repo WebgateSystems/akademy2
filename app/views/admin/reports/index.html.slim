@@ -51,20 +51,30 @@
           = t('admin.reports.per_school.school_classes_and_students', classes_count: row[:classes_count], students_count: number_with_delimiter(row[:total_students]))
 
       - if row[:class_rows].present?
-        table.schools-table style="margin-top: 12px;"
+        table.schools-table.schools-table--expandable style="margin-top: 12px;"
           thead
             tr
+              th scope="col" style="width: 40px;"
               th scope="col" = t('admin.reports.per_school.class_name')
               th scope="col" = t('admin.reports.per_school.students_count')
               th scope="col" = t('admin.reports.per_school.certificates_count')
               th scope="col" = t('admin.reports.per_school.percentage')
           tbody
             - row[:class_rows].each do |cr|
-              tr
+              tr.class-row.class-row--expandable data-class-id=cr[:class_id] role="button" tabindex="0" aria-expanded="false"
+                td.class-row__toggle
+                  i.bi.bi-chevron-right.class-row__chevron aria-hidden="true"
                 td = cr[:class_name]
                 td = cr[:students_count]
                 td = cr[:certificates_count]
                 td = "#{cr[:percentage]}%"
+              tr.class-row__details data-class-id=cr[:class_id] data-certificates-url=admin_class_certificates_path(cr[:class_id]) style="display: none;"
+                td colspan="5" style="padding: 0;"
+                  .students-certificates.js-certificates-container style="padding: 16px 24px;"
+                    .js-certificates-loading style="display: none;"
+                      span.spinner-border.spinner-border-sm.me-2 role="status" aria-hidden="true"
+                      = t('common.loading')
+                    .js-certificates-content
 
       - to_complete = row[:to_complete]
       - completed = row[:completed]

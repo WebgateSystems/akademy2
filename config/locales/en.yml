@@ -124,6 +124,9 @@ en:
         chart_title: "Completed / to complete"
         completed: "Completed"
         to_complete: "To complete"
+        view_certificate: "View certificate"
+        certificate: "Certificate"
+        no_certificates: "No certificates to display"
     sessions:
       welcome: "Welcome to admin panel!"
     notifications:

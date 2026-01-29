@@ -22,6 +22,7 @@ import "./register-digit-code"
 import "./register-verify"
 import "./superadmin-dashboard"
 import "./superadmin-headmasters"
+import "./admin-reports"
 // Temporarily disabled for /admin/schools page - handled by inline script
 // import "./superadmin-schools"
 import "./teacher-dashboard"

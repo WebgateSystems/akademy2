@@ -1,0 +1,63 @@
+// Admin Reports page styles
+
+// Expandable class rows in school breakdown table
+.schools-table--expandable {
+  tr.class-row--expandable {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover,
+    &:hover td {
+      background-color: var(--surface-hover) !important;
+    }
+
+    &:focus {
+      outline: 2px solid var(--content-accent, #4A90E2);
+      outline-offset: -2px;
+    }
+  }
+
+  tr.class-row--expanded,
+  tr.class-row--expanded td {
+    background-color: rgba(74, 144, 226, 0.15) !important;
+  }
+
+  tr.class-row__details td {
+    background-color: transparent !important;
+  }
+}
+
+.class-row__toggle {
+  width: 40px;
+  text-align: center;
+  padding-right: 8px !important;
+}
+
+.class-row__chevron {
+  display: inline-block;
+  transition: transform 0.25s ease;
+  font-size: 12px;
+  color: var(--content-secondary, #64748b);
+
+  &--rotated {
+    transform: rotate(90deg);
+  }
+}
+
+.students-certificates {
+  border-left: 3px solid var(--content-accent, #4A90E2);
+  margin-left: 16px;
+
+  .student-cert-row:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+.certificate-badge {
+  &:hover {
+    opacity: 0.9;
+    text-decoration: none;
+  }
+}
