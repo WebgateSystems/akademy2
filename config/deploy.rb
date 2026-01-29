@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'stringio'
-lock '~> 3.19.2'
+lock '~> 3.20.0'
 
 set :ssh_options, { forward_agent: true, port: 39_168 }
 set :repo_url, 'git@github.com:WebgateSystems/akademy2.git'
