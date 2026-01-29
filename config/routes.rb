@@ -87,6 +87,9 @@ Rails.application.routes.draw do
     end
     get 'classes', to: 'classes#index', as: :classes
     get 'years', to: 'years#index', as: :years
+    get 'reports/export.pdf', to: 'reports#index', as: :export_reports_pdf, defaults: { format: :pdf }
+    get 'reports', to: 'reports#index', as: :reports
+    get 'reports/class_certificates/:id', to: 'reports#class_certificates', as: :class_certificates
   end
 
   namespace :api do

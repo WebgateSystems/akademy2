@@ -145,6 +145,7 @@ pl:
         certificates: "Wygenerowanych certyfikatów (uczniowskich)"
       per_school:
         title: "Najlepiej działające szkoły w szczegółach"
+        classes_breakdown: "Podział na klasy"
         school_classes: "Klas ogółem: %{count}"
         school_classes_and_students: "Klas ogółem: %{classes_count}, Uczniów ogółem: %{students_count}"
         class_name: "Klasa"
@@ -610,6 +611,8 @@ pl:
       title: "Uzupełnij profil"
 
   management:
+    errors:
+      no_school_assigned: "Brak przypisanej szkoły."
     dashboard:
       title: "Zarządzanie szkołą"
       description: "Zarządzaj swoją szkołą, nauczycielami i uczniami z panelu zarządzania AKAdemy 2.0."

@@ -115,6 +115,7 @@ en:
         certificates: "Student certificates generated"
       per_school:
         title: "Best performed schools in details"
+        classes_breakdown: "Classes breakdown"
         school_classes: "Total classes: %{count}"
         school_classes_and_students: "Total classes: %{classes_count}, Total students: %{students_count}"
         class_name: "Class"
@@ -174,6 +175,8 @@ en:
       content_type_allowlist_error: "File type not allowed. Only video files are accepted."
 
   management:
+    errors:
+      no_school_assigned: "No school assigned."
     notifications:
       title: "Notification Center"
       list_label: "Notifications list"

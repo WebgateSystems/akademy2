@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title><%= content_for?(:title) ? content_for(:title) : t('admin.reports.title') %> | Akademy</title>
+  <style type="text/css">
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      padding: 20px;
+      background: #fff !important;
+      color: #1e293b !important;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .pdf-header {
+      display: table;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .pdf-header-left { display: table-cell; vertical-align: middle; }
+    .pdf-header-right { display: table-cell; vertical-align: middle; text-align: right; }
+    .pdf-logo { height: 40px; width: auto; }
+    .pdf-school-name { font-size: 16px; font-weight: bold; color: #1e293b !important; margin-bottom: 4px; }
+    .reports-header { margin-bottom: 16px; }
+    .reports-datetime { color: #64748b !important; font-size: 12px; }
+    .reports-stats-plain { margin-bottom: 20px; }
+    .reports-stats-plain p { margin: 0 0 4px; font-weight: bold; color: #1e293b !important; font-size: 13px; }
+    h2.stat-label { color: #1e293b !important; font-size: 16px; font-weight: bold; margin: 20px 0 12px; }
+    h3.stat-label { color: #1e293b !important; font-size: 14px; font-weight: bold; margin: 0 0 4px; }
+    .text-body-2 { font-size: 12px; }
+    .panel {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      page-break-inside: avoid;
+    }
+    .panel__header { margin-bottom: 8px; }
+    .panel__header h3 { color: #1e293b !important; font-size: 14px; font-weight: bold; margin: 0; }
+    .panel__header .small, p.small { color: #64748b !important; font-size: 11px; margin: 4px 0 0; }
+    .schools-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    .schools-table th, .schools-table td {
+      border: 1px solid #cbd5e1;
+      padding: 6px 8px;
+      text-align: left;
+      font-size: 11px;
+      color: #1e293b !important;
+    }
+    .schools-table th { background-color: #f1f5f9 !important; color: #475569 !important; font-weight: bold; }
+    .reports-chart { margin-top: 12px; }
+    .reports-chart p.stat-label { margin-bottom: 6px; color: #1e293b !important; font-size: 12px; }
+    .reports-chart__bar {
+      height: 20px;
+      border-radius: 4px;
+      overflow: hidden;
+      background-color: #e2e8f0 !important;
+    }
+    .bar-completed {
+      display: inline-block;
+      height: 20px;
+      background-color: #166534 !important;
+      float: left;
+    }
+    .bar-remaining {
+      display: inline-block;
+      height: 20px;
+      background-color: #f1f5f9 !important;
+      float: left;
+    }
+    .chart-legend {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #1e293b !important;
+    }
+    .chart-legend .dot-completed {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #166534 !important;
+      margin-right: 4px;
+    }
+    .chart-legend .dot-remaining {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #f1f5f9 !important;
+      border: 1px solid #cbd5e1;
+      margin-right: 4px;
+    }
+    .chart-legend strong { font-weight: bold; margin-left: 2px; }
+    .legend-item { display: inline-block; margin-right: 16px; }
+  </style>
+</head>
+<body>
+  <div class="pdf-header">
+    <div class="pdf-header-left">
+      <div class="pdf-school-name"><%= @school.name %></div>
+      <span class="reports-datetime"><%= t('admin.reports.generated_at', datetime: @report_generated_at.strftime('%d.%m.%Y %H:%M')) %></span>
+    </div>
+    <div class="pdf-header-right">
+      <% logo_url = "#{request.base_url}#{asset_path('icons/logo/Akademy_logo_full.svg')}" %>
+      <img src="<%= logo_url %>" alt="Akademy" class="pdf-logo" />
+    </div>
+  </div>
+  <%= yield %>
+</body>
+</html>

@@ -1,0 +1,127 @@
+- content_for :title, t('admin.reports.title')
+
+- unless request.format.pdf?
+  .reports-header style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;"
+    p.reports-datetime style="margin: 0; color: var(--content-secondary); font-size: 14px;"
+      = t('admin.reports.generated_at', datetime: @report_generated_at.strftime('%d.%m.%Y %H:%M'))
+    .dropdown
+      button.btn.btn-outline-secondary.btn-sm.dropdown-toggle type="button" id="reportsExportDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+        i.bi.bi-download.me-1 aria-hidden="true"
+        = t('admin.reports.export')
+      ul.dropdown-menu.dropdown-menu-end aria-labelledby="reportsExportDropdown"
+        li
+          = link_to management_export_reports_pdf_path, class: 'dropdown-item', target: '_blank', rel: 'noopener' do
+            i.bi.bi-file-earmark-pdf.me-2 aria-hidden="true"
+            = t('admin.reports.export_pdf')
+
+- if request.format.pdf?
+  .reports-stats-plain
+    p = "#{t('admin.reports.stats.teachers')}: #{@teachers_count}"
+    p = "#{t('admin.reports.stats.classes')}: #{@classes_count}"
+    p = "#{t('admin.reports.stats.students')}: #{number_with_delimiter(@students_count)}"
+    p = "#{t('admin.reports.stats.certificates')}: #{number_with_delimiter(@total_certificates_count)}"
+- else
+  section.dashboard-stats aria-label=(t('admin.reports.title'))
+    article.stat-card
+      h3.stat-label.text-body-2 = t('admin.reports.stats.teachers')
+      p.stat-value = @teachers_count
+    article.stat-card
+      h3.stat-label.text-body-2 = t('admin.reports.stats.classes')
+      p.stat-value = @classes_count
+    article.stat-card
+      h3.stat-label.text-body-2 = t('admin.reports.stats.students')
+      p.stat-value = number_with_delimiter(@students_count)
+    article.stat-card
+      h3.stat-label.text-body-2 = t('admin.reports.stats.certificates')
+      p.stat-value = number_with_delimiter(@total_certificates_count)
+
+- if @show_classes_breakdown && @class_rows_with_certs.present?
+  h2.stat-label.text-body-2 style="margin-top: 24px; margin-bottom: 16px;"
+    = t('admin.reports.per_school.classes_breakdown')
+
+  article.panel
+    .panel__header
+      h3.stat-label.text-body-2 = @school.name
+      p.small = t('admin.reports.per_school.school_classes_and_students', classes_count: @classes_count, students_count: number_with_delimiter(@students_count))
+
+    - if request.format.pdf?
+      /! PDF: Simple table without interactive elements
+      table.schools-table style="margin-top: 12px;"
+        thead
+          tr
+            th scope="col" = t('admin.reports.per_school.class_name')
+            th scope="col" = t('admin.reports.per_school.students_count')
+            th scope="col" = t('admin.reports.per_school.certificates_count')
+            th scope="col" = t('admin.reports.per_school.percentage')
+        tbody
+          - @class_rows_with_certs.each do |cr|
+            tr
+              td = cr[:class_name]
+              td = cr[:students_count]
+              td = cr[:certificates_count]
+              td = "#{cr[:percentage]}%"
+    - else
+      /! HTML: Interactive expandable table
+      table.schools-table.schools-table--expandable style="margin-top: 12px;"
+        thead
+          tr
+            th scope="col" style="width: 40px;"
+            th scope="col" = t('admin.reports.per_school.class_name')
+            th scope="col" = t('admin.reports.per_school.students_count')
+            th scope="col" = t('admin.reports.per_school.certificates_count')
+            th scope="col" = t('admin.reports.per_school.percentage')
+        tbody
+          - @class_rows_with_certs.each do |cr|
+            tr.class-row.class-row--expandable data-class-id=cr[:class_id] role="button" tabindex="0" aria-expanded="false"
+              td.class-row__toggle
+                i.bi.bi-chevron-right.class-row__chevron aria-hidden="true"
+              td = cr[:class_name]
+              td = cr[:students_count]
+              td = cr[:certificates_count]
+              td = "#{cr[:percentage]}%"
+            tr.class-row__details data-class-id=cr[:class_id] data-certificates-url=management_class_certificates_path(cr[:class_id]) style="display: none;"
+              td colspan="5" style="padding: 0;"
+                .students-certificates.js-certificates-container style="padding: 16px 24px;"
+                  .js-certificates-loading style="display: none;"
+                    span.spinner-border.spinner-border-sm.me-2 role="status" aria-hidden="true"
+                    = t('common.loading')
+                  .js-certificates-content
+
+    - total_students = @class_rows.sum { |r| r[:students_count] }
+    - to_complete = total_students * Management::ReportsController::MODULES_TO_PASS
+    - completed = @total_certificates_count
+    - if to_complete.positive?
+      - completed_pct = (completed.to_f / to_complete * 100).round(1)
+      - completed_pct = [[completed_pct, 0].max, 100].min
+      - remaining_pct = 100 - completed_pct
+      - if request.format.pdf?
+        .reports-chart
+          p.stat-label.text-body-2 = t('admin.reports.per_school.chart_title')
+          .reports-chart__bar
+            span.bar-completed style="width: #{completed_pct}%;"
+            span.bar-remaining style="width: #{remaining_pct}%;"
+          .chart-legend
+            span.legend-item
+              span.dot-completed
+              = t('admin.reports.per_school.completed')
+              strong = number_with_delimiter(completed)
+            span.legend-item
+              span.dot-remaining
+              = t('admin.reports.per_school.to_complete')
+              strong = number_with_delimiter(to_complete - completed)
+      - else
+        .reports-chart style="margin-top: 20px;"
+          p.stat-label.text-body-2 style="margin-bottom: 8px;"
+            = t('admin.reports.per_school.chart_title')
+          .reports-chart__bar style="display: flex; height: 28px; border-radius: 8px; overflow: hidden; background: var(--border-primary);"
+            span style="width: #{completed_pct}%; background: #166534; min-width: #{completed.positive? ? 4 : 0}px;"
+            span style="width: #{remaining_pct}%; background: var(--surface-hover); min-width: 0;"
+          p.small style="margin-top: 8px; color: var(--content-secondary); display: flex; gap: 16px; flex-wrap: wrap;"
+            span style="display: inline-flex; align-items: center; gap: 6px;"
+              span style="width: 10px; height: 10px; border-radius: 999px; background: #166534; display: inline-block;"
+              = t('admin.reports.per_school.completed')
+              strong style="margin-left: 4px;" = number_with_delimiter(completed)
+            span style="display: inline-flex; align-items: center; gap: 6px;"
+              span style="width: 10px; height: 10px; border-radius: 999px; background: var(--surface-hover); border: 1px solid var(--border-primary); display: inline-block;"
+              = t('admin.reports.per_school.to_complete')
+              strong style="margin-left: 4px;" = number_with_delimiter(to_complete - completed)

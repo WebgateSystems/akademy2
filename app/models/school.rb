@@ -11,6 +11,7 @@ class School < ApplicationRecord
   validates :join_token, uniqueness: true, allow_nil: true
 
   has_many :academic_years, dependent: :destroy
+  has_many :school_classes, dependent: :destroy
 
   def current_academic_year
     academic_years.current.first
