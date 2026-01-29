@@ -17,7 +17,11 @@ RSpec.describe Admin::ReportsController, type: :controller do
     session[:admin_id] = token
   end
 
-  before { login_as_admin(admin) }
+  before do
+    login_as_admin(admin)
+    # Stub WickedPdf to avoid "Location of wkhtmltopdf unknown" on CI
+    allow(WickedPdf).to receive(:new).and_return(instance_double(WickedPdf, pdf_from_string: '%PDF-1.4'))
+  end
 
   describe 'GET #index' do
     context 'with format HTML' do

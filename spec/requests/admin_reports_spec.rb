@@ -14,6 +14,8 @@ RSpec.describe 'Admin reports', type: :request do
     allow_any_instance_of(Admin::BaseController).to receive(:current_admin).and_return(admin)
     allow_any_instance_of(Admin::BaseController).to receive(:authenticate_admin!).and_return(true)
     allow_any_instance_of(Admin::BaseController).to receive(:require_admin!).and_return(true)
+    # Stub WickedPdf to avoid "Location of wkhtmltopdf unknown" on CI
+    allow(WickedPdf).to receive(:new).and_return(instance_double(WickedPdf, pdf_from_string: '%PDF-1.4'))
   end
 
   describe 'GET /admin/reports' do
@@ -36,12 +38,11 @@ RSpec.describe 'Admin reports', type: :request do
   end
 
   describe 'GET /admin/reports/export.pdf' do
-    # Requires wkhtmltopdf to be installed (e.g. brew install wkhtmltopdf)
     it 'returns PDF with inline disposition' do
       get admin_export_reports_pdf_path
       expect(response).to have_http_status(:success)
       expect(response.media_type).to include('application/pdf')
-      expect(response.body[0..3]).to eq('%PDF')
+      expect(response.body).to start_with('%PDF')
       expect(response.headers['Content-Disposition']).to include('inline')
     end
   end
