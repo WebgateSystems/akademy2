@@ -253,4 +253,87 @@ RSpec.describe Admin::ReportsController, type: :controller do
       expect(row[:completed]).to eq(1)
     end
   end
+
+  describe 'GET #class_certificates' do
+    let(:student_role) { Role.find_or_create_by!(key: 'student') { |r| r.name = 'Student' } }
+    let(:school) { create(:school) }
+    let(:subject_record) { create(:subject, school: school) }
+    let(:unit) { create(:unit, subject: subject_record) }
+    let(:learning_module) { create(:learning_module, unit: unit, title: 'Moduł 1') }
+    let(:learning_module_2) { create(:learning_module, unit: unit, title: 'Moduł 2') }
+    let(:school_class) { create(:school_class, school: school, name: '4A', year: '2025/2026') }
+    let(:student) do
+      user = create(:user, school: school, first_name: 'Jan', last_name: 'Kowalski')
+      UserRole.create!(user: user, role: student_role, school: school)
+      StudentClassEnrollment.create!(student: user, school_class: school_class, status: 'approved')
+      user
+    end
+
+    it 'returns JSON with students and certificates' do
+      create(:certificate, quiz_result: create(:quiz_result, user: student, learning_module: learning_module))
+      get :class_certificates, params: { id: school_class.id }, format: :json
+      expect(response).to have_http_status(:success)
+      json = response.parsed_body
+      expect(json['students']).to be_an(Array)
+      expect(json['students'].size).to eq(1)
+      expect(json['students'].first['student_name']).to eq('Kowalski Jan')
+      expect(json['students'].first['certificates'].size).to eq(1)
+      expect(json['students'].first['certificates'].first['module_title']).to eq('Moduł 1')
+    end
+
+    it 'returns empty students array when no certificates' do
+      # Create student without certificates
+      student
+      get :class_certificates, params: { id: school_class.id }, format: :json
+      expect(response).to have_http_status(:success)
+      json = response.parsed_body
+      expect(json['students']).to eq([])
+    end
+
+    it 'orders students by last name, first name' do
+      student_a = create(:user, school: school, first_name: 'Anna', last_name: 'Adamska')
+      student_z = create(:user, school: school, first_name: 'Zofia', last_name: 'Zielińska')
+      UserRole.create!(user: student_a, role: student_role, school: school)
+      UserRole.create!(user: student_z, role: student_role, school: school)
+      StudentClassEnrollment.create!(student: student_a, school_class: school_class, status: 'approved')
+      StudentClassEnrollment.create!(student: student_z, school_class: school_class, status: 'approved')
+      create(:certificate, quiz_result: create(:quiz_result, user: student_a, learning_module: learning_module))
+      create(:certificate, quiz_result: create(:quiz_result, user: student_z, learning_module: learning_module))
+
+      get :class_certificates, params: { id: school_class.id }, format: :json
+      json = response.parsed_body
+      names = json['students'].map { |s| s['student_name'] }
+      expect(names).to eq(['Adamska Anna', 'Zielińska Zofia'])
+    end
+
+    it 'orders certificates by learning module id' do
+      lm1 = learning_module
+      lm2 = learning_module_2
+      create(:certificate, quiz_result: create(:quiz_result, user: student, learning_module: lm2))
+      create(:certificate, quiz_result: create(:quiz_result, user: student, learning_module: lm1))
+
+      get :class_certificates, params: { id: school_class.id }, format: :json
+      json = response.parsed_body
+      cert_ids = json['students'].first['certificates'].map { |c| c['id'] }
+
+      # Verify certificates are ordered by learning_module.id (ascending)
+      expected_order = [lm1, lm2].sort_by(&:id).map do |lm|
+        Certificate.joins(:quiz_result).find_by(quiz_results: { learning_module_id: lm.id }).id
+      end
+      expect(cert_ids).to eq(expected_order)
+    end
+
+    it 'includes pdf_url for certificates' do
+      create(:certificate, quiz_result: create(:quiz_result, user: student, learning_module: learning_module))
+      get :class_certificates, params: { id: school_class.id }, format: :json
+      json = response.parsed_body
+      expect(json['students'].first['certificates'].first).to have_key('pdf_url')
+    end
+
+    it 'returns 404 for non-existent class' do
+      expect do
+        get :class_certificates, params: { id: 'non-existent-id' }, format: :json
+      end.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
 end

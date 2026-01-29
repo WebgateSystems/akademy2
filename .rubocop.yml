@@ -83,6 +83,7 @@ Metrics/BlockLength:
 
 Metrics/ClassLength:
   Exclude:
+    - "app/controllers/admin/reports_controller.rb"
     - "app/controllers/admin/resources_controller.rb"
     - "app/controllers/dashboard_controller.rb"
     - "app/controllers/student_dashboard_controller.rb"
