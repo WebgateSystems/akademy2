@@ -38,7 +38,7 @@ module Api
 
         def generate_pdf
           @pdf_binary = CertificatePdf.build(
-            module_name: quiz_result.learning_module.unit.title,
+            module_name: quiz_result.learning_module.unit.subject.title,
             student_name: "#{quiz_result.user.first_name} #{quiz_result.user.last_name}",
             result: quiz_result.score,
             teacher_name: "#{teacher.first_name} #{teacher.last_name}"
