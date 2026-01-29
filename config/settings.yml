@@ -11,6 +11,12 @@ db:
 # Used by Sidekiq and Redis session store. Empty = CookieStore for session; Sidekiq falls back to localhost.
 redis_url: <%= ENV.fetch('REDIS_URL', '') %>
 
+# Raporty superadmina: minimalna liczba wygenerowanych certyfikatów (uczniowskich) w szkole,
+# aby szkoła trafiła do bloku "Najlepiej działające szkoły w szczegółach" (powyżej progu).
+
+reports:
+  min_certificates_per_school: 3
+
 elasticsearch:
   url: http://localhost:9200
   index_prefix: akademy2

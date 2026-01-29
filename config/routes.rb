@@ -31,6 +31,8 @@ Rails.application.routes.draw do
     resources :request_block_rules, only: %i[index destroy]
     get 'notifications', to: 'notifications#index', as: :notifications
     post 'notifications/mark_as_read', to: 'notifications#mark_as_read', as: :mark_notification_as_read
+    get 'reports/export.pdf', to: 'reports#index', as: :export_reports_pdf, defaults: { format: :pdf }
+    get 'reports', to: 'reports#index', as: :reports
     post 'subjects/reorder', to: 'resources#reorder_subjects', as: :reorder_subjects
     post 'learning_modules/:id/reorder_contents', to: 'resources#reorder_learning_module_contents',
                                                   as: :reorder_learning_module_contents

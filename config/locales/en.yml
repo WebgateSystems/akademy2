@@ -39,6 +39,7 @@ en:
 
   navigation:
     dashboard: "Dashboard"
+    reports: "Reports"
     schools: "Schools"
     headmasters: "Headmasters"
     teachers: "Teachers"
@@ -101,6 +102,28 @@ en:
     dashboard:
       title: "Superadmin Dashboard"
       description: "Manage schools, headmasters, and monitor Academy 2.0 platform health."
+    reports:
+      title: "Reports"
+      generated_at: "Report date and time: %{datetime}"
+      export: "Export"
+      export_pdf: "Export report (PDF)"
+      stats:
+        schools: "Schools in program"
+        teachers: "Teachers"
+        classes: "Classes"
+        students: "Students"
+        certificates: "Student certificates generated"
+      per_school:
+        title: "Best performed schools in details"
+        school_classes: "Total classes: %{count}"
+        school_classes_and_students: "Total classes: %{classes_count}, Total students: %{students_count}"
+        class_name: "Class"
+        students_count: "Students"
+        certificates_count: "Certificates"
+        percentage: "Percent"
+        chart_title: "Completed / to complete"
+        completed: "Completed"
+        to_complete: "To complete"
     sessions:
       welcome: "Welcome to admin panel!"
     notifications:

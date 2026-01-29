@@ -21,6 +21,7 @@ pl:
 
   navigation:
     dashboard: "Pulpit"
+    reports: "Raporty"
     school_profile: "Profil szkoły"
     teacher_view: "Widok nauczyciela"
     administration: "Administracja"
@@ -131,6 +132,28 @@ pl:
       empty:
         no_schools: "Brak szkół"
         no_schools_found: "Nie znaleziono szkół"
+    reports:
+      title: "Raporty"
+      generated_at: "Data i godzina raportu: %{datetime}"
+      export: "Eksport"
+      export_pdf: "Eksportuj raport (PDF)"
+      stats:
+        schools: "Szkół w programie"
+        teachers: "Nauczycieli"
+        classes: "Klas"
+        students: "Uczniów"
+        certificates: "Wygenerowanych certyfikatów (uczniowskich)"
+      per_school:
+        title: "Najlepiej działające szkoły w szczegółach"
+        school_classes: "Klas ogółem: %{count}"
+        school_classes_and_students: "Klas ogółem: %{classes_count}, Uczniów ogółem: %{students_count}"
+        class_name: "Klasa"
+        students_count: "Uczniów"
+        certificates_count: "Certyfikatów"
+        percentage: "Procent"
+        chart_title: "Zaliczone / do zaliczenia"
+        completed: "Zaliczone"
+        to_complete: "Do zaliczenia"
     notifications:
       title: "Centrum powiadomień"
       timeline: "Oś czasu powiadomień"

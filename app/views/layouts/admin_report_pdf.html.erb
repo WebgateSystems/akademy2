@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= content_for?(:title) ? content_for(:title) : t('admin.reports.title') %> | Akademy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --content-primary: #1e293b;
+      --content-secondary: #64748b;
+      --border-primary: #cbd5e1;
+      --border-muted: #e2e8f0;
+      --surface-hover: #f1f5f9;
+      --content-accent: #166534;
+    }
+    body {
+      margin: 0 auto;
+      padding: 24px;
+      padding-top: 72px;
+      max-width: 1200px;
+      background: #fff;
+      color: #1e293b;
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 14px;
+      position: relative;
+    }
+    .pdf-logo {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      height: 60px;
+      width: auto;
+    }
+    .reports-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+    .reports-datetime { margin: 0; color: #64748b; font-size: 14px; }
+    .panel {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+    .panel__header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .panel__header h3 { margin: 0; font-size: 20px; font-family: Rubik, system-ui, sans-serif; color: #1e293b; }
+    .panel__header .small { margin: 4px 0 0; color: #64748b; font-size: 13px; }
+    .schools-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid #cbd5e1;
+    }
+    .schools-table th, .schools-table td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 14px;
+      color: #1e293b;
+    }
+    .schools-table th { background: #f8fafc; color: #475569; font-weight: 600; }
+    .schools-table tbody tr:nth-child(even) { background: #f8fafc; }
+    .reports-chart { margin-top: 20px; }
+    .reports-chart p.stat-label { margin-bottom: 8px; color: #1e293b; }
+    .reports-chart .small { margin-top: 8px; color: #1e293b; font-size: 13px; display: flex; gap: 16px; flex-wrap: wrap; }
+    .reports-chart .small span { display: inline-flex; align-items: center; gap: 6px; color: #1e293b; }
+    .reports-chart .small strong { margin-left: 4px; color: #1e293b; }
+    h2.stat-label { color: #1e293b; }
+  </style>
+</head>
+<body class="dashboard-app">
+  <% logo_url = "#{request.base_url}#{asset_path('icons/logo/Akademy_logo_full.svg')}" %>
+  <img src="<%= logo_url %>" alt="Akademy" class="pdf-logo" />
+  <%= yield %>
+</body>
+</html>
