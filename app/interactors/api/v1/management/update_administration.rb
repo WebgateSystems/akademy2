@@ -66,6 +66,7 @@ module Api
         def update_administration
           update_params = administration_params.to_h
           merge_metadata(update_params)
+          filter_blank_password(update_params)
 
           # Ensure school_id cannot be changed
           update_params[:school_id] = school.id
@@ -97,11 +98,31 @@ module Api
           end
         end
 
+        def filter_blank_password(update_params)
+          # Remove password params if blank (don't change password)
+          return if update_params[:password].present?
+
+          update_params.delete(:password)
+          update_params.delete(:password_confirmation)
+        end
+
         def prevent_self_role_change
           return unless context.administration.id == current_user.id
 
           roles_to_assign = context.params.dig(:administration, :roles)
           return unless roles_to_assign
+
+          # Check if roles are actually changing
+          current_roles = context.administration.user_roles
+                                 .joins(:role)
+                                 .where(school: school, roles: { key: %w[principal school_manager
+                                                                         teacher] })
+                                 .pluck('roles.key')
+                                 .sort
+
+          new_roles = roles_to_assign.map(&:to_s).sort
+
+          return if current_roles == new_roles
 
           # User cannot change their own roles
           context.message = ['Nie możesz zmieniać własnych uprawnień']

@@ -29,6 +29,9 @@
       label
         span = t('management.teachers.birth_date')
         input#add-teacher-birth-date type="date" name="teacher[metadata][birth_date]"
+      label.checkbox-label
+        input#add-teacher-is-school-manager type="checkbox" name="teacher[is_school_manager]"
+        span = t('management.teachers.is_school_manager')
       .schools-modal__actions
         button.schools-modal__primary type="submit" = t('common.save')
         button.schools-modal__secondary type="button" data-close-modal="add-teacher-modal" = t('common.cancel')
@@ -65,6 +68,17 @@
       label
         span = t('management.teachers.birth_date')
         input#edit-teacher-birth-date type="date" name="teacher[metadata][birth_date]"
+      label
+        span = t('management.teachers.password')
+        input#edit-teacher-password type="password" name="teacher[password]" placeholder=t('management.teachers.password_placeholder') autocomplete="new-password"
+      label
+        span = t('management.teachers.password_confirmation')
+        input#edit-teacher-password-confirmation type="password" name="teacher[password_confirmation]" placeholder=t('management.teachers.password_confirmation_placeholder') autocomplete="new-password"
+      #teacher-password-mismatch-error.form-error style="display: none; color: var(--state-error); font-size: 12px; margin-top: -8px; margin-bottom: 8px;"
+        = t('management.teachers.password_mismatch')
+      label.checkbox-label
+        input#edit-teacher-is-school-manager type="checkbox" name="teacher[is_school_manager]"
+        span = t('management.teachers.is_school_manager')
       .schools-modal__actions
         button#edit-teacher-save-btn.schools-modal__primary type="submit" = t('common.save')
         button.schools-modal__secondary type="button" data-close-modal="edit-teacher-modal" = t('common.cancel')

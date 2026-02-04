@@ -49,30 +49,22 @@ module Api
         end
 
         def handle_metadata(params_hash)
-          if params_hash[:metadata].present?
-            params_hash[:metadata] = params_hash[:metadata].symbolize_keys
-          elsif context.params.dig(:teacher, :metadata, :phone).present?
-            params_hash[:metadata] = { phone: context.params.dig(:teacher, :metadata, :phone) }
-          end
+          return params_hash[:metadata] = params_hash[:metadata].symbolize_keys if params_hash[:metadata].present?
+
+          phone = context.params.dig(:teacher, :metadata, :phone)
+          params_hash[:metadata] = { phone: phone } if phone.present?
         end
 
         def generate_password_if_needed(params_hash)
           return if params_hash[:password].present?
 
-          random_password = SecureRandom.alphanumeric(16)
-          params_hash[:password] = random_password
-          params_hash[:password_confirmation] = random_password
+          params_hash[:password] = params_hash[:password_confirmation] = SecureRandom.alphanumeric(16)
         end
 
         def teacher_params
-          # Convert to ActionController::Parameters if it's a hash
-          params = if context.params.is_a?(ActionController::Parameters)
-                     context.params
-                   else
-                     ActionController::Parameters.new(context.params)
-                   end
-          params.require(:teacher).permit(:first_name, :last_name, :email, :password,
-                                          :password_confirmation, metadata: {})
+          params = context.params.is_a?(ActionController::Parameters) ? context.params : ActionController::Parameters.new(context.params)
+          params.require(:teacher).permit(:first_name, :last_name, :email, :password, :password_confirmation,
+                                          metadata: {})
         end
 
         def save_teacher
@@ -80,8 +72,8 @@ module Api
 
           if context.teacher.save
             assign_teacher_role
-            # Create notification for awaiting approval
-            NotificationService.create_teacher_awaiting_approval(teacher: context.teacher, school: school)
+            assign_school_manager_role_if_requested
+            create_approved_enrollment
             context.form = context.teacher
             context.status = :created
             context.serializer = TeacherSerializer
@@ -93,20 +85,31 @@ module Api
         end
 
         def assign_teacher_role
-          teacher_role = Role.find_by(key: 'teacher')
-          return unless teacher_role
+          assign_role('teacher')
+        end
 
-          school = context.teacher.school
-          return unless school
+        def assign_school_manager_role_if_requested
+          return unless context.params.dig(:teacher, :is_school_manager) == true
 
-          existing_role = UserRole.find_by(user: context.teacher, role: teacher_role, school: school)
-          return if existing_role
+          assign_role('school_manager')
+        end
 
-          UserRole.create!(
-            user: context.teacher,
-            role: teacher_role,
+        def assign_role(role_key)
+          role = Role.find_by(key: role_key)
+          return unless role && school
+
+          UserRole.find_or_create_by!(user: context.teacher, role: role, school: school)
+        end
+
+        def create_approved_enrollment
+          # Teacher added manually by management is automatically approved
+          TeacherSchoolEnrollment.find_or_create_by!(
+            teacher: context.teacher,
             school: school
-          )
+          ) do |enrollment|
+            enrollment.status = 'approved'
+            enrollment.joined_at = Time.current
+          end
         end
 
         def send_reset_instruction

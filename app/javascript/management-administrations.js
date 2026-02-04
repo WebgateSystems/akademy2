@@ -661,6 +661,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const phoneField = document.getElementById('edit-administration-phone');
     if (phoneField) phoneField.value = phone;
 
+    // Clear password fields (should always be empty when opening modal)
+    const passwordField = document.getElementById('edit-administration-password');
+    if (passwordField) passwordField.value = '';
+    const passwordConfirmationField = document.getElementById('edit-administration-password-confirmation');
+    if (passwordConfirmationField) passwordConfirmationField.value = '';
+    // Hide any password mismatch error
+    const passwordMismatchError = document.getElementById('password-mismatch-error');
+    if (passwordMismatchError) passwordMismatchError.style.display = 'none';
+
     // Set role checkboxes
     const principalCheckbox = document.getElementById('edit-administration-role-principal');
     const schoolManagerCheckbox = document.getElementById('edit-administration-role-school-manager');
@@ -852,12 +861,12 @@ document.addEventListener('DOMContentLoaded', function() {
   setupEditAdministrationHandler();
 
   // Form submission handlers
+  const addFormSaveText = (I18N.actions && I18N.actions.save) || 'Zapisz';
   const addForm = document.getElementById('add-administration-form');
   if (addForm) {
     addForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = addForm.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
       submitBtn.disabled = true;
       submitBtn.textContent = (I18N.actions && I18N.actions.adding) || 'Adding...';
 
@@ -896,6 +905,8 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.classList.remove('is-open');
             addForm.reset();
           }
+          submitBtn.disabled = false;
+          submitBtn.textContent = addFormSaveText;
           currentPage = 1;
           hasMore = true;
           allAdministrations = [];
@@ -906,23 +917,23 @@ document.addEventListener('DOMContentLoaded', function() {
           console.error('API error:', result.error);
           alert('Error: ' + String(result.error || 'Failed to create administration'));
           submitBtn.disabled = false;
-          submitBtn.textContent = originalText;
+          submitBtn.textContent = addFormSaveText;
         }
       } catch (error) {
         console.error('Form submission error:', error);
         alert('Error: ' + String(error.message || 'Unknown error'));
         submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
+        submitBtn.textContent = addFormSaveText;
       }
     });
   }
 
+  const editFormSaveText = (I18N.actions && I18N.actions.save) || 'Zapisz';
   const editForm = document.getElementById('edit-administration-form');
   if (editForm) {
     editForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = editForm.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
       const administrationIdField = document.getElementById('edit-administration-id');
       
       if (!administrationIdField || !administrationIdField.value) {
@@ -932,6 +943,17 @@ document.addEventListener('DOMContentLoaded', function() {
       
       const administrationId = administrationIdField.value;
       
+      // Validate password match before submitting
+      const password = document.getElementById('edit-administration-password')?.value || '';
+      const passwordConfirmation = document.getElementById('edit-administration-password-confirmation')?.value || '';
+      const passwordMismatchError = document.getElementById('password-mismatch-error');
+      
+      if (password && password !== passwordConfirmation) {
+        if (passwordMismatchError) passwordMismatchError.style.display = 'block';
+        return; // Don't submit if passwords don't match
+      }
+      if (passwordMismatchError) passwordMismatchError.style.display = 'none';
+
       submitBtn.disabled = true;
       submitBtn.textContent = (I18N.actions && I18N.actions.saving) || 'Saving...';
 
@@ -958,6 +980,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
           }
         };
+        
+        // Only include password if provided
+        if (password) {
+          data.administration.password = password;
+          data.administration.password_confirmation = passwordConfirmation;
+        }
 
         const result = await api.patch(`${API_BASE}/${administrationId}`, data);
         
@@ -969,6 +997,8 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.setAttribute('aria-hidden', 'true');
             modal.classList.remove('is-open');
           }
+          submitBtn.disabled = false;
+          submitBtn.textContent = editFormSaveText;
           currentPage = 1;
           hasMore = true;
           allAdministrations = [];
@@ -984,13 +1014,13 @@ document.addEventListener('DOMContentLoaded', function() {
           }
           alert('Error: ' + String(errorMessage));
           submitBtn.disabled = false;
-          submitBtn.textContent = originalText;
+          submitBtn.textContent = editFormSaveText;
         }
       } catch (error) {
         console.error('Form submission error:', error);
         alert('Error: ' + String(error.message || 'Unknown error'));
         submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
+        submitBtn.textContent = editFormSaveText;
       }
     });
   }

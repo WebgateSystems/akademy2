@@ -135,6 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
       editBtn.setAttribute('data-teacher-email', attrs.email || '');
       editBtn.setAttribute('data-teacher-phone', attrs.phone || '');
       editBtn.setAttribute('data-teacher-birth-date', attrs.birth_date || '');
+      editBtn.setAttribute('data-teacher-is-school-manager', attrs.is_school_manager ? 'true' : 'false');
       editBtn.textContent = I18N.edit || 'Edytuj';
       editLi.appendChild(editBtn);
       
@@ -355,17 +356,29 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('edit-teacher-birth-date').value = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
       }
     }
+    const isSchoolManager = btn.getAttribute('data-teacher-is-school-manager') === 'true';
+    document.getElementById('edit-teacher-is-school-manager').checked = isSchoolManager;
+    
+    // Clear password fields (should always be empty when opening modal)
+    const passwordField = document.getElementById('edit-teacher-password');
+    if (passwordField) passwordField.value = '';
+    const passwordConfirmationField = document.getElementById('edit-teacher-password-confirmation');
+    if (passwordConfirmationField) passwordConfirmationField.value = '';
+    // Hide any password mismatch error
+    const passwordMismatchError = document.getElementById('teacher-password-mismatch-error');
+    if (passwordMismatchError) passwordMismatchError.style.display = 'none';
+    
     modal.setAttribute('aria-hidden', 'false'); modal.classList.add('is-open');
     const menu = btn.closest('.headmasters-menu');
     if (menu) menu.open = false;
   }
 
   const addForm = document.getElementById('add-teacher-form');
+  const addFormSaveText = I18N.save || 'Zapisz';
   if (addForm) {
     addForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = addForm.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
       submitBtn.disabled = true;
       submitBtn.textContent = I18N.adding || 'Dodawanie...';
       try {
@@ -376,39 +389,54 @@ document.addEventListener('DOMContentLoaded', function() {
           const [year, month, day] = birthDateRaw.split('-');
           birthDate = `${day}.${month}.${year}`;
         }
+        const isSchoolManagerCheckbox = document.getElementById('add-teacher-is-school-manager');
         const data = {
           teacher: {
             school_id: window.MANAGEMENT_SCHOOL_ID,
             first_name: formData.get('teacher[first_name]'),
             last_name: formData.get('teacher[last_name]'),
             email: formData.get('teacher[email]'),
-            metadata: { phone: formData.get('teacher[metadata][phone]') || '', birth_date: birthDate }
+            metadata: { phone: formData.get('teacher[metadata][phone]') || '', birth_date: birthDate },
+            is_school_manager: isSchoolManagerCheckbox ? isSchoolManagerCheckbox.checked : false
           }
         };
         const result = await api.post(API_BASE, data);
         if (result.success) {
           const modal = document.getElementById('add-teacher-modal');
           if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); addForm.reset(); }
+          submitBtn.disabled = false; submitBtn.textContent = addFormSaveText;
           currentPage = 1; hasMore = true; allTeachers = []; if (searchInput) searchInput.value = '';
           loadTeachers(1);
         } else {
           alert('Error: ' + (result.error || I18N.error_create));
-          submitBtn.disabled = false; submitBtn.textContent = originalText;
+          submitBtn.disabled = false; submitBtn.textContent = addFormSaveText;
         }
       } catch (error) {
         alert('Error: ' + (error.message || I18N.error_unknown));
-        submitBtn.disabled = false; submitBtn.textContent = originalText;
+        submitBtn.disabled = false; submitBtn.textContent = addFormSaveText;
       }
     });
   }
 
   const editForm = document.getElementById('edit-teacher-form');
+  const editFormSaveText = I18N.save || 'Zapisz';
   if (editForm) {
     editForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = editForm.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
       const teacherId = document.getElementById('edit-teacher-id').value;
+      
+      // Validate password match before submitting
+      const password = document.getElementById('edit-teacher-password')?.value || '';
+      const passwordConfirmation = document.getElementById('edit-teacher-password-confirmation')?.value || '';
+      const passwordMismatchError = document.getElementById('teacher-password-mismatch-error');
+      
+      if (password && password !== passwordConfirmation) {
+        if (passwordMismatchError) passwordMismatchError.style.display = 'block';
+        return; // Don't submit if passwords don't match
+      }
+      if (passwordMismatchError) passwordMismatchError.style.display = 'none';
+      
       submitBtn.disabled = true;
       submitBtn.textContent = I18N.saving || 'Zapisywanie...';
       try {
@@ -419,28 +447,38 @@ document.addEventListener('DOMContentLoaded', function() {
           const [year, month, day] = birthDateRaw.split('-');
           birthDate = `${day}.${month}.${year}`;
         }
+        const isSchoolManagerCheckbox = document.getElementById('edit-teacher-is-school-manager');
         const data = {
           teacher: {
             school_id: window.MANAGEMENT_SCHOOL_ID,
             first_name: formData.get('teacher[first_name]'),
             last_name: formData.get('teacher[last_name]'),
             email: formData.get('teacher[email]'),
-            metadata: { phone: formData.get('teacher[metadata][phone]') || '', birth_date: birthDate }
+            metadata: { phone: formData.get('teacher[metadata][phone]') || '', birth_date: birthDate },
+            is_school_manager: isSchoolManagerCheckbox ? isSchoolManagerCheckbox.checked : false
           }
         };
+        
+        // Only include password if provided
+        if (password) {
+          data.teacher.password = password;
+          data.teacher.password_confirmation = passwordConfirmation;
+        }
+        
         const result = await api.patch(`${API_BASE}/${teacherId}`, data);
         if (result.success) {
           const modal = document.getElementById('edit-teacher-modal');
           if (modal) { modal.setAttribute('aria-hidden', 'true'); modal.classList.remove('is-open'); }
+          submitBtn.disabled = false; submitBtn.textContent = editFormSaveText;
           currentPage = 1; hasMore = true; allTeachers = []; if (searchInput) searchInput.value = '';
           loadTeachers(1);
         } else {
           alert('Error: ' + (result.error || I18N.error_update));
-          submitBtn.disabled = false; submitBtn.textContent = originalText;
+          submitBtn.disabled = false; submitBtn.textContent = editFormSaveText;
         }
       } catch (error) {
         alert('Error: ' + (error.message || I18N.error_unknown));
-        submitBtn.disabled = false; submitBtn.textContent = originalText;
+        submitBtn.disabled = false; submitBtn.textContent = editFormSaveText;
       }
     });
   }

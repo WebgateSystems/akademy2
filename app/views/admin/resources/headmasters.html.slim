@@ -127,6 +127,14 @@ section aria-label=(t('admin.resources.headmasters.list'))
       label
         span = t('admin.resources.headmasters.form.phone')
         input type="text" name="headmaster[metadata][phone]" id="edit-headmaster-phone" placeholder="+48 XXX XXX XXX"
+      label
+        span = t('admin.resources.headmasters.form.password')
+        input type="password" name="headmaster[password]" id="edit-headmaster-password" placeholder=t('admin.resources.headmasters.form.password_placeholder') autocomplete="new-password"
+      label
+        span = t('admin.resources.headmasters.form.password_confirmation')
+        input type="password" name="headmaster[password_confirmation]" id="edit-headmaster-password-confirmation" placeholder=t('admin.resources.headmasters.form.password_confirmation_placeholder') autocomplete="new-password"
+      #admin-headmaster-password-mismatch-error.form-error style="display: none; color: var(--state-error); font-size: 12px; margin-top: -8px; margin-bottom: 8px;"
+        = t('admin.resources.headmasters.form.password_mismatch')
       .schools-modal__actions
         button.schools-modal__primary#edit-headmaster-save-btn type="submit" = t('common.save')
         button.schools-modal__secondary type="button" data-close-modal="edit-headmaster-modal" = t('common.cancel')
@@ -255,12 +263,29 @@ javascript:
         const modal = document.getElementById('edit-headmaster-modal');
         if (!modal) return;
 
+        // Helper to set value and trigger input event for validation
+        const setFieldValue = (id, value) => {
+          const field = document.getElementById(id);
+          if (field) {
+            field.value = value;
+            field.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        };
+
         document.getElementById('edit-headmaster-id').value = btn.dataset.headmasterId || '';
-        document.getElementById('edit-headmaster-school').value = btn.dataset.headmasterSchoolId || '';
-        document.getElementById('edit-headmaster-first-name').value = btn.dataset.headmasterFirstName || '';
-        document.getElementById('edit-headmaster-last-name').value = btn.dataset.headmasterLastName || '';
-        document.getElementById('edit-headmaster-email').value = btn.dataset.headmasterEmail || '';
-        document.getElementById('edit-headmaster-phone').value = btn.dataset.headmasterPhone || '';
+        setFieldValue('edit-headmaster-school', btn.dataset.headmasterSchoolId || '');
+        setFieldValue('edit-headmaster-first-name', btn.dataset.headmasterFirstName || '');
+        setFieldValue('edit-headmaster-last-name', btn.dataset.headmasterLastName || '');
+        setFieldValue('edit-headmaster-email', btn.dataset.headmasterEmail || '');
+        setFieldValue('edit-headmaster-phone', btn.dataset.headmasterPhone || '');
+        
+        // Clear password fields
+        const passwordField = document.getElementById('edit-headmaster-password');
+        if (passwordField) passwordField.value = '';
+        const passwordConfirmationField = document.getElementById('edit-headmaster-password-confirmation');
+        if (passwordConfirmationField) passwordConfirmationField.value = '';
+        const passwordMismatchError = document.getElementById('admin-headmaster-password-mismatch-error');
+        if (passwordMismatchError) passwordMismatchError.style.display = 'none';
 
         modal.setAttribute('aria-hidden', 'false');
         modal.classList.add('is-open');
@@ -325,6 +350,17 @@ javascript:
         
         if (!headmasterId) { alert(MSG.error_id); return; }
         
+        // Validate password match
+        const password = document.getElementById('edit-headmaster-password')?.value || '';
+        const passwordConfirmation = document.getElementById('edit-headmaster-password-confirmation')?.value || '';
+        const passwordMismatchError = document.getElementById('admin-headmaster-password-mismatch-error');
+        
+        if (password && password !== passwordConfirmation) {
+          if (passwordMismatchError) passwordMismatchError.style.display = 'block';
+          return;
+        }
+        if (passwordMismatchError) passwordMismatchError.style.display = 'none';
+        
         submitBtn.disabled = true;
         submitBtn.textContent = MSG.saving;
 
@@ -339,6 +375,12 @@ javascript:
               metadata: { phone: formData.get('headmaster[metadata][phone]') || '' }
             }
           };
+          
+          // Include password if provided
+          if (password) {
+            data.headmaster.password = password;
+            data.headmaster.password_confirmation = passwordConfirmation;
+          }
 
           const result = await api.patch(`/headmasters/${headmasterId}`, data);
           if (result.success) {

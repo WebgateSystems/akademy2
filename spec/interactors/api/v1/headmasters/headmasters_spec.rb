@@ -106,6 +106,72 @@ RSpec.describe 'Headmasters interactors' do
       expect(metadata['phone']).to eq('+48 999 999 999')
       expect(metadata['address']).to eq('Old')
     end
+
+    it 'skips reconfirmation when email is changed' do
+      params = {
+        current_user: admin_user,
+        params: ac_params(
+          id: headmaster.id,
+          headmaster: { email: 'newemail@example.com' }
+        )
+      }
+
+      result = described_class.call(params)
+
+      expect(result).to be_success
+      expect(headmaster.reload.email).to eq('newemail@example.com')
+    end
+
+    it 'changes password when provided' do
+      params = {
+        current_user: admin_user,
+        params: ac_params(
+          id: headmaster.id,
+          headmaster: {
+            password: 'newpassword123',
+            password_confirmation: 'newpassword123'
+          }
+        )
+      }
+
+      result = described_class.call(params)
+
+      expect(result).to be_success
+      expect(headmaster.reload.valid_password?('newpassword123')).to be true
+    end
+
+    it 'does not change password when blank' do
+      old_password = headmaster.encrypted_password
+      params = {
+        current_user: admin_user,
+        params: ac_params(
+          id: headmaster.id,
+          headmaster: { password: '', password_confirmation: '' }
+        )
+      }
+
+      result = described_class.call(params)
+
+      expect(result).to be_success
+      expect(headmaster.reload.encrypted_password).to eq(old_password)
+    end
+
+    it 'fails when password and confirmation do not match' do
+      params = {
+        current_user: admin_user,
+        params: ac_params(
+          id: headmaster.id,
+          headmaster: {
+            password: 'newpassword123',
+            password_confirmation: 'differentpassword'
+          }
+        )
+      }
+
+      result = described_class.call(params)
+
+      expect(result).to be_failure
+    end
   end
 
   describe Api::V1::Headmasters::DestroyHeadmaster do

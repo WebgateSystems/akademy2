@@ -34,6 +34,7 @@ javascript:
     },
     actions: {
       edit: #{t('management.administrations.actions.edit').to_json},
+      save: #{t('common.save').to_json},
       resendInvite: #{t('management.administrations.actions.resend_invite').to_json},
       deactivate: #{t('management.administrations.actions.deactivate').to_json},
       activate: #{t('management.administrations.actions.activate').to_json},
@@ -49,7 +50,8 @@ javascript:
       you: #{t('management.administrations.messages.you').to_json},
       cannotDeactivateSelf: #{t('management.administrations.messages.cannot_deactivate_self').to_json},
       cannotDeleteSelf: #{t('management.administrations.messages.cannot_delete_self').to_json},
-      cannotChangeOwnRoles: #{t('management.administrations.messages.cannot_change_own_roles').to_json}
+      cannotChangeOwnRoles: #{t('management.administrations.messages.cannot_change_own_roles').to_json},
+      passwordMismatch: #{t('management.administrations.form.password_mismatch').to_json}
     }
   };
 
@@ -161,6 +163,14 @@ style
       label
         span = t('management.administrations.form.phone')
         input type="text" name="administration[metadata][phone]" id="edit-administration-phone" placeholder=t('management.administrations.form.phone_placeholder')
+      label
+        span = t('management.administrations.form.password')
+        input type="password" name="administration[password]" id="edit-administration-password" placeholder=t('management.administrations.form.password_placeholder') autocomplete="new-password"
+      label
+        span = t('management.administrations.form.password_confirmation')
+        input type="password" name="administration[password_confirmation]" id="edit-administration-password-confirmation" placeholder=t('management.administrations.form.password_confirmation_placeholder') autocomplete="new-password"
+      #password-mismatch-error.form-error style="display: none; color: var(--state-error); font-size: 12px; margin-top: -8px; margin-bottom: 8px;"
+        = t('management.administrations.form.password_mismatch')
       label
         span
           = t('management.administrations.form.roles')

@@ -51,4 +51,15 @@ class TeacherSerializer < ApplicationSerializer
       enrollment&.id
     end
   end
+
+  attribute :is_school_manager do |teacher, params|
+    # Check if teacher has school_manager role for the school
+    if params && params[:school_id]
+      teacher.user_roles
+             .joins(:role)
+             .exists?(school_id: params[:school_id], roles: { key: 'school_manager' })
+    else
+      false
+    end
+  end
 end

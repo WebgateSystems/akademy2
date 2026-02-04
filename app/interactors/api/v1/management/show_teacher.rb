@@ -45,6 +45,7 @@ module Api
           context.form = teacher
           context.status = :ok
           context.serializer = TeacherSerializer
+          context.school_id = school.id
         end
 
         def load_teacher_from_school

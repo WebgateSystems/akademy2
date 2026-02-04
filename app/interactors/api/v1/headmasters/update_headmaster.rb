@@ -34,6 +34,11 @@ module Api
         def update_headmaster
           update_params = headmaster_params.to_h
           merge_metadata(update_params)
+          filter_blank_password(update_params)
+
+          # Skip Devise confirmation email when updating email (admin action)
+          email_changed = update_params[:email].present? && context.headmaster.email != update_params[:email]
+          context.headmaster.skip_reconfirmation! if email_changed
 
           if context.headmaster.update(update_params)
             context.form = context.headmaster
@@ -55,6 +60,13 @@ module Api
               phone: context.params.dig(:headmaster, :metadata, :phone)
             )
           end
+        end
+
+        def filter_blank_password(update_params)
+          return if update_params[:password].present?
+
+          update_params.delete(:password)
+          update_params.delete(:password_confirmation)
         end
 
         def headmaster_params

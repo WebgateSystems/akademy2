@@ -114,6 +114,14 @@ css:
       label
         span = t('admin.resources.teachers.form.birth_date')
         input type="date" name="teacher[metadata][birth_date]" id="edit-teacher-birth-date"
+      label
+        span = t('admin.resources.teachers.form.password')
+        input type="password" name="teacher[password]" id="edit-teacher-password" placeholder=t('admin.resources.teachers.form.password_placeholder') autocomplete="new-password"
+      label
+        span = t('admin.resources.teachers.form.password_confirmation')
+        input type="password" name="teacher[password_confirmation]" id="edit-teacher-password-confirmation" placeholder=t('admin.resources.teachers.form.password_confirmation_placeholder') autocomplete="new-password"
+      #admin-teacher-password-mismatch-error.form-error style="display: none; color: var(--state-error); font-size: 12px; margin-top: -8px; margin-bottom: 8px;"
+        = t('admin.resources.teachers.form.password_mismatch')
       .schools-modal__actions
         button.schools-modal__primary#edit-teacher-save-btn type="submit" = t('common.save')
         button.schools-modal__secondary type="button" data-close-modal="edit-teacher-modal" = t('common.cancel')
@@ -403,6 +411,14 @@ javascript:
           document.getElementById('edit-teacher-birth-date').value = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
         }
       }
+      
+      // Clear password fields
+      const passwordField = document.getElementById('edit-teacher-password');
+      if (passwordField) passwordField.value = '';
+      const passwordConfirmationField = document.getElementById('edit-teacher-password-confirmation');
+      if (passwordConfirmationField) passwordConfirmationField.value = '';
+      const passwordMismatchError = document.getElementById('admin-teacher-password-mismatch-error');
+      if (passwordMismatchError) passwordMismatchError.style.display = 'none';
 
       const modal = document.getElementById('edit-teacher-modal');
       modal.setAttribute('aria-hidden', 'false');
@@ -467,6 +483,17 @@ javascript:
         
         if (!teacherId) { alert(MSG.error_id); return; }
         
+        // Validate password match
+        const password = document.getElementById('edit-teacher-password')?.value || '';
+        const passwordConfirmation = document.getElementById('edit-teacher-password-confirmation')?.value || '';
+        const passwordMismatchError = document.getElementById('admin-teacher-password-mismatch-error');
+        
+        if (password && password !== passwordConfirmation) {
+          if (passwordMismatchError) passwordMismatchError.style.display = 'block';
+          return;
+        }
+        if (passwordMismatchError) passwordMismatchError.style.display = 'none';
+        
         submitBtn.disabled = true;
         submitBtn.textContent = MSG.saving;
 
@@ -488,6 +515,12 @@ javascript:
               metadata: { phone: formData.get('teacher[metadata][phone]') || '', birth_date: birthDate }
             }
           };
+          
+          // Include password if provided
+          if (password) {
+            data.teacher.password = password;
+            data.teacher.password_confirmation = passwordConfirmation;
+          }
 
           const result = await api.patch(`/teachers/${teacherId}`, data);
           if (result.success) {

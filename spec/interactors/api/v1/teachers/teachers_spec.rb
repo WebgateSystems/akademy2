@@ -95,6 +95,55 @@ RSpec.describe 'Teachers interactors' do
       metadata = result.form.reload.metadata
       expect(metadata['phone']).to eq('+48 222 222 222')
     end
+
+    it 'skips reconfirmation when email is changed' do
+      params = {
+        current_user: admin_user,
+        params: ac_params(
+          id: teacher.id,
+          teacher: { email: 'newemail@example.com' }
+        )
+      }
+
+      result = described_class.call(params)
+
+      expect(result).to be_success
+      expect(result.form.reload.email).to eq('newemail@example.com')
+    end
+
+    it 'changes password when provided' do
+      params = {
+        current_user: admin_user,
+        params: ac_params(
+          id: teacher.id,
+          teacher: {
+            password: 'newpassword123',
+            password_confirmation: 'newpassword123'
+          }
+        )
+      }
+
+      result = described_class.call(params)
+
+      expect(result).to be_success
+      expect(teacher.reload.valid_password?('newpassword123')).to be true
+    end
+
+    it 'does not change password when blank' do
+      old_password = teacher.encrypted_password
+      params = {
+        current_user: admin_user,
+        params: ac_params(
+          id: teacher.id,
+          teacher: { password: '', password_confirmation: '' }
+        )
+      }
+
+      result = described_class.call(params)
+
+      expect(result).to be_success
+      expect(teacher.reload.encrypted_password).to eq(old_password)
+    end
   end
 
   describe Api::V1::Teachers::LockTeacher do

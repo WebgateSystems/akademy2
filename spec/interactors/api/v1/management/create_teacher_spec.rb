@@ -110,6 +110,49 @@ RSpec.describe Api::V1::Management::CreateTeacher do
         expect(result).to be_failure
         expect(result.message).to be_an(Array)
       end
+
+      it 'creates approved enrollment automatically' do
+        result = described_class.call(context)
+        teacher = result.form
+
+        enrollment = TeacherSchoolEnrollment.find_by(teacher: teacher, school: school)
+        expect(enrollment).to be_present
+        expect(enrollment.status).to eq('approved')
+        expect(enrollment.joined_at).to be_present
+      end
+
+      context 'with is_school_manager flag' do
+        let(:context_with_manager) do
+          {
+            current_user: school_manager,
+            params: {
+              teacher: {
+                first_name: 'Jan',
+                last_name: 'Kowalski',
+                email: 'jan.manager@example.com',
+                is_school_manager: true
+              }
+            }
+          }
+        end
+
+        it 'assigns school_manager role when is_school_manager is true' do
+          result = described_class.call(context_with_manager)
+          teacher = result.form.reload
+
+          expect(teacher.roles.pluck(:key)).to include('teacher')
+          expect(teacher.roles.pluck(:key)).to include('school_manager')
+        end
+
+        it 'does not assign school_manager role when is_school_manager is false' do
+          context_with_manager[:params][:teacher][:is_school_manager] = false
+          result = described_class.call(context_with_manager)
+          teacher = result.form.reload
+
+          expect(teacher.roles.pluck(:key)).to include('teacher')
+          expect(teacher.roles.pluck(:key)).not_to include('school_manager')
+        end
+      end
     end
 
     context 'when user is not authorized' do

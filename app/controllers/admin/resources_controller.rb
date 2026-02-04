@@ -134,6 +134,7 @@ class Admin::ResourcesController < Admin::BaseController
     update_params = permitted_params
     prepare_params_for_update(update_params)
     handle_content_payload(update_params) if updating_content?
+    handle_user_update(update_params) if updating_user?
 
     # Handle icon removal for Subject
     @record.remove_icon! if @resource_class == Subject && params[:subject][:remove_icon] == '1'
@@ -680,6 +681,17 @@ class Admin::ResourcesController < Admin::BaseController
     current_metadata = @record.metadata || {}
     new_metadata = params[:user][:metadata].to_unsafe_h
     update_params[:metadata] = current_metadata.merge(new_metadata)
+  end
+
+  def handle_user_update(update_params)
+    # Superadmin can change email without Devise confirmation
+    @record.skip_reconfirmation! if update_params[:email].present? && @record.email != update_params[:email]
+
+    # Remove blank password (don't change if not provided)
+    return if update_params[:password].present?
+
+    update_params.delete(:password)
+    update_params.delete(:password_confirmation)
   end
 
   def handle_school_slug_update(update_params)

@@ -104,6 +104,59 @@ RSpec.describe Api::V1::Management::UpdateAdministration do
         expect(result).to be_success
       end
 
+      context 'with password change' do
+        it 'changes password when password and confirmation are provided' do
+          context[:params][:administration][:password] = 'newpassword123'
+          context[:params][:administration][:password_confirmation] = 'newpassword123'
+          result = described_class.call(context)
+
+          expect(result).to be_success
+          administration.reload
+          expect(administration.valid_password?('newpassword123')).to be true
+        end
+
+        it 'does not change password when password is blank' do
+          old_password = administration.encrypted_password
+          context[:params][:administration][:password] = ''
+          context[:params][:administration][:password_confirmation] = ''
+          result = described_class.call(context)
+
+          expect(result).to be_success
+          administration.reload
+          expect(administration.encrypted_password).to eq(old_password)
+        end
+
+        it 'does not change password when password is not provided' do
+          old_password = administration.encrypted_password
+          result = described_class.call(context)
+
+          expect(result).to be_success
+          administration.reload
+          expect(administration.encrypted_password).to eq(old_password)
+        end
+
+        it 'fails when password and confirmation do not match' do
+          context[:params][:administration][:password] = 'newpassword123'
+          context[:params][:administration][:password_confirmation] = 'differentpassword'
+          result = described_class.call(context)
+
+          expect(result).to be_failure
+        end
+
+        it 'allows changing own password' do
+          context[:params][:id] = school_manager.id
+          context[:params][:administration][:password] = 'newpassword123'
+          context[:params][:administration][:password_confirmation] = 'newpassword123'
+          # Don't change roles
+          context[:params][:administration].delete(:roles)
+          result = described_class.call(context)
+
+          expect(result).to be_success
+          school_manager.reload
+          expect(school_manager.valid_password?('newpassword123')).to be true
+        end
+      end
+
       it 'fails when no administration roles are assigned' do
         context[:params][:administration][:roles] = ['teacher']
         result = described_class.call(context)
@@ -154,6 +207,29 @@ RSpec.describe Api::V1::Management::UpdateAdministration do
         expect(result).to be_success
         school_manager.reload
         expect(school_manager.first_name).to eq('Updated Name')
+      end
+
+      it 'allows updating own email when roles are unchanged' do
+        context[:params][:id] = school_manager.id
+        context[:params][:administration][:email] = 'newemail@example.com'
+        # Pass the same roles as current (no change)
+        context[:params][:administration][:roles] = ['school_manager']
+        result = described_class.call(context)
+
+        expect(result).to be_success
+        school_manager.reload
+        expect(school_manager.email).to eq('newemail@example.com')
+      end
+
+      it 'prevents changing own roles even when also changing email' do
+        context[:params][:id] = school_manager.id
+        context[:params][:administration][:email] = 'newemail@example.com'
+        # Try to add teacher role (actual role change)
+        context[:params][:administration][:roles] = %w[school_manager teacher]
+        result = described_class.call(context)
+
+        expect(result).to be_failure
+        expect(result.message.first).to include('własnych uprawnień')
       end
     end
 

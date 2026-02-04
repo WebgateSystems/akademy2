@@ -38,3 +38,11 @@ section aria-label="Edytuj managera aplikacji"
       label
         span Telefon
         input type="text" name="user[metadata][phone]" value=(@record.metadata&.dig('phone') || '') placeholder="+48 XXX XXX XXX"
+      
+      .cols style="grid-template-columns:repeat(2,minmax(160px,1fr)); gap:12px"
+        label
+          span Nowe hasło (opcjonalnie)
+          input type="password" name="user[password]" placeholder="Zostaw puste, aby nie zmieniać" autocomplete="new-password"
+        label
+          span Potwierdź hasło
+          input type="password" name="user[password_confirmation]" placeholder="Powtórz nowe hasło" autocomplete="new-password"

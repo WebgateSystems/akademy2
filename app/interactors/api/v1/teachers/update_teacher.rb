@@ -36,6 +36,7 @@ module Api
         def update_teacher
           update_params = teacher_params.to_h
           merge_metadata(update_params)
+          filter_blank_password(update_params)
 
           # Skip Devise confirmation email when updating email (admin action)
           email_changed = update_params[:email].present? && context.teacher.email != update_params[:email]
@@ -61,6 +62,13 @@ module Api
               phone: context.params.dig(:teacher, :metadata, :phone)
             )
           end
+        end
+
+        def filter_blank_password(update_params)
+          return if update_params[:password].present?
+
+          update_params.delete(:password)
+          update_params.delete(:password_confirmation)
         end
 
         def teacher_params

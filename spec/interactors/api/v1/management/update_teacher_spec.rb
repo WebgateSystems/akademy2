@@ -71,6 +71,46 @@ RSpec.describe Api::V1::Management::UpdateTeacher do
         expect(result).to be_success
       end
 
+      context 'with password change' do
+        it 'changes password when password and confirmation are provided' do
+          context[:params][:teacher][:password] = 'newpassword123'
+          context[:params][:teacher][:password_confirmation] = 'newpassword123'
+          result = described_class.call(context)
+
+          expect(result).to be_success
+          teacher.reload
+          expect(teacher.valid_password?('newpassword123')).to be true
+        end
+
+        it 'does not change password when password is blank' do
+          old_password = teacher.encrypted_password
+          context[:params][:teacher][:password] = ''
+          context[:params][:teacher][:password_confirmation] = ''
+          result = described_class.call(context)
+
+          expect(result).to be_success
+          teacher.reload
+          expect(teacher.encrypted_password).to eq(old_password)
+        end
+
+        it 'does not change password when password is not provided' do
+          old_password = teacher.encrypted_password
+          result = described_class.call(context)
+
+          expect(result).to be_success
+          teacher.reload
+          expect(teacher.encrypted_password).to eq(old_password)
+        end
+
+        it 'fails when password and confirmation do not match' do
+          context[:params][:teacher][:password] = 'newpassword123'
+          context[:params][:teacher][:password_confirmation] = 'differentpassword'
+          result = described_class.call(context)
+
+          expect(result).to be_failure
+        end
+      end
+
       it 'fails when teacher does not exist' do
         context[:params][:id] = SecureRandom.uuid
         result = described_class.call(context)
@@ -90,6 +130,52 @@ RSpec.describe Api::V1::Management::UpdateTeacher do
 
         expect(result).to be_failure
         expect(result.message).to include('Nauczyciel nie został znaleziony')
+      end
+
+      context 'with is_school_manager flag' do
+        it 'promotes teacher to school_manager when is_school_manager is true' do
+          context[:params][:teacher][:is_school_manager] = true
+          result = described_class.call(context)
+
+          expect(result).to be_success
+          teacher.reload
+          expect(teacher.user_roles.joins(:role).where(roles: { key: 'school_manager' }, school: school).count).to eq(1)
+        end
+
+        it 'demotes teacher from school_manager when is_school_manager is false' do
+          # First promote the teacher
+          UserRole.create!(user: teacher, role: school_manager_role, school: school)
+          expect(teacher.user_roles.joins(:role).where(roles: { key: 'school_manager' }).count).to eq(1)
+
+          context[:params][:teacher][:is_school_manager] = false
+          result = described_class.call(context)
+
+          expect(result).to be_success
+          teacher.reload
+          expect(teacher.user_roles.joins(:role).where(roles: { key: 'school_manager' }).count).to eq(0)
+        end
+
+        it 'does not change school_manager role when is_school_manager is not specified' do
+          # Teacher without school_manager role
+          expect(teacher.user_roles.joins(:role).where(roles: { key: 'school_manager' }).count).to eq(0)
+
+          # Update without is_school_manager
+          result = described_class.call(context)
+
+          expect(result).to be_success
+          teacher.reload
+          expect(teacher.user_roles.joins(:role).where(roles: { key: 'school_manager' }).count).to eq(0)
+        end
+
+        it 'preserves teacher role when promoting to school_manager' do
+          context[:params][:teacher][:is_school_manager] = true
+          result = described_class.call(context)
+
+          expect(result).to be_success
+          teacher.reload
+          expect(teacher.user_roles.joins(:role).where(roles: { key: 'teacher' }, school: school).count).to eq(1)
+          expect(teacher.user_roles.joins(:role).where(roles: { key: 'school_manager' }, school: school).count).to eq(1)
+        end
       end
     end
 
