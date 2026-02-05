@@ -157,6 +157,12 @@ Rails.application.routes.draw do
   get '/dashboard/class_qr.svg', to: 'dashboard#class_qr_svg', as: :dashboard_class_qr_svg
   get '/dashboard/class_qr.png', to: 'dashboard#class_qr_png', as: :dashboard_class_qr_png
 
+  # Teacher account routes
+  get '/dashboard/account', to: 'dashboard#account', as: :dashboard_account
+  patch '/dashboard/account', to: 'dashboard#update_account'
+  get '/dashboard/account/settings', to: 'dashboard#settings', as: :dashboard_settings
+  patch '/dashboard/account/settings', to: 'dashboard#update_settings'
+
   namespace :api do
     namespace :v1 do
       namespace :teacher do

@@ -1,0 +1,94 @@
+- content_for :title, t('dashboard.settings.title', default: 'Ustawienia')
+- current_theme = @user.theme || 'light'
+- current_locale = @user.locale || I18n.locale.to_s
+
+.dashboard-app data-dashboard-app=""
+  = render 'sidebar'
+
+  main.dashboard-main
+    = render 'top_bar', title: t('dashboard.settings.title', default: 'Ustawienia'), back_path: dashboard_account_path
+
+    section.account-section
+      = form_with model: @user, url: dashboard_settings_path, method: :patch, class: 'account-form', id: 'settings-form', local: true do |f|
+        - if @user.errors.any?
+          .account-form__errors
+            - @user.errors.full_messages.each do |msg|
+              p.account-form__error = msg
+
+        .account-form__section
+          label.account-form__label
+            span = t('dashboard.settings.new_password', default: 'Nowe hasło')
+            = f.password_field :password, class: "account-form__input", placeholder: t('dashboard.settings.password_placeholder', default: 'Minimum 6 znaków'), autocomplete: 'new-password'
+
+        .account-form__section
+          label.account-form__label
+            span = t('dashboard.settings.confirm_password', default: 'Potwierdź hasło')
+            = f.password_field :password_confirmation, class: "account-form__input", placeholder: t('dashboard.settings.confirm_placeholder', default: 'Powtórz hasło'), autocomplete: 'new-password'
+
+        label.account-form__label
+          span = t('dashboard.settings.theme', default: 'Motyw')
+          = f.select :theme, [[t('dashboard.settings.theme_light', default: 'Jasny'), 'light'], [t('dashboard.settings.theme_dark', default: 'Ciemny'), 'dark']], { selected: current_theme }, class: 'account-form__input account-form__select', id: 'theme-select', data: { original: current_theme }
+
+        label.account-form__label
+          span = t('dashboard.settings.language', default: 'Język')
+          = f.select :locale, [['English', 'en'], ['Polski', 'pl']], { selected: current_locale }, class: 'account-form__input account-form__select', id: 'locale-select', data: { original: current_locale }
+
+        = f.submit t('dashboard.settings.save', default: 'ZAPISZ ZMIANY'), class: 'account-form__save', id: 'save-btn', style: 'display: none;'
+
+javascript:
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('settings-form');
+    const saveBtn = document.getElementById('save-btn');
+    const passwordField = form.querySelector('input[name="user[password]"]');
+    const confirmField = form.querySelector('input[name="user[password_confirmation]"]');
+    const themeSelect = document.getElementById('theme-select');
+    const localeSelect = document.getElementById('locale-select');
+    
+    // Use the same key as theme-switcher.js
+    const THEME_STORAGE_KEY = 'theme';
+    
+    // Sync theme dropdown with localStorage (actual current theme)
+    const currentThemeFromStorage = localStorage.getItem(THEME_STORAGE_KEY);
+    if (currentThemeFromStorage && (currentThemeFromStorage === 'light' || currentThemeFromStorage === 'dark')) {
+      themeSelect.value = currentThemeFromStorage;
+      themeSelect.dataset.original = currentThemeFromStorage;
+    }
+    
+    const initialTheme = themeSelect.dataset.original;
+    const initialLocale = localeSelect.dataset.original;
+
+    const checkChanges = () => {
+      let hasChanges = false;
+      
+      // Check password fields
+      if (passwordField.value.length > 0 || confirmField.value.length > 0) {
+        hasChanges = true;
+      }
+      
+      // Check theme
+      if (themeSelect.value !== initialTheme) {
+        hasChanges = true;
+      }
+      
+      // Check locale
+      if (localeSelect.value !== initialLocale) {
+        hasChanges = true;
+      }
+      
+      saveBtn.style.display = hasChanges ? 'block' : 'none';
+    };
+
+    passwordField.addEventListener('input', checkChanges);
+    confirmField.addEventListener('input', checkChanges);
+    themeSelect.addEventListener('change', checkChanges);
+    localeSelect.addEventListener('change', checkChanges);
+
+    // Theme switching preview (live update)
+    themeSelect.addEventListener('change', () => {
+      const newTheme = themeSelect.value;
+      const isDark = newTheme === 'dark';
+      document.documentElement.classList.toggle('theme-dark', isDark);
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+    });
+  });

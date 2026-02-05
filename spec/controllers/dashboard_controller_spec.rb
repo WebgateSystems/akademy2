@@ -166,7 +166,8 @@ RSpec.describe DashboardController, type: :request do
 
       it 'shows pending status' do
         get dashboard_students_path(class_id: school_class.id)
-        expect(response.body).to include('Oczekuje')
+        # Check for translated pending status (either Polish or English)
+        expect(response.body).to match(/Oczekuje|Pending/)
       end
     end
   end

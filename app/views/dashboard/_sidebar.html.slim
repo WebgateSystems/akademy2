@@ -21,5 +21,11 @@ aside.dashboard-sidebar
     - else
       p.dashboard-nav__empty = t('dashboard.empty.no_classes')
 
+  .dashboard-nav.dashboard-nav--bottom
+    - account_active = request.path.start_with?(dashboard_account_path)
+    = link_to dashboard_account_path, class: "dashboard-nav__button #{'is-active' if account_active}", "aria-current": (account_active ? "page" : nil) do
+      = image_tag "icons/social/M/sidebar_account.svg", alt: "", width: 20, height: 20, "aria-hidden": true, "data-theme-icon": true
+      span.dashboard-nav__label = t('sidebar.account', default: 'Konto')
+
 .dashboard-sidebar-overlay data-sidebar-overlay="" aria-hidden="true"
 

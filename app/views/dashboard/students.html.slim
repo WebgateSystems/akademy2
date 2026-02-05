@@ -2,21 +2,21 @@
   = render 'dashboard/sidebar', nav_path_helper: ->(school_class) { dashboard_students_path(class_id: school_class.id) }
 
   main.dashboard-main
-    = render 'dashboard/top_bar', title: "Uczniowie #{@current_class&.name || ''}"
+    = render 'dashboard/top_bar', title: "#{t('dashboard.students.title')} #{@current_class&.name || ''}"
 
     - if @current_class
-      section aria-label="Lista uczniów"
+      section aria-label=t('dashboard.students.title')
         header.schools-page__header
           label.schools-search.schools-search--half
-            span.visually-hidden Szukaj uczniów
-            input type="search" placeholder="Szukaj ucznia..." id="students-search-input"
+            span.visually-hidden = t('common.search')
+            input type="search" placeholder=t('common.search_placeholder', default: 'Search...') id="students-search-input"
             = image_tag "icons/social/S/search.svg", alt: "", "aria-hidden": "true", "data-theme-icon": true
           .schools-page__header-actions
             button.schools-page__add#add-student-btn type="button"
               span style="margin-right: 6px; font-size: 18px;" +
-              | Dodaj ucznia
+              = t('dashboard.students.add_student')
             = link_to dashboard_path(class_id: @current_class.id), class: "schools-page__add schools-page__add--secondary" do
-              | Wróć
+              = t('actions.back', default: 'Back')
 
         .schools-page__controls
 
@@ -24,10 +24,10 @@
           table.students-table
             thead.students-table__head
               tr
-                th.students-table__heading scope="col" Imię i nazwisko
-                th.students-table__heading scope="col" Data urodzenia
-                th.students-table__heading scope="col" Email
-                th.students-table__heading scope="col" Telefon
+                th.students-table__heading scope="col" = t('common.full_name', default: 'Name')
+                th.students-table__heading scope="col" = t('dashboard.students.birthdate')
+                th.students-table__heading scope="col" = t('dashboard.students.email')
+                th.students-table__heading scope="col" = t('dashboard.students.phone')
                 th.students-table__heading scope="col" Status
                 th.students-table__heading.students-table__heading--actions scope="col" Akcje
             tbody.students-table__body id="students-table-body"
@@ -45,11 +45,11 @@
                   td.students-table__cell = student.phone || '—'
                   td.students-table__cell
                     - if is_pending
-                      span style="color: var(--content-secondary); font-weight: 500;" Oczekuje
+                      span style="color: var(--content-secondary); font-weight: 500;" = t('dashboard.students.status_pending')
                     - elsif is_locked
-                      span style="color: var(--state-error); font-weight: 500;" Nieaktywny
+                      span style="color: var(--state-error); font-weight: 500;" = t('dashboard.students.status_inactive')
                     - else
-                      span style="color: var(--state-success); font-weight: 500;" Aktywny
+                      span style="color: var(--state-success); font-weight: 500;" = t('dashboard.students.status_active')
                   td.students-table__cell.students-table__cell--actions
                     .students-actions
                       button.student-action.student-action--edit.js-edit-student type="button" aria-label="Edytuj ucznia" data-student-id=student.id data-student-first-name=student.first_name data-student-last-name=student.last_name data-student-email=student.email data-student-phone=student.phone data-student-birthdate=student.birthdate&.to_s
@@ -62,21 +62,21 @@
 
           - if @students.empty?
             #students-empty-message.text-center style="padding: 40px; color: var(--content-secondary);"
-              | Brak uczniów w tej klasie
+              = t('dashboard.students.no_students')
 
       / Approve modal
       .schools-modal id="approve-student-modal" aria-hidden="true"
         .schools-modal__overlay
         .schools-modal__dialog role="dialog" aria-modal="true" aria-labelledby="approve-student-title"
-          button.schools-modal__close type="button" aria-label="Zamknij" data-close-modal="approve-student-modal" style="position: absolute; top: 16px; right: 16px;"
+          button.schools-modal__close type="button" aria-label=t('actions.close') data-close-modal="approve-student-modal" style="position: absolute; top: 16px; right: 16px;"
             svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
               line x1="18" y1="6" x2="6" y2="18"
               line x1="6" y1="6" x2="18" y2="18"
           .schools-modal__body
-            h3#approve-student-title style="margin: 0 0 16px; font-size: 24px; font-weight: 500; text-align: center;" Zatwierdź ucznia
-            p#approve-student-message style="text-align: center; color: var(--content-secondary);" Czy na pewno chcesz zatwierdzić tego ucznia?
+            h3#approve-student-title style="margin: 0 0 16px; font-size: 24px; font-weight: 500; text-align: center;" = t('dashboard.students.approve_student')
+            p#approve-student-message style="text-align: center; color: var(--content-secondary);" = t('dashboard.students.approve_confirm')
           .schools-modal__actions
-            button.schools-modal__primary#approve-student-confirm-btn type="button" Zatwierdź
+            button.schools-modal__primary#approve-student-confirm-btn type="button" = t('dashboard.students.approve')
             button.schools-modal__secondary type="button" data-close-modal="approve-student-modal" Anuluj
 
       / Decline modal
@@ -480,7 +480,7 @@
     - else
       .dashboard-empty-state
         .dashboard-empty-state__content
-          h2 Brak wybranej klasy
+          h2 = t('dashboard.students.no_class_selected')
           p Wybierz klasę z menu po lewej stronie
 
     = render 'shared/app_version'

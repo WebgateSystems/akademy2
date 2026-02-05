@@ -292,7 +292,98 @@ class DashboardController < ApplicationController
                         filename: "qr-class-#{school_class.name.parameterize}.png"
   end
 
+  # GET /dashboard/account
+  def account
+    load_sidebar_data
+    @user = current_user
+  end
+
+  # PATCH /dashboard/account
+  def update_account
+    @user = current_user
+
+    # Teachers can update all their profile data
+    @user.first_name = account_params[:first_name] if account_params[:first_name].present?
+    @user.last_name = account_params[:last_name] if account_params[:last_name].present?
+
+    if account_params[:email].present? && account_params[:email] != @user.email
+      @user.skip_reconfirmation!
+      @user.email = account_params[:email]
+    end
+
+    if account_params[:phone].present?
+      @user.metadata ||= {}
+      @user.metadata['phone'] = account_params[:phone]
+    end
+
+    if @user.save
+      redirect_to dashboard_account_path, notice: t('dashboard.account.updated')
+    else
+      load_sidebar_data
+      render :account, status: :unprocessable_entity
+    end
+  end
+
+  # GET /dashboard/account/settings
+  def settings
+    load_sidebar_data
+    @user = current_user
+  end
+
+  # PATCH /dashboard/account/settings
+  def update_settings
+    @user = current_user
+
+    # Handle password change
+    new_password = params[:user][:password]
+    password_confirmation = params[:user][:password_confirmation]
+
+    if new_password.present?
+      if new_password.length < 6
+        @user.errors.add(:base, t('dashboard.settings.password_too_short'))
+        load_sidebar_data
+        return render :settings, status: :unprocessable_entity
+      end
+
+      if new_password != password_confirmation
+        @user.errors.add(:base, t('dashboard.settings.password_mismatch'))
+        load_sidebar_data
+        return render :settings, status: :unprocessable_entity
+      end
+
+      @user.password = new_password
+      @user.password_confirmation = password_confirmation
+    end
+
+    @user.locale = settings_params[:locale] if settings_params[:locale].present?
+    @user.theme = settings_params[:theme] if settings_params[:theme].present?
+
+    if @user.save
+      redirect_to dashboard_settings_path, notice: t('dashboard.settings.updated')
+    else
+      load_sidebar_data
+      render :settings, status: :unprocessable_entity
+    end
+  end
+
   private
+
+  def account_params
+    params.require(:user).permit(:first_name, :last_name, :email, :phone)
+  end
+
+  def settings_params
+    params.require(:user).permit(:locale, :theme, :password, :password_confirmation)
+  end
+
+  def load_sidebar_data
+    @school = current_user.school
+    @classes = teacher_classes_for_school
+    class_ids = @classes.pluck(:id)
+    @classes_awaiting_counts = StudentClassEnrollment.where(school_class_id: class_ids, status: 'pending')
+                                                     .group(:school_class_id)
+                                                     .count
+  end
 
   def find_teacher_class(class_id)
     return nil if class_id.blank?

@@ -1,0 +1,97 @@
+- content_for :title, t('dashboard.account.title', default: 'Konto')
+
+.dashboard-app data-dashboard-app=""
+  = render 'sidebar'
+
+  main.dashboard-main
+    = render 'top_bar', title: t('dashboard.account.title', default: 'Konto'), back_path: dashboard_path
+
+    section.account-section
+      = form_with model: @user, url: dashboard_account_path, method: :patch, class: 'account-form', id: 'account-form', local: true do |f|
+        - if @user.errors.any?
+          .account-form__errors
+            - @user.errors.full_messages.each do |msg|
+              p.account-form__error = msg
+
+        label.account-form__label
+          span = t('dashboard.account.first_name', default: 'Imię')
+          = f.text_field :first_name, class: "account-form__input", placeholder: t('dashboard.account.first_name', default: 'Imię'), required: true, data: { original: @user.first_name }
+
+        label.account-form__label
+          span = t('dashboard.account.last_name', default: 'Nazwisko')
+          = f.text_field :last_name, class: "account-form__input", placeholder: t('dashboard.account.last_name', default: 'Nazwisko'), required: true, data: { original: @user.last_name }
+
+        label.account-form__label
+          span Email
+          = f.email_field :email, class: "account-form__input", placeholder: 'your@email.com', required: true, data: { original: @user.email }
+
+        - phone_value = @user.metadata&.dig('phone') || ''
+        label.account-form__label
+          span = t('dashboard.account.phone', default: 'Telefon')
+          = f.text_field :phone, class: "account-form__input", placeholder: '+48 XXX XXX XXX', value: phone_value, data: { original: phone_value }
+
+        = f.submit t('dashboard.account.save', default: 'ZAPISZ ZMIANY'), class: 'account-form__save', id: 'save-btn', style: 'display: none;'
+
+      = link_to t('dashboard.account.settings', default: 'USTAWIENIA'), dashboard_settings_path, class: 'account-form__settings'
+
+      button.account-form__logout type="button" data-modal-trigger="logout-modal" = t('dashboard.account.logout', default: 'WYLOGUJ')
+
+.schools-modal#logout-modal aria-hidden="true"
+  .schools-modal__overlay
+  .schools-modal__dialog.schools-modal__dialog--small role="dialog" aria-modal="true" aria-labelledby="logout-modal-title"
+    header.schools-modal__header
+      h3#logout-modal-title = t('dashboard.account.logout_title', default: 'Wylogowanie')
+    .schools-modal__body
+      p = t('dashboard.account.logout_confirm', default: 'Czy chcesz się wylogować z konta?')
+    .schools-modal__actions
+      button.schools-modal__secondary type="button" data-modal-close = t('actions.cancel', default: 'ANULUJ')
+      = button_to t('dashboard.account.logout', default: 'WYLOGUJ'), destroy_user_session_path, method: :delete, class: 'schools-modal__primary'
+
+javascript:
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('account-form');
+    const saveBtn = document.getElementById('save-btn');
+    const inputs = form.querySelectorAll('input:not([disabled]):not([type="hidden"])');
+    
+    const checkChanges = () => {
+      let hasChanges = false;
+      inputs.forEach(input => {
+        const original = input.dataset.original || '';
+        if (input.value !== original) {
+          hasChanges = true;
+        }
+      });
+      saveBtn.style.display = hasChanges ? 'block' : 'none';
+    };
+
+    inputs.forEach(input => {
+      input.addEventListener('input', checkChanges);
+    });
+
+    // Logout modal
+    const logoutBtn = document.querySelector('[data-modal-trigger="logout-modal"]');
+    const logoutModal = document.getElementById('logout-modal');
+    const cancelBtn = logoutModal?.querySelector('[data-modal-close]');
+    const overlay = logoutModal?.querySelector('.schools-modal__overlay');
+
+    logoutBtn?.addEventListener('click', () => {
+      logoutModal.classList.add('is-open');
+      logoutModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    });
+
+    const closeModal = () => {
+      logoutModal.classList.remove('is-open');
+      logoutModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    };
+
+    cancelBtn?.addEventListener('click', closeModal);
+    overlay?.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && logoutModal?.classList.contains('is-open')) {
+        closeModal();
+      }
+    });
+  });

@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
   include Pundit::Authorization
 
+  before_action :set_locale
   before_action :check_user_active
   before_action :check_user_blocked
   before_action :check_redirect_loop
@@ -33,6 +34,19 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  def set_locale
+    locale = extract_locale
+    I18n.locale = locale if I18n.available_locales.map(&:to_s).include?(locale)
+  end
+
+  def extract_locale
+    # Priority: 1) URL param, 2) User preference, 3) Session, 4) Default
+    params[:locale] ||
+      (respond_to?(:current_user) && current_user&.locale) ||
+      session[:locale] ||
+      I18n.default_locale.to_s
+  end
 
   def handle_stored_location(stored_location)
     session.delete(:return_to)

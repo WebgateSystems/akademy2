@@ -100,6 +100,12 @@
 	gap: 8px;
 }
 
+.dashboard-nav--bottom {
+	margin-top: auto;
+	padding-top: 24px;
+	border-top: 1px solid var(--border-primary);
+}
+
 .dashboard-nav__button {
 	display: flex;
 	align-items: center;

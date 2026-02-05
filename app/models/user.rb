@@ -34,66 +34,32 @@ class User < ApplicationRecord
   after_save :sync_notifications_for_teacher, if: :saved_change_to_confirmed_at?
   after_save :sync_notifications_for_student, if: :saved_change_to_confirmed_at?
 
-  def admin?
-    roles.pluck(:key).include?('admin')
-  end
+  def admin? = roles.pluck(:key).include?('admin')
+  def manager? = roles.pluck(:key).include?('manager')
+  def admin_panel_access? = admin? || manager?
+  def teacher? = roles.pluck(:key).include?('teacher')
+  def student? = roles.pluck(:key).include?('student')
+  def parent? = roles.pluck(:key).include?('parent')
+  def display_phone = phone.presence || metadata&.dig('phone')
+  def active? = locked_at.blank?
+  def inactive? = locked_at.present?
+  def full_name = [first_name, last_name].compact.join(' ').presence || email
 
-  def manager?
-    roles.pluck(:key).include?('manager')
-  end
-
-  # Access to /admin panel (superadmin + application managers)
-  def admin_panel_access?
-    admin? || manager?
-  end
-
-  def teacher?
-    roles.pluck(:key).include?('teacher')
-  end
-
-  def student?
-    roles.pluck(:key).include?('student')
-  end
-
-  def parent?
-    roles.pluck(:key).include?('parent')
-  end
-
-  # Get phone with fallback: first check phone column, then metadata['phone']
-  def display_phone
-    phone.presence || metadata&.dig('phone')
-  end
-
-  # Check if user account is active (not locked)
-  def active?
-    locked_at.blank?
-  end
-
-  # Full name combining first and last name
-  def full_name
-    [first_name, last_name].compact.join(' ').presence || email
-  end
-
-  def inactive?
-    locked_at.present?
-  end
-
-  # Theme accessor stored in metadata
-  def theme
-    metadata&.dig('theme') || 'light'
-  end
+  # Metadata accessors for theme and locale
+  def theme = metadata&.dig('theme') || 'light'
+  def locale = metadata&.dig('locale') || 'pl'
 
   def theme=(value)
-    self.metadata ||= {}
-    self.metadata['theme'] = value
+    (self.metadata ||= {})['theme'] = value
   end
 
-  # Override Devise method to prevent locked/blocked users from authenticating
-  def active_for_authentication?
-    super && active? && !blocked_by_admin?
+  def locale=(value)
+    (self.metadata ||= {})['locale'] = value
   end
 
-  # Custom message for locked/blocked accounts
+  def blocked_by_admin? = RequestBlockRule.blocked?(user_id: id)
+  def active_for_authentication? = super && active? && !blocked_by_admin?
+
   def inactive_message
     return :blocked if blocked_by_admin?
     return :locked if locked_at.present?
@@ -101,42 +67,25 @@ class User < ApplicationRecord
     super
   end
 
-  # Check if user is blocked by admin via RequestBlockRule
-  def blocked_by_admin?
-    RequestBlockRule.blocked?(user_id: id)
-  end
-
-  # Override Devise method to send emails via SendEmailJob
   def send_devise_notification(notification, *args)
-    # We do not use ActiveJob. Sidekiq args must be JSON-serializable (Sidekiq strict args).
     SendEmailJob.enqueue('CustomDeviseMailer', notification.to_s, self, *args)
   end
 
   private
 
   def sync_notifications_for_teacher
-    return unless teacher?
-    return unless school
+    return unless teacher? && school
 
     if confirmed_at.nil?
-      # Teacher is now unconfirmed - create notification
       NotificationService.create_teacher_awaiting_approval(teacher: self, school: school)
-    elsif confirmed_at.present? && saved_change_to_confirmed_at?
-      # Teacher was just confirmed - resolve notification
+    elsif saved_change_to_confirmed_at?
       NotificationService.resolve_teacher_notification(teacher: self, school: school)
     end
   end
 
   def sync_notifications_for_student
-    return unless student?
-    return unless school
+    return unless student? && school
 
-    if confirmed_at.nil?
-      # Student is now unconfirmed - create notification
-      NotificationService.create_student_awaiting_approval(student: self, school: school)
-    elsif confirmed_at.present? && saved_change_to_confirmed_at?
-      # Student was just confirmed - resolve notification (if we implement this)
-      # NotificationService.resolve_student_notification(student: self, school: school)
-    end
+    NotificationService.create_student_awaiting_approval(student: self, school: school) if confirmed_at.nil?
   end
 end

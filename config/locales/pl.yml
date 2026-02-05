@@ -63,6 +63,42 @@ pl:
     sections:
       student_results: "Wyniki uczniów"
       no_subjects: "Brak dostępnych przedmiotów"
+    students:
+      title: "Uczniowie"
+      no_students: "Brak uczniów w tej klasie"
+      no_class_selected: "Brak wybranej klasy"
+      status_pending: "Oczekuje"
+      status_active: "Aktywny"
+      status_inactive: "Nieaktywny"
+      add_student: "Dodaj ucznia"
+      approve: "Zatwierdź"
+      approve_student: "Zatwierdź ucznia"
+      approve_confirm: "Czy na pewno chcesz zatwierdzić tego ucznia?"
+      decline: "Odrzuć"
+      decline_student: "Odrzuć ucznia"
+      decline_confirm: "Czy na pewno chcesz odrzucić tego ucznia?"
+      edit_student: "Edytuj ucznia"
+      save: "Zapisz"
+      cancel: "Anuluj"
+      first_name: "Imię"
+      last_name: "Nazwisko"
+      email: "Email"
+      phone: "Telefon"
+      birthdate: "Data urodzenia"
+      pin: "PIN"
+      pin_confirm: "Potwierdź PIN"
+    videos:
+      title: "Filmy uczniów"
+      pending: "Oczekujące"
+      approved: "Zatwierdzone"
+      rejected: "Odrzucone"
+      no_pending: "Brak video oczekujących na akceptację"
+      no_approved: "Brak zatwierdzonych video"
+      no_rejected: "Brak odrzuconych video"
+      status_pending: "Oczekuje"
+    notifications:
+      title: "Powiadomienia"
+      no_notifications: "Brak powiadomień"
     quiz_results:
       section_title: "Wyniki quizów uczniów"
       student_name: "Imię i nazwisko ucznia"
@@ -86,7 +122,37 @@ pl:
       view_certificate: "Otwórz certyfikat PDF"
     empty:
       no_classes: "Brak przypisanych klas"
+      no_classes_description: "Nie masz jeszcze przypisanej żadnej klasy do prowadzenia. Poproś administrację szkoły o przypisanie Cię do klasy, aby móc korzystać z pełnych funkcji dashboardu."
       contact_admin: "Skontaktuj się z administracją szkoły, aby zostać przypisanym do klasy."
+      go_to_management: "Przejdź do panelu zarządzania"
+    account:
+      title: "Konto"
+      updated: "Konto zostało zaktualizowane."
+      first_name: "Imię"
+      last_name: "Nazwisko"
+      phone: "Telefon"
+      save: "ZAPISZ ZMIANY"
+      settings: "USTAWIENIA"
+      logout: "WYLOGUJ"
+      logout_title: "Wylogowanie"
+      logout_confirm: "Czy chcesz się wylogować z konta?"
+    settings:
+      title: "Ustawienia"
+      updated: "Ustawienia zostały zapisane."
+      password_too_short: "Hasło musi mieć co najmniej 6 znaków."
+      password_mismatch: "Potwierdzenie hasła nie jest zgodne."
+      new_password: "Nowe hasło"
+      confirm_password: "Potwierdź hasło"
+      password_placeholder: "Minimum 6 znaków"
+      confirm_placeholder: "Powtórz hasło"
+      theme: "Motyw"
+      theme_light: "Jasny"
+      theme_dark: "Ciemny"
+      language: "Język"
+      save: "ZAPISZ ZMIANY"
+
+  sidebar:
+    account: "Konto"
 
   actions:
     logout: "Wyloguj"
@@ -95,6 +161,8 @@ pl:
     expand_sidebar: "Rozwiń panel boczny"
     toggle_theme: "Zmień motyw"
     close: "Zamknij"
+    back: "Wróć"
+    cancel: "Anuluj"
 
   aria:
     primary_navigation: "Nawigacja główna"
@@ -558,6 +626,7 @@ pl:
 
   common:
     name: "Nazwa"
+    full_name: "Imię i nazwisko"
     email: "Email"
     status: "Status"
     actions: "Akcje"
@@ -569,6 +638,7 @@ pl:
     view: "Zobacz"
     back: "Wróć"
     search: "Szukaj"
+    search_placeholder: "Szukaj..."
     loading: "Ładowanie..."
     confirm: "Potwierdź"
     yes: "Tak"

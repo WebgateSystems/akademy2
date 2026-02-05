@@ -54,7 +54,7 @@
                     = icons[index % icons.length]
                   h3 = subject.title
             - else
-              p.class-results__empty Brak dostępnych przedmiotów
+              p.class-results__empty = t('dashboard.sections.no_subjects')
 
     - else
       .dashboard-empty-state
@@ -65,14 +65,11 @@
               circle cx="9" cy="7" r="4"
               path d="M23 21v-2a4 4 0 0 0-3-3.87"
               path d="M16 3.13a4 4 0 0 1 0 7.75"
-          h2 Brak przypisanych klas
-          p
-            | Nie masz jeszcze przypisanej żadnej klasy do prowadzenia.
-            br
-            | Poproś administrację szkoły o przypisanie Cię do klasy, aby móc korzystać z pełnych funkcji dashboardu.
+          h2 = t('dashboard.empty.no_classes')
+          p = t('dashboard.empty.no_classes_description')
           - if can_access_management?
             .dashboard-empty-state__actions
-              = link_to "Przejdź do panelu zarządzania", management_classes_path, class: "btn btn-primary"
+              = link_to t('dashboard.empty.go_to_management'), management_classes_path, class: "btn btn-primary"
 
     = render 'shared/app_version'
 
