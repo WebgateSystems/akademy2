@@ -132,10 +132,16 @@ RSpec.describe Api::V1::Teacher::CreateStudent do
         }
       end
 
-      it 'generates phone automatically' do
+      it 'generates phone automatically in metadata' do
         result = described_class.call(context)
         expect(result).to be_success
         expect(result.form.metadata['phone']).to match(/\+48\d{9}/)
+      end
+
+      it 'generates phone in user phone column for login' do
+        result = described_class.call(context)
+        expect(result).to be_success
+        expect(result.form.phone).to match(/\+48\d{9}/)
       end
     end
 

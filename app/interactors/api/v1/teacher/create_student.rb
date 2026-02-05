@@ -68,13 +68,9 @@ module Api
           params_hash[:email] = find_unique_email(first, last)
         end
 
-        def normalize_name(name) = if name.blank?
-                                     'user'
-                                   else
-                                     I18n.transliterate(name.to_s.downcase.strip).gsub(
-                                       /[^a-z0-9]/, ''
-                                     )
-                                   end
+        def normalize_name(name)
+          name.blank? ? 'user' : I18n.transliterate(name.to_s.downcase.strip).gsub(/[^a-z0-9]/, '')
+        end
 
         def find_unique_email(first, last)
           base = "#{first}.#{last}@#{school.slug}.akademy.pl"
@@ -88,21 +84,23 @@ module Api
         end
 
         def generate_phone(params_hash)
+          generated_phone = find_unique_phone
+          params_hash[:phone] = generated_phone
           params_hash[:metadata] ||= {}
-          params_hash[:metadata][:phone] = find_unique_phone
+          params_hash[:metadata][:phone] = generated_phone
         end
 
         def find_unique_phone
           100.times do
             phone = "+48#{rand(100_000_000..999_999_999)}"
-            return phone unless User.where("metadata->>'phone' = ?", phone).exists?
+            return phone unless User.exists?(phone: phone) || User.where("metadata->>'phone' = ?", phone).exists?
           end
           "+48#{SecureRandom.random_number(10**9).to_s.rjust(9, '0')}"
         end
 
         def student_params
           p = context.params.is_a?(ActionController::Parameters) ? context.params : ActionController::Parameters.new(context.params)
-          p.require(:student).permit(:first_name, :last_name, :email, :password, :password_confirmation,
+          p.require(:student).permit(:first_name, :last_name, :email, :phone, :password, :password_confirmation,
                                      :school_class_id, :birthdate, metadata: {})
         end
 

@@ -777,4 +777,178 @@ RSpec.describe DashboardController, type: :request do
       end
     end
   end
+
+  describe 'GET /dashboard/account' do
+    context 'when user is authenticated as teacher' do
+      before { sign_in teacher }
+
+      it 'returns success' do
+        get dashboard_account_path
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'assigns the current user' do
+        get dashboard_account_path
+        expect(response.body).to include(teacher.email)
+      end
+    end
+
+    context 'when user is not authenticated' do
+      it 'redirects to login' do
+        get dashboard_account_path
+        expect(response).to redirect_to(teacher_login_path)
+      end
+    end
+  end
+
+  describe 'PATCH /dashboard/account' do
+    context 'when user is authenticated as teacher' do
+      before { sign_in teacher }
+
+      it 'updates first name and last name' do
+        patch dashboard_account_path, params: {
+          user: { first_name: 'Jan', last_name: 'Kowalski' }
+        }
+
+        expect(response).to redirect_to(dashboard_account_path)
+        teacher.reload
+        expect(teacher.first_name).to eq('Jan')
+        expect(teacher.last_name).to eq('Kowalski')
+      end
+
+      it 'updates email address' do
+        new_email = 'newemail@example.com'
+        patch dashboard_account_path, params: {
+          user: { email: new_email }
+        }
+
+        expect(response).to redirect_to(dashboard_account_path)
+        teacher.reload
+        expect(teacher.email).to eq(new_email)
+      end
+
+      it 'updates phone number in metadata' do
+        patch dashboard_account_path, params: {
+          user: { phone: '+48123456789' }
+        }
+
+        expect(response).to redirect_to(dashboard_account_path)
+        teacher.reload
+        expect(teacher.metadata['phone']).to eq('+48123456789')
+      end
+
+      it 'displays flash notice on successful update' do
+        patch dashboard_account_path, params: {
+          user: { first_name: 'Updated' }
+        }
+
+        expect(flash[:notice]).to be_present
+      end
+
+      context 'with invalid data' do
+        it 'renders account form with errors on invalid email' do
+          patch dashboard_account_path, params: {
+            user: { email: 'invalid-email' }
+          }
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+    end
+
+    context 'when user is not authenticated' do
+      it 'redirects to login' do
+        patch dashboard_account_path, params: { user: { first_name: 'Test' } }
+        expect(response).to redirect_to(teacher_login_path)
+      end
+    end
+  end
+
+  describe 'GET /dashboard/account/settings' do
+    context 'when user is authenticated as teacher' do
+      before { sign_in teacher }
+
+      it 'returns success' do
+        get dashboard_settings_path
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when user is not authenticated' do
+      it 'redirects to login' do
+        get dashboard_settings_path
+        expect(response).to redirect_to(teacher_login_path)
+      end
+    end
+  end
+
+  describe 'PATCH /dashboard/account/settings' do
+    context 'when user is authenticated as teacher' do
+      before { sign_in teacher }
+
+      it 'updates locale setting' do
+        patch dashboard_settings_path, params: {
+          user: { locale: 'en' }
+        }
+
+        expect(response).to redirect_to(dashboard_settings_path)
+        teacher.reload
+        expect(teacher.locale).to eq('en')
+      end
+
+      it 'updates theme setting' do
+        patch dashboard_settings_path, params: {
+          user: { theme: 'dark' }
+        }
+
+        expect(response).to redirect_to(dashboard_settings_path)
+        teacher.reload
+        expect(teacher.theme).to eq('dark')
+      end
+
+      context 'when updating password' do
+        it 'updates password when valid' do
+          new_password = 'newpassword123'
+          patch dashboard_settings_path, params: {
+            user: { password: new_password, password_confirmation: new_password }
+          }
+
+          expect(response).to redirect_to(dashboard_settings_path)
+          teacher.reload
+          expect(teacher.valid_password?(new_password)).to be true
+        end
+
+        it 'returns error when password is too short' do
+          patch dashboard_settings_path, params: {
+            user: { password: '123', password_confirmation: '123' }
+          }
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'returns error when passwords do not match' do
+          patch dashboard_settings_path, params: {
+            user: { password: 'password123', password_confirmation: 'different' }
+          }
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      it 'displays flash notice on successful update' do
+        patch dashboard_settings_path, params: {
+          user: { locale: 'en' }
+        }
+
+        expect(flash[:notice]).to be_present
+      end
+    end
+
+    context 'when user is not authenticated' do
+      it 'redirects to login' do
+        patch dashboard_settings_path, params: { user: { locale: 'en' } }
+        expect(response).to redirect_to(teacher_login_path)
+      end
+    end
+  end
 end
