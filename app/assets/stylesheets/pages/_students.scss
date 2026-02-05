@@ -109,6 +109,15 @@
 			outline-offset: 2px;
 		}
 	}
+
+	&--edit {
+		background: transparent;
+		color: var(--content-secondary);
+
+		&:hover {
+			transform: translateY(-3px);
+		}
+	}
 }
 
 .students-table .schools-page__actions {

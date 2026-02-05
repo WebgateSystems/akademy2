@@ -873,4 +873,80 @@
     background: var(--surface-tertiary, #4b5563);
   }
 
+/* Student form styles */
+.schools-page__header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.schools-page__add--secondary {
+  background: var(--surface-secondary, #f3f4f6);
+  color: var(--content-primary, #1f2937);
+}
+
+.schools-page__add--secondary:hover {
+  background: var(--surface-tertiary, #e5e7eb);
+}
+
+/* PIN inputs */
+.pin-inputs {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+}
+
+.pin-input {
+  width: 56px;
+  height: 56px;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  background: var(--surface-primary);
+  color: var(--content-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  padding: 0;
+}
+
+.pin-input:focus {
+  outline: none;
+  border-color: var(--border-focused);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.pin-input::-webkit-outer-spin-button,
+.pin-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+[data-theme="dark"] .schools-page__add--secondary {
+  background: var(--surface-secondary, #374151);
+  color: var(--content-primary, #f3f4f6);
+}
+
+[data-theme="dark"] .schools-page__add--secondary:hover {
+  background: var(--surface-tertiary, #4b5563);
+}
+
+@media (max-width: 640px) {
+  .schools-page__header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .schools-page__header-actions .schools-page__add {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .pin-input {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+}
+
   

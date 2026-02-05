@@ -166,6 +166,9 @@ Rails.application.routes.draw do
         get 'school_enrollments/pending', to: 'school_enrollments#pending'
         delete 'school_enrollments/:id/cancel', to: 'school_enrollments#cancel', as: :cancel_teacher_enrollment
 
+        # Student management by teacher
+        resources :students, only: %i[show create update]
+
         # Video moderation
         resources :videos, only: %i[index show update destroy] do
           member do
