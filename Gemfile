@@ -15,7 +15,7 @@ gem 'carrierwave', '~> 3.0'
 gem 'cssbundling-rails', '~> 1.4'
 
 # Video processing
-gem 'devise', '~> 4.9'
+gem 'devise', '~> 5.0'
 gem 'devise-jwt', '~> 0.13.0'
 gem 'dry-validation'
 gem 'elasticsearch', '~> 9.2' # Elasticsearch client for searchkick
