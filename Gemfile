@@ -18,7 +18,7 @@ gem 'cssbundling-rails', '~> 1.4'
 gem 'devise', '~> 4.9'
 gem 'devise-jwt', '~> 0.13.0'
 gem 'dry-validation'
-gem 'elasticsearch', '~> 9.2' # Elasticsearch client for searchkick
+gem 'elasticsearch', '~> 9.3' # Elasticsearch client for searchkick
 gem 'ffaker'
 gem 'image_processing', '~> 1.14'
 gem 'interactor', '~> 3.0'
